@@ -1,4 +1,11 @@
 package org.example.model.enums;
 
-public class OfferEffect {
+public enum OfferEffect {
+    FOOD,
+    D,
+    U,
+    DD,
+    DU,
+    UU,
+    DUU
 }
