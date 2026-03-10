@@ -1,4 +1,4 @@
-package org.example.Model.match;
+package org.example.model.match;
 
 public class Player {
 }

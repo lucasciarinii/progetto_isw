@@ -1,5 +1,5 @@
-package org.example.Model.board;
-import org.example.Model.enums.TurnOrderEffect;
+package org.example.model.board;
+import org.example.model.enums.TurnOrderEffect;
 
 public class PlayerSlotEffect extends PlayerSlot {
     private final TurnOrderEffect effect;

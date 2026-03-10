@@ -1,4 +1,4 @@
-package org.example.Model.board;
+package org.example.model.board;
 
 public class PlayerSlot {
     private String playerName;
