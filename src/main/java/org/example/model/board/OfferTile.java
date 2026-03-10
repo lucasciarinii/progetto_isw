@@ -6,8 +6,8 @@ import  org.example.model.enums.OfferEffect;
 public class OfferTile {
 
     private PlayerSlot slot;
-    private OfferEffect offerEffect;
-    private int MinPlayers;
+    private final OfferEffect offerEffect;
+    private final int MinPlayers;
 
     public OfferTile(OfferEffect offerEffect,  int minPlayers) {
         this.MinPlayers = minPlayers;
