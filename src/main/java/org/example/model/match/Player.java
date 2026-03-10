@@ -1,4 +1,132 @@
-package org.example.Model.match;
+package org.example.model.match;
+
+import org.example.model.cards.BuildingCard;
+import org.example.model.cards.characters.Character;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+
 
 public class Player {
+
+    private final String nickname;
+    private int points = 0;
+    private int food = 0;
+    private int discountOnSustenance = 0;
+    private int discountOnBuilding = 0;
+    private int shamansStars = 0;
+    private final ArrayList<BuildingCard> ownedBuildings = new ArrayList<>();
+    private final ArrayList<Character> ownedCharacters = new ArrayList<>();
+
+
+    public Player(String nickname) {
+        this.nickname = nickname;
+    }
+
+
+
+    public String getNickname() {
+        return nickname;
+
+
+    }
+
+
+    public int getPoints() {
+        return points;
+    }
+
+
+    public void addPoints(int points) {
+        this.points += points;
+    }
+
+
+    public int getFood() {
+        return food;
+    }
+
+
+    public void addFood(int food) {
+        this.food += food;
+    }
+
+
+    public int getDiscountOnSustenance() {
+        return discountOnSustenance;
+    }
+
+
+    public void addDiscountOnSustenance(int discountOnSustenance) {
+
+        if ( discountOnSustenance <= 0 ) {
+            throw new IllegalArgumentException("discountOnSustenance must be positive");
+        }
+
+        this.discountOnSustenance += discountOnSustenance;
+    }
+
+
+    public int getDiscountOnBuilding() {
+        return discountOnBuilding;
+    }
+
+
+    public void addDiscountOnBuilding(int discountOnBuilding) {
+
+        if ( discountOnBuilding <= 0 ) {
+            throw new IllegalArgumentException("discountOnBuilding must be positive");
+        }
+
+        this.discountOnBuilding += discountOnBuilding;
+    }
+
+
+    public int getShamansStars() {
+        return shamansStars;
+    }
+
+
+    public void addShamansStars(int shamansStars) {
+
+        if ( shamansStars <= 0 ) {
+            throw new IllegalArgumentException("shamansStars must be positive");
+        }
+
+        this.shamansStars += shamansStars;
+    }
+
+
+    public List<BuildingCard> getOwnedBuildings() {
+        return Collections.unmodifiableList(ownedBuildings);
+    }
+
+
+    public void addOwnedBuildings(BuildingCard buildingCard) {
+
+        if ( buildingCard == null ) {
+            throw new IllegalArgumentException("buildingCard must not be null");
+        }
+
+        this.ownedBuildings.add(buildingCard);
+    }
+
+
+    public List<Character> getOwnedCharacters() {
+        return Collections.unmodifiableList(ownedCharacters);
+    }
+
+
+    public void addOwnedCharacters(Character character) {
+
+        if ( character == null ) {
+            throw new IllegalArgumentException("character must not be null");
+        }
+
+
+        this.ownedCharacters.add(character);
+    }
+
 }
