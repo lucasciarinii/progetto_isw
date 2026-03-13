@@ -1,6 +1,6 @@
 package org.example.model.match;
 
-import org.example.model.cards.BuildingCard;
+import org.example.model.cards.buildingCards.BuildingCard;
 import org.example.model.cards.characters.Character;
 
 import java.util.ArrayList;

@@ -1,6 +1,7 @@
-package org.example.model.cards;
+package org.example.model.cards.buildingCards;
 
 
+import org.example.model.cards.Card;
 import org.example.model.enums.Era;
 import org.example.model.match.Player;
 
