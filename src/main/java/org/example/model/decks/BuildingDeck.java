@@ -1,8 +1,6 @@
 package org.example.model.decks;
 
-import org.example.model.cards.BuildingCard;
-
-import java.util.List;
+import org.example.model.cards.buildingCards.BuildingCard;
 
 public class BuildingDeck extends Deck<BuildingCard> {
 
