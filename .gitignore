@@ -10,6 +10,8 @@ target/
 .idea/compiler.xml
 .idea/libraries/
 .idea/vcs.xml
+.idea/betterCommentsSettings.xml
+.idea/copilot.data.migration.ask2agent.xml
 *.iws
 *.iml
 *.ipr
