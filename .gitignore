@@ -9,6 +9,7 @@ target/
 .idea/jarRepositories.xml
 .idea/compiler.xml
 .idea/libraries/
+.idea/vcs.xml
 *.iws
 *.iml
 *.ipr
@@ -31,6 +32,7 @@ target/
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
+
 
 ### VS Code ###
 .vscode/
