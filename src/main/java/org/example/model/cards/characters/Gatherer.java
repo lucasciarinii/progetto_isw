@@ -9,8 +9,8 @@ public class Gatherer extends Character {
     private static final int DISCOUNT_FACTOR = 3;
 
 
-    public Gatherer(Era era, CharacterType characterType, boolean newCardInSet) {
-        super(era, characterType, newCardInSet);
+    public Gatherer(int id, Era era, CharacterType characterType, boolean newCardInSet) {
+        super(id, era, characterType, newCardInSet);
     }
 
 

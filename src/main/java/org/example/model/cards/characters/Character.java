@@ -12,8 +12,8 @@ public abstract class Character extends Card {
     public boolean newCardInSet;
 
 
-    public Character(Era era, CharacterType characterType, boolean newCardInSet) {
-        super(era);
+    public Character(int id, Era era, CharacterType characterType, boolean newCardInSet) {
+        super(id, era);
         this.characterType = characterType;
         this.newCardInSet = false;
     }

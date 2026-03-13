@@ -9,8 +9,8 @@ public class CavePainting extends EventCard {
     private final int malusPoints;
     private final int interval;
 
-    public CavePainting(Era era, boolean isEraFinal, EventEffect effect, int bonusPoints, int malusPoints, int interval) {
-        super(era, isEraFinal, effect);
+    public CavePainting(int id, Era era, boolean isEraFinal, EventEffect effect, int bonusPoints, int malusPoints, int interval) {
+        super(id, era, isEraFinal, effect);
         this.bonusPoints = bonusPoints;
         this.malusPoints = malusPoints;
         this.interval = interval;

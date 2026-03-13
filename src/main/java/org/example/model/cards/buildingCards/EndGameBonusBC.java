@@ -6,8 +6,8 @@ import org.example.model.match.Player;
 
 public class EndGameBonusBC extends BuildingCard {
     private final boolean type;
-    public EndGameBonusBC(Era era, int foodCost, int endPoints, boolean isEndGame, boolean type) {
-        super(era, foodCost, endPoints, isEndGame);
+    public EndGameBonusBC(int id, Era era, int foodCost, int endPoints, boolean isEndGame, boolean type) {
+        super(id, era, foodCost, endPoints, isEndGame);
         this.type = type;
     }
 

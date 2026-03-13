@@ -7,8 +7,8 @@ public class Hunter extends Character {
 
     private final boolean obtainFood;
 
-    public Hunter(Era era, CharacterType characterType, boolean newCardInSet, boolean obtainFood) {
-        super(era, characterType, newCardInSet);
+    public Hunter(int id, Era era, CharacterType characterType, boolean newCardInSet, boolean obtainFood) {
+        super(id, era, characterType, newCardInSet);
         this.obtainFood = obtainFood;
     }
 

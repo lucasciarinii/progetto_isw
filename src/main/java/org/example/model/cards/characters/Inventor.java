@@ -11,8 +11,8 @@ public class Inventor extends Character {
     private boolean wasPresentLastTurn;
 
 
-    public Inventor(Era era, CharacterType characterType, boolean newCardInSet, InventionType invention) {
-        super(era, characterType, newCardInSet);
+    public Inventor(int id, Era era, CharacterType characterType, boolean newCardInSet, InventionType invention) {
+        super(id, era, characterType, newCardInSet);
         this.invention = invention;
         this.wasPresentLastTurn = false;
     }

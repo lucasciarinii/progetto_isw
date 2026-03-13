@@ -7,8 +7,8 @@ public class Shaman extends Character {
 
     private final int numStars;
 
-    public Shaman(Era era, CharacterType characterType, boolean newCardInSet, int numStars) {
-        super(era, characterType, newCardInSet);
+    public Shaman(int id, Era era, CharacterType characterType, boolean newCardInSet, int numStars) {
+        super(id, era, characterType, newCardInSet);
         this.numStars = numStars;
     }
 

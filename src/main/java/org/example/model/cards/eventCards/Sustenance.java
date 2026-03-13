@@ -7,8 +7,8 @@ public class Sustenance extends EventCard {
 
     private final int points;
 
-    public Sustenance(Era era, boolean isEraFinal, EventEffect effect, int points) {
-        super(era, isEraFinal, effect);
+    public Sustenance(int id, Era era, boolean isEraFinal, EventEffect effect, int points) {
+        super(id, era, isEraFinal, effect);
         this.points = points;
     }
 

@@ -11,8 +11,8 @@ public abstract class EventCard extends Card {
     private final EventEffect eventEffect;
 
 
-    public EventCard(Era era, boolean isEraFinal, EventEffect effect) {
-        super(era);
+    public EventCard(int id, Era era, boolean isEraFinal, EventEffect effect) {
+        super(id, era);
         this.eventEffect = effect;
     }
 

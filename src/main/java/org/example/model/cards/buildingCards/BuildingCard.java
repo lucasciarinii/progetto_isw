@@ -12,8 +12,8 @@ public abstract class BuildingCard extends Card {
     private final int endPoints;
     private final boolean isEndGame;
 
-    public BuildingCard(Era era, int foodCost, int endPoints, boolean isEndGame) {
-        super(era);
+    public BuildingCard(int id, Era era, int foodCost, int endPoints, boolean isEndGame) {
+        super(id, era);
         this.foodCost = foodCost;
         this.endPoints = endPoints;
         this.isEndGame = isEndGame;

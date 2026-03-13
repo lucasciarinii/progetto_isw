@@ -6,8 +6,8 @@ import org.example.model.enums.Era;
 public class Artist extends Character{
 
 
-    public Artist(Era era, CharacterType characterType, boolean newCardInSet) {
-        super(era, characterType, newCardInSet);
+    public Artist(int id, Era era, CharacterType characterType, boolean newCardInSet) {
+        super(id, era, characterType, newCardInSet);
     }
 
 

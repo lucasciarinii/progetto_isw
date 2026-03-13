@@ -7,8 +7,8 @@ public class HuntEvent extends EventCard {
 
     private final int points;
 
-    public HuntEvent(Era era, boolean isEraFinal, EventEffect effect, int points) {
-        super(era, isEraFinal, effect);
+    public HuntEvent(int id, Era era, boolean isEraFinal, EventEffect effect, int points) {
+        super(id, era, isEraFinal, effect);
         this.points = points;
     }
 
