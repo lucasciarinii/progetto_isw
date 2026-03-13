@@ -1,5 +1,7 @@
 package org.example.model.match;
 
+import org.example.model.enums.GamePhase;
+
 import java.util.List;
 
 public class GameState {
@@ -25,7 +27,7 @@ public class GameState {
     public boolean isGameOver(){}
 
     public void advanceToNextPlayer(){
-        if (currentPlayerIndex==turnOrder.lenght()-1) {
+        if (currentPlayerIndex==turnOrder.length()-1) {
             currentPlayerIndex=0;
             advancePhase();
         }
