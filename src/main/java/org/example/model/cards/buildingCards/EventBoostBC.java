@@ -1,5 +1,6 @@
 package org.example.model.cards.buildingCards;
 
+import org.example.model.board.Board;
 import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
 import org.example.model.match.Player;
@@ -13,7 +14,7 @@ public class EventBoostBC extends BuildingCard {
     }
 
     @Override
-    public void applyEffect(Player p) {
+    public void applyEffect(Player p, Board b) {
 
     }
 

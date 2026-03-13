@@ -1,6 +1,7 @@
 package org.example.model.cards.buildingCards;
 
 
+import org.example.model.board.Board;
 import org.example.model.cards.Card;
 import org.example.model.enums.Era;
 import org.example.model.match.Player;
@@ -30,6 +31,6 @@ public abstract class BuildingCard extends Card {
         return isEndGame;
     }
 
-    public abstract void applyEffect(Player p);
+    public abstract void applyEffect(Player p, Board board);
 
 }
