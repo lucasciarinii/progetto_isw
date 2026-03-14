@@ -5,6 +5,8 @@ import org.example.model.cards.eventCards.ShamanicRitual;
 import org.example.model.enums.Era;
 import org.example.model.match.Player;
 
+import java.util.ArrayList;
+
 public class ShamanicPointsBC extends BuildingCard {
 
     private final boolean type;
@@ -15,10 +17,12 @@ public class ShamanicPointsBC extends BuildingCard {
     }
 
     @Override
-    public void applyEffect(Player owner, Board board) {}
+    public void applyEffect(Player owner, Board board) {
+        throw new UnsupportedOperationException();
+    }
 
 
-    private void applyShamanicRitualEffect(Player owner, Board board, ShamanicRitual shamanicRitualEvent) {
+    private void applyShamanicRitualEffect(Player owner, Board board, ArrayList<Player> players, ShamanicRitual shamanicRitualEvent) {
 
     }
 
