@@ -13,8 +13,8 @@ public class InventorComboBC extends BuildingCard{
 
     
     @Override
-    public void applyEffect(Player player, Board board) {
-        System.out.println("Ciao");
+    public void applyEffect(Player owner, Board board) {
+
     }
     
 }
