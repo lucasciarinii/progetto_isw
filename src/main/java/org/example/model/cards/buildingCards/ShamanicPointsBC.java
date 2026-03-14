@@ -1,7 +1,6 @@
 package org.example.model.cards.buildingCards;
 
 import org.example.model.board.Board;
-import org.example.model.cards.eventCards.ShamanicRitual;
 import org.example.model.enums.Era;
 import org.example.model.match.Player;
 
@@ -22,13 +21,12 @@ public class ShamanicPointsBC extends BuildingCard {
     }
 
 
-    private boolean applyShamanicRitualEffect(Player owner, Board board, ArrayList<Player> players,
-                                           ShamanicRitual shamanicRitualEvent) {
+    private boolean applyShamanicRitualEffect(Player owner, ArrayList<Player> players) {
 
 
         // During the Shamanic Ritual, if it's the first type of card, if the player has more (or the same number)
         // Shamanic Stars than the other players, he earns double of Prestige Points.
-        if ( !shouldDoublePrestigePoints) {
+        if ( !shouldDoublePrestigePoints ) {
 
             for (Player p : players) {
 
@@ -44,8 +42,6 @@ public class ShamanicPointsBC extends BuildingCard {
                 }
                 
             }
-
-            return true;
 
         }
 
@@ -68,8 +64,9 @@ public class ShamanicPointsBC extends BuildingCard {
 
             }
 
-            return true;
         }
+        
+        return true;
 
     }
 
