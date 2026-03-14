@@ -1,8 +1,8 @@
 package org.example.model.decks;
 
 import org.example.model.cards.Card;
-
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class MainDeck extends Deck<Card>{
 
@@ -10,9 +10,19 @@ public class MainDeck extends Deck<Card>{
 
     }
 
-
+    @Override
     public Card draw(){
-        return super.draw();
+        if (!era_I_cards.isEmpty()) {
+            return era_I_cards.remove(0);
+        }
+        if (!era_II_cards.isEmpty()) {
+            return era_II_cards.remove(0);
+        }
+        if (!era_III_cards.isEmpty()) {
+            return era_III_cards.remove(0);
+        }
+
+        throw new NoSuchElementException("No cards left in deck");
     }
 
 
