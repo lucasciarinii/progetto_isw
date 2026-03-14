@@ -14,7 +14,7 @@ public class EventBoostBC extends BuildingCard {
     }
 
     @Override
-    public void applyEffect(Player p, Board b) {
+    public void applyEffect(Player owner, Board b) {
 
     }
 
