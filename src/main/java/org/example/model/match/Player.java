@@ -120,7 +120,7 @@ public class Player {
 
 
     public List<Character> getOwnedCharacters() {
-        return Collections.unmodifiableList(ownedCharacters);
+        return ownedCharacters;
     }
 
 
