@@ -16,7 +16,7 @@ public class Player {
     private int food = 0;
     private int discountOnSustenance = 0;
     private int discountOnBuilding = 0;
-    private int shamansStars = 0;
+    private int shamanStars = 0;
     private final ArrayList<BuildingCard> ownedBuildings = new ArrayList<>();
     private final ArrayList<Character> ownedCharacters = new ArrayList<>();
 
@@ -89,18 +89,18 @@ public class Player {
     }
 
 
-    public int getShamansStars() {
-        return shamansStars;
+    public int getShamanStars() {
+        return shamanStars;
     }
 
 
-    public void addShamansStars(int shamansStars) {
+    public void addShamanStars(int shamansStars) {
 
         if ( shamansStars <= 0 ) {
             throw new IllegalArgumentException("shamansStars must be positive");
         }
 
-        this.shamansStars += shamansStars;
+        this.shamanStars += shamansStars;
     }
 
 

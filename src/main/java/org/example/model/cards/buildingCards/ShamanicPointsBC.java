@@ -37,7 +37,7 @@ public class ShamanicPointsBC extends BuildingCard {
 
                 // check if the player in the List has more Shamanic Stars than the owner of the building, it returns
                 // false to the controller, and it doesn't apply the effect
-                if ( p.getShamansStars() > owner.getShamansStars() ) {
+                if ( p.getShamanStars() > owner.getShamanStars() ) {
                     return false;
                 }
                 
@@ -58,7 +58,7 @@ public class ShamanicPointsBC extends BuildingCard {
 
                 // check if the player in the list has less Shamanic Stars than the owner of the building, it returns
                 // false to the controller, and it doesn't apply the effect
-                if ( p.getShamansStars() < owner.getShamansStars() ) {
+                if ( p.getShamanStars() < owner.getShamanStars() ) {
                     return false;
                 }
 
