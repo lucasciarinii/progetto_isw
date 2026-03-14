@@ -31,6 +31,6 @@ public abstract class BuildingCard extends Card {
         return isEndGame;
     }
 
-    public abstract void applyEffect(Player p, Board board);
+    public abstract void applyEffect(Player owner, Board board);
 
 }
