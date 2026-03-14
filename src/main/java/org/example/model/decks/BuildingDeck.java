@@ -50,6 +50,9 @@ public class BuildingDeck extends Deck<BuildingCard> {
         }
     }
 
+    @Override
+    public BuildingCard draw() { return null; }
+
     // TODO: capire come eventualmente ottimizzarlo, passando magari l'era (visto che in un determinato momento, si possono prendere solo edifici dell'era in cui si è) e cercando solo in quella lista, invece che in tutte e tre
     public BuildingCard draw(int id) {
         for (BuildingCard card : era_I_cards) {

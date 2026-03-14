@@ -18,7 +18,5 @@ public abstract class Deck<T extends Card> {
         this.era_III_cards = new ArrayList<T>();
     }
 
-    public T draw() {
-        return null;
-    }
+    public abstract T draw();
 }
