@@ -3,7 +3,6 @@ package org.example.model.cards.buildingCards;
 import org.example.model.board.Board;
 import org.example.model.enums.Era;
 import org.example.model.match.Player;
-import org.jetbrains.annotations.NotNull;
 
 public class ShamanicStarsBC extends BuildingCard {
 
