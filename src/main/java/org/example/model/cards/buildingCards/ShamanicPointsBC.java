@@ -26,7 +26,7 @@ public class ShamanicPointsBC extends BuildingCard {
 
         // During the Shamanic Ritual, if it's the first type of card, if the player has more (or the same number)
         // Shamanic Stars than the other players, he earns double of Prestige Points.
-        if ( !shouldDoublePrestigePoints ) {
+        if ( !shouldDoublePrestigePoints) {
 
             for (Player p : players) {
 
@@ -65,7 +65,6 @@ public class ShamanicPointsBC extends BuildingCard {
             }
 
         }
-        
         return true;
 
     }
