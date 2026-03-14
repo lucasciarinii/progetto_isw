@@ -29,7 +29,6 @@ public class HuntEvent extends EventCard {
         }
         int gainedPoints = hunters * points;
         player.addFood(1);
-        player.addPoints(gainedPoints);
 
         return gainedPoints;
     }

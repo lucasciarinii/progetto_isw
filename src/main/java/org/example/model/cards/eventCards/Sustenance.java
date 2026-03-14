@@ -2,6 +2,7 @@ package org.example.model.cards.eventCards;
 
 import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
+import org.example.model.match.Player;
 
 public class Sustenance extends EventCard {
 
@@ -12,7 +13,26 @@ public class Sustenance extends EventCard {
         this.points = points;
     }
 
-    public int getPoints() {
-        return points;
+    public int getPoints(Player player) {
+        int numCharachters = player.getOwnedCharacters().size();
+
+        int availableFood = player.getFood();
+        int paidFood;
+
+        //Check if I can feed all characters
+        if (availableFood >= numCharachters) {
+            paidFood = numCharachters;
+        } else {
+            paidFood = availableFood;
+        }
+
+        //Remove food used
+        player.addFood(-paidFood);
+
+        //Calculate point lost depending on notFedCharacters number
+        int notFedCharacters = numCharachters - paidFood;
+        int lostPoints = notFedCharacters * points;
+
+        return lostPoints;
     }
 }
