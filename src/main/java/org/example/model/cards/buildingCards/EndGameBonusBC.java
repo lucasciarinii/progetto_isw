@@ -11,7 +11,7 @@ public class EndGameBonusBC extends BuildingCard {
         this.type = type;
     }
 
-    public void applyEffect(Player player, Board board) {
+    public void applyEffect(Player owner, Board board) {
 
     }
 }
