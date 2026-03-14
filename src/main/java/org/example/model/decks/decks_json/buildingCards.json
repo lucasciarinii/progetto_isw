@@ -32,7 +32,7 @@
     "foodCost": 5,
     "endPoints": 2,
     "isEndGame": false,
-    "type": true
+    "shouldDoublePrestigePoints": true
   },
   {
     "class_type": "RoundFlowBC",
@@ -58,7 +58,7 @@
     "foodCost": 7,
     "endPoints": 0,
     "isEndGame": false,
-    "type": false
+    "shouldDoublePrestigePoints": false
   },
   {
     "class_type": "ShamanicStarsBC",
