@@ -2,7 +2,6 @@ package org.example.model.cards.buildingCards;
 
 import org.example.model.enums.Era;
 import org.example.model.match.Player;
-import org.example.model.board.Board;
 
 public class SetCollectionBC extends BuildingCard {
 
