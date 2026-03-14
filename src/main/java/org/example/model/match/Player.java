@@ -22,7 +22,12 @@ public class Player {
 
 
     public Player(String nickname) {
+
+        if (nickname == null) {
+            throw new IllegalArgumentException("Nickname cannot be null");
+        }
         this.nickname = nickname;
+
     }
 
 
@@ -104,7 +109,7 @@ public class Player {
     }
 
 
-    public void addOwnedBuildings(BuildingCard buildingCard) {
+    public void addOwnedBuilding(BuildingCard buildingCard) {
 
         if ( buildingCard == null ) {
             throw new IllegalArgumentException("buildingCard must not be null");
@@ -119,7 +124,7 @@ public class Player {
     }
 
 
-    public void addOwnedCharacters(Character character) {
+    public void addOwnedCharacter(Character character) {
 
         if ( character == null ) {
             throw new IllegalArgumentException("character must not be null");
@@ -129,4 +134,25 @@ public class Player {
         this.ownedCharacters.add(character);
     }
 
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if ( this == obj ) {
+            return true;
+        }
+
+        if ( obj == null || getClass() != obj.getClass() ) {
+            return false;
+        }
+
+        Player p2 = (Player) obj;
+
+        return this.nickname.equals(p2.getNickname());
+    }
+
+    @Override
+    public int hashCode() {
+        return this.nickname.hashCode(); // nickname è final e non-null, quindi è sicuro
+    }
 }
