@@ -2,6 +2,10 @@ package org.example.model.cards.eventCards;
 
 import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
+import org.example.model.match.Player;
+import org.example.model.cards.characters.Character;
+import org.example.model.enums.CharacterType;
+
 
 public class HuntEvent extends EventCard {
 
@@ -12,8 +16,22 @@ public class HuntEvent extends EventCard {
         this.points = points;
     }
 
-    public int getPoints() {
-        return points;
+    public int getPoints(Player player) {
+
+
+        int hunters = 0;
+
+        for (int i = 0;  i < player.getOwnedCharacters().size(); i++) {
+                Character c = player.getOwnedCharacters().get(i);
+                if(c.getCharacterType() == CharacterType.HUNTER) {hunters++;}
+
+
+        }
+        int gainedPoints = hunters * points;
+        player.addFood(1);
+        player.addPoints(gainedPoints);
+
+        return gainedPoints;
     }
 
 
