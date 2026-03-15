@@ -3,6 +3,8 @@ package org.example.model.cards.eventCards;
 import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
 import org.example.model.match.Player;
+import org.example.model.match.Context;
+import java.util.List;
 
 public class Sustenance extends EventCard {
 
@@ -13,26 +15,30 @@ public class Sustenance extends EventCard {
         this.points = points;
     }
 
-    public int getPoints(Player player) {
-        int numCharachters = player.getOwnedCharacters().size();
+    public void applyEvent(Context c) {
 
-        int availableFood = player.getFood();
-        int paidFood;
+        //For each player use 1 food to feed each one of his characters.
+        // If a player cannot feed all his characters,
+        // he loses points equal to the number of unfed characters multiplied by the points value of the card.
 
-        //Check if I can feed all characters
-        if (availableFood >= numCharachters) {
-            paidFood = numCharachters;
-        } else {
-            paidFood = availableFood;
+        List<Player> players = c.getPlayers();
+        for (Player player : players) {
+            int numCharacters = player.getOwnedCharacters().size();
+            int availableFood = player.getFood();
+            int paidFood;
+
+            if (availableFood >= numCharacters) {
+                paidFood = numCharacters;
+            } else {
+                paidFood = availableFood;
+            }
+
+            player.addFood(-paidFood);
+
+            int notFedCharacters = numCharacters - paidFood;
+            int lostPoints = notFedCharacters * points;
+
+            player.addPoints(-lostPoints);
         }
-
-        //Remove food used
-        player.addFood(-paidFood);
-
-        //Calculate point lost depending on notFedCharacters number
-        int notFedCharacters = numCharachters - paidFood;
-        int lostPoints = notFedCharacters * points;
-
-        return lostPoints;
     }
 }
