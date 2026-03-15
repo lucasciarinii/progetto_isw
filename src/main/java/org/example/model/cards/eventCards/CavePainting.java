@@ -1,5 +1,6 @@
 package org.example.model.cards.eventCards;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
 
@@ -7,13 +8,13 @@ public class CavePainting extends EventCard {
 
     private final int bonusPoints;
     private final int malusPoints;
-    private final int interval;
+    private final int delta;
 
-    public CavePainting(int id, Era era, boolean isEraFinal, EventEffect effect, int bonusPoints, int malusPoints, int interval) {
+    public CavePainting(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("isEraFinal") boolean isEraFinal, @JsonProperty("eventEffect") EventEffect effect, @JsonProperty("bonusPoints") int bonusPoints, @JsonProperty("malusPoints") int malusPoints, @JsonProperty("delta") int delta) {
         super(id, era, isEraFinal, effect);
         this.bonusPoints = bonusPoints;
         this.malusPoints = malusPoints;
-        this.interval = interval;
+        this.delta = delta;
     }
 
     public int getBonusPoints() {
@@ -24,7 +25,7 @@ public class CavePainting extends EventCard {
         return malusPoints;
     }
 
-    public int getInterval() {
-        return interval;
+    public int getDelta() {
+        return delta;
     }
 }
