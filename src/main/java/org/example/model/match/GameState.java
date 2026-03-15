@@ -18,16 +18,16 @@ public class GameState {
 
     public GamePhase getCurrentPhase(){return currentPhase;}
 
-    public Player getCurrentPlayer(){return turnOrder[currentPlayerIndex];}
+    public Player getCurrentPlayer(){return turnOrder.get(currentPlayerIndex);}
 
     public List<Player> getTurnOrder(){return turnOrder;}
 
     public Player getWinner(){return winner;}
 
-    public boolean isGameOver(){}
+    public boolean isGameOver(){return false;}
 
     public void advanceToNextPlayer(){
-        if (currentPlayerIndex==turnOrder.length()-1) {
+        if (currentPlayerIndex==turnOrder.size()-1) {
             currentPlayerIndex=0;
             advancePhase();
         }
