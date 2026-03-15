@@ -3,7 +3,7 @@ package org.example.model.enums;
 public enum CharacterType {
 
     INVENTOR,
-    GATHER,
+    GATHERER,
     SHAMAN,
     BUILDER,
     ARTIST,

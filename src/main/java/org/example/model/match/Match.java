@@ -25,9 +25,9 @@ public class Match {
 
     public void init(){}
 
-    public boolean isStarted(){}
+    public boolean isStarted(){return false; }
 
-    public boolean isOver(){}
+    public boolean isOver(){ return false; }
 
     public boolean isReady(){
         return players.size() == expectedPlayers;
