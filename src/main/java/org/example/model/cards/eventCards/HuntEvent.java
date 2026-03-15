@@ -1,10 +1,10 @@
 package org.example.model.cards.eventCards;
 
+import org.example.model.cards.characters.Character;
+import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
 import org.example.model.match.Player;
-import org.example.model.cards.characters.Character;
-import org.example.model.enums.CharacterType;
 
 
 public class HuntEvent extends EventCard {

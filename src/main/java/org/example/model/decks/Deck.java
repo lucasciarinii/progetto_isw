@@ -4,7 +4,6 @@ import org.example.model.cards.Card;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 public abstract class Deck<T extends Card> {
 

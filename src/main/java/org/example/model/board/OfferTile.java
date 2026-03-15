@@ -1,6 +1,6 @@
 package org.example.model.board;
-import  org.example.model.board.PlayerSlot;
-import  org.example.model.enums.OfferEffect;
+
+import org.example.model.enums.OfferEffect;
 
 
 public class OfferTile {
