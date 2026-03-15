@@ -2,6 +2,7 @@ package org.example.model.cards.buildingCards;
 
 import org.example.model.board.Board;
 import org.example.model.enums.Era;
+import org.example.model.match.Context;
 import org.example.model.match.Player;
 
 public class RoundFlowBC extends BuildingCard {
@@ -11,7 +12,7 @@ public class RoundFlowBC extends BuildingCard {
         this.type = type;
     }
 
-    public void applyEffect(Player owner, Board board) {
+    public void applyEffect(Player owner, Context context) {
 
     }
 }

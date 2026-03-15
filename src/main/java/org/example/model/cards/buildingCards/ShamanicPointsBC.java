@@ -2,6 +2,7 @@ package org.example.model.cards.buildingCards;
 
 import org.example.model.board.Board;
 import org.example.model.enums.Era;
+import org.example.model.match.Context;
 import org.example.model.match.Player;
 
 import java.util.ArrayList;
@@ -10,13 +11,13 @@ public class ShamanicPointsBC extends BuildingCard {
 
     private final boolean shouldDoublePrestigePoints;
 
-    public ShamanicPointsBC(int id, Era era, int foodCost, int endPoints, boolean isEndGame, boolean type) {
+    public ShamanicPointsBC(int id, Era era, int foodCost, int endPoints, boolean isEndGame, boolean shouldDoublePrestigePoints) {
         super(id, era, foodCost, endPoints, isEndGame);
-        this.shouldDoublePrestigePoints = type;
+        this.shouldDoublePrestigePoints = shouldDoublePrestigePoints;
     }
 
     @Override
-    public void applyEffect(Player owner, Board board) {
+    public void applyEffect(Player owner, Context context) {
         throw new UnsupportedOperationException();
     }
 
@@ -26,7 +27,7 @@ public class ShamanicPointsBC extends BuildingCard {
 
         // During the Shamanic Ritual, if it's the first type of card, if the player has more (or the same number)
         // Shamanic Stars than the other players, he earns double of Prestige Points.
-        if ( !shouldDoublePrestigePoints) {
+        if ( shouldDoublePrestigePoints) {
 
             for (Player p : players) {
 
@@ -40,7 +41,7 @@ public class ShamanicPointsBC extends BuildingCard {
                 if ( p.getShamanStars() > owner.getShamanStars() ) {
                     return false;
                 }
-                
+
             }
 
         }
