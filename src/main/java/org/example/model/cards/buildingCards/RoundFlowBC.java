@@ -5,10 +5,10 @@ import org.example.model.enums.Era;
 import org.example.model.match.Player;
 
 public class RoundFlowBC extends BuildingCard {
-    private final boolean type;
-    public RoundFlowBC(int id, Era era, int foodCost, int endPoints, boolean isEndGame, boolean type) {
+    private final boolean shouldTotem;
+    public RoundFlowBC(int id, Era era, int foodCost, int endPoints, boolean isEndGame, boolean st) {
         super(id, era, foodCost, endPoints, isEndGame);
-        this.type = type;
+        this.shouldTotem = st;
     }
 
     public void applyEffect(Player owner, Board board) {
