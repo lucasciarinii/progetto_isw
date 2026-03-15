@@ -1,9 +1,8 @@
 package org.example.model.decks;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.example.model.cards.Card;
-import org.example.model.cards.buildingCards.BuildingCard;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.model.cards.buildingCards.BuildingCard;
 import org.example.model.enums.Era;
 
 import java.io.File;

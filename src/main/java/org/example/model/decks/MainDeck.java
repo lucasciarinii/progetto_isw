@@ -1,7 +1,7 @@
 package org.example.model.decks;
 
 import org.example.model.cards.Card;
-import java.util.List;
+
 import java.util.NoSuchElementException;
 
 public class MainDeck extends Deck<Card>{
