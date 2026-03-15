@@ -13,14 +13,10 @@ public class ShamanicStarsBC extends BuildingCard {
         super(id, era, foodCost, endPoints, isEndGame);
     }
 
+    //add Shamanic Stars to player
     @Override
     public void applyEffect(Player owner, Context context) {
-
-    }
-
-    public void applyShamanicRitualEffect(Player owner) {
         owner.addShamanStars(SHAMANIC_STARS_POINTS);
     }
-
 
 }
