@@ -2,6 +2,7 @@ package org.example.model.cards.buildingCards;
 
 import org.example.model.board.Board;
 import org.example.model.enums.Era;
+import org.example.model.match.Context;
 import org.example.model.match.Player;
 
 public class ShamanicStarsBC extends BuildingCard {
@@ -14,7 +15,7 @@ public class ShamanicStarsBC extends BuildingCard {
     }
 
     @Override
-    public void applyEffect(Player owner, Board board) {
+    public void applyEffect(Player owner, Context context) {
 
     }
 

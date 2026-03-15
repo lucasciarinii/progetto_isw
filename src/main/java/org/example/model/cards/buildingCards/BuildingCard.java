@@ -2,9 +2,9 @@ package org.example.model.cards.buildingCards;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.example.model.board.Board;
 import org.example.model.cards.Card;
 import org.example.model.enums.Era;
+import org.example.model.match.Context;
 import org.example.model.match.Player;
 
 // Indicates to Jackson to use the "class_type" field to decide the subclass
@@ -47,6 +47,6 @@ public abstract class BuildingCard extends Card {
         return isEndGame;
     }
 
-    public abstract void applyEffect(Player owner, Board board);
+    public abstract void applyEffect(Player owner, Context context);
 
 }
