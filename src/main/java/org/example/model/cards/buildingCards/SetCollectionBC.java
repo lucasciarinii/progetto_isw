@@ -1,8 +1,8 @@
 package org.example.model.cards.buildingCards;
 
 import org.example.model.enums.Era;
+import org.example.model.match.Context;
 import org.example.model.match.Player;
-import org.example.model.board.Board;
 
 public class SetCollectionBC extends BuildingCard {
 
@@ -11,7 +11,7 @@ public class SetCollectionBC extends BuildingCard {
     }
 
     @Override
-    public void applyEffect(Player owner, Board b) {
+    public void applyEffect(Player owner, Context context) {
 
     }
 }

@@ -1,7 +1,7 @@
 package org.example.model.cards.buildingCards;
 
-import org.example.model.board.Board;
 import org.example.model.enums.Era;
+import org.example.model.match.Context;
 import org.example.model.match.Player;
 
 public class ShamanicStarsBC extends BuildingCard {
@@ -13,14 +13,10 @@ public class ShamanicStarsBC extends BuildingCard {
         super(id, era, foodCost, endPoints, isEndGame);
     }
 
+    //add Shamanic Stars to player
     @Override
-    public void applyEffect(Player owner, Board board) {
-
-    }
-
-    public void applyShamanicRitualEffect(Player owner) {
+    public void applyEffect(Player owner, Context context) {
         owner.addShamanStars(SHAMANIC_STARS_POINTS);
     }
-
 
 }
