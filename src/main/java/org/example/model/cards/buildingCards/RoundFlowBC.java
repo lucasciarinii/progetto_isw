@@ -15,6 +15,13 @@ public class RoundFlowBC extends BuildingCard {
     }
 
     public void applyEffect(Player owner, Context context) {
-
+    if (shouldTotem)
+    {
+        owner.addFood(1);
+    }
+    else
+    {
+        //modifica la logica del gioco, da implementare prossimamente
+    }
     }
 }
