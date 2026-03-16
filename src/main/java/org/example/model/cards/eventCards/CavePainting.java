@@ -41,7 +41,7 @@ public class CavePainting extends EventCard {
             }
 
             if (artists < interval) {
-                player.addPoints(-malusPoints);
+                player.addPoints(malusPoints);
             } else {
                 player.addPoints(artists * bonusPoints);
             }

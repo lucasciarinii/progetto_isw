@@ -39,7 +39,7 @@ public class Sustenance extends EventCard {
             int notFedCharacters = numCharacters - paidFood;
             int lostPoints = notFedCharacters * points;
 
-            player.addPoints(-lostPoints);
+            player.addPoints(lostPoints);
         }
     }
 }
