@@ -15,6 +15,23 @@ public class EndGameBonusBC extends BuildingCard {
     }
 
     public void applyEffect(Player owner, Context context) {
-
+    if (shouldDoubleOnBuilders)
+    {
+        int punti_costruttore=0;
+        for (card : owner.getOwnedCharacters())
+        {
+            if (card.characterType==BUILDER)
+            {
+                punti_costruttore+=card.getEndPoints();
+            }
+        }
+        owner.addPoints(punti_costruttore); //da verificare bene come implementare questa funzione
+                                            //se aggiungere il doppio dei punti e passare avanti o
+                                            //calcolare i punti normalmente e poi sommarci questi
+    }
+    else
+    {
+        owner.addPoints(25);
+    }
     }
 }
