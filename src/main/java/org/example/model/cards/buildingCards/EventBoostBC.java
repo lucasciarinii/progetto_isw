@@ -18,7 +18,21 @@ public class EventBoostBC extends BuildingCard {
 
     @Override
     public void applyEffect(Player owner, Context context) {
-
+    if (CharacterType==HUNTER)
+    {
+        int numero_cacciatori = owner.getOwnedCharacter.stream()
+                .filter(c -> c.characterType==HUNTER)
+                .count();
+        owner.addFood(numero_cacciatori);
+        owner.addPoints(numero_cacciatori);
+    }
+    else
+    {
+        int numero_cacciatori = owner.getOwnedCharacter.stream()
+                .filter(c -> c.characterType==ARTIST)
+                .count();
+        owner.addFood(numero_cacciatori);
+    }
     }
 
 
