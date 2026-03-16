@@ -1,11 +1,11 @@
 package org.example.model.decks;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.model.cards.buildingCards.BuildingCard;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.model.enums.Era;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -25,8 +25,9 @@ public class BuildingDeck extends Deck<BuildingCard> {
         ObjectMapper mapper = new ObjectMapper();
         try {
             // 1. Read all objects from the JSON file into a List<Card>
+            Path p = Path.of("src/main/java/org/example/model/decks/decks_json/buildingCards.json");
             List<BuildingCard> allCards = mapper.readValue(
-                    new File("./decks_json/buildingCards.json"),
+                    p.toFile(),
                     new TypeReference<List<BuildingCard>>(){}
             );
 
@@ -82,5 +83,15 @@ public class BuildingDeck extends Deck<BuildingCard> {
             case III -> era_III_cards.stream().forEach(System.out::println);
             default -> throw new IllegalArgumentException("Invalid era: " + era);
         }
+    }
+
+    // FUNZIONE DI TEST
+    public void showAllCards() {
+        System.out.println("Era I Cards:");
+        era_I_cards.stream().forEach(x -> System.out.println(x.getId()));
+        System.out.println("\nEra II Cards:");
+        era_II_cards.stream().forEach(x -> System.out.println(x.getId()));
+        System.out.println("\nEra III Cards:");
+        era_III_cards.stream().forEach(x -> System.out.println(x.getId()));
     }
 }

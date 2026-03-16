@@ -1,5 +1,6 @@
 package org.example.model.cards.characters;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
 import org.example.model.enums.InventionType;
@@ -11,7 +12,7 @@ public class Inventor extends Character {
     private boolean wasPresentLastTurn;
 
 
-    public Inventor(int id, Era era, CharacterType characterType, boolean newCardInSet, InventionType invention) {
+    public Inventor(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("CharacterType") CharacterType characterType, @JsonProperty("newCardInSet") boolean newCardInSet, @JsonProperty("invention") InventionType invention) {
         super(id, era, characterType, newCardInSet);
         this.invention = invention;
         this.wasPresentLastTurn = false;

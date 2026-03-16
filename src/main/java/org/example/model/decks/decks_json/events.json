@@ -5,5 +5,91 @@
     "isEraFinal": false,
     "eventEffect": "SUSTENANCE",
     "points": -1
+  },
+  {
+    "id": 52,
+    "era": "I",
+    "isEraFinal": false,
+    "eventEffect": "HUNT-EVENT",
+    "points": 1
+  },
+  {
+    "id": 53,
+    "era": "I",
+    "isEraFinal": false,
+    "eventEffect": "SHAMANIC_RITUAL",
+    "bonusPoints": 5,
+    "malusPoints": -3
+  },
+  {
+    "id": 54,
+    "era": "I",
+    "isEraFinal": false,
+    "eventEffect": "CAVE_PAINTINGS",
+    "bonusPoints": 1,
+    "malusPoints": -2,
+    "delta": 1
+  },
+  {
+    "id": 55,
+    "era": "II",
+    "isEraFinal": false,
+    "eventEffect": "SUSTENANCE",
+    "points": -2
+  },
+  {
+    "id": 56,
+    "era": "II",
+    "isEraFinal": false,
+    "eventEffect": "HUNT-EVENT",
+    "points": 2
+  },
+  {
+    "id": 57,
+    "era": "II",
+    "isEraFinal": false,
+    "eventEffect": "SHAMANIC_RITUAL",
+    "bonusPoints": 10,
+    "malusPoints": -5
+  },
+  {
+    "id": 58,
+    "era": "II",
+    "isEraFinal": false,
+    "eventEffect": "CAVE_PAINTINGS",
+    "bonusPoints": 2,
+    "malusPoints": -2,
+    "delta": 2
+  },
+  {
+    "id": 59,
+    "era": "III",
+    "isEraFinal": false,
+    "eventEffect": "HUNT-EVENT",
+    "points": 3
+  },
+  {
+    "id": 60,
+    "era": "III",
+    "isEraFinal": false,
+    "eventEffect": "CAVE_PAINTINGS",
+    "bonusPoints": 3,
+    "malusPoints": -2,
+    "delta": 3
+  },
+  {
+    "id": 61,
+    "era": "III",
+    "isEraFinal": true,
+    "eventEffect": "SUSTENANCE",
+    "points": -3
+  },
+  {
+    "id": 62,
+    "era": "III",
+    "isEraFinal": true,
+    "eventEffect": "SHAMANIC_RITUAL",
+    "bonusPoints": 15,
+    "malusPoints": -7
   }
 ]

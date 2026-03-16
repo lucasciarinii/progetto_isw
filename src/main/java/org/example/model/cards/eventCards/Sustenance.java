@@ -1,5 +1,6 @@
 package org.example.model.cards.eventCards;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
 import org.example.model.match.Player;
@@ -10,7 +11,7 @@ public class Sustenance extends EventCard {
 
     private final int points;
 
-    public Sustenance(int id, Era era, boolean isEraFinal, EventEffect effect, int points) {
+    public Sustenance(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("isEraFinal") boolean isEraFinal, @JsonProperty("eventEffect") EventEffect effect, @JsonProperty("points") int points) {
         super(id, era, isEraFinal, effect);
         this.points = points;
     }

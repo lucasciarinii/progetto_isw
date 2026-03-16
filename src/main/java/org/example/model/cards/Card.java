@@ -12,6 +12,8 @@ public abstract class Card {
         this.id = id;
     }
 
+
+
     public Era getEra() {
         return era;
     }

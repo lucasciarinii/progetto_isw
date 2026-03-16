@@ -3,6 +3,9 @@ package org.example.model.cards.buildingCards;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.example.model.cards.Card;
+import org.example.model.cards.characters.Inventor;
+import org.example.model.cards.eventCards.ShamanicRitual;
+import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
 import org.example.model.match.Context;
 import org.example.model.match.Player;
@@ -15,11 +18,15 @@ import org.example.model.match.Player;
 )
 // Map values of the "class_type" field to the actual Java classes
 @JsonSubTypes({
+        @JsonSubTypes.Type(value = SetCollectionBC.class, name = "SetCollectionBC"),
+        @JsonSubTypes.Type(value = SustenanceDiscountBC.class, name = "SustenanceDiscountBC"),
+        @JsonSubTypes.Type(value = CharacterEndPointsBC.class, name = "CharacterEndPointsBC"),
+        @JsonSubTypes.Type(value = InventorComboBC.class, name = "InventorComboBC"),
+        @JsonSubTypes.Type(value = ShamanicPointsBC.class, name = "ShamanicPointsBC"),
+        @JsonSubTypes.Type(value = ShamanicStarsBC.class, name = "ShamanicStarsBC"),
         @JsonSubTypes.Type(value = EventBoostBC.class, name = "EventBoostBC"),
         @JsonSubTypes.Type(value = RoundFlowBC.class, name = "RoundFlowBC"),
         @JsonSubTypes.Type(value = EndGameBonusBC.class, name = "EndGameBonusBC"),
-
-        // TODO: ADD REMAINING CARD TYPES
 })
 
 public abstract class BuildingCard extends Card {
@@ -27,12 +34,14 @@ public abstract class BuildingCard extends Card {
     private final int foodCost;
     private final int endPoints;
     private final boolean isEndGame;
+    private final BuildingCardType class_type;
 
-    public BuildingCard(int id, Era era, int foodCost, int endPoints, boolean isEndGame) {
+    public BuildingCard(int id, Era era, int foodCost, int endPoints, boolean isEndGame, BuildingCardType class_type) {
         super(id, era);
         this.foodCost = foodCost;
         this.endPoints = endPoints;
         this.isEndGame = isEndGame;
+        this.class_type = class_type;
     }
 
     public int getFoodCost() {
@@ -45,6 +54,10 @@ public abstract class BuildingCard extends Card {
 
     public boolean isEndGame() {
         return isEndGame;
+    }
+
+    public BuildingCardType getClassType() {
+        return class_type;
     }
 
     public abstract void applyEffect(Player owner, Context context);

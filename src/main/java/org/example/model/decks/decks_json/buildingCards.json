@@ -41,7 +41,7 @@
     "foodCost": 3,
     "endPoints": 3,
     "isEndGame": false,
-    "type": true
+    "shouldTotem": true
   },
   {
     "class_type": "InventorComboBC",
@@ -93,7 +93,7 @@
     "foodCost": 6,
     "endPoints": 4,
     "isEndGame": true,
-    "type": true
+    "shouldDoubleOnBuilders": true
   },
   {
     "class_type": "EventBoostBC",
@@ -179,7 +179,7 @@
     "foodCost": 9,
     "endPoints": 3,
     "isEndGame": false,
-    "type": false
+    "shouldTotem": false
   },
   {
     "class_type": "EndGameBonusBC",
@@ -188,6 +188,6 @@
     "foodCost": 10,
     "endPoints": 25,
     "isEndGame": true,
-    "type": false
+    "shouldDoubleOnBuilders": false
   }
 ]
