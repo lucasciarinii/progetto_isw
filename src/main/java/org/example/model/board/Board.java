@@ -14,8 +14,13 @@ public class Board {
     private List<Card> topRow;
     private List<Card> bottomRow;
 
-    public Board() {
-
+    public Board(TurnOrderTile turnOrderTile, List<OfferTile> offerTrack, MainDeck mainDeck, BuildingDeck buildingDeck, List<Card> topRow, List<Card> bottomRow) {
+        this.turnOrderTile = turnOrderTile;
+        this.offerTrack = offerTrack;
+        this.mainDeck = mainDeck;
+        this.buildingDeck = buildingDeck;
+        this.topRow = topRow;
+        this.bottomRow = bottomRow;
     }
 
     public TurnOrderTile getTurnOrderTile() {
