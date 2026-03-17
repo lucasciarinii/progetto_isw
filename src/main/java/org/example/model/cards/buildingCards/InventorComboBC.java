@@ -1,26 +1,72 @@
 package org.example.model.cards.buildingCards;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.example.model.board.Board;
+import org.example.model.cards.characters.Inventor;
 import org.example.model.enums.BuildingCardType;
+import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
+import org.example.model.enums.InventionType;
 import org.example.model.match.Context;
 import org.example.model.match.Player;
 
-public class InventorComboBC extends BuildingCard{
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class InventorComboBC extends BuildingCard {
+
+    private static final int FOOD_PER_NEW_PAIR = 3;
+    private boolean initialized = false;
+    private int rewardedPairs = 0;
 
 
     public InventorComboBC(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("isEndGame") boolean isEndGame, @JsonProperty("class_type") BuildingCardType buildingCardType) {
         super(id, era, foodCost, endPoints, isEndGame, buildingCardType);
     }
 
-    
+
     @Override
     public void applyEffect(Player owner, Context context) {
 
-        int numOwnerCharacters = owner.getOwnedCharacters().size();
+        if (owner == null) {
+            throw new IllegalArgumentException("owner must not be null");
+        }
+
+
+        if (!initialized) {
+
+            initialized = true;
+            rewardedPairs = getCurrentPairsOfInventors(owner);
+
+            return;
+        }
+
+
+        int currentPairs = getCurrentPairsOfInventors(owner);
+        int newPairs = currentPairs - rewardedPairs;
+
+        if (newPairs > 0) {
+            owner.addFood(newPairs * FOOD_PER_NEW_PAIR);
+            rewardedPairs = currentPairs;
+        }
 
 
     }
-    
+
+
+    private int getCurrentPairsOfInventors(Player owner) {
+
+        // Maps the inventors by invention type and counts how many inventors
+        // exists for each type.
+        Map<InventionType, Long> inventorsByType = owner.getOwnedCharacters().stream()
+                .filter(c -> c.getCharacterType() == CharacterType.INVENTOR)
+                .map(c -> (Inventor) c)
+                .collect(Collectors.groupingBy(Inventor::getInvention, Collectors.counting()));
+
+
+        // Count how many pairs exists in the map
+        return inventorsByType.values().stream()
+                .mapToInt(count -> (int) (count / 2))
+                .sum();
+    }
+
 }
