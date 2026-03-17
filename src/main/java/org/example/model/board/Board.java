@@ -7,12 +7,12 @@ import org.example.model.decks.MainDeck;
 import java.util.List;
 
 public class Board {
-    private TurnOrderTile turnOrderTile;
-    private List<OfferTile> offerTrack;
-    private MainDeck mainDeck;
-    private BuildingDeck buildingDeck;
-    private List<Card> topRow;
-    private List<Card> bottomRow;
+    private final TurnOrderTile turnOrderTile;
+    private final List<OfferTile> offerTrack;
+    private final MainDeck mainDeck;
+    private final BuildingDeck buildingDeck;
+    private final List<Card> topRow;
+    private final List<Card> bottomRow;
 
     public Board(TurnOrderTile turnOrderTile, List<OfferTile> offerTrack, MainDeck mainDeck, BuildingDeck buildingDeck, List<Card> topRow, List<Card> bottomRow) {
         this.turnOrderTile = turnOrderTile;
