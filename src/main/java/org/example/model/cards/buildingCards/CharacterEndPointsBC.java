@@ -6,9 +6,11 @@ import org.example.model.enums.Era;
 import org.example.model.match.Context;
 import org.example.model.match.Player;
 import org.example.model.enums.CharacterType;
-import org.example.model.board.Board;
+import org.example.model.cards.characters.Character;
+
 
 public class CharacterEndPointsBC extends BuildingCard {
+
     private final int pointsEffect;
     private final CharacterType characterEffect;
 
@@ -21,6 +23,17 @@ public class CharacterEndPointsBC extends BuildingCard {
 	@Override
 	public void applyEffect(Player owner, Context context) {
 
-	}
-}
+        //Count the number of characters of the specified type owned by the player
+        //and award points based on that count and the pointsEffect value.
 
+        int matchingCharacters = 0;
+
+        for (Character character : owner.getOwnedCharacters()) {
+            if (character.getCharacterType() == characterEffect) {
+                matchingCharacters++;
+            }
+        }
+
+        owner.addPoints(matchingCharacters * pointsEffect);
+    }
+}

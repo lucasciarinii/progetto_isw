@@ -16,6 +16,11 @@ public class ShamanicPointsBC extends BuildingCard {
         this.shouldDoublePrestigePoints = shouldDoublePrestigePoints;
     }
 
+    public boolean shouldDoublePrestigePoints() {
+        return shouldDoublePrestigePoints;
+    }
+
+
     @Override
     public void applyEffect(Player owner, Context context) {
 

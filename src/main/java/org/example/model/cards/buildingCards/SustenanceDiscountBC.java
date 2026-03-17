@@ -15,6 +15,10 @@ public class SustenanceDiscountBC extends BuildingCard {
 		this.characterEffect = characterEffect;
 	}
 
+	public CharacterType getCharacterEffect() {
+		return characterEffect;
+	}
+
 	@Override
 	public void applyEffect(Player owner, Context context) {
 
