@@ -36,8 +36,8 @@ public class SetCollectionBC extends BuildingCard {
 
         int currentCompletedSets = countCompletedSets(owner);
 
-        // If this is the end-game version of the building,
-        // award prestige points based on the total number of completed sets
+        //If this is the end-game version of the building,
+        //award prestige points based on the total number of completed sets
 
         if (isEndGame()) {
             owner.addPoints(currentCompletedSets * getEndPoints());
