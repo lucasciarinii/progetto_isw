@@ -22,13 +22,13 @@ public class CavePainting extends EventCard {
         this.interval = interval;
     }
 
-    public void applyEvent(Context c) {
+    public void applyEvent(Context context) {
 
         //For each player count the number of artists they have
         //and give them points equal to the number of artists multiplied by the points value of the card.
         //If a player has fewer artists than the interval value, he loses points equal to the malus points value of the card.
 
-        List<Player> players = c.getPlayers();
+        List<Player> players = context.getPlayers();
         for (Player player : players) {
             int artists = 0;
 

@@ -22,11 +22,11 @@ public class ShamanicRitual extends EventCard {
         this.malusPoints = malusPoints;
     }
 
-    public void applyEvent(Context c) {
+    public void applyEvent(Context context) {
 
         //Find the max and min number of stars among the players
 
-        List<Player> players = c.getPlayers();
+        List<Player> players = context.getPlayers();
 
         int minStars = players.stream()
                 .mapToInt(Player::getShamanStars)

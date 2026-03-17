@@ -20,8 +20,8 @@ public class Sustenance extends EventCard {
         this.points = points;
     }
 
-    public void applyEvent(Context c) {
-        List<Player> players = c.getPlayers();
+    public void applyEvent(Context context) {
+        List<Player> players = context.getPlayers();
 
         //For each player, count the number of characters they have and calculate the discount based on their SustenanceDiscountBC buildings.
         //Then, calculate the food they need to pay after applying the discount.

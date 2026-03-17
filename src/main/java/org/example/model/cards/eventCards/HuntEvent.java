@@ -18,13 +18,13 @@ public class HuntEvent extends EventCard {
         this.points = points;
     }
 
-    public void applyEvent(Context c) {
+    public void applyEvent(Context context) {
 
         //For each player,
         //count the number of hunters they have and give them 1 food
         // and points equal to the number of hunters multiplied by the points value of the card
 
-        List<Player> players = c.getPlayers();
+        List<Player> players = context.getPlayers();
         for (Player player : players) {
             int hunters = 0;
 
