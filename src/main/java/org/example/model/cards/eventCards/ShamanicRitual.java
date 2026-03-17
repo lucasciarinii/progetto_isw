@@ -7,6 +7,8 @@ import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
 import org.example.model.match.Context;
 import org.example.model.match.Player;
+
+import java.util.Collections;
 import java.util.List;
 
 public class ShamanicRitual extends EventCard {
@@ -25,19 +27,17 @@ public class ShamanicRitual extends EventCard {
         //Find the max and min number of stars among the players
 
         List<Player> players = c.getPlayers();
-        int maxStars = players.get(0).getShamanStars();
-        int minStars = players.get(0).getShamanStars();
-        for (int i = 1; i < players.size(); i++) {
-            int stars = players.get(i).getShamanStars();
 
-            if (stars > maxStars) {
-                maxStars = stars;
-            }
+        int minStars = players.stream()
+                .mapToInt(Player::getShamanStars)
+                .min()
+                .orElse(0);
 
-            if (stars < minStars) {
-                minStars = stars;
-            }
-        }
+
+        int maxStars = players.stream()
+                .mapToInt(Player::getShamanStars)
+                .min()
+                .orElse(0);
 
         //Add or remove points to the players based on the number of stars they have
         //and the presence of the Shamanic Points building card
