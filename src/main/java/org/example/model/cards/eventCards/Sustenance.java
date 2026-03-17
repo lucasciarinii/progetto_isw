@@ -1,10 +1,14 @@
 package org.example.model.cards.eventCards;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.example.model.cards.buildingCards.BuildingCard;
+import org.example.model.cards.buildingCards.SustenanceDiscountBC;
+import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
 import org.example.model.match.Player;
 import org.example.model.match.Context;
+import org.example.model.cards.characters.Character;
 import java.util.List;
 
 public class Sustenance extends EventCard {
@@ -16,30 +20,62 @@ public class Sustenance extends EventCard {
         this.points = points;
     }
 
-    public void applyEvent(Context c) {
+    public void applyEvent(Context context) {
+        List<Player> players = context.getPlayers();
 
-        //For each player use 1 food to feed each one of his characters.
-        // If a player cannot feed all his characters,
-        // he loses points equal to the number of unfed characters multiplied by the points value of the card.
+        //For each player, count the number of characters they have and calculate the discount based on their SustenanceDiscountBC buildings.
+        //Then, calculate the food they need to pay after applying the discount.
+        //If they don't have enough food, they pay all their remaining food and lose points for each character that is not fed
 
-        List<Player> players = c.getPlayers();
         for (Player player : players) {
             int numCharacters = player.getOwnedCharacters().size();
+            int discount = calculateDiscount(player);
+            int foodToPay = numCharacters - discount;
+
+            if (foodToPay < 0) {
+                foodToPay = 0;
+            }
+
             int availableFood = player.getFood();
             int paidFood;
 
-            if (availableFood >= numCharacters) {
-                paidFood = numCharacters;
+            if (availableFood >= foodToPay) {
+                paidFood = foodToPay;
             } else {
                 paidFood = availableFood;
             }
 
             player.addFood(-paidFood);
 
-            int notFedCharacters = numCharacters - paidFood;
-            int lostPoints = notFedCharacters * points;
+            int notFedCharacters = numCharacters - discount - paidFood;
+            if (notFedCharacters < 0) {
+                notFedCharacters = 0;
+            }
 
-            player.addPoints(-lostPoints);
+            int lostPoints = notFedCharacters * points;
+            player.addPoints(lostPoints);
         }
+    }
+
+    private int calculateDiscount(Player player) {
+        int discount = 0;
+
+        for (int i = 0; i < player.getOwnedBuildings().size(); i++) {
+            BuildingCard building = player.getOwnedBuildings().get(i);
+
+            if (building.getClassType() == BuildingCardType.SustenanceDiscountBC) {
+                SustenanceDiscountBC discountBC = (SustenanceDiscountBC) building;
+
+                for (int j = 0; j < player.getOwnedCharacters().size(); j++) {
+                    Character character = player.getOwnedCharacters().get(j);
+
+                    if (character.getCharacterType() == discountBC.getCharacterEffect()) {
+                        discount++;
+                    }
+                }
+            }
+        }
+
+        return discount;
     }
 }

@@ -24,8 +24,8 @@ import org.example.model.enums.Era;
 
 public abstract class Character extends Card {
 
-    public final CharacterType characterType;
-    public boolean newCardInSet;
+    protected final CharacterType characterType;
+    protected boolean newCardInSet;
 
 
     public Character(int id, Era era, CharacterType characterType, boolean newCardInSet) {
