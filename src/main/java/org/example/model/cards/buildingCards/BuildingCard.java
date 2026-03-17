@@ -3,8 +3,6 @@ package org.example.model.cards.buildingCards;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.example.model.cards.Card;
-import org.example.model.cards.characters.Inventor;
-import org.example.model.cards.eventCards.ShamanicRitual;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
 import org.example.model.match.Context;
@@ -21,7 +19,7 @@ import org.example.model.match.Player;
         @JsonSubTypes.Type(value = SetCollectionBC.class, name = "SetCollectionBC"),
         @JsonSubTypes.Type(value = SustenanceDiscountBC.class, name = "SustenanceDiscountBC"),
         @JsonSubTypes.Type(value = CharacterEndPointsBC.class, name = "CharacterEndPointsBC"),
-        @JsonSubTypes.Type(value = InventorComboBC.class, name = "InventorComboBC"),
+        @JsonSubTypes.Type(value = InventorPairsBC.class, name = "InventorPairsBC"),
         @JsonSubTypes.Type(value = ShamanicPointsBC.class, name = "ShamanicPointsBC"),
         @JsonSubTypes.Type(value = ShamanicStarsBC.class, name = "ShamanicStarsBC"),
         @JsonSubTypes.Type(value = EventBoostBC.class, name = "EventBoostBC"),

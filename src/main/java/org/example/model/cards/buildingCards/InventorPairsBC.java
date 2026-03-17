@@ -12,14 +12,14 @@ import org.example.model.match.Player;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class InventorComboBC extends BuildingCard {
+public class InventorPairsBC extends BuildingCard {
 
     private static final int FOOD_PER_NEW_PAIR = 3;
     private boolean initialized = false;
     private int rewardedPairs = 0;
 
 
-    public InventorComboBC(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("isEndGame") boolean isEndGame, @JsonProperty("class_type") BuildingCardType buildingCardType) {
+    public InventorPairsBC(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("isEndGame") boolean isEndGame, @JsonProperty("class_type") BuildingCardType buildingCardType) {
         super(id, era, foodCost, endPoints, isEndGame, buildingCardType);
     }
 
