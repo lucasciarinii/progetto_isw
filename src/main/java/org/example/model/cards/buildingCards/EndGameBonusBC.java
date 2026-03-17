@@ -22,7 +22,7 @@ public class EndGameBonusBC extends BuildingCard {
         int punti_costruttore=0;
         for (Character card : owner.getOwnedCharacters())
         {
-            if (card.characterType==CharacterType.BUILDER)
+            if (card.getCharacterType()==CharacterType.BUILDER)
             {
                 punti_costruttore += ((Builder) card).getEndPoints();
             }
