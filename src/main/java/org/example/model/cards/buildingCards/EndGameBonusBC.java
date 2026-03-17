@@ -1,7 +1,9 @@
 package org.example.model.cards.buildingCards;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.example.model.board.Board;
+import org.example.model.cards.characters.Builder;
+import org.example.model.enums.CharacterType;
+import org.example.model.cards.characters.Character;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
 import org.example.model.match.Context;
@@ -18,11 +20,11 @@ public class EndGameBonusBC extends BuildingCard {
     if (shouldDoubleOnBuilders)
     {
         int punti_costruttore=0;
-        for (card : owner.getOwnedCharacters())
+        for (Character card : owner.getOwnedCharacters())
         {
-            if (card.characterType==BUILDER)
+            if (card.characterType==CharacterType.BUILDER)
             {
-                punti_costruttore+=card.getEndPoints();
+                punti_costruttore += ((Builder) card).getEndPoints();
             }
         }
         owner.addPoints(punti_costruttore); //da verificare bene come implementare questa funzione

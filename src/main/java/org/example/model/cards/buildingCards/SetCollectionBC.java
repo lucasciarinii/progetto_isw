@@ -44,8 +44,8 @@ public class SetCollectionBC extends BuildingCard {
             return;
         }
 
-        // First activation after obtaining the building:
-        // store already completed sets, but do not give food for them
+        //First activation after obtaining the building:
+        //store already completed sets, but do not give food for them
 
         if (!initialized) {
             registeredSets = currentCompletedSets;
@@ -57,7 +57,7 @@ public class SetCollectionBC extends BuildingCard {
 
         int newCompletedSets = currentCompletedSets - registeredSets;
 
-        // Give food only for newly completed sets
+        //Give food only for newly completed sets
 
         if (newCompletedSets > 0) {
             owner.addFood(newCompletedSets * FOOD_PER_SET);
@@ -67,7 +67,7 @@ public class SetCollectionBC extends BuildingCard {
 
     private int countCompletedSets(Player owner) {
 
-        // Count how many characters the player has for each character type
+        //Count how many characters the player has for each character type
 
         Map<CharacterType, Integer> counts = new EnumMap<>(CharacterType.class);
 
@@ -80,8 +80,8 @@ public class SetCollectionBC extends BuildingCard {
             counts.put(type, counts.get(type) + 1);
         }
 
-        // The number of complete sets is the minimum count
-        // among all character types
+        //The number of complete sets is the minimum count
+        //among all character types
 
         int completedSets = Integer.MAX_VALUE;
 
@@ -89,7 +89,7 @@ public class SetCollectionBC extends BuildingCard {
             completedSets = Math.min(completedSets, counts.get(type));
         }
 
-        // If for some reason no type was processed, return 0
+        //If for some reason no type was processed, return 0
 
         return completedSets == Integer.MAX_VALUE ? 0 : completedSets;
     }
