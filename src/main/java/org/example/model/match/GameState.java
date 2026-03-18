@@ -24,6 +24,7 @@ public class GameState {
 
     public Player getWinner(){return winner;}
 
+    // TODO
     public boolean isGameOver(){return false;}
 
     public void advanceToNextPlayer(){
@@ -34,6 +35,7 @@ public class GameState {
         else currentPlayerIndex++;
     }
 
+    // TODO
     public void advancePhase(){}
 
     public void updateTurnOrder(List<Player> newOrder){turnOrder=newOrder;}

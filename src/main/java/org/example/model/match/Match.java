@@ -2,10 +2,10 @@ package org.example.model.match;
 
 import org.example.model.board.Board;
 
+import java.util.Collections;
 import java.util.List;
 
 public class Match {
-    private final int expectedPlayers;
 
     private List<Player> players;
 
@@ -13,11 +13,7 @@ public class Match {
 
     private GameState gameState;
 
-    public Match(int expPl) {
-        this.expectedPlayers = expPl;
-    }
-
-    public int getExpectedPlayers(){return expectedPlayers;}
+    public Match() {}
 
     public Board getBoard(){return board;}
 
@@ -52,16 +48,8 @@ public class Match {
         * */
     }
 
-    public boolean isStarted(){return false; }
-
-    public boolean isOver(){ return false; }
-
-    public boolean isReady(){
-        return players.size() == expectedPlayers;
-    }
-
     public void addPlayer(Player p){players.add(p);}
 
-    public List<Player> getPlayers(){return players;}
+    public List<Player> getPlayers(){return Collections.unmodifiableList(players);}
 
 }
