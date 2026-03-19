@@ -3,7 +3,6 @@ package org.example.model.cards.buildingCards;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
-import org.example.model.match.Context;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 

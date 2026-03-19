@@ -5,10 +5,9 @@ import org.example.model.cards.buildingCards.ShamanicPointsBC;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
-import org.example.model.match.Context;
+import org.example.model.match.Match;
 import org.example.model.match.Player;
 
-import java.util.Collections;
 import java.util.List;
 
 public class ShamanicRitual extends EventCard {
@@ -22,11 +21,11 @@ public class ShamanicRitual extends EventCard {
         this.malusPoints = malusPoints;
     }
 
-    public void applyEvent(Context context) {
+    public void applyEvent(Match match) {
 
         //Find the max and min number of stars among the players
 
-        List<Player> players = context.getPlayers();
+        List<Player> players = match.getPlayers();
 
         int minStars = players.stream()
                 .mapToInt(Player::getShamanStars)
