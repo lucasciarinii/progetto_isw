@@ -17,6 +17,7 @@ public class Builder extends Character {
     }
 
 
+    // Double dispatch: delegates Character specific logic to the visitor.
     @Override
     public void accept(CardVisitor visitor) {
         visitor.visit(this);

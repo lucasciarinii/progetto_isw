@@ -41,6 +41,7 @@ public class Player {
 
 
     private final CardVisitor addToTribeVisitor = new CardVisitor() {
+        // Every override adds the selected Character to the appropriate list
         @Override public void visit(Inventor inventor) { inventors.add(inventor); }
         @Override public void visit(Gatherer gatherer) { gatherers.add(gatherer); }
         @Override public void visit(Shaman shaman) { shamans.add(shaman); }
@@ -149,6 +150,10 @@ public class Player {
             throw new IllegalArgumentException("character must not be null");
         }
 
+        // Double dispatch: il tipo runtime di character seleziona il visit(...) corretto.
+        // In questo modo evitiamo if/else o instanceof nel Player.
+        // Double dispatch: the the runtime type of character select the correct visit(...) in the Characters classes.
+        //
         character.accept(addToTribeVisitor);
 
     }

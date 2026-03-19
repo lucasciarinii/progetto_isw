@@ -14,6 +14,7 @@ public class Artist extends Character{
 
     @Override
     public void accept(CardVisitor visitor) {
+        // Double dispatch: delegates Character specific logic to the visitor.
         visitor.visit(this);
     }
 
