@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.example.model.cards.Card;
 import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
+import org.example.model.interfaces.CardVisitor;
+import org.example.model.interfaces.Visitable;
 
 // Indicates to Jackson to use the "class_type" field to decide the subclass
 @JsonTypeInfo(
@@ -22,7 +24,7 @@ import org.example.model.enums.Era;
         @JsonSubTypes.Type(value = Shaman.class, name = "Shaman"),
 })
 
-public abstract class Character extends Card {
+public abstract class Character extends Card implements Visitable {
 
     protected final CharacterType characterType;
     protected boolean newCardInSet;
@@ -33,6 +35,9 @@ public abstract class Character extends Card {
         this.characterType = characterType;
         this.newCardInSet = false;
     }
+
+
+    public abstract void accept(CardVisitor visitor);
 
 
     public CharacterType getCharacterType() {

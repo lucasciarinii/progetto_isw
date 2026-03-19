@@ -20,7 +20,7 @@ public class EndGameBonusBC extends BuildingCard {
     if (shouldDoubleOnBuilders)
     {
         int punti_costruttore=0;
-        for (Character card : owner.getOwnedCharacters())
+        for (Character card : owner.getCharacters())
         {
             if (card.getCharacterType()==CharacterType.BUILDER)
             {

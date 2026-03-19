@@ -75,7 +75,7 @@ public class SetCollectionBC extends BuildingCard {
             counts.put(type, 0);
         }
 
-        for (Character character : owner.getOwnedCharacters()) {
+        for (Character character : owner.getCharacters()) {
             CharacterType type = character.getCharacterType();
             counts.put(type, counts.get(type) + 1);
         }

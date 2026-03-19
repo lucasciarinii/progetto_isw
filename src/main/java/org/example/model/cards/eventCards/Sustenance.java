@@ -28,7 +28,7 @@ public class Sustenance extends EventCard {
         //If they don't have enough food, they pay all their remaining food and lose points for each character that is not fed
 
         for (Player player : players) {
-            int numCharacters = player.getOwnedCharacters().size();
+            int numCharacters = player.getCharacters().size();
             int discount = calculateDiscount(player);
             int foodToPay = numCharacters - discount;
 
@@ -66,8 +66,8 @@ public class Sustenance extends EventCard {
             if (building.getClassType() == BuildingCardType.SustenanceDiscountBC) {
                 SustenanceDiscountBC discountBC = (SustenanceDiscountBC) building;
 
-                for (int j = 0; j < player.getOwnedCharacters().size(); j++) {
-                    Character character = player.getOwnedCharacters().get(j);
+                for (int j = 0; j < player.getCharacters().size(); j++) {
+                    Character character = player.getCharacters().get(j);
 
                     if (character.getCharacterType() == discountBC.getCharacterEffect()) {
                         discount++;

@@ -1,12 +1,15 @@
 package org.example.model.match;
 
 import org.example.model.cards.buildingCards.BuildingCard;
+import org.example.model.cards.characters.*;
 import org.example.model.cards.characters.Character;
+import org.example.model.interfaces.CardVisitor;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class Player {
@@ -18,7 +21,13 @@ public class Player {
     private int discountOnBuilding = 0;
     private int shamanStars = 0;
     private final ArrayList<BuildingCard> ownedBuildings = new ArrayList<>();
-    private final ArrayList<Character> ownedCharacters = new ArrayList<>();
+
+    private final ArrayList<Character> inventors = new ArrayList<>();
+    private final ArrayList<Character> gatherers = new ArrayList<>();
+    private final ArrayList<Character> shamans = new ArrayList<>();
+    private final ArrayList<Character> builders = new ArrayList<>();
+    private final ArrayList<Character> artists = new ArrayList<>();
+    private final ArrayList<Character> hunters = new ArrayList<>();
 
 
     public Player(String nickname) {
@@ -31,11 +40,19 @@ public class Player {
     }
 
 
+    private final CardVisitor addToTribeVisitor = new CardVisitor() {
+        @Override public void visit(Inventor inventor) { inventors.add(inventor); }
+        @Override public void visit(Gatherer gatherer) { gatherers.add(gatherer); }
+        @Override public void visit(Shaman shaman) { shamans.add(shaman); }
+        @Override public void visit(Builder builder) { builders.add(builder); }
+        @Override public void visit(Artist artist) { artists.add(artist); }
+        @Override public void visit(Hunter hunter) { hunters.add(hunter); }
+    };
+
+
 
     public String getNickname() {
         return nickname;
-
-
     }
 
 
@@ -119,19 +136,21 @@ public class Player {
     }
 
 
-    public List<Character> getOwnedCharacters() {
-        return Collections.unmodifiableList(ownedCharacters);
+    public List<Character> getCharacters() {
+        return Stream.of(inventors, gatherers, shamans, builders, artists, hunters)
+                .flatMap(List :: stream)
+                .collect(Collectors.toList());
     }
 
 
-    public void addOwnedCharacter(Character character) {
+    public void addCharacter(Character character) {
 
         if ( character == null ) {
             throw new IllegalArgumentException("character must not be null");
         }
 
+        character.accept(addToTribeVisitor);
 
-        this.ownedCharacters.add(character);
     }
 
 

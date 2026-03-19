@@ -28,7 +28,7 @@ public class CharacterEndPointsBC extends BuildingCard {
 
         int matchingCharacters = 0;
 
-        for (Character character : owner.getOwnedCharacters()) {
+        for (Character character : owner.getCharacters()) {
             if (character.getCharacterType() == characterEffect) {
                 matchingCharacters++;
             }

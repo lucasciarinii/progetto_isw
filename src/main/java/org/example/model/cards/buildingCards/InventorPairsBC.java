@@ -57,7 +57,7 @@ public class InventorPairsBC extends BuildingCard {
 
         // Maps the inventors by invention type and counts how many inventors
         // exists for each type.
-        Map<InventionType, Long> inventorsByType = owner.getOwnedCharacters().stream()
+        Map<InventionType, Long> inventorsByType = owner.getCharacters().stream()
                 .filter(c -> c.getCharacterType() == CharacterType.INVENTOR)
                 .map(c -> (Inventor) c)
                 .collect(Collectors.groupingBy(Inventor::getInvention, Collectors.counting()));
