@@ -10,15 +10,11 @@ import org.example.model.match.Match;
 import org.example.model.match.Player;
 
 public class EndGameBonusBC extends BuildingCard {
-    private final boolean shouldDoubleOnBuilders;
-    public EndGameBonusBC(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("isEndGame") boolean isEndGame, @JsonProperty("class_type") BuildingCardType buildingCardType, @JsonProperty("shouldDoubleOnBuilders") boolean s) {
+    public EndGameBonusBC(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("isEndGame") boolean isEndGame, @JsonProperty("class_type") BuildingCardType buildingCardType) {
         super(id, era, foodCost, endPoints, isEndGame, buildingCardType);
-        this.shouldDoubleOnBuilders = s;
     }
 
     public void applyEffect(Player owner, Match match) {
-    if (shouldDoubleOnBuilders)
-    {
         int punti_costruttore=0;
         for (Character card : owner.getOwnedCharacters())
         {
@@ -27,13 +23,6 @@ public class EndGameBonusBC extends BuildingCard {
                 punti_costruttore += ((Builder) card).getEndPoints();
             }
         }
-        owner.addPoints(punti_costruttore); //da verificare bene come implementare questa funzione
-                                            //se aggiungere il doppio dei punti e passare avanti o
-                                            //calcolare i punti normalmente e poi sommarci questi
-    }
-    else
-    {
-        owner.addPoints(25);
-    }
+        owner.addPoints(punti_costruttore);
     }
 }
