@@ -7,6 +7,7 @@ import org.example.model.cards.characters.Character;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
 import org.example.model.match.Context;
+import org.example.model.match.Match;
 import org.example.model.match.Player;
 
 public class EndGameBonusBC extends BuildingCard {
@@ -16,7 +17,7 @@ public class EndGameBonusBC extends BuildingCard {
         this.shouldDoubleOnBuilders = s;
     }
 
-    public void applyEffect(Player owner, Context context) {
+    public void applyEffect(Player owner, Match match) {
     if (shouldDoubleOnBuilders)
     {
         int punti_costruttore=0;

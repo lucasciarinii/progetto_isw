@@ -6,6 +6,7 @@ import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
 import org.example.model.match.Context;
+import org.example.model.match.Match;
 import org.example.model.match.Player;
 
 import java.util.EnumMap;
@@ -29,7 +30,7 @@ public class SetCollectionBC extends BuildingCard {
     }
 
     @Override
-    public void applyEffect(Player owner, Context context) {
+    public void applyEffect(Player owner, Match match) {
 
         //Count how many complete sets of 6 different character types
         //the player currently owns

@@ -7,6 +7,7 @@ import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
 import org.example.model.enums.InventionType;
 import org.example.model.match.Context;
+import org.example.model.match.Match;
 import org.example.model.match.Player;
 
 import java.util.Map;
@@ -25,7 +26,7 @@ public class InventorPairsBC extends BuildingCard {
 
 
     @Override
-    public void applyEffect(Player owner, Context context) {
+    public void applyEffect(Player owner, Match match) {
 
         if (owner == null) {
             throw new IllegalArgumentException("owner must not be null");

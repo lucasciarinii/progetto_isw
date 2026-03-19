@@ -5,6 +5,7 @@ import org.example.model.board.Board;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
 import org.example.model.match.Context;
+import org.example.model.match.Match;
 import org.example.model.match.Player;
 
 public class RoundFlowBC extends BuildingCard {
@@ -14,7 +15,7 @@ public class RoundFlowBC extends BuildingCard {
         this.shouldTotem = st;
     }
 
-    public void applyEffect(Player owner, Context context) {
+    public void applyEffect(Player owner, Match match) {
     if (shouldTotem)
     {
         owner.addFood(1);
