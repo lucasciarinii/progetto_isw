@@ -3,6 +3,7 @@ package org.example.model.cards.buildingCards;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
+import org.example.model.interfaces.Visitor;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 
@@ -11,7 +12,19 @@ public class RoundFlowBC extends BuildingCard {
         super(id, era, foodCost, endPoints, isEndGame, buildingCardType);
     }
 
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
+    }
+
     public void applyEffect(Player owner, Match match) {
+    if (shouldTotem)
+    {
+        owner.addFood(1);
+    }
+    else
+    {
         //modifica la logica del gioco, da implementare prossimamente
     }
 }

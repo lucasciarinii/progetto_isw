@@ -3,6 +3,7 @@ package org.example.model.cards.characters;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
+import org.example.model.interfaces.Visitor;
 
 public class Builder extends Character {
 
@@ -14,6 +15,14 @@ public class Builder extends Character {
         this.discountBuilding = discountBuilding;
         this.endPoints = endPoints;
     }
+
+
+    // Double dispatch: delegates Character specific logic to the visitor.
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
+    }
+
 
     public int getDiscountBuilding() {
         return discountBuilding;

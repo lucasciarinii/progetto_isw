@@ -28,8 +28,8 @@ public class HuntEvent extends EventCard {
         for (Player player : players) {
             int hunters = 0;
 
-            for (int j = 0; j < player.getOwnedCharacters().size(); j++) {
-                Character character = player.getOwnedCharacters().get(j);
+            for (int j = 0; j < player.getCharacters().size(); j++) {
+                Character character = player.getCharacters().get(j);
 
                 if (character.getCharacterType() == CharacterType.HUNTER) {
                     hunters++;

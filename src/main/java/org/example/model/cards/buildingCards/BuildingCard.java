@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.example.model.cards.Card;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
+import org.example.model.interfaces.Visitor;
+import org.example.model.interfaces.Visitable;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 
@@ -27,7 +29,7 @@ import org.example.model.match.Player;
         @JsonSubTypes.Type(value = EndGameBonusBC.class, name = "EndGameBonusBC"),
 })
 
-public abstract class BuildingCard extends Card {
+public abstract class BuildingCard extends Card implements Visitable {
 
     private final int foodCost;
     private final int endPoints;
@@ -41,6 +43,9 @@ public abstract class BuildingCard extends Card {
         this.isEndGame = isEndGame;
         this.class_type = class_type;
     }
+
+    public abstract void accept(Visitor visitor);
+
 
     public int getFoodCost() {
         return foodCost;

@@ -6,6 +6,7 @@ import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
 import org.example.model.enums.InventionType;
+import org.example.model.interfaces.Visitor;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 
@@ -21,6 +22,12 @@ public class InventorPairsBC extends BuildingCard {
 
     public InventorPairsBC(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("isEndGame") boolean isEndGame, @JsonProperty("class_type") BuildingCardType buildingCardType) {
         super(id, era, foodCost, endPoints, isEndGame, buildingCardType);
+    }
+
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 
 
@@ -57,7 +64,7 @@ public class InventorPairsBC extends BuildingCard {
 
         // Maps the inventors by invention type and counts how many inventors
         // exists for each type.
-        Map<InventionType, Long> inventorsByType = owner.getOwnedCharacters().stream()
+        Map<InventionType, Long> inventorsByType = owner.getCharacters().stream()
                 .filter(c -> c.getCharacterType() == CharacterType.INVENTOR)
                 .map(c -> (Inventor) c)
                 .collect(Collectors.groupingBy(Inventor::getInvention, Collectors.counting()));

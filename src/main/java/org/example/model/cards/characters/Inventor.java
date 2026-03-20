@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
 import org.example.model.enums.InventionType;
+import org.example.model.interfaces.Visitor;
 
 
 public class Inventor extends Character {
@@ -16,6 +17,13 @@ public class Inventor extends Character {
         super(id, era, characterType, newCardInSet);
         this.invention = invention;
         this.wasPresentLastTurn = false;
+    }
+
+
+    // Double dispatch: delegates Character specific logic to the visitor.
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
+import org.example.model.interfaces.Visitor;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 
@@ -16,10 +17,15 @@ public class EventBoostBC extends BuildingCard {
     }
 
     @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
     public void applyEffect(Player owner, Match match) {
     if (characterEffect==CharacterType.HUNTER)
     {
-        int numero_cacciatori = (int) owner.getOwnedCharacters().stream()
+        int numero_cacciatori = (int) owner.getCharacters().stream()
                 .filter(c -> c.getCharacterType()==CharacterType.HUNTER)
                 .count();
         owner.addFood(numero_cacciatori);
@@ -27,7 +33,7 @@ public class EventBoostBC extends BuildingCard {
     }
     else
     {
-        int numero_cacciatori = (int) owner.getOwnedCharacters().stream()
+        int numero_cacciatori = (int) owner.getCharacters().stream()
                 .filter(c -> c.getCharacterType()==CharacterType.ARTIST)
                 .count();
         owner.addFood(numero_cacciatori);

@@ -6,6 +6,7 @@ import org.example.model.enums.CharacterType;
 import org.example.model.cards.characters.Character;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
+import org.example.model.interfaces.Visitor;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 
@@ -14,9 +15,17 @@ public class EndGameBonusBC extends BuildingCard {
         super(id, era, foodCost, endPoints, isEndGame, buildingCardType);
     }
 
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
+    }
+
     public void applyEffect(Player owner, Match match) {
+    if (shouldDoubleOnBuilders)
+    {
         int punti_costruttore=0;
-        for (Character card : owner.getOwnedCharacters())
+        for (Character card : owner.getCharacters())
         {
             if (card.getCharacterType()==CharacterType.BUILDER)
             {

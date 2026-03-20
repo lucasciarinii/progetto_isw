@@ -5,6 +5,7 @@ import org.example.model.cards.characters.Character;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
+import org.example.model.interfaces.Visitor;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 
@@ -26,6 +27,12 @@ public class SetCollectionBC extends BuildingCard {
         super(id, era, foodCost, endPoints, isEndGame, buildingCardType);
         this.registeredSets = 0;
         this.initialized = false;
+    }
+
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 
     @Override
@@ -75,7 +82,7 @@ public class SetCollectionBC extends BuildingCard {
             counts.put(type, 0);
         }
 
-        for (Character character : owner.getOwnedCharacters()) {
+        for (Character character : owner.getCharacters()) {
             CharacterType type = character.getCharacterType();
             counts.put(type, counts.get(type) + 1);
         }

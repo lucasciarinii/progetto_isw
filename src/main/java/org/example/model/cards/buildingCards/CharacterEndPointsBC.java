@@ -3,6 +3,7 @@ package org.example.model.cards.buildingCards;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
+import org.example.model.interfaces.Visitor;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 import org.example.model.enums.CharacterType;
@@ -20,6 +21,11 @@ public class CharacterEndPointsBC extends BuildingCard {
         this.characterEffect = characterEffect;
 	}
 
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
+    }
+
 	@Override
 	public void applyEffect(Player owner, Match match) {
 
@@ -28,7 +34,7 @@ public class CharacterEndPointsBC extends BuildingCard {
 
         int matchingCharacters = 0;
 
-        for (Character character : owner.getOwnedCharacters()) {
+        for (Character character : owner.getCharacters()) {
             if (character.getCharacterType() == characterEffect) {
                 matchingCharacters++;
             }
