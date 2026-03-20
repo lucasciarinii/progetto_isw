@@ -10,8 +10,8 @@ import org.example.model.match.Match;
 import org.example.model.match.Player;
 
 public class EndGameBonus25BC extends BuildingCard {
-    public EndGameBonus25BC(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("isEndGame") boolean isEndGame, @JsonProperty("class_type") BuildingCardType buildingCardType) {
-        super(id, era, foodCost, endPoints, isEndGame, buildingCardType);
+    public EndGameBonus25BC(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("class_type") BuildingCardType buildingCardType) {
+        super(id, era, foodCost, endPoints, buildingCardType);
     }
 
     public void applyEffect(Player owner, Match match) { owner.addPoints(25);}

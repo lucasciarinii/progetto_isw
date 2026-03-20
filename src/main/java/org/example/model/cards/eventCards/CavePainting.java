@@ -1,5 +1,6 @@
 package org.example.model.cards.eventCards;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.model.cards.characters.Character;
 import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
@@ -15,20 +16,40 @@ public class CavePainting extends EventCard {
     private final int malusPoints;
     private final int interval;
 
-    public CavePainting(int id, Era era, boolean isEraFinal, EventEffect effect, int bonusPoints, int malusPoints, int interval) {
+    public CavePainting(
+            @JsonProperty("id") int id,
+            @JsonProperty("era") Era era,
+            @JsonProperty("isEraFinal") boolean isEraFinal,
+            @JsonProperty("eventEffect") EventEffect effect,
+            @JsonProperty("bonusPoints") int bonusPoints,
+            @JsonProperty("malusPoints") int malusPoints,
+            @JsonProperty("interval") int interval
+    ) {
         super(id, era, isEraFinal, effect);
         this.bonusPoints = bonusPoints;
         this.malusPoints = malusPoints;
         this.interval = interval;
     }
 
+    public int getBonusPoints() {
+        return bonusPoints;
+    }
+
+    public int getMalusPoints() {
+        return malusPoints;
+    }
+
+    public int getInterval() {
+        return interval;
+    }
+
+    @Override
     public void applyEvent(Match match) {
 
-        //For each player count the number of artists they have
-        //and give them points equal to the number of artists multiplied by the points value of the card.
-        //If a player has fewer artists than the interval value, he loses points equal to the malus points value of the card.
-
+        //For each player, count the number of artists they own
+        //and assign points according to the event rules
         List<Player> players = match.getPlayers();
+
         for (Player player : players) {
             int artists = 0;
 
@@ -40,6 +61,8 @@ public class CavePainting extends EventCard {
                 }
             }
 
+            //If the player has fewer artists than the required interval,
+            //apply the malus; otherwise award bonus points
             if (artists < interval) {
                 player.addPoints(malusPoints);
             } else {

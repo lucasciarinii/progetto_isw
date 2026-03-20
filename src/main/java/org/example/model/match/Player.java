@@ -93,6 +93,8 @@ public class Player {
         this.discountOnSustenance += discountOnSustenance;
     }
 
+    public void resetDiscountOnSustenance() { this.discountOnSustenance = 0; }
+
 
     public int getDiscountOnBuilding() {
         return discountOnBuilding;

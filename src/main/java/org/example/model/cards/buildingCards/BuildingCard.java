@@ -18,13 +18,13 @@ import org.example.model.match.Player;
 )
 // Map values of the "class_type" field to the actual Java classes
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = SetCollectionBC.class, name = "SetCollectionBC"),
+        @JsonSubTypes.Type(value = SetCollectionFoodBC.class, name = "SetCollectionBC"),
         @JsonSubTypes.Type(value = SustenanceDiscountBC.class, name = "SustenanceDiscountBC"),
         @JsonSubTypes.Type(value = CharacterEndPointsBC.class, name = "CharacterEndPointsBC"),
         @JsonSubTypes.Type(value = InventorPairsBC.class, name = "InventorPairsBC"),
-        @JsonSubTypes.Type(value = ShamanicPointsBC.class, name = "ShamanicPointsBC"),
+        @JsonSubTypes.Type(value = ShamanicDoublePointsBC.class, name = "ShamanicPointsBC"),
         @JsonSubTypes.Type(value = ShamanicStarsBC.class, name = "ShamanicStarsBC"),
-        @JsonSubTypes.Type(value = EventBoostBC.class, name = "EventBoostBC"),
+        @JsonSubTypes.Type(value = HuntEventBoostBC.class, name = "EventBoostBC"),
         @JsonSubTypes.Type(value = RoundFlowBC.class, name = "RoundFlowBC"),
         @JsonSubTypes.Type(value = EndGameBonusBC.class, name = "EndGameBonusBC"),
 })
@@ -33,14 +33,12 @@ public abstract class BuildingCard extends Card implements Visitable {
 
     private final int foodCost;
     private final int endPoints;
-    private final boolean isEndGame;
     private final BuildingCardType class_type;
 
-    public BuildingCard(int id, Era era, int foodCost, int endPoints, boolean isEndGame, BuildingCardType class_type) {
+    public BuildingCard(int id, Era era, int foodCost, int endPoints, BuildingCardType class_type) {
         super(id, era);
         this.foodCost = foodCost;
         this.endPoints = endPoints;
-        this.isEndGame = isEndGame;
         this.class_type = class_type;
     }
 
@@ -55,10 +53,6 @@ public abstract class BuildingCard extends Card implements Visitable {
 
     public int getEndPoints() {
         return endPoints;
-    }
-
-    public boolean isEndGame() {
-        return isEndGame;
     }
 
     public BuildingCardType getClassType() {
