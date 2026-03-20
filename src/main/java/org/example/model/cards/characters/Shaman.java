@@ -3,6 +3,7 @@ package org.example.model.cards.characters;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
+import org.example.model.interfaces.Visitor;
 
 public class Shaman extends Character {
 
@@ -12,6 +13,14 @@ public class Shaman extends Character {
         super(id, era, characterType, newCardInSet);
         this.numStars = numStars;
     }
+
+
+    // Double dispatch: delegates Character specific logic to the visitor.
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
+    }
+
 
     public int getNumStars() {
         return numStars;
