@@ -60,13 +60,4 @@ public abstract class BuildingCard extends Card {
 
     public abstract void applyEffect(Player owner, Match match);
 
-    /**
-     * Double Dispatch: BuildingCard sa di doversi inserire nella lista ownedBuildings.
-     * Le sottoclassi concrete ereditano questo comportamento senza dover fare nulla.
-     */
-    @Override
-    public void addTo(Player player) {
-        player.addOwnedBuilding(this);
-    }
-
 }
