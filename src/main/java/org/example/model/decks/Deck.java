@@ -7,9 +7,9 @@ import java.util.List;
 
 public abstract class Deck<T extends Card> {
 
-    protected final List<T> era_I_cards;
-    protected final List<T> era_II_cards;
-    protected final List<T> era_III_cards;
+    protected List<T> era_I_cards;
+    protected List<T> era_II_cards;
+    protected List<T> era_III_cards;
 
     public Deck() {
         this.era_I_cards = new ArrayList<T>();
