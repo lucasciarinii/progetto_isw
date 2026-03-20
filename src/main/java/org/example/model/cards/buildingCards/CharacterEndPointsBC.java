@@ -14,8 +14,8 @@ public class CharacterEndPointsBC extends BuildingCard {
     private final int pointsEffect;
     private final CharacterType characterEffect;
 
-    public CharacterEndPointsBC(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("isEndGame") boolean isEndGame, @JsonProperty("class_type") BuildingCardType buildingCardType, @JsonProperty("pointsEffect") int points, @JsonProperty("characterEffect") CharacterType characterEffect) {
-		super(id, era, foodCost, endPoints, isEndGame, buildingCardType);
+    public CharacterEndPointsBC(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("class_type") BuildingCardType buildingCardType, @JsonProperty("pointsEffect") int points, @JsonProperty("characterEffect") CharacterType characterEffect) {
+		super(id, era, foodCost, endPoints, buildingCardType);
         this.pointsEffect = points;
         this.characterEffect = characterEffect;
 	}
