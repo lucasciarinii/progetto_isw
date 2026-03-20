@@ -2,8 +2,8 @@ package org.example.model.cards.eventCards;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.model.cards.buildingCards.BuildingCard;
-import org.example.model.cards.buildingCards.ShamanicPointsBC;
-import org.example.model.enums.BuildingCardType;
+import org.example.model.cards.buildingCards.ShamanicDoublePointsBC;
+import org.example.model.cards.buildingCards.ShamanicNoMalusBC;
 import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
 import org.example.model.match.Match;
@@ -54,7 +54,7 @@ public class ShamanicRitual extends EventCard {
                 .orElse(0);
 
         //Add or remove prestige points based on the number of shaman stars
-        //and on the presence of ShamanicPointsBC
+        //and on the presence of Shamanic Ritual support buildings
         for (Player player : players) {
             int stars = player.getShamanStars();
 
@@ -63,7 +63,7 @@ public class ShamanicRitual extends EventCard {
 
                 //Double points only if the player has the doubling building
                 //and is the unique player with the maximum number of stars
-                if (hasShamanicPointsBuilding(player, true) && isUniqueMaximum(player, players)) {
+                if (hasDoublePointsBuilding(player) && isUniqueMaximum(player, players)) {
                     gainedPoints = bonusPoints * 2;
                 }
 
@@ -73,23 +73,27 @@ public class ShamanicRitual extends EventCard {
             if (stars == minStars) {
 
                 //Do not lose points if the player has the protection building
-                if (!hasShamanicPointsBuilding(player, false)) {
+                if (!hasNoMalusBuilding(player)) {
                     player.addPoints(malusPoints);
                 }
             }
         }
     }
 
-    //Check if the player has a ShamanicPointsBC with the expected behavior:
-    //true = double prestige points, false = protection from malus
-    private boolean hasShamanicPointsBuilding(Player player, boolean expectedValue) {
+    private boolean hasDoublePointsBuilding(Player player) {
         for (BuildingCard building : player.getOwnedBuildings()) {
-            if (building.getClassType() == BuildingCardType.ShamanicPointsBC) {
-                ShamanicPointsBC shamanicPointsBC = (ShamanicPointsBC) building;
+            if (building instanceof ShamanicDoublePointsBC) {
+                return true;
+            }
+        }
 
-                if (shamanicPointsBC.shouldDoublePrestigePoints() == expectedValue) {
-                    return true;
-                }
+        return false;
+    }
+
+    private boolean hasNoMalusBuilding(Player player) {
+        for (BuildingCard building : player.getOwnedBuildings()) {
+            if (building instanceof ShamanicNoMalusBC) {
+                return true;
             }
         }
 

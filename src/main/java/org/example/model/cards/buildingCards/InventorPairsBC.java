@@ -19,8 +19,8 @@ public class InventorPairsBC extends BuildingCard {
     private int rewardedPairs = 0;
 
 
-    public InventorPairsBC(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("isEndGame") boolean isEndGame, @JsonProperty("class_type") BuildingCardType buildingCardType) {
-        super(id, era, foodCost, endPoints, isEndGame, buildingCardType);
+    public InventorPairsBC(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("class_type") BuildingCardType buildingCardType) {
+        super(id, era, foodCost, endPoints, buildingCardType);
     }
 
 
