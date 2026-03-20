@@ -14,22 +14,24 @@ import java.util.List;
 
 public class Match {
 
-    private List<Player> players;
+    private final List<Player> players;
 
     private Board board;
 
     private GameState gameState;
 
     public Match(List<Player> players) {
-        this.players = players;
+        this.players = new ArrayList<>(players);
+
         init(); // initialize board and gameState
     }
+    public List<Player> getPlayers(){return Collections.unmodifiableList(players);}
 
     public Board getBoard(){return board;}
 
     public GameState getGameState(){return gameState;}
 
-    public void init() { // should initialize the board and gameState according to the steps
+    private void init() { // should initialize the board and gameState according to the steps
         /*
         * 1) creare il tracciato con le carte corrispondenti ✅
         * al numero di giocatori(le OfferTile; ✅
@@ -56,12 +58,11 @@ public class Match {
         * 17) azione per i tipi di personaggi da verificare nel corso della partita;
         * 18)
         * */
-        int numPlayers = this.players.size();
 
-        // Passo 9-10: assegna totem e randomizza ordine
+        // Passo 9-10: randomizes players order
         Collections.shuffle(players);
 
-        // Steps 1-8: delegate everything to Board
+        // Steps 1-8: delegate everything to Board (but first I must have the players already shuffled, because Board logic uses the already randomized player list
         board = new Board(players);
 
         // Passo 11: distribute food based on player order
@@ -75,10 +76,8 @@ public class Match {
             players.get(i).addFood(food);
         }
 
-        // Inizializza GameState con ordine casuale
-        gameState = new GameState();
+        // Initialize GameState (with random order already done)
+        gameState = new GameState(players);
     }
-
-    public List<Player> getPlayers(){return Collections.unmodifiableList(players);}
 
 }
