@@ -18,10 +18,6 @@ public class ShamanicPointsBC extends BuildingCard {
     }
 
 
-    @Override
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
-    }
 
     public boolean shouldDoublePrestigePoints() {
         return shouldDoublePrestigePoints;

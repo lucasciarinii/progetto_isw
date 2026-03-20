@@ -16,10 +16,6 @@ public class EndGameBonusBC extends BuildingCard {
     }
 
 
-    @Override
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
-    }
 
     public void applyEffect(Player owner, Match match) {
     if (shouldDoubleOnBuilders)

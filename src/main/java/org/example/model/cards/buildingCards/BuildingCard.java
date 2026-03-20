@@ -44,7 +44,9 @@ public abstract class BuildingCard extends Card implements Visitable {
         this.class_type = class_type;
     }
 
-    public abstract void accept(Visitor visitor);
+    public void accept(Visitor visitor)  {
+        visitor.visit(this);
+    };
 
 
     public int getFoodCost() {

@@ -13,10 +13,6 @@ public class RoundFlowBC extends BuildingCard {
     }
 
 
-    @Override
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
-    }
 
     public void applyEffect(Player owner, Match match) {
     if (shouldTotem)

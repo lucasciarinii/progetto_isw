@@ -25,10 +25,6 @@ public class InventorPairsBC extends BuildingCard {
     }
 
 
-    @Override
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
-    }
 
 
     @Override

@@ -30,10 +30,6 @@ public class SetCollectionBC extends BuildingCard {
     }
 
 
-    @Override
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
-    }
 
     @Override
     public void applyEffect(Player owner, Match match) {

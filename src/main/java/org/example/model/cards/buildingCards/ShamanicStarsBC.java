@@ -17,10 +17,6 @@ public class ShamanicStarsBC extends BuildingCard {
     }
 
 
-    @Override
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
-    }
 
     //add Shamanic Stars to player
     @Override

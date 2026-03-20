@@ -21,10 +21,6 @@ public class CharacterEndPointsBC extends BuildingCard {
         this.characterEffect = characterEffect;
 	}
 
-    @Override
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
-    }
 
 	@Override
 	public void applyEffect(Player owner, Match match) {

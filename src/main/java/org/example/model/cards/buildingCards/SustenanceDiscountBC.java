@@ -17,10 +17,6 @@ public class SustenanceDiscountBC extends BuildingCard {
 	}
 
 
-	@Override
-	public void accept(Visitor visitor) {
-		visitor.visit(this);
-	}
 
 	public CharacterType getCharacterEffect() {
 		return characterEffect;
