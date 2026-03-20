@@ -3,7 +3,7 @@ package org.example.model.interfaces;
 import org.example.model.cards.buildingCards.BuildingCard;
 import org.example.model.cards.characters.*;
 
-public interface CardVisitor {
+public interface Visitor {
     void visit(Inventor inventor);
     void visit(Gatherer gatherer);
     void visit(Shaman shaman);

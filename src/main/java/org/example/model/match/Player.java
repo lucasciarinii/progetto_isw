@@ -3,7 +3,7 @@ package org.example.model.match;
 import org.example.model.cards.buildingCards.BuildingCard;
 import org.example.model.cards.characters.*;
 import org.example.model.cards.characters.Character;
-import org.example.model.interfaces.CardVisitor;
+import org.example.model.interfaces.Visitor;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,7 +40,7 @@ public class Player {
     }
 
 
-    private final CardVisitor addToTribeVisitor = new CardVisitor() {
+    private final Visitor addToListVisitor = new Visitor() {
         // Every override adds the selected Character to the appropriate list
         @Override public void visit(Inventor inventor) { inventors.add(inventor); }
         @Override public void visit(Gatherer gatherer) { gatherers.add(gatherer); }
@@ -129,15 +129,6 @@ public class Player {
     }
 
 
-    public void addOwnedBuilding(BuildingCard buildingCard) {
-
-        if ( buildingCard == null ) {
-            throw new IllegalArgumentException("buildingCard must not be null");
-        }
-
-        this.ownedBuildings.add(buildingCard);
-    }
-
 
     public List<Character> getCharacters() {
         return Stream.of(inventors, gatherers, shamans, builders, artists, hunters)
@@ -154,9 +145,20 @@ public class Player {
 
         // Double dispatch: il tipo runtime di character seleziona il visit(...) corretto.
         // In questo modo evitiamo if/else o instanceof nel Player.
-        // Double dispatch: the the runtime type of character select the correct visit(...) in the Characters classes.
+        // Double dispatch: the runtime type of character select the correct visit(...) in the Characters classes.
         //
-        character.accept(addToTribeVisitor);
+        character.accept(addToListVisitor);
+
+    }
+
+
+    public void addBuilding(BuildingCard building) {
+
+        if ( building == null ) {
+            throw new IllegalArgumentException("building must not be null");
+        }
+
+        building.accept(addToListVisitor);
 
     }
 

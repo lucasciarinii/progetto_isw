@@ -5,7 +5,7 @@ import org.example.model.cards.characters.Character;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
-import org.example.model.interfaces.CardVisitor;
+import org.example.model.interfaces.Visitor;
 import org.example.model.match.Context;
 import org.example.model.match.Player;
 
@@ -31,7 +31,7 @@ public class SetCollectionBC extends BuildingCard {
 
 
     @Override
-    public void accept(CardVisitor visitor) {
+    public void accept(Visitor visitor) {
         visitor.visit(this);
     }
 
