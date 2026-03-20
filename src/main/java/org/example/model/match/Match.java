@@ -59,7 +59,6 @@ public class Match {
         int numPlayers = this.players.size();
 
         // Passo 9-10: assegna totem e randomizza ordine
-        players = new ArrayList<>();
         Collections.shuffle(players);
 
         // Steps 1-8: delegate everything to Board
@@ -70,7 +69,7 @@ public class Match {
             int food = switch (i) {
                 case 0 -> 2;
                 case 1, 2 -> 3;
-                case 4, 5 -> 4;
+                case 3, 4 -> 4;
                 default -> throw new IllegalArgumentException("Invalid list of players");
             };
             players.get(i).addFood(food);
