@@ -23,7 +23,7 @@ public class CavePaintingEventBoostBC extends BuildingCard {
     @Override
     public void applyEffect(Player owner, Match match) {
 
-        // Count how many artists the player owns
+        //Count how many artists the player owns
         int artists = 0;
 
         for (Character character : owner.getOwnedCharacters()) {
@@ -32,7 +32,7 @@ public class CavePaintingEventBoostBC extends BuildingCard {
             }
         }
 
-        // During the Cave Painting event, gain 1 food for each artist
+        //During the Cave Painting event, gain 1 food for each artist
         owner.addFood(artists);
     }
 }
