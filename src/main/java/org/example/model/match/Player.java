@@ -48,6 +48,8 @@ public class Player {
         @Override public void visit(Builder builder) { builders.add(builder); }
         @Override public void visit(Artist artist) { artists.add(artist); }
         @Override public void visit(Hunter hunter) { hunters.add(hunter); }
+
+        @Override public void visit(BuildingCard building) { ownedBuildings.add(building); }
     };
 
 

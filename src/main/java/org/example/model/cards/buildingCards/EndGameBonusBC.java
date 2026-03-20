@@ -6,6 +6,7 @@ import org.example.model.enums.CharacterType;
 import org.example.model.cards.characters.Character;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
+import org.example.model.interfaces.CardVisitor;
 import org.example.model.match.Context;
 import org.example.model.match.Player;
 
@@ -14,6 +15,12 @@ public class EndGameBonusBC extends BuildingCard {
     public EndGameBonusBC(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("isEndGame") boolean isEndGame, @JsonProperty("class_type") BuildingCardType buildingCardType, @JsonProperty("shouldDoubleOnBuilders") boolean s) {
         super(id, era, foodCost, endPoints, isEndGame, buildingCardType);
         this.shouldDoubleOnBuilders = s;
+    }
+
+
+    @Override
+    public void accept(CardVisitor visitor) {
+        visitor.visit(this);
     }
 
     public void applyEffect(Player owner, Context context) {
