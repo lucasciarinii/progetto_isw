@@ -10,8 +10,8 @@ public class TurnOrderTile {
     private final List<PlayerSlot> slots;
 
     public TurnOrderTile(List<Player> players) {
-        // Random ordering of players (in order to place totems randomly)
-        Collections.shuffle(players);
+
+        // Random order is already set in Match.init() so we can use progressively the players in the list to assign them to the slots
 
         // Initialize player slots based on the number of players
         switch (players.size()) {
