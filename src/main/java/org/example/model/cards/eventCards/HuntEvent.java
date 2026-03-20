@@ -7,6 +7,9 @@ import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
+import org.example.model.cards.buildingCards.BuildingCard;
+import org.example.model.cards.buildingCards.HuntEventBoostBC;
+
 
 import java.util.List;
 
@@ -33,15 +36,13 @@ public class HuntEvent extends EventCard {
     public void applyEvent(Match match) {
 
         //For each player, count the number of hunters they own
-        //and award food and prestige points accordingly
+        //and award the standard Hunt event rewards
         List<Player> players = match.getPlayers();
 
         for (Player player : players) {
             int hunters = 0;
 
-            for (int j = 0; j < player.getOwnedCharacters().size(); j++) {
-                Character character = player.getOwnedCharacters().get(j);
-
+            for (Character character : player.getOwnedCharacters()) {
                 if (character.getCharacterType() == CharacterType.HUNTER) {
                     hunters++;
                 }
@@ -50,6 +51,13 @@ public class HuntEvent extends EventCard {
             int gainedPoints = hunters * points;
             player.addFood(1);
             player.addPoints(gainedPoints);
+
+            //Apply all Hunt event boost buildings owned by the player
+            for (BuildingCard building : player.getOwnedBuildings()) {
+                if (building instanceof HuntEventBoostBC) {
+                    building.applyEffect(player, match);
+                }
+            }
         }
     }
 }

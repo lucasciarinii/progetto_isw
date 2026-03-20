@@ -22,7 +22,7 @@ import org.example.model.match.Player;
         @JsonSubTypes.Type(value = InventorPairsBC.class, name = "InventorPairsBC"),
         @JsonSubTypes.Type(value = ShamanicPointsBC.class, name = "ShamanicPointsBC"),
         @JsonSubTypes.Type(value = ShamanicStarsBC.class, name = "ShamanicStarsBC"),
-        @JsonSubTypes.Type(value = EventBoostBC.class, name = "EventBoostBC"),
+        @JsonSubTypes.Type(value = HuntEventBoostBC.class, name = "EventBoostBC"),
         @JsonSubTypes.Type(value = RoundFlowBC.class, name = "RoundFlowBC"),
         @JsonSubTypes.Type(value = EndGameBonusBC.class, name = "EndGameBonusBC"),
 })
