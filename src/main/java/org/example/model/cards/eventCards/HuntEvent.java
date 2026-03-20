@@ -1,15 +1,12 @@
 package org.example.model.cards.eventCards;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.example.model.cards.characters.Character;
-import org.example.model.enums.CharacterType;
+import org.example.model.cards.buildingCards.BuildingCard;
+import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
-import org.example.model.cards.buildingCards.BuildingCard;
-import org.example.model.cards.buildingCards.HuntEventBoostBC;
-
 
 import java.util.List;
 
@@ -40,13 +37,7 @@ public class HuntEvent extends EventCard {
         List<Player> players = match.getPlayers();
 
         for (Player player : players) {
-            int hunters = 0;
-
-            for (Character character : player.getOwnedCharacters()) {
-                if (character.getCharacterType() == CharacterType.HUNTER) {
-                    hunters++;
-                }
-            }
+            int hunters = player.getHunters().size();
 
             int gainedPoints = hunters * points;
             player.addFood(1);
@@ -54,7 +45,7 @@ public class HuntEvent extends EventCard {
 
             //Apply all Hunt event boost buildings owned by the player
             for (BuildingCard building : player.getOwnedBuildings()) {
-                if (building instanceof HuntEventBoostBC) {
+                if (building.getClassType() == BuildingCardType.HuntEventBoostBC) {
                     building.applyEffect(player, match);
                 }
             }

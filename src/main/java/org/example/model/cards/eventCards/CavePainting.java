@@ -1,8 +1,8 @@
 package org.example.model.cards.eventCards;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.example.model.cards.characters.Character;
-import org.example.model.enums.CharacterType;
+import org.example.model.cards.buildingCards.BuildingCard;
+import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
 import org.example.model.match.Match;
@@ -51,15 +51,7 @@ public class CavePainting extends EventCard {
         List<Player> players = match.getPlayers();
 
         for (Player player : players) {
-            int artists = 0;
-
-            for (int j = 0; j < player.getCharacters().size(); j++) {
-                Character character = player.getCharacters().get(j);
-
-                if (character.getCharacterType() == CharacterType.ARTIST) {
-                    artists++;
-                }
-            }
+            int artists = player.getArtists().size();
 
             //If the player has fewer artists than the required interval,
             //apply the malus; otherwise award bonus points
@@ -67,6 +59,13 @@ public class CavePainting extends EventCard {
                 player.addPoints(malusPoints);
             } else {
                 player.addPoints(artists * bonusPoints);
+            }
+
+            //Apply all Cave Painting event boost buildings owned by the player
+            for (BuildingCard building : player.getOwnedBuildings()) {
+                if (building.getClassType() == BuildingCardType.CavePaintingEventBoostBC) {
+                    building.applyEffect(player, match);
+                }
             }
         }
     }

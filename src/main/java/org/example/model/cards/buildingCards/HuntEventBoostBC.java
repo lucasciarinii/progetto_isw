@@ -1,9 +1,7 @@
 package org.example.model.cards.buildingCards;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.example.model.cards.characters.Character;
 import org.example.model.enums.BuildingCardType;
-import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
@@ -24,13 +22,7 @@ public class HuntEventBoostBC extends BuildingCard {
     public void applyEffect(Player owner, Match match) {
 
         //Count how many hunters the player owns
-        int hunters = 0;
-
-        for (Character character : owner.getOwnedCharacters()) {
-            if (character.getCharacterType() == CharacterType.HUNTER) {
-                hunters++;
-            }
-        }
+        int hunters = owner.getHunters().size();
 
         //During the Hunt event, gain 1 additional food
         //and 1 additional prestige point for each hunter

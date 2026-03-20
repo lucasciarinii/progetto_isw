@@ -2,7 +2,7 @@ package org.example.model.cards.eventCards;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.model.cards.buildingCards.BuildingCard;
-import org.example.model.cards.buildingCards.SustenanceDiscountBC;
+import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
 import org.example.model.match.Match;
@@ -40,7 +40,7 @@ public class Sustenance extends EventCard {
             player.resetDiscountOnSustenance();
 
             for (BuildingCard building : player.getOwnedBuildings()) {
-                if (building instanceof SustenanceDiscountBC) {
+                if (building.getClassType() == BuildingCardType.SustenanceDiscountBC) {
                     building.applyEffect(player, match);
                 }
             }
@@ -52,7 +52,7 @@ public class Sustenance extends EventCard {
                 finalFoodCost = 0;
             }
 
-            player.addFood(-finalFoodCost);
+            player.addFood(finalFoodCost);
         }
     }
 }

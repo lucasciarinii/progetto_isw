@@ -165,6 +165,31 @@ public class Player {
     }
 
 
+    public List<Character> getInventors() {
+        return Collections.unmodifiableList(inventors);
+    }
+
+    public List<Character> getGatherers() {
+        return Collections.unmodifiableList(gatherers);
+    }
+
+    public List<Character> getShamans() {
+        return Collections.unmodifiableList(shamans);
+    }
+
+    public List<Character> getBuilders() {
+        return Collections.unmodifiableList(builders);
+    }
+
+    public List<Character> getArtists() {
+        return Collections.unmodifiableList(artists);
+    }
+
+    public List<Character> getHunters() {
+        return Collections.unmodifiableList(hunters);
+    }
+
+
     @Override
     public boolean equals(Object obj) {
 

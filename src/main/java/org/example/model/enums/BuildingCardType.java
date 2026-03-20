@@ -1,13 +1,17 @@
 package org.example.model.enums;
 
 public enum BuildingCardType {
-    SetCollectionBC,
+    SetCollectionEndPointsBC,
+    SetCollectionFoodBC,
     SustenanceDiscountBC,
     CharacterEndPointsBC,
     InventorComboBC,
-    ShamanicPointsBC,
+    ShamanicDoublePointsBC,
+    ShamanicNoMalusBC,
     ShamanicStarsBC,
-    EventBoostBC,
+    CavePaintingEventBoostBC,
+    HuntEventBoostBC,
     RoundFlowBC,
+    RoundFlowTotemBC,
     EndGameBonusBC
 }

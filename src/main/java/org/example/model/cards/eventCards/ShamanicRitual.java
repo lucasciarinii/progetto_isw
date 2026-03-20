@@ -2,8 +2,7 @@ package org.example.model.cards.eventCards;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.model.cards.buildingCards.BuildingCard;
-import org.example.model.cards.buildingCards.ShamanicDoublePointsBC;
-import org.example.model.cards.buildingCards.ShamanicNoMalusBC;
+import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
 import org.example.model.match.Match;
@@ -82,7 +81,7 @@ public class ShamanicRitual extends EventCard {
 
     private boolean hasDoublePointsBuilding(Player player) {
         for (BuildingCard building : player.getOwnedBuildings()) {
-            if (building instanceof ShamanicDoublePointsBC) {
+            if (building.getClassType() == BuildingCardType.ShamanicDoublePointsBC) {
                 return true;
             }
         }
@@ -92,7 +91,7 @@ public class ShamanicRitual extends EventCard {
 
     private boolean hasNoMalusBuilding(Player player) {
         for (BuildingCard building : player.getOwnedBuildings()) {
-            if (building instanceof ShamanicNoMalusBC) {
+            if (building.getClassType() == BuildingCardType.ShamanicNoMalusBC) {
                 return true;
             }
         }
