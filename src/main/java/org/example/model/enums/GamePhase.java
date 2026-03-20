@@ -1,6 +1,6 @@
 package org.example.model.enums;
 
-import org.example.model.match.GamePhaseInterface;
+import org.example.model.interfaces.GamePhaseInterface;
 import org.example.model.match.GameState;
 
 public enum GamePhase implements GamePhaseInterface {
