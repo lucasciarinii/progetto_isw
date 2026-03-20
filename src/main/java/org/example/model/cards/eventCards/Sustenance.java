@@ -6,8 +6,8 @@ import org.example.model.cards.buildingCards.SustenanceDiscountBC;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
+import org.example.model.match.Match;
 import org.example.model.match.Player;
-import org.example.model.match.Context;
 import org.example.model.cards.characters.Character;
 import java.util.List;
 
@@ -20,8 +20,8 @@ public class Sustenance extends EventCard {
         this.points = points;
     }
 
-    public void applyEvent(Context context) {
-        List<Player> players = context.getPlayers();
+    public void applyEvent(Match match) {
+        List<Player> players = match.getPlayers();
 
         //For each player, count the number of characters they have and calculate the discount based on their SustenanceDiscountBC buildings.
         //Then, calculate the food they need to pay after applying the discount.

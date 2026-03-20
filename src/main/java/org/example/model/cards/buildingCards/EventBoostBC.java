@@ -5,7 +5,7 @@ import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
 import org.example.model.interfaces.Visitor;
-import org.example.model.match.Context;
+import org.example.model.match.Match;
 import org.example.model.match.Player;
 
 public class EventBoostBC extends BuildingCard {
@@ -22,7 +22,7 @@ public class EventBoostBC extends BuildingCard {
     }
 
     @Override
-    public void applyEffect(Player owner, Context context) {
+    public void applyEffect(Player owner, Match match) {
     if (characterEffect==CharacterType.HUNTER)
     {
         int numero_cacciatori = (int) owner.getCharacters().stream()

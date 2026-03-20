@@ -7,7 +7,7 @@ import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
 import org.example.model.interfaces.Visitor;
 import org.example.model.interfaces.Visitable;
-import org.example.model.match.Context;
+import org.example.model.match.Match;
 import org.example.model.match.Player;
 
 // Indicates to Jackson to use the "class_type" field to decide the subclass
@@ -63,6 +63,6 @@ public abstract class BuildingCard extends Card implements Visitable {
         return class_type;
     }
 
-    public abstract void applyEffect(Player owner, Context context);
+    public abstract void applyEffect(Player owner, Match match);
 
 }

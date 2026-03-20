@@ -13,6 +13,7 @@ public abstract class Card {
     }
 
 
+
     public Era getEra() {
         return era;
     }

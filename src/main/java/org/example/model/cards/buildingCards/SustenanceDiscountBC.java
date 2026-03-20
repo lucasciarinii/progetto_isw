@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
 import org.example.model.interfaces.Visitor;
-import org.example.model.match.Context;
+import org.example.model.match.Match;
 import org.example.model.match.Player;
 import org.example.model.enums.CharacterType;
 
@@ -27,7 +27,7 @@ public class SustenanceDiscountBC extends BuildingCard {
 	}
 
 	@Override
-	public void applyEffect(Player owner, Context context) {
+	public void applyEffect(Player owner, Match match) {
 
 	}
 }

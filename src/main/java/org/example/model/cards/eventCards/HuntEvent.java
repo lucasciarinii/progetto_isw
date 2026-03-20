@@ -2,7 +2,7 @@ package org.example.model.cards.eventCards;
 
 import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
-import org.example.model.match.Context;
+import org.example.model.match.Match;
 import org.example.model.match.Player;
 import org.example.model.cards.characters.Character;
 import org.example.model.enums.CharacterType;
@@ -18,13 +18,13 @@ public class HuntEvent extends EventCard {
         this.points = points;
     }
 
-    public void applyEvent(Context context) {
+    public void applyEvent(Match match) {
 
         //For each player,
         //count the number of hunters they have and give them 1 food
         // and points equal to the number of hunters multiplied by the points value of the card
 
-        List<Player> players = context.getPlayers();
+        List<Player> players = match.getPlayers();
         for (Player player : players) {
             int hunters = 0;
 
