@@ -1,8 +1,5 @@
 package org.example.model.cards;
 
-import org.example.model.enums.Era;
-import org.example.model.match.Player;
-
 public abstract class Card {
 
     private final int id;
