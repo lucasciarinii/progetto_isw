@@ -11,7 +11,12 @@ import org.example.model.cards.characters.Character;
 public class SustenanceDiscountBC extends BuildingCard {
 	private final CharacterType characterEffect;
 
-	public SustenanceDiscountBC(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("class_type") BuildingCardType buildingCardType, @JsonProperty("characterEffect") CharacterType characterEffect) {
+	public SustenanceDiscountBC(@JsonProperty("id") int id,
+								@JsonProperty("era") Era era,
+								@JsonProperty("foodCost") int foodCost,
+								@JsonProperty("endPoints") int endPoints,
+								@JsonProperty("class_type") BuildingCardType buildingCardType,
+								@JsonProperty("characterEffect") CharacterType characterEffect) {
 		super(id, era, foodCost, endPoints, buildingCardType);
 		this.characterEffect = characterEffect;
 	}

@@ -22,7 +22,11 @@ public class SetCollectionFoodBC extends BuildingCard {
     //Used to understand if the building effect has already been initialized
     private boolean initialized;
 
-    public SetCollectionFoodBC(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("class_type") BuildingCardType buildingCardType)
+    public SetCollectionFoodBC(@JsonProperty("id") int id,
+                               @JsonProperty("era") Era era,
+                               @JsonProperty("foodCost") int foodCost,
+                               @JsonProperty("endPoints") int endPoints,
+                               @JsonProperty("class_type") BuildingCardType buildingCardType)
     {
         super(id, era, foodCost, endPoints, buildingCardType);
         this.registeredSets = 0;

@@ -14,7 +14,11 @@ import java.util.Map;
 public class SetCollectionEndPointsBC extends BuildingCard {
 
     public SetCollectionEndPointsBC(
-            @JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("class_type") BuildingCardType buildingCardType)
+            @JsonProperty("id") int id,
+            @JsonProperty("era") Era era,
+            @JsonProperty("foodCost") int foodCost,
+            @JsonProperty("endPoints") int endPoints,
+            @JsonProperty("class_type") BuildingCardType buildingCardType)
     {
         super(id, era, foodCost, endPoints, buildingCardType);
     }
