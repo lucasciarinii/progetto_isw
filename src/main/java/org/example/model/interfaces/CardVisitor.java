@@ -1,5 +1,6 @@
 package org.example.model.interfaces;
 
+import org.example.model.cards.buildingCards.BuildingCard;
 import org.example.model.cards.characters.*;
 
 public interface CardVisitor {
@@ -9,4 +10,6 @@ public interface CardVisitor {
     void visit(Builder builder);
     void visit(Artist artist);
     void visit(Hunter hunter);
+
+    void visit(BuildingCard building);
 }

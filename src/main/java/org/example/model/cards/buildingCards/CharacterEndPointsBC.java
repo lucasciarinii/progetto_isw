@@ -3,6 +3,7 @@ package org.example.model.cards.buildingCards;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
+import org.example.model.interfaces.CardVisitor;
 import org.example.model.match.Context;
 import org.example.model.match.Player;
 import org.example.model.enums.CharacterType;
@@ -19,6 +20,11 @@ public class CharacterEndPointsBC extends BuildingCard {
         this.pointsEffect = points;
         this.characterEffect = characterEffect;
 	}
+
+    @Override
+    public void accept(CardVisitor visitor) {
+        visitor.visit(this);
+    }
 
 	@Override
 	public void applyEffect(Player owner, Context context) {
