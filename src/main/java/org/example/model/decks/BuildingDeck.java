@@ -12,16 +12,16 @@ import java.util.NoSuchElementException;
 
 public class BuildingDeck extends Deck<BuildingCard> {
 
-    public BuildingDeck() {
+    public BuildingDeck(int numPlayers) {
         super();
-        initializeDeck();
+        initializeDeck(numPlayers);
     }
 
     public BuildingCard draw(BuildingCard buildingCard) {
         return buildingCard;
     }
 
-    private void initializeDeck() {
+    private void initializeDeck(int numPlayers) {
         ObjectMapper mapper = new ObjectMapper();
         try {
             // 1. Read all objects from the JSON file into a List<Card>
@@ -45,16 +45,38 @@ public class BuildingDeck extends Deck<BuildingCard> {
             Collections.shuffle(era_II_cards);
             Collections.shuffle(era_III_cards);
 
+            //4. Keep only the number of cards needed for the game based on the number of players
+            switch (numPlayers) {
+                case 2 -> {
+                    era_I_cards = era_I_cards.subList(0, 1);
+                    era_II_cards = era_II_cards.subList(0, 2);
+                    era_III_cards = era_III_cards.subList(0, 3);
+                }
+                case 3 -> {
+                    era_I_cards = era_I_cards.subList(0, 2);
+                    era_II_cards = era_II_cards.subList(0, 2);
+                    era_III_cards = era_III_cards.subList(0, 4);
+                }
+                case 4 -> {
+                    era_I_cards = era_I_cards.subList(0, 2);
+                    era_II_cards = era_II_cards.subList(0, 3);
+                    era_III_cards = era_III_cards.subList(0, 4);
+                }
+                case 5 -> {
+                    era_I_cards = era_I_cards.subList(0, 2);
+                    era_II_cards = era_II_cards.subList(0, 3);
+                    era_III_cards = era_III_cards.subList(0, 5);
+                }
+                default -> throw new IllegalArgumentException("Invalid number of players: " + numPlayers);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    @Override
-    public BuildingCard draw() { return null; }
-
     // TODO: capire come eventualmente ottimizzarlo, passando magari l'era (visto che in un determinato momento, si possono prendere solo edifici dell'era in cui si è) e cercando solo in quella lista, invece che in tutte e tre
-    public BuildingCard draw(int id) {
+    public BuildingCard pickCard(int id) {
         for (BuildingCard card : era_I_cards) {
             if (card.getId() == id) {
                 era_I_cards.remove(card);

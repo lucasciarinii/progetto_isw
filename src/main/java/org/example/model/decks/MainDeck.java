@@ -18,7 +18,6 @@ public class MainDeck extends Deck<Card>{
         initializeDeck();
     }
 
-    @Override
     public Card draw(){
         if (!era_I_cards.isEmpty()) {
             return era_I_cards.remove(0);
