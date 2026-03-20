@@ -2,7 +2,7 @@ package org.example.model.cards;
 
 import org.example.model.enums.Era;
 
-public abstract class Card{
+public abstract class Card {
 
     private final int id;
     private final Era era;
