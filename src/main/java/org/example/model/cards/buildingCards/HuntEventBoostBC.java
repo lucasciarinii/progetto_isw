@@ -6,6 +6,7 @@ import org.example.model.enums.Era;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 
+// Col2 Row2
 public class HuntEventBoostBC extends BuildingCard {
 
     public HuntEventBoostBC(

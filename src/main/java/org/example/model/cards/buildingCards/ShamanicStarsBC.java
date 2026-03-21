@@ -7,6 +7,7 @@ import org.example.model.interfaces.Visitor;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 
+// Col1 Row6
 public class ShamanicStarsBC extends BuildingCard {
 
 
@@ -21,6 +22,7 @@ public class ShamanicStarsBC extends BuildingCard {
     //add Shamanic Stars to player
     @Override
     public void applyEffect(Player owner, Match match) {
+        // It will be called just first time
         owner.addShamanStars(SHAMANIC_STARS_POINTS);
     }
 

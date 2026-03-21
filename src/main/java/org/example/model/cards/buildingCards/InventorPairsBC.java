@@ -19,13 +19,10 @@ public class InventorPairsBC extends BuildingCard {
     private boolean initialized = false;
     private int rewardedPairs = 0;
 
-
+    // Col1 Row5
     public InventorPairsBC(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("class_type") BuildingCardType buildingCardType) {
         super(id, era, foodCost, endPoints, buildingCardType);
     }
-
-
-
 
     @Override
     public void applyEffect(Player owner, Match match) {
@@ -55,14 +52,11 @@ public class InventorPairsBC extends BuildingCard {
 
     }
 
-
     private int getCurrentPairsOfInventors(Player owner) {
 
         // Maps the inventors by invention type and counts how many inventors
         // exists for each type.
-        Map<InventionType, Long> inventorsByType = owner.getCharacters().stream()
-                .filter(c -> c.getCharacterType() == CharacterType.INVENTOR)
-                .map(c -> (Inventor) c)
+        Map<InventionType, Long> inventorsByType = owner.getInventors().stream()
                 .collect(Collectors.groupingBy(Inventor::getInvention, Collectors.counting()));
 
 

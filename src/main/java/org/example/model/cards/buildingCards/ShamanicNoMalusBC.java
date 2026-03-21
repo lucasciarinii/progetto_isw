@@ -6,6 +6,7 @@ import org.example.model.enums.Era;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 
+// Col1 Row3
 public class ShamanicNoMalusBC extends BuildingCard {
 
     public ShamanicNoMalusBC(

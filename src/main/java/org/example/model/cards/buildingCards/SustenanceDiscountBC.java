@@ -7,6 +7,10 @@ import org.example.model.enums.Era;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 
+import java.util.Map;
+import java.util.function.Function;
+
+// Col1 Row2
 public class SustenanceDiscountBC extends BuildingCard {
 
 	private final CharacterType characterEffect;
@@ -27,22 +31,34 @@ public class SustenanceDiscountBC extends BuildingCard {
 		return characterEffect;
 	}
 
-	@Override
-	public void applyEffect(Player owner, Match match) {
+    // Maps each supported character type to the function that computes the corresponding sustenance discount for the player.
+    private static final Map<CharacterType, Function<Player, Integer>> DISCOUNT_LOGIC = Map.of(
+            CharacterType.INVENTOR, p -> p.getInventors().size(),
+            CharacterType.GATHERER, p -> p.getGatherers().size(),
+            CharacterType.ARTIST,   p -> p.getArtists().size()
+    );
 
-		// Count how many owned characters match the type required by this building
-		int discount = switch (characterEffect) {
-			case INVENTOR -> owner.getInventors().size();
-			case GATHERER -> owner.getGatherers().size();
-			case SHAMAN -> owner.getShamans().size();
-			case BUILDER -> owner.getBuilders().size();
-			case ARTIST -> owner.getArtists().size();
-			case HUNTER -> owner.getHunters().size();
-		};
+    public void applyEffect(Player owner, Match match) {
+        // goes in the DICTOUN_LOGIC map to get the appropriate discount based on the characterEffect, defaulting to 0 if the character type is not supported. in order to pass to the map the owner we do apply(owner)
+        int discount = DISCOUNT_LOGIC.getOrDefault(characterEffect, p -> 0).apply(owner);
+        owner.addDiscountOnSustenance(discount);
+    }
 
-		// Add the computed discount to the player's sustenance discount
-		if (discount > 0) {
-			owner.addDiscountOnSustenance(discount);
-		}
-	}
+    // Switch-based implementation (less elegant and more error-prone than the Map-based approach)
+//	@Override
+//	public void applyEffect(Player owner, Match match) {
+//
+//		// Count how many owned characters match the type required by this building
+//		int discount = switch (characterEffect) {
+//			case INVENTOR -> owner.getInventors().size();
+//			case GATHERER -> owner.getGatherers().size();
+//			case ARTIST -> owner.getArtists().size();
+//            default -> throw new IllegalStateException("Unexpected value: " + characterEffect);
+//		};
+//
+//		// Add the computed discount to the player's sustenance discount
+//		if (discount > 0) {
+//			owner.addDiscountOnSustenance(discount);
+//		}
+//	}
 }

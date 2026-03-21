@@ -6,7 +6,10 @@ import org.example.model.enums.Era;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 
+// Col2 Row5
 public class SetCollectionEndPointsBC extends BuildingCard {
+
+    private final static int END_POINTS = 6;
 
     public SetCollectionEndPointsBC(
             @JsonProperty("id") int id,
@@ -26,7 +29,7 @@ public class SetCollectionEndPointsBC extends BuildingCard {
         int completedSets = countCompletedSets(owner);
 
         //Award prestige points for each complete set
-        owner.addPoints(completedSets * getEndPoints());
+        owner.addPoints(completedSets * END_POINTS);
     }
 
     private int countCompletedSets(Player owner) {
