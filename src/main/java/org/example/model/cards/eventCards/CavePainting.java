@@ -8,8 +8,6 @@ import org.example.model.enums.EventEffect;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 
-import java.util.List;
-
 public class CavePainting extends EventCard {
 
     private final int bonusPoints;
@@ -31,26 +29,13 @@ public class CavePainting extends EventCard {
         this.interval = interval;
     }
 
-    public int getBonusPoints() {
-        return bonusPoints;
-    }
-
-    public int getMalusPoints() {
-        return malusPoints;
-    }
-
-    public int getInterval() {
-        return interval;
-    }
 
     @Override
     public void applyEvent(Match match) {
 
         //For each player, count the number of artists they own
         //and assign points according to the event rules
-        List<Player> players = match.getPlayers();
-
-        for (Player player : players) {
+        for (Player player : match.getPlayers()) {
             int artists = player.getArtists().size();
 
             //If the player has fewer artists than the required interval,

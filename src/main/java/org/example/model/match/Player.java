@@ -8,8 +8,6 @@ import org.example.model.interfaces.Visitor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 public class Player {
@@ -112,10 +110,6 @@ public class Player {
         }
 
         this.discountOnSustenance += discountOnSustenance;
-    }
-
-    public void resetDiscountOnSustenance() {
-        this.discountOnSustenance = 0;
     }
 
 

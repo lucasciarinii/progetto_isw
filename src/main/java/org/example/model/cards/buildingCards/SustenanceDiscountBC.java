@@ -43,22 +43,4 @@ public class SustenanceDiscountBC extends BuildingCard {
         int discount = DISCOUNT_LOGIC.getOrDefault(characterEffect, p -> 0).apply(owner);
         owner.addDiscountOnSustenance(discount);
     }
-
-    // Switch-based implementation (less elegant and more error-prone than the Map-based approach)
-//	@Override
-//	public void applyEffect(Player owner, Match match) {
-//
-//		// Count how many owned characters match the type required by this building
-//		int discount = switch (characterEffect) {
-//			case INVENTOR -> owner.getInventors().size();
-//			case GATHERER -> owner.getGatherers().size();
-//			case ARTIST -> owner.getArtists().size();
-//            default -> throw new IllegalStateException("Unexpected value: " + characterEffect);
-//		};
-//
-//		// Add the computed discount to the player's sustenance discount
-//		if (discount > 0) {
-//			owner.addDiscountOnSustenance(discount);
-//		}
-//	}
 }

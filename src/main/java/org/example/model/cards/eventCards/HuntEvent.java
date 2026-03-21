@@ -8,11 +8,10 @@ import org.example.model.enums.EventEffect;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 
-import java.util.List;
-
 public class HuntEvent extends EventCard {
 
     private final int points;
+    private final static int FOOD_BONUS = 1;
 
     public HuntEvent(
             @JsonProperty("id") int id,
@@ -25,23 +24,19 @@ public class HuntEvent extends EventCard {
         this.points = points;
     }
 
-    public int getPoints() {
-        return points;
-    }
 
     @Override
     public void applyEvent(Match match) {
 
         //For each player, count the number of hunters they own
         //and award the standard Hunt event rewards
-        List<Player> players = match.getPlayers();
-
-        for (Player player : players) {
+        for (Player player : match.getPlayers()) {
             int hunters = player.getHunters().size();
 
             int gainedPoints = hunters * points;
-            player.addFood(1);
             player.addPoints(gainedPoints);
+
+            player.addFood(FOOD_BONUS);
 
             //Apply all Hunt event boost buildings owned by the player
             for (BuildingCard building : player.getOwnedBuildings()) {

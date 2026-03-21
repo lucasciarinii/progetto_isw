@@ -8,8 +8,6 @@ import org.example.model.enums.EventEffect;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 
-import java.util.List;
-
 public class Sustenance extends EventCard {
 
     private final int points;
@@ -25,19 +23,12 @@ public class Sustenance extends EventCard {
         this.points = points;
     }
 
-    public int getPoints() {
-        return points;
-    }
-
     @Override
     public void applyEvent(Match match) {
 
         //For each player, reset the sustenance discount,
         //apply all sustenance discount buildings, then pay the final food cost
-        List<Player> players = match.getPlayers();
-
-        for (Player player : players) {
-            player.resetDiscountOnSustenance();
+        for (Player player : match.getPlayers()) {
 
             for (BuildingCard building : player.getOwnedBuildings()) {
                 if (building.getClassType() == BuildingCardType.SustenanceDiscountBC) {
@@ -45,14 +36,22 @@ public class Sustenance extends EventCard {
                 }
             }
 
-            int finalFoodCost = points - player.getDiscountOnSustenance();
+            int totalCharacters = player.getInventors().size() + player.getGatherers().size() + player.getShamans().size() +
+                    player.getBuilders().size() + player.getArtists().size() + player.getHunters().size();
 
-            //Food cost cannot go below zero
-            if (finalFoodCost < 0) {
-                finalFoodCost = 0;
+
+            int remainingCharacters = player.getFood() - totalCharacters;
+
+            if ( remainingCharacters < 0 ) {
+                player.addFood( - player.getFood());
+                player.addPoints( (remainingCharacters) * points);
             }
 
-            player.addFood(finalFoodCost);
+            else {
+                player.addFood( - totalCharacters);
+            }
+
+
+        }
         }
     }
-}

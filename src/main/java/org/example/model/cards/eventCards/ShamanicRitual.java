@@ -28,13 +28,6 @@ public class ShamanicRitual extends EventCard {
         this.malusPoints = malusPoints;
     }
 
-    public int getBonusPoints() {
-        return bonusPoints;
-    }
-
-    public int getMalusPoints() {
-        return malusPoints;
-    }
 
     @Override
     public void applyEvent(Match match) {
@@ -62,24 +55,24 @@ public class ShamanicRitual extends EventCard {
 
                 //Double points only if the player has the doubling building
                 //and is the unique player with the maximum number of stars
-                if (hasDoublePointsBuilding(player) && isUniqueMaximum(player, players)) {
+                if (hasShamanicDoublePointsBC(player) && isUnique(player, players)) {
                     gainedPoints = bonusPoints * 2;
                 }
 
                 player.addPoints(gainedPoints);
             }
 
-            if (stars == minStars) {
+            else if (stars == minStars) {
 
                 //Do not lose points if the player has the protection building
-                if (!hasNoMalusBuilding(player)) {
+                if (!hasShamanicNoMalusBC(player) && isUnique(player, players)) {
                     player.addPoints(malusPoints);
                 }
             }
         }
     }
 
-    private boolean hasDoublePointsBuilding(Player player) {
+    private boolean hasShamanicDoublePointsBC(Player player) {
         for (BuildingCard building : player.getOwnedBuildings()) {
             if (building.getClassType() == BuildingCardType.ShamanicDoublePointsBC) {
                 return true;
@@ -89,7 +82,7 @@ public class ShamanicRitual extends EventCard {
         return false;
     }
 
-    private boolean hasNoMalusBuilding(Player player) {
+    private boolean hasShamanicNoMalusBC(Player player) {
         for (BuildingCard building : player.getOwnedBuildings()) {
             if (building.getClassType() == BuildingCardType.ShamanicNoMalusBC) {
                 return true;
@@ -100,7 +93,7 @@ public class ShamanicRitual extends EventCard {
     }
 
     //Check if the player is the only one with the maximum number of stars
-    private boolean isUniqueMaximum(Player owner, List<Player> players) {
+    private boolean isUnique(Player owner, List<Player> players) {
         for (Player player : players) {
             if (!player.equals(owner) && player.getShamanStars() == owner.getShamanStars()) {
                 return false;
