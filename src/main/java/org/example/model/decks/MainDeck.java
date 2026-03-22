@@ -39,7 +39,7 @@ public class MainDeck extends Deck<Card>{
             Path p = Path.of("src/main/java/org/example/model/decks/decks_json/characters_2p.json");
             List<Character> characterCards = mapper.readValue(
                     p.toFile(),
-                    new TypeReference<>(){}
+                    new TypeReference<List<Character>>(){}
             );
 
             // 2. Filter on specific eras and add to the respective lists
@@ -55,7 +55,7 @@ public class MainDeck extends Deck<Card>{
             p = Path.of("src/main/java/org/example/model/decks/decks_json/events.json");
             List<EventCard> eventCards = mapper.readValue(
                     p.toFile(),
-                    new TypeReference<>(){}
+                    new TypeReference<List<EventCard>>(){}
             );
 
             // 2. Filter on specific eras and add to the respective lists
@@ -73,7 +73,6 @@ public class MainDeck extends Deck<Card>{
             Collections.shuffle(era_III_cards);
 
         } catch (Exception e) {
-            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }

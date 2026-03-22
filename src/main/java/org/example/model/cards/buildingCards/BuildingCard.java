@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.example.model.cards.Card;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
-import org.example.model.interfaces.Visitable;
 import org.example.model.interfaces.Visitor;
+import org.example.model.interfaces.Visitable;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 
@@ -44,7 +44,7 @@ public abstract class BuildingCard extends Card implements Visitable {
 
     public void accept(Visitor visitor)  {
         visitor.visit(this);
-    }
+    };
 
 
     public int getFoodCost() {

@@ -2,10 +2,12 @@ package org.example.model.cards.buildingCards;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.model.enums.BuildingCardType;
-import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
+import org.example.model.interfaces.Visitor;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
+import org.example.model.enums.CharacterType;
+import org.example.model.cards.characters.Character;
 
 import java.util.List;
 import java.util.stream.Stream;
