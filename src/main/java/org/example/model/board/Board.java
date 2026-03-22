@@ -1,20 +1,60 @@
 package org.example.model.board;
 
 import org.example.model.cards.Card;
+import org.example.model.cards.eventCards.EventCard;
 import org.example.model.decks.BuildingDeck;
 import org.example.model.decks.MainDeck;
+import org.example.model.enums.OfferEffect;
+import org.example.model.match.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Board {
-    private TurnOrderTile turnOrderTile;
-    private List<OfferTile> offerTrack;
-    private MainDeck mainDeck;
-    private BuildingDeck buildingDeck;
-    private List<Card> topRow;
-    private List<Card> bottomRow;
+    private final TurnOrderTile turnOrderTile;
+    private final List<OfferTile> offerTrack;
+    private final MainDeck mainDeck;
+    private final BuildingDeck buildingDeck;
+    private final List<Card> topRow;
+    private final List<Card> bottomRow;
 
-    public Board() {
+    public Board(List<Player> players) {
+        // turnOrderTile initialization (delegated to TurnOrderTile constructor)
+        turnOrderTile = new TurnOrderTile(players);
+
+        // offerTrack initialization
+        switch (players.size()) {
+            case 2 -> offerTrack = List.of(new OfferTile(OfferEffect.D, 2), new OfferTile(OfferEffect.U, 2), new OfferTile(OfferEffect.DU, 2), new OfferTile(OfferEffect.UU, 2));
+            case 3 -> offerTrack = List.of(new OfferTile(OfferEffect.D, 2), new OfferTile(OfferEffect.U, 2), new OfferTile(OfferEffect.DD, 3) ,new OfferTile(OfferEffect.DU, 2), new OfferTile(OfferEffect.UU, 2));
+            case 4 -> offerTrack = List.of(new OfferTile(OfferEffect.D, 2), new OfferTile(OfferEffect.U, 2), new OfferTile(OfferEffect.DD, 3) ,new OfferTile(OfferEffect.DU, 2), new OfferTile(OfferEffect.UU, 2), new OfferTile(OfferEffect.DUU, 4));
+            case 5 -> offerTrack = List.of(new OfferTile(OfferEffect.FOOD, 5), new OfferTile(OfferEffect.D, 2), new OfferTile(OfferEffect.U, 2), new OfferTile(OfferEffect.DD, 3) ,new OfferTile(OfferEffect.DU, 2), new OfferTile(OfferEffect.UU, 2), new OfferTile(OfferEffect.DUU, 4));
+            default -> throw new IllegalArgumentException("Invalid list of players");
+        }
+
+        // mainDeck initialization, based on the number of players (delegated to MainDeck constructor)
+        mainDeck = new MainDeck(players.size());
+
+        // buildingDeck initialization, based on the number of players (delegated to BuildingDeck constructor)
+        buildingDeck = new BuildingDeck(players.size());
+
+        // bottomRow and topRow instantiation and initialization
+        topRow = new ArrayList<>();
+        bottomRow = new ArrayList<>();
+
+        // bottomRow initialization: draw cards until we have players.size() + 1 cards in the bottom row, if we draw an event card, put it in the top row (and continue to draw until we have enough cards in the bottom row)
+        for(int i=0; i<players.size() + 1; i++) {
+            Card drawnCard = mainDeck.draw();
+            if(drawnCard instanceof EventCard) {
+                topRow.add(drawnCard);
+                i--; // decrement i to draw another card for the bottom row
+            }
+            else
+                bottomRow.add(drawnCard);
+        }
+
+        // topRow initialization: draw cards until we have players.size() + 4 cards in the top row (taking into account the event cards we might have drawn in the previous step)
+        for(int i=0; i<players.size() + 4 - topRow.size(); i++)
+            bottomRow.add(mainDeck.draw());
 
     }
 

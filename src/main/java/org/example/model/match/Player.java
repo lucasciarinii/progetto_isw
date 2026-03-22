@@ -1,36 +1,80 @@
 package org.example.model.match;
 
 import org.example.model.cards.buildingCards.BuildingCard;
+import org.example.model.cards.characters.*;
 import org.example.model.cards.characters.Character;
+import org.example.model.interfaces.Visitor;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 
-
 public class Player {
 
     private final String nickname;
+    private final List<BuildingCard> ownedBuildings = new ArrayList<>();
+    private final List<Inventor> inventors = new ArrayList<>();
+    private final List<Gatherer> gatherers = new ArrayList<>();
+    private final List<Shaman> shamans = new ArrayList<>();
+    private final List<Builder> builders = new ArrayList<>();
+    private final List<Artist> artists = new ArrayList<>();
+    private final List<Hunter> hunters = new ArrayList<>();
+    private final Visitor addToListVisitor = new Visitor() {
+        // Every override adds the selected Character to the appropriate list
+        @Override
+        public void visit(Inventor inventor) {
+            inventors.add(inventor);
+        }
+
+        @Override
+        public void visit(Gatherer gatherer) {
+            gatherers.add(gatherer);
+        }
+
+        @Override
+        public void visit(Shaman shaman) {
+            shamans.add(shaman);
+        }
+
+        @Override
+        public void visit(Builder builder) {
+            builders.add(builder);
+        }
+
+        @Override
+        public void visit(Artist artist) {
+            artists.add(artist);
+        }
+
+        @Override
+        public void visit(Hunter hunter) {
+            hunters.add(hunter);
+        }
+
+        @Override
+        public void visit(BuildingCard building) {
+            ownedBuildings.add(building);
+        }
+    };
     private int points = 0;
     private int food = 0;
     private int discountOnSustenance = 0;
     private int discountOnBuilding = 0;
-    private int shamansStars = 0;
-    private final ArrayList<BuildingCard> ownedBuildings = new ArrayList<>();
-    private final ArrayList<Character> ownedCharacters = new ArrayList<>();
+    private int shamanStars = 0;
 
 
     public Player(String nickname) {
+
+        if (nickname == null) {
+            throw new IllegalArgumentException("Nickname cannot be null");
+        }
         this.nickname = nickname;
+
     }
-
-
 
     public String getNickname() {
         return nickname;
-
-
     }
 
 
@@ -61,7 +105,7 @@ public class Player {
 
     public void addDiscountOnSustenance(int discountOnSustenance) {
 
-        if ( discountOnSustenance <= 0 ) {
+        if (discountOnSustenance <= 0) {
             throw new IllegalArgumentException("discountOnSustenance must be positive");
         }
 
@@ -76,7 +120,7 @@ public class Player {
 
     public void addDiscountOnBuilding(int discountOnBuilding) {
 
-        if ( discountOnBuilding <= 0 ) {
+        if (discountOnBuilding <= 0) {
             throw new IllegalArgumentException("discountOnBuilding must be positive");
         }
 
@@ -84,18 +128,18 @@ public class Player {
     }
 
 
-    public int getShamansStars() {
-        return shamansStars;
+    public int getShamanStars() {
+        return shamanStars;
     }
 
 
-    public void addShamansStars(int shamansStars) {
+    public void addShamanStars(int shamansStars) {
 
-        if ( shamansStars <= 0 ) {
+        if (shamansStars <= 0) {
             throw new IllegalArgumentException("shamansStars must be positive");
         }
 
-        this.shamansStars += shamansStars;
+        this.shamanStars += shamansStars;
     }
 
 
@@ -103,30 +147,72 @@ public class Player {
         return Collections.unmodifiableList(ownedBuildings);
     }
 
+    public void addCharacter(Character character) {
 
-    public void addOwnedBuildings(BuildingCard buildingCard) {
-
-        if ( buildingCard == null ) {
-            throw new IllegalArgumentException("buildingCard must not be null");
-        }
-
-        this.ownedBuildings.add(buildingCard);
-    }
-
-
-    public List<Character> getOwnedCharacters() {
-        return Collections.unmodifiableList(ownedCharacters);
-    }
-
-
-    public void addOwnedCharacters(Character character) {
-
-        if ( character == null ) {
+        if (character == null) {
             throw new IllegalArgumentException("character must not be null");
         }
 
+        // Double dispatch: il tipo runtime di character seleziona il visit(...) corretto.
+        // In questo modo evitiamo if/else o instanceof nel Player.
+        // Double dispatch: the runtime type of character select the correct visit(...) in the Characters classes.
+        character.accept(addToListVisitor);
 
-        this.ownedCharacters.add(character);
     }
 
+    public void addBuilding(BuildingCard building) {
+
+        if (building == null) {
+            throw new IllegalArgumentException("building must not be null");
+        }
+
+        building.accept(addToListVisitor);
+
+    }
+
+    public List<Inventor> getInventors() {
+        return Collections.unmodifiableList(inventors);
+    }
+
+    public List<Gatherer> getGatherers() {
+        return Collections.unmodifiableList(gatherers);
+    }
+
+    public List<Shaman> getShamans() {
+        return Collections.unmodifiableList(shamans);
+    }
+
+    public List<Builder> getBuilders() {
+        return Collections.unmodifiableList(builders);
+    }
+
+    public List<Artist> getArtists() {
+        return Collections.unmodifiableList(artists);
+    }
+
+    public List<Hunter> getHunters() {
+        return Collections.unmodifiableList(hunters);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        Player p2 = (Player) obj;
+
+        return this.nickname.equals(p2.getNickname());
+    }
+
+    @Override
+    public int hashCode() {
+        return this.nickname.hashCode(); // nickname è final e non-null, quindi è sicuro
+    }
 }

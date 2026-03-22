@@ -1,7 +1,12 @@
 package org.example.model.cards.eventCards;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.example.model.cards.buildingCards.BuildingCard;
+import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
+import org.example.model.match.Match;
+import org.example.model.match.Player;
 
 public class CavePainting extends EventCard {
 
@@ -9,22 +14,44 @@ public class CavePainting extends EventCard {
     private final int malusPoints;
     private final int interval;
 
-    public CavePainting(Era era, boolean isEraFinal, EventEffect effect, int bonusPoints, int malusPoints, int interval) {
-        super(era, isEraFinal, effect);
+    public CavePainting(
+            @JsonProperty("id") int id,
+            @JsonProperty("era") Era era,
+            @JsonProperty("isEraFinal") boolean isEraFinal,
+            @JsonProperty("eventEffect") EventEffect effect,
+            @JsonProperty("bonusPoints") int bonusPoints,
+            @JsonProperty("malusPoints") int malusPoints,
+            @JsonProperty("interval") int interval
+    ) {
+        super(id, era, isEraFinal, effect);
         this.bonusPoints = bonusPoints;
         this.malusPoints = malusPoints;
         this.interval = interval;
     }
 
-    public int getBonusPoints() {
-        return bonusPoints;
-    }
 
-    public int getMalusPoints() {
-        return malusPoints;
-    }
+    @Override
+    public void applyEvent(Match match) {
 
-    public int getInterval() {
-        return interval;
+        //For each player, count the number of artists they own
+        //and assign points according to the event rules
+        for (Player player : match.getPlayers()) {
+            int artists = player.getArtists().size();
+
+            //If the player has fewer artists than the required interval,
+            //apply the malus; otherwise award bonus points
+            if (artists < interval) {
+                player.addPoints(malusPoints);
+            } else {
+                player.addPoints(artists * bonusPoints);
+            }
+
+            //Apply all Cave Painting event boost buildings owned by the player
+            for (BuildingCard building : player.getOwnedBuildings()) {
+                if (building.getClassType() == BuildingCardType.CavePaintingEventBoostBC) {
+                    building.applyEffect(player, match);
+                }
+            }
+        }
     }
 }

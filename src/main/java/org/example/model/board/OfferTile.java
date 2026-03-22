@@ -1,6 +1,6 @@
 package org.example.model.board;
-import  org.example.model.board.PlayerSlot;
-import  org.example.model.enums.OfferEffect;
+
+import org.example.model.enums.OfferEffect;
 
 
 public class OfferTile {
@@ -9,7 +9,8 @@ public class OfferTile {
     private final OfferEffect offerEffect;
     private final int MinPlayers;
 
-    public OfferTile(OfferEffect offerEffect,  int minPlayers) {
+    public OfferTile(OfferEffect offerEffect, int minPlayers) {
+        this.slot = new PlayerSlot(""); // When initialized, there will be no player assigned to the slot, so we can set it to an empty string
         this.MinPlayers = minPlayers;
         this.offerEffect = offerEffect;
     }
