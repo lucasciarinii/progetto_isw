@@ -1,10 +1,7 @@
 package org.example.model.cards.buildingCards;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.example.model.cards.characters.Builder;
-import org.example.model.cards.characters.Character;
 import org.example.model.enums.BuildingCardType;
-import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
 import org.example.model.match.Match;
 import org.example.model.match.Player;

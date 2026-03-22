@@ -1,8 +1,8 @@
 package org.example.model.decks;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.example.model.cards.buildingCards.BuildingCard;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.model.cards.buildingCards.BuildingCard;
 import org.example.model.enums.Era;
 
 import java.nio.file.Path;
@@ -28,7 +28,7 @@ public class BuildingDeck extends Deck<BuildingCard> {
             Path p = Path.of("src/main/java/org/example/model/decks/decks_json/buildingCards.json");
             List<BuildingCard> allCards = mapper.readValue(
                     p.toFile(),
-                    new TypeReference<List<BuildingCard>>(){}
+                    new TypeReference<>(){}
             );
 
             // 2. Filter on specific eras and add to the respective lists
@@ -71,6 +71,7 @@ public class BuildingDeck extends Deck<BuildingCard> {
             }
 
         } catch (Exception e) {
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
@@ -100,9 +101,9 @@ public class BuildingDeck extends Deck<BuildingCard> {
 
     public void showEraBuildings(Era era) {
         switch (era) {
-            case I -> era_I_cards.stream().forEach(System.out::println);
-            case II -> era_II_cards.stream().forEach(System.out::println);
-            case III -> era_III_cards.stream().forEach(System.out::println);
+            case I -> era_I_cards.forEach(System.out::println);
+            case II -> era_II_cards.forEach(System.out::println);
+            case III -> era_III_cards.forEach(System.out::println);
             default -> throw new IllegalArgumentException("Invalid era: " + era);
         }
     }
@@ -110,10 +111,10 @@ public class BuildingDeck extends Deck<BuildingCard> {
     // FUNZIONE DI TEST
     public void showAllCards() {
         System.out.println("Era I Cards:");
-        era_I_cards.stream().forEach(x -> System.out.println(x.getId()));
+        era_I_cards.forEach(x -> System.out.println(x.getId()));
         System.out.println("\nEra II Cards:");
-        era_II_cards.stream().forEach(x -> System.out.println(x.getId()));
+        era_II_cards.forEach(x -> System.out.println(x.getId()));
         System.out.println("\nEra III Cards:");
-        era_III_cards.stream().forEach(x -> System.out.println(x.getId()));
+        era_III_cards.forEach(x -> System.out.println(x.getId()));
     }
 }
