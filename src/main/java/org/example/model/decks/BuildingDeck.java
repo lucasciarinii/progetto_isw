@@ -107,7 +107,7 @@ public class BuildingDeck extends Deck<BuildingCard> {
         }
     }
 
-    // FUNZIONE DI TEST
+    // TODO: FUNZIONE DI TEST (va fatta come test a parte)
     public void showAllCards() {
         System.out.println("Era I Cards:");
         era_I_cards.stream().forEach(x -> System.out.println(x.getId()));
