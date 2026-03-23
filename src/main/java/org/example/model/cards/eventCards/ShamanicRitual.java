@@ -9,6 +9,7 @@ import org.example.model.match.Match;
 import org.example.model.match.Player;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ShamanicRitual extends EventCard {
 
@@ -31,6 +32,8 @@ public class ShamanicRitual extends EventCard {
 
     @Override
     public void applyEvent(Match match) {
+
+        Objects.requireNonNull(match, "Match cannot be null");
 
         //Find the maximum and minimum number of shaman stars among all players
         List<Player> players = match.getPlayers();

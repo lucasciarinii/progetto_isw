@@ -7,6 +7,7 @@ import org.example.model.cards.Card;
 import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
 import org.example.model.match.Match;
+import java.util.Objects;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -32,7 +33,7 @@ public abstract class EventCard extends Card {
     ) {
         super(id, era);
         this.isEraFinal = isEraFinal;
-        this.eventEffect = effect;
+        this.eventEffect = Objects.requireNonNull(effect, "EventEffect cannot be null");
     }
 
     public EventEffect getEventEffect() {

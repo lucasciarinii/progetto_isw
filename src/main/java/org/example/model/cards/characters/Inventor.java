@@ -6,23 +6,27 @@ import org.example.model.enums.Era;
 import org.example.model.enums.InventionType;
 import org.example.model.interfaces.Visitor;
 
+import java.util.Objects;
+
 
 public class Inventor extends Character {
 
     private final InventionType invention;
-    private boolean wasPresentLastTurn;
+    private boolean wasPresentLastTurn = false;
 
 
-    public Inventor(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("CharacterType") CharacterType characterType, @JsonProperty("newCardInSet") boolean newCardInSet, @JsonProperty("invention") InventionType invention) {
-        super(id, era, characterType, newCardInSet);
+    public Inventor(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("CharacterType") CharacterType characterType, @JsonProperty("invention") InventionType invention) {
+        super(id, era, characterType);
         this.invention = invention;
-        this.wasPresentLastTurn = false;
     }
 
 
     // Double dispatch: delegates Character specific logic to the visitor.
     @Override
     public void accept(Visitor visitor) {
+
+        Objects.requireNonNull(visitor, "Visitor cannot be null");
+
         visitor.visit(this);
     }
 

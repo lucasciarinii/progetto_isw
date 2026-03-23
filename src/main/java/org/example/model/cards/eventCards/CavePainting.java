@@ -8,6 +8,8 @@ import org.example.model.enums.EventEffect;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 
+import java.util.Objects;
+
 public class CavePainting extends EventCard {
 
     private final int bonusPoints;
@@ -32,6 +34,8 @@ public class CavePainting extends EventCard {
 
     @Override
     public void applyEvent(Match match) {
+
+        Objects.requireNonNull(match, "Match cannot be null when applying Cave Painting event");
 
         //For each player, count the number of artists they own
         //and assign points according to the event rules

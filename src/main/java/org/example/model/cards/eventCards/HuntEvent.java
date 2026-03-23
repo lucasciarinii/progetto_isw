@@ -8,6 +8,8 @@ import org.example.model.enums.EventEffect;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 
+import java.util.Objects;
+
 public class HuntEvent extends EventCard {
 
     private final int points;
@@ -27,6 +29,8 @@ public class HuntEvent extends EventCard {
 
     @Override
     public void applyEvent(Match match) {
+
+        Objects.requireNonNull(match, "Match cannot be null");
 
         //For each player, count the number of hunters they own
         //and award the standard Hunt event rewards

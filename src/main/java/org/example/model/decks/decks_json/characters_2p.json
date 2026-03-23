@@ -3,28 +3,24 @@
     "id": 0,
     "era": "I",
     "CharacterType": "Hunter",
-    "newCardInSet": false,
     "obtainFood": true
   },
   {
     "id": 1,
     "era": "I",
     "CharacterType": "Hunter",
-    "newCardInSet": false,
     "obtainFood": true
   },
   {
     "id": 2,
     "era": "I",
     "CharacterType": "Hunter",
-    "newCardInSet": false,
     "obtainFood": false
   },
   {
     "id": 3,
     "era": "I",
     "CharacterType": "Builder",
-    "newCardInSet": false,
     "discountBuilding": -1,
     "endPoints": 3
   },
@@ -32,7 +28,6 @@
     "id": 4,
     "era": "I",
     "CharacterType": "Builder",
-    "newCardInSet": false,
     "discountBuilding": -2,
     "endPoints": 0
   },
@@ -40,108 +35,92 @@
     "id": 5,
     "era": "I",
     "CharacterType": "Builder",
-    "newCardInSet": false,
     "discountBuilding": -1,
     "endPoints": 2
   },
   {
     "id": 6,
     "era": "I",
-    "CharacterType": "Gatherer",
-    "newCardInSet": false
+    "CharacterType": "Gatherer"
   },
   {
     "id": 7,
     "era": "I",
-    "CharacterType": "Gatherer",
-    "newCardInSet": false
+    "CharacterType": "Gatherer"
   },
   {
     "id": 8,
     "era": "I",
-    "CharacterType": "Artist",
-    "newCardInSet": false
+    "CharacterType": "Artist"
   },
   {
     "id": 9,
     "era": "I",
-    "CharacterType": "Artist",
-    "newCardInSet": false
+    "CharacterType": "Artist"
   },
   {
     "id": 10,
     "era": "I",
-    "CharacterType": "Artist",
-    "newCardInSet": false
+    "CharacterType": "Artist"
   },
   {
     "id": 11,
     "era": "I",
     "CharacterType": "Inventor",
-    "newCardInSet": false,
     "invention": "LEATHER"
   },
   {
     "id": 12,
     "era": "I",
     "CharacterType": "Inventor",
-    "newCardInSet": false,
     "invention": "BOAT"
   },
   {
     "id": 13,
     "era": "I",
     "CharacterType": "Inventor",
-    "newCardInSet": false,
     "invention": "ARROW"
   },
   {
     "id": 14,
     "era": "I",
     "CharacterType": "Inventor",
-    "newCardInSet": false,
     "invention": "BREAD"
   },
   {
     "id": 15,
     "era": "I",
     "CharacterType": "Shaman",
-    "newCardInSet": false,
     "numStars": 2
   },
   {
     "id": 16,
     "era": "I",
     "CharacterType": "Shaman",
-    "newCardInSet": false,
     "numStars": 1
   },
   {
     "id": 17,
     "era": "II",
     "CharacterType": "Hunter",
-    "newCardInSet": false,
     "obtainFood": false
   },
   {
     "id": 18,
     "era": "II",
     "CharacterType": "Hunter",
-    "newCardInSet": false,
     "obtainFood": false
   },
   {
     "id": 19,
     "era": "II",
     "CharacterType": "Hunter",
-    "newCardInSet": false,
     "obtainFood": true
   },
   {
     "id": 20,
     "era": "II",
     "CharacterType": "Builder",
-    "newCardInSet": false,
     "discountBuilding": -1,
     "endPoints": 4
   },
@@ -149,7 +128,6 @@
     "id": 21,
     "era": "II",
     "CharacterType": "Builder",
-    "newCardInSet": false,
     "discountBuilding": -2,
     "endPoints": 1
   },
@@ -157,109 +135,93 @@
     "id": 22,
     "era": "II",
     "CharacterType": "Builder",
-    "newCardInSet": false,
     "discountBuilding": -2,
     "endPoints": 3
   },
   {
     "id": 23,
     "era": "II",
-    "CharacterType": "Gatherer",
-    "newCardInSet": false
+    "CharacterType": "Gatherer"
   },
   {
     "id": 24,
     "era": "II",
-    "CharacterType": "Artist",
-    "newCardInSet": false
+    "CharacterType": "Artist"
   },
   {
     "id": 25,
     "era": "II",
-    "CharacterType": "Artist",
-    "newCardInSet": false
+    "CharacterType": "Artist"
   },
   {
     "id": 26,
     "era": "II",
-    "CharacterType": "Artist",
-    "newCardInSet": false
+    "CharacterType": "Artist"
   },
   {
     "id": 27,
     "era": "II",
     "CharacterType": "Inventor",
-    "newCardInSet": false,
     "invention": "LEATHER"
   },
   {
     "id": 28,
     "era": "II",
     "CharacterType": "Inventor",
-    "newCardInSet": false,
     "invention": "BOWL"
   },
   {
     "id": 29,
     "era": "II",
     "CharacterType": "Inventor",
-    "newCardInSet": false,
     "invention": "STICK"
   },
   {
     "id": 30,
     "era": "II",
     "CharacterType": "Inventor",
-    "newCardInSet": false,
     "invention": "TOTEM"
   },
   {
     "id": 31,
     "era": "II",
     "CharacterType": "Inventor",
-    "newCardInSet": false,
     "invention": "ROPE"
   },
   {
     "id": 32,
     "era": "II",
     "CharacterType": "Shaman",
-    "newCardInSet": false,
     "numStars": 2
   },
   {
     "id": 33,
     "era": "II",
     "CharacterType": "Shaman",
-    "newCardInSet": false,
     "numStars": 2
   },
   {
     "id": 34,
     "era": "III",
     "CharacterType": "Hunter",
-    "newCardInSet": false,
     "obtainFood": false
   },
   {
     "id": 35,
     "era": "III",
     "CharacterType": "Hunter",
-    "newCardInSet": false,
     "obtainFood": false
   },
   {
     "id": 36,
     "era": "III",
     "CharacterType": "Hunter",
-    "newCardInSet": false,
     "obtainFood": true
   },
   {
     "id": 37,
     "era": "III",
     "CharacterType": "Builder",
-    "newCardInSet": false,
     "discountBuilding": -1,
     "endPoints": 5
   },
@@ -267,7 +229,6 @@
     "id": 38,
     "era": "III",
     "CharacterType": "Builder",
-    "newCardInSet": false,
     "discountBuilding": -2,
     "endPoints": 3
   },
@@ -275,81 +236,69 @@
     "id": 39,
     "era": "III",
     "CharacterType": "Builder",
-    "newCardInSet": false,
     "discountBuilding": -2,
     "endPoints": 2
   },
   {
     "id": 40,
     "era": "III",
-    "CharacterType": "Gatherer",
-    "newCardInSet": false
+    "CharacterType": "Gatherer"
   },
   {
     "id": 41,
     "era": "III",
-    "CharacterType": "Artist",
-    "newCardInSet": false
+    "CharacterType": "Artist"
   },
   {
     "id": 42,
     "era": "III",
-    "CharacterType": "Artist",
-    "newCardInSet": false
+    "CharacterType": "Artist"
   },
   {
     "id": 43,
     "era": "III",
-    "CharacterType": "Artist",
-    "newCardInSet": false
+    "CharacterType": "Artist"
   },
   {
     "id": 44,
     "era": "III",
     "CharacterType": "Inventor",
-    "newCardInSet": false,
     "invention": "TOTEM"
   },
   {
     "id": 45,
     "era": "III",
     "CharacterType": "Inventor",
-    "newCardInSet": false,
     "invention": "HOOK"
   },
   {
     "id": 46,
     "era": "III",
     "CharacterType": "Inventor",
-    "newCardInSet": false,
     "invention": "JEWELS"
   },
   {
     "id": 47,
     "era": "III",
     "CharacterType": "Inventor",
-    "newCardInSet": false,
     "invention": "BREAD"
   },
   {
     "id": 48,
     "era": "III",
     "CharacterType": "Shaman",
-    "newCardInSet": false,
     "numStars": 2
   },
   {
     "id": 49,
     "era": "III",
     "CharacterType": "Shaman",
-    "newCardInSet": false,
     "numStars": 3
   },
   {
     "id": 50,
     "era": "III",
     "CharacterType": "Shaman",
-    "newCardInSet": false,
     "numStars": 3
   }
 ]

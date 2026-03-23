@@ -5,12 +5,14 @@ import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
 import org.example.model.interfaces.Visitor;
 
+import java.util.Objects;
+
 public class Shaman extends Character {
 
     private final int numStars;
 
-    public Shaman(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("CharacterType") CharacterType characterType, @JsonProperty("newCardInSet") boolean newCardInSet, @JsonProperty("numStars") int numStars) {
-        super(id, era, characterType, newCardInSet);
+    public Shaman(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("CharacterType") CharacterType characterType, @JsonProperty("numStars") int numStars) {
+        super(id, era, characterType);
         this.numStars = numStars;
     }
 
@@ -18,6 +20,9 @@ public class Shaman extends Character {
     // Double dispatch: delegates Character specific logic to the visitor.
     @Override
     public void accept(Visitor visitor) {
+
+        Objects.requireNonNull(visitor, "Visitor cannot be null");
+
         visitor.visit(this);
     }
 

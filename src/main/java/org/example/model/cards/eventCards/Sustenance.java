@@ -8,6 +8,8 @@ import org.example.model.enums.EventEffect;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 
+import java.util.Objects;
+
 public class Sustenance extends EventCard {
 
     private final int points;
@@ -25,6 +27,9 @@ public class Sustenance extends EventCard {
 
     @Override
     public void applyEvent(Match match) {
+
+        Objects.requireNonNull(match, "Match cannot be null");
+
 
         //For each player, reset the sustenance discount,
         //apply all sustenance discount buildings, then pay the final food cost
