@@ -11,6 +11,7 @@ import org.example.model.board.Board;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class Match {
 
@@ -21,6 +22,7 @@ public class Match {
     private GameState gameState;
 
     public Match(List<Player> players) {
+        Objects.requireNonNull(players, "Players list cannot be null");
         this.players = new ArrayList<>(players);
 
         init(); // initialize board and gameState

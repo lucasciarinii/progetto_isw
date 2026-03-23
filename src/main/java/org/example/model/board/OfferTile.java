@@ -2,6 +2,8 @@ package org.example.model.board;
 
 import org.example.model.enums.OfferEffect;
 
+import java.util.Objects;
+
 
 public class OfferTile {
 
@@ -12,7 +14,7 @@ public class OfferTile {
     public OfferTile(OfferEffect offerEffect, int minPlayers) {
         this.slot = new PlayerSlot(""); // When initialize, there will be no player assigned to the slot, so we can set it to an empty string
         this.MinPlayers = minPlayers;
-        this.offerEffect = offerEffect;
+        this.offerEffect = Objects.requireNonNull(offerEffect, "offerEffect cannot be null");
     }
 
     public PlayerSlot getSlot() {
@@ -20,7 +22,7 @@ public class OfferTile {
     }
 
     public void setSlot(PlayerSlot slot) {
-        this.slot = slot;
+        this.slot = Objects.requireNonNull(slot);
     }
 
     public OfferEffect getOfferEffect() {

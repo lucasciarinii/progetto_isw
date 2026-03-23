@@ -9,6 +9,7 @@ import org.example.model.match.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Board {
     private final TurnOrderTile turnOrderTile;
@@ -19,6 +20,8 @@ public class Board {
     private final List<Card> bottomRow;
 
     public Board(List<Player> players) {
+        Objects.requireNonNull(players, "Players list cannot be null");
+
         // turnOrderTile initialization (delegated to TurnOrderTile constructor)
         turnOrderTile = new TurnOrderTile(players);
 

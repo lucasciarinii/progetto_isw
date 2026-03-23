@@ -8,6 +8,7 @@ import org.example.model.interfaces.Visitor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 
 public class Player {
@@ -65,12 +66,7 @@ public class Player {
 
 
     public Player(String nickname) {
-
-        if (nickname == null) {
-            throw new IllegalArgumentException("Nickname cannot be null");
-        }
-        this.nickname = nickname;
-
+        this.nickname = Objects.requireNonNull(nickname, "Nickname cannot be null");
     }
 
     public String getNickname() {
