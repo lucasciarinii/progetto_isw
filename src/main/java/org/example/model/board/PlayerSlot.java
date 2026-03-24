@@ -1,6 +1,7 @@
 package org.example.model.board;
 
 import org.example.model.match.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -25,11 +26,9 @@ public class PlayerSlot {
     }
 
 
-    public void applyTurnOrderEffect(Player player, int food, int points) {
+    public void placePlayerAndApplyEffect(@NotNull Player player, int food, int points) {
 
-        if (player == null) {
-            return;
-        }
+        Objects.requireNonNull(player, "player parameter can't be null");
 
         if ( this.player != null ) {
             throw new IllegalArgumentException("tile already taken");
@@ -44,5 +43,10 @@ public class PlayerSlot {
 
         player.addFood(food);
 
+    }
+
+
+    public void removeTotem() {
+        this.player = null;
     }
 }
