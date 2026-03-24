@@ -16,11 +16,21 @@ public class PlayerSlot {
     }
 
     public String getPlayerName() {
+
+        if ( player == null ) {
+            return "";
+        }
+
         return player.getNickname();
     }
 
 
     public void applyTurnOrderEffect(Player player, int food, int points) {
+
+        if (player == null) {
+            return;
+        }
+
         this.player = player;
 
         if ( food < 0 && player.getFood() < 1 ) {
