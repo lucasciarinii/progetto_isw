@@ -16,13 +16,9 @@ public class PlayerSlot {
         this.points = points;
     }
 
-    public String getPlayerName() {
+    public Player getPlayerName() {
 
-        if ( player == null ) {
-            return "";
-        }
-
-        return player.getNickname();
+        return player;
     }
 
 
