@@ -24,7 +24,19 @@ public class OfferTile {
     }
 
     public void placePlayer(Player player) {
+
+        Objects.requireNonNull(player, "player must not be null");
+
+        if ( this.player != null ) {
+            throw new IllegalArgumentException("tile already taken");
+        }
+
         this.player = player;
+    }
+
+
+    public void removePlayer() {
+        this.player = null;
     }
 
 
