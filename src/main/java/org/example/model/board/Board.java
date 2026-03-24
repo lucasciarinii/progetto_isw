@@ -27,10 +27,10 @@ public class Board {
 
         // offerTrack initialization
         switch (players.size()) {
-            case 2 -> offerTrack = List.of(new OfferTile(OfferEffect.D, 2), new OfferTile(OfferEffect.U, 2), new OfferTile(OfferEffect.DU, 2), new OfferTile(OfferEffect.UU, 2));
-            case 3 -> offerTrack = List.of(new OfferTile(OfferEffect.D, 2), new OfferTile(OfferEffect.U, 2), new OfferTile(OfferEffect.DD, 3) ,new OfferTile(OfferEffect.DU, 2), new OfferTile(OfferEffect.UU, 2));
-            case 4 -> offerTrack = List.of(new OfferTile(OfferEffect.D, 2), new OfferTile(OfferEffect.U, 2), new OfferTile(OfferEffect.DD, 3) ,new OfferTile(OfferEffect.DU, 2), new OfferTile(OfferEffect.UU, 2), new OfferTile(OfferEffect.DUU, 4));
-            case 5 -> offerTrack = List.of(new OfferTile(OfferEffect.FOOD, 5), new OfferTile(OfferEffect.D, 2), new OfferTile(OfferEffect.U, 2), new OfferTile(OfferEffect.DD, 3) ,new OfferTile(OfferEffect.DU, 2), new OfferTile(OfferEffect.UU, 2), new OfferTile(OfferEffect.DUU, 4));
+            case 2 -> offerTrack = List.of(new OfferTile(OfferEffect.D), new OfferTile(OfferEffect.U), new OfferTile(OfferEffect.DU), new OfferTile(OfferEffect.UU));
+            case 3 -> offerTrack = List.of(new OfferTile(OfferEffect.D), new OfferTile(OfferEffect.U), new OfferTile(OfferEffect.DD) ,new OfferTile(OfferEffect.DU), new OfferTile(OfferEffect.UU));
+            case 4 -> offerTrack = List.of(new OfferTile(OfferEffect.D), new OfferTile(OfferEffect.U), new OfferTile(OfferEffect.DD) ,new OfferTile(OfferEffect.DU), new OfferTile(OfferEffect.UU), new OfferTile(OfferEffect.DUU));
+            case 5 -> offerTrack = List.of(new OfferTile(OfferEffect.FOOD), new OfferTile(OfferEffect.D), new OfferTile(OfferEffect.U), new OfferTile(OfferEffect.DD) ,new OfferTile(OfferEffect.DU), new OfferTile(OfferEffect.UU), new OfferTile(OfferEffect.DUU));
             default -> throw new IllegalArgumentException("Invalid list of players");
         }
 
@@ -57,7 +57,7 @@ public class Board {
 
         // topRow initialization: draw cards until we have players.size() + 4 cards in the top row (taking into account the event cards we might have drawn in the previous step)
         for(int i=0; i<players.size() + 4 - topRow.size(); i++)
-            bottomRow.add(mainDeck.draw());
+            topRow.add(mainDeck.draw());
 
     }
 
