@@ -31,6 +31,10 @@ public class PlayerSlot {
             return;
         }
 
+        if ( this.player != null ) {
+            throw new IllegalArgumentException("tile already taken");
+        }
+
         this.player = player;
 
         if ( food < 0 && player.getFood() < 1 ) {
