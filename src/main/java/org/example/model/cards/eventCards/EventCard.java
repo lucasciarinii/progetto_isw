@@ -15,10 +15,10 @@ import java.util.Objects;
         property = "eventEffect"
 )
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = HuntEvent.class, name = "HuntEvent"),
-        @JsonSubTypes.Type(value = CavePainting.class, name = "CavePainting"),
-        @JsonSubTypes.Type(value = ShamanicRitual.class, name = "ShamanicRitual"),
-        @JsonSubTypes.Type(value = Sustenance.class, name = "Sustenance"),
+        @JsonSubTypes.Type(value = HuntEvent.class, name = "HUNT-EVENT"),
+        @JsonSubTypes.Type(value = CavePainting.class, name = "CAVE_PAINTING"),
+        @JsonSubTypes.Type(value = ShamanicRitual.class, name = "SHAMANIC_RITUAL"),
+        @JsonSubTypes.Type(value = Sustenance.class, name = "SUSTENANCE"),
 })
 public abstract class EventCard extends Card {
 
@@ -33,7 +33,7 @@ public abstract class EventCard extends Card {
     ) {
         super(id, era);
         this.isEraFinal = isEraFinal;
-        this.eventEffect = Objects.requireNonNull(effect, "EventEffect cannot be null");
+        this.eventEffect = effect;
     }
 
     public EventEffect getEventEffect() {

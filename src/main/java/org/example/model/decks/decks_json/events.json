@@ -25,10 +25,10 @@
     "id": 54,
     "era": "I",
     "isEraFinal": false,
-    "eventEffect": "CAVE_PAINTINGS",
+    "eventEffect": "CAVE_PAINTING",
     "bonusPoints": 1,
     "malusPoints": -2,
-    "delta": 1
+    "interval": 1
   },
   {
     "id": 55,
@@ -56,10 +56,10 @@
     "id": 58,
     "era": "II",
     "isEraFinal": false,
-    "eventEffect": "CAVE_PAINTINGS",
+    "eventEffect": "CAVE_PAINTING",
     "bonusPoints": 2,
     "malusPoints": -2,
-    "delta": 2
+    "interval": 2
   },
   {
     "id": 59,
@@ -72,10 +72,10 @@
     "id": 60,
     "era": "III",
     "isEraFinal": false,
-    "eventEffect": "CAVE_PAINTINGS",
+    "eventEffect": "CAVE_PAINTING",
     "bonusPoints": 3,
     "malusPoints": -2,
-    "delta": 3
+    "interval": 3
   },
   {
     "id": 61,
