@@ -1,19 +1,48 @@
 package org.example.model.board;
 
+import org.example.model.match.Player;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Objects;
 
 public class PlayerSlot {
-    private String playerName;
+    private Player player;
+    private final int food;
+    private final int points;
 
-    public PlayerSlot(String playerName) {
-        this.playerName = Objects.requireNonNull(playerName, "Player name cannot be null");
+    public PlayerSlot(Player player, int food, int points) {
+        this.player = player;
+        this.food = food;
+        this.points = points;
     }
 
-    public String getPlayerName() {
-        return playerName;
+    public Player getPlayerName() {
+
+        return player;
     }
 
-    public void setPlayerName(String playerName) {
-        this.playerName = playerName;
+
+    public void placePlayerAndApplyEffect(@NotNull Player player, int food, int points) {
+
+        Objects.requireNonNull(player, "player parameter can't be null");
+
+        if ( this.player != null ) {
+            throw new IllegalArgumentException("tile already taken");
+        }
+
+        this.player = player;
+
+        if ( food < 0 && player.getFood() < 1 ) {
+            player.addPoints(points);
+            return;
+        }
+
+        player.addFood(food);
+
+    }
+
+
+    public void removeTotem() {
+        this.player = null;
     }
 }

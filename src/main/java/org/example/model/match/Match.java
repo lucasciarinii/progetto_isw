@@ -7,6 +7,11 @@ Match rappresenta la classe di una singola partita. Tra i suoi compiti dovrebbe:
 package org.example.model.match;
 
 import org.example.model.board.Board;
+import org.example.model.cards.Card;
+import org.example.model.cards.buildingCards.BuildingCard;
+import org.example.model.cards.characters.Character;
+import org.example.model.cards.eventCards.EventCard;
+import org.example.model.cards.eventCards.Sustenance;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -81,5 +86,110 @@ public class Match {
         // Initialize GameState (with random order already done)
         gameState = new GameState(players);
     }
+
+    //! METHODS TO MANAGE THE MATCH
+
+    // Invocated at the beginning of each new Era
+    public void newEraOperations() {
+        // 1. discard any building cards present in the bottom row
+        board.getBottomRow().removeIf(card -> card instanceof BuildingCard);
+
+        // 2. Move any building card present in the top row to the bottom row, and place them to the right of the Tribe cards
+        List<Card> buildingCardsInTopRow = new ArrayList<>();
+        board.getTopRow().removeIf(card -> {
+            if (card instanceof BuildingCard) {
+                buildingCardsInTopRow.add(card);
+                return true; // remove from top row
+            }
+            return false; // keep in top row
+        });
+        board.getBottomRow().addAll(buildingCardsInTopRow);
+
+        // 3. Place the Building card from the just-started Era in the top row to the right of the Tribe cards, face up
+        board.getBuildingDeck().addCardToTopRow(board, this.getGameState().getCurrentEra()); // the getCurrentEra() should be already updated
+    }
+
+    // Invocated at the end of each round, after all players have resolved their actions and before starting a new round
+    public void endRoundOperations() {
+        // 1. Resolve events of bottomRow (with priority as in the rules)
+        resolveBottomEvents();
+
+        // 2. Discard all Characters and EventCards in the bottom row (BuildingCards stay)
+        board.getBottomRow().removeIf(card -> card instanceof org.example.model.cards.characters.Character || card instanceof EventCard);
+
+        // 3. Move all remaining Character and event cards from the top row to the bottom row (at the left of the BuildingCards) (BuildingCards stay in the top row)
+        List<Card> cardsToMove = new ArrayList<>();
+        board.getTopRow().removeIf(card -> {
+            if (card instanceof Character || card instanceof EventCard) {
+                cardsToMove.add(card);
+                return true; // Rimuove dalla topRow
+            }
+            return false;
+        });
+
+        board.getBottomRow().addAll(0, cardsToMove);
+
+        // 4. Restore the topRow to the number of cards equal to players.size() + 4 (at the left of the BuildingCards)
+        for (int i = 0; i < this.getPlayers().size() + 4; i++) {
+            Card drawnCard = board.getMainDeck().draw();
+            board.getTopRow().add(0, drawnCard); // add new card to the left of the top row
+            if (drawnCard.getEra() != this.getGameState().getCurrentEra()) { // true means that we have drawn a card of a new era, so we need to update the current era in the GameState
+                this.getGameState().advanceCurrentEra(); // update the current era in the GameState
+            }
+        }
+
+        // TODO: 5. Riposizionare i totem in ordine PRECISO sulla carta TurnOrderTile in base all'ordine attuale dentro a OfferTrack
+        // 5.
+    }
+
+    private void resolveBottomEvents() {
+        // Resolve events of bottomRow (with priority as in the rules)
+        List<Sustenance> sustenance_cards = new ArrayList<>();
+        for (Card card : board.getBottomRow()) {
+            if (card instanceof EventCard && !(card instanceof Sustenance)) {
+                ((EventCard) card).applyEvent(this);
+            } else if (card instanceof Sustenance) {
+                sustenance_cards.add((Sustenance) card);
+            }
+        }
+
+        for (Sustenance s : sustenance_cards) {
+            s.applyEvent(this);
+        }
+    }
+
+    private void resolveTopEvents() {
+        // Resolve events of bottomRow (with priority as in the rules)
+        List<Sustenance> sustenance_cards = new ArrayList<>();
+        for (Card card : board.getTopRow()) {
+            if (card instanceof EventCard && !(card instanceof Sustenance)) {
+                ((EventCard) card).applyEvent(this);
+            } else if (card instanceof Sustenance) {
+                sustenance_cards.add((Sustenance) card);
+            }
+        }
+
+        for (Sustenance s : sustenance_cards) {
+            s.applyEvent(this);
+        }
+    }
+
+
+
+    // TODO:
+    public void placeTotemOnOfferTile(Player p, int tile) {
+
+    }
+
+    // TODO:
+    public void offerTileAction(Player p) {
+
+    }
+
+    // TODO:
+    public void endOfGame() {
+
+    }
+
 
 }
