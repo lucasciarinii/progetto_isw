@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.example.model.cards.buildingCards.BuildingCard;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.model.enums.Era;
+import org.example.model.board.Board;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -12,9 +13,10 @@ import java.util.NoSuchElementException;
 
 public class BuildingDeck extends Deck<BuildingCard> {
 
-    public BuildingDeck(int numPlayers) {
+    public BuildingDeck(int numPlayers, Board b) {
         super();
         initializeDeck(numPlayers);
+        addCardToTopRow(b, Era.I); // add era I cards to the top row of the board
     }
 
     public BuildingCard draw(BuildingCard buildingCard) {
@@ -75,45 +77,21 @@ public class BuildingDeck extends Deck<BuildingCard> {
         }
     }
 
-    // TODO: capire come eventualmente ottimizzarlo, passando magari l'era (visto che in un determinato momento, si possono prendere solo edifici dell'era in cui si è) e cercando solo in quella lista, invece che in tutte e tre
-    public BuildingCard pickCard(int id) {
-        for (BuildingCard card : era_I_cards) {
-            if (card.getId() == id) {
-                era_I_cards.remove(card);
-                return card;
-            }
-        }
-        for (BuildingCard card : era_II_cards) {
-            if (card.getId() == id) {
-                era_II_cards.remove(card);
-                return card;
-            }
-        }
-        for (BuildingCard card : era_III_cards) {
-            if (card.getId() == id) {
-                era_III_cards.remove(card);
-                return card;
-            }
-        }
-        throw new NoSuchElementException("No card with ID " + id + " found in the deck.");
-    }
-
-    public void showEraBuildings(Era era) {
+    public void addCardToTopRow(Board b, Era era) {
         switch (era) {
-            case I -> era_I_cards.stream().forEach(System.out::println);
-            case II -> era_II_cards.stream().forEach(System.out::println);
-            case III -> era_III_cards.stream().forEach(System.out::println);
-            default -> throw new IllegalArgumentException("Invalid era: " + era);
+            case I -> {
+                b.getTopRow().addAll(era_I_cards);
+                era_I_cards.clear();
+            }
+            case II -> {
+                b.getTopRow().addAll(era_II_cards);
+                era_II_cards.clear();
+            }
+            case III -> {
+                b.getTopRow().addAll(era_III_cards);
+                era_III_cards.clear();
+            }
         }
     }
 
-    // TODO: FUNZIONE DI TEST (va fatta come test a parte)
-    public void showAllCards() {
-        System.out.println("Era I Cards:");
-        era_I_cards.stream().forEach(x -> System.out.println(x.getId()));
-        System.out.println("\nEra II Cards:");
-        era_II_cards.stream().forEach(x -> System.out.println(x.getId()));
-        System.out.println("\nEra III Cards:");
-        era_III_cards.stream().forEach(x -> System.out.println(x.getId()));
-    }
 }
