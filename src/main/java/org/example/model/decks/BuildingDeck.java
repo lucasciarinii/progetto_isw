@@ -7,6 +7,7 @@ import org.example.model.enums.Era;
 import org.example.model.board.Board;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -50,24 +51,24 @@ public class BuildingDeck extends Deck<BuildingCard> {
             //4. Keep only the number of cards needed for the game based on the number of players
             switch (numPlayers) {
                 case 2 -> {
-                    era_I_cards = era_I_cards.subList(0, 1);
-                    era_II_cards = era_II_cards.subList(0, 2);
-                    era_III_cards = era_III_cards.subList(0, 3);
+                    era_I_cards = new ArrayList<>(era_I_cards.subList(0, 1));
+                    era_II_cards = new ArrayList<>(era_II_cards.subList(0, 2));
+                    era_III_cards = new ArrayList<>(era_III_cards.subList(0, 3));
                 }
                 case 3 -> {
-                    era_I_cards = era_I_cards.subList(0, 2);
-                    era_II_cards = era_II_cards.subList(0, 2);
-                    era_III_cards = era_III_cards.subList(0, 4);
+                    era_I_cards = new ArrayList<>(era_I_cards.subList(0, 2));
+                    era_II_cards = new ArrayList<>(era_II_cards.subList(0, 2));
+                    era_III_cards = new ArrayList<>(era_III_cards.subList(0, 4));
                 }
                 case 4 -> {
-                    era_I_cards = era_I_cards.subList(0, 2);
-                    era_II_cards = era_II_cards.subList(0, 3);
-                    era_III_cards = era_III_cards.subList(0, 4);
+                    era_I_cards = new ArrayList<>(era_I_cards.subList(0, 2));
+                    era_II_cards = new ArrayList<>(era_II_cards.subList(0, 3));
+                    era_III_cards = new ArrayList<>(era_III_cards.subList(0, 4));
                 }
                 case 5 -> {
-                    era_I_cards = era_I_cards.subList(0, 2);
-                    era_II_cards = era_II_cards.subList(0, 3);
-                    era_III_cards = era_III_cards.subList(0, 5);
+                    era_I_cards = new ArrayList<>(era_I_cards.subList(0, 2));
+                    era_II_cards = new ArrayList<>(era_II_cards.subList(0, 3));
+                    era_III_cards = new ArrayList<>(era_III_cards.subList(0, 5));
                 }
                 default -> throw new IllegalArgumentException("Invalid number of players: " + numPlayers);
             }
