@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 
-public class Player {
+public class Player  {
 
     private final String nickname;
     private final List<BuildingCard> ownedBuildings = new ArrayList<>();
