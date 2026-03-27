@@ -34,7 +34,7 @@ public abstract class Character extends Card implements Visitable {
 
     public Character(int id, Era era, CharacterType characterType) {
         super(id, era);
-        this.characterType = Objects.requireNonNull(characterType, "CharacterType cannot be null");
+        this.characterType = characterType;
     }
 
     public abstract void accept(Visitor visitor);
