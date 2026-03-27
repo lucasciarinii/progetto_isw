@@ -18,15 +18,20 @@ import org.example.model.match.Player;
 )
 // Map values of the "class_type" field to the actual Java classes
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = SetCollectionFoodBC.class, name = "SetCollectionBC"),
+        @JsonSubTypes.Type(value = SetCollectionFoodBC.class, name = "SetCollectionFoodBC"),
+        @JsonSubTypes.Type(value = SetCollectionEndPointsBC.class, name = "SetCollectionEndPointsBC"),
         @JsonSubTypes.Type(value = SustenanceDiscountBC.class, name = "SustenanceDiscountBC"),
         @JsonSubTypes.Type(value = CharacterEndPointsBC.class, name = "CharacterEndPointsBC"),
         @JsonSubTypes.Type(value = InventorPairsBC.class, name = "InventorPairsBC"),
-        @JsonSubTypes.Type(value = ShamanicDoublePointsBC.class, name = "ShamanicPointsBC"),
+        @JsonSubTypes.Type(value = ShamanicDoublePointsBC.class, name = "ShamanicDoublePointsBC"),
         @JsonSubTypes.Type(value = ShamanicStarsBC.class, name = "ShamanicStarsBC"),
-        @JsonSubTypes.Type(value = HuntEventBoostBC.class, name = "EventBoostBC"),
+        @JsonSubTypes.Type(value = ShamanicNoMalusBC.class, name = "ShamanicNoMalusBC"),
+        @JsonSubTypes.Type(value = HuntEventBoostBC.class, name = "HuntEventBoostBC"),
+        @JsonSubTypes.Type(value = CavePaintingEventBoostBC.class, name = "CavePaintingEventBoostBC"),
         @JsonSubTypes.Type(value = RoundFlowBC.class, name = "RoundFlowBC"),
+        @JsonSubTypes.Type(value = RoundFlowTotemBC.class, name = "RoundFlowTotemBC"),
         @JsonSubTypes.Type(value = EndGameBonusBC.class, name = "EndGameBonusBC"),
+        @JsonSubTypes.Type(value = EndGameBonus25BC.class, name = "EndGameBonus25BC"),
 })
 
 public abstract class BuildingCard extends Card implements Visitable {

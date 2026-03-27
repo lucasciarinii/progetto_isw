@@ -1,11 +1,10 @@
 [
   {
-    "class_type": "SetCollectionBC",
+    "class_type": "SetCollectionFoodBC",
     "id": 100,
     "era": "I",
     "foodCost": 4,
-    "endPoints": 3,
-    "isEndGame": false
+    "endPoints": 3
   },
   {
     "class_type": "SustenanceDiscountBC",
@@ -13,7 +12,6 @@
     "era": "I",
     "foodCost": 4,
     "endPoints": 4,
-    "isEndGame": false,
     "characterEffect": "GATHERER"
   },
   {
@@ -22,51 +20,42 @@
     "era": "I",
     "foodCost": 5,
     "endPoints": 3,
-    "isEndGame": false,
     "characterEffect": "ARTIST"
   },
   {
-    "class_type": "ShamanicPointsBC",
+    "class_type": "ShamanicNoMalusBC",
     "id": 103,
     "era": "I",
     "foodCost": 5,
-    "endPoints": 2,
-    "isEndGame": false,
-    "shouldDoublePrestigePoints": true
+    "endPoints": 2
   },
   {
-    "class_type": "RoundFlowBC",
+    "class_type": "RoundFlowTotemBC",
     "id": 104,
     "era": "I",
     "foodCost": 3,
-    "endPoints": 3,
-    "isEndGame": false,
-    "shouldTotem": true
+    "endPoints": 3
   },
   {
-    "class_type": "InventorComboBC",
+    "class_type": "InventorPairsBC",
     "id": 105,
     "era": "I",
     "foodCost": 3,
-    "endPoints": 4,
-    "isEndGame": false
+    "endPoints": 4
   },
   {
-    "class_type": "ShamanicPointsBC",
+    "class_type": "ShamanicDoublePointsBC",
     "id": 106,
     "era": "II",
     "foodCost": 7,
-    "endPoints": 0,
-    "isEndGame": false,
-    "shouldDoublePrestigePoints": false
+    "endPoints": 0
   },
   {
     "class_type": "ShamanicStarsBC",
     "id": 107,
     "era": "II",
     "foodCost": 6,
-    "endPoints": 4,
-    "isEndGame": false
+    "endPoints": 4
   },
   {
     "class_type": "SustenanceDiscountBC",
@@ -74,43 +63,35 @@
     "era": "II",
     "foodCost": 7,
     "endPoints": 4,
-    "isEndGame": false,
     "characterEffect": "INVENTOR"
   },
   {
-    "class_type": "EventBoostBC",
+    "class_type": "HuntEventBoostBC",
     "id": 109,
     "era": "II",
     "foodCost": 7,
-    "endPoints": 2,
-    "isEndGame": false,
-    "characterEffect": "HUNTER"
+    "endPoints": 2
   },
   {
     "class_type": "EndGameBonusBC",
     "id": 110,
     "era": "II",
     "foodCost": 6,
-    "endPoints": 4,
-    "isEndGame": true,
-    "shouldDoubleOnBuilders": true
+    "endPoints": 4
   },
   {
-    "class_type": "EventBoostBC",
+    "class_type": "CavePaintingEventBoostBC",
     "id": 111,
     "era": "II",
     "foodCost": 5,
-    "endPoints": 6,
-    "isEndGame": false,
-    "characterEffect": "ARTIST"
+    "endPoints": 6
   },
   {
-    "class_type": "SetCollectionBC",
+    "class_type": "SetCollectionEndPointsBC",
     "id": 112,
     "era": "II",
     "foodCost": 5,
-    "endPoints": 6,
-    "isEndGame": true
+    "endPoints": 6
   },
   {
     "class_type": "CharacterEndPointsBC",
@@ -118,7 +99,6 @@
     "era": "III",
     "foodCost": 8,
     "endPoints": 8,
-    "isEndGame": true,
     "pointsEffect": 3,
     "characterEffect": "HUNTER"
   },
@@ -128,7 +108,6 @@
     "era": "III",
     "foodCost": 7,
     "endPoints": 6,
-    "isEndGame": true,
     "pointsEffect": 4,
     "characterEffect": "GATHERER"
   },
@@ -138,7 +117,6 @@
     "era": "III",
     "foodCost": 7,
     "endPoints": 4,
-    "isEndGame": true,
     "pointsEffect": 4,
     "characterEffect": "SHAMAN"
   },
@@ -148,7 +126,6 @@
     "era": "III",
     "foodCost": 6,
     "endPoints": 3,
-    "isEndGame": true,
     "pointsEffect": 4,
     "characterEffect": "BUILDER"
   },
@@ -158,7 +135,6 @@
     "era": "III",
     "foodCost": 7,
     "endPoints": 4,
-    "isEndGame": true,
     "pointsEffect": 4,
     "characterEffect": "ARTIST"
   },
@@ -168,7 +144,6 @@
     "era": "III",
     "foodCost": 6,
     "endPoints": 6,
-    "isEndGame": true,
     "pointsEffect": 2,
     "characterEffect": "INVENTOR"
   },
@@ -177,17 +152,13 @@
     "id": 119,
     "era": "III",
     "foodCost": 9,
-    "endPoints": 3,
-    "isEndGame": false,
-    "shouldTotem": false
+    "endPoints": 3
   },
   {
-    "class_type": "EndGameBonusBC",
+    "class_type": "EndGameBonus25BC",
     "id": 120,
     "era": "III",
     "foodCost": 10,
-    "endPoints": 25,
-    "isEndGame": true,
-    "shouldDoubleOnBuilders": false
+    "endPoints": 25
   }
 ]
