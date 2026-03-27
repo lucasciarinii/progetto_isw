@@ -48,27 +48,38 @@ public class Board {
         // mainDeck initialization, based on the number of players (delegated to MainDeck constructor)
         mainDeck = new MainDeck(players.size());
 
-        // buildingDeck initialization, based on the number of players (delegated to BuildingDeck constructor)
-        buildingDeck = new BuildingDeck(players.size(), this);
-
         // bottomRow and topRow instantiation and initialization
         topRow = new ArrayList<>();
         bottomRow = new ArrayList<>();
+
+        // buildingDeck initialization, based on the number of players (delegated to BuildingDeck constructor)
+        buildingDeck = new BuildingDeck(players.size(), this);
 
         // bottomRow initialization: draw cards until we have players.size() + 1 cards in the bottom row, if we draw an event card, put it in the top row (and continue to draw until we have enough cards in the bottom row)
         for (int i = 0; i < players.size() + 1; i++) {
             Card drawnCard = mainDeck.draw();
             if (drawnCard instanceof EventCard) {
-                topRow.add(drawnCard);
+                topRow.add(0, drawnCard);
                 i--; // decrement i to draw another card for the bottom row
             } else
                 bottomRow.add(drawnCard);
         }
 
         // topRow initialization: draw cards until we have players.size() + 4 cards in the top row (taking into account the event cards we might have drawn in the previous step)
-        for (int i = 0; i < players.size() + 4 - topRow.size(); i++)
-            topRow.add(mainDeck.draw());
 
+        long numberOfBuildings = topRow.stream().filter(card -> card instanceof BuildingCard).count();
+        int targetSize = players.size() + 4;
+        int nonBuildingCards = topRow.size() - (int)numberOfBuildings;
+        int cardsToDraw = targetSize - nonBuildingCards;
+
+        for (int i = 0; i < cardsToDraw; i++) {
+            Card drawn = mainDeck.draw();
+            if (drawn != null) {
+                topRow.add(0, drawn);
+            } else {
+                break; // deck finished
+            }
+        }
     }
 
     public TurnOrderTile getTurnOrderTile() {
