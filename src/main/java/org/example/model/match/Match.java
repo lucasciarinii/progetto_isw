@@ -200,7 +200,7 @@ public class Match {
     public void offerTileAction(Player p, String cards){
         OfferEffect effect=null;
         boolean found=false;
-        List<Integer> numeri = new ArrayList<>(estraiInteriDaStringa(cards));
+        List<Integer> numbers = new ArrayList<>(extractIntegers(cards));
         for(OfferTile S :board.getOfferTrack())
         {
             if (S.getPlayer()==p)
@@ -211,23 +211,23 @@ public class Match {
         switch (effect) {
             case FOOD -> p.addFood(3);
             case D -> {
-                if(numeri.size()!=1)
+                if(numbers.size()!=1)
                 {
                     throw new IllegalArgumentException("Invalid string");
                 }
                 for (int i = 0; i < board.getBottomRow().size(); i++)
                 {
-                    if(board.getBottomRow().get(i).getId()==numeri.get(0))
+                    if(board.getBottomRow().get(i).getId()==numbers.get(0))
                     {
                         try{
-                            ((Character)board.getBottomRow().get(i)).accept((Visitor)p); //verificare se aggiungere implements Visitor in Player
+                            ((Character)board.getBottomRow().get(i)).accept((Visitor)p);
                             found=true;
-                            board.getBottomRow().removeIf(card -> card.getId()==numeri.get(0));
+                            board.getBottomRow().removeIf(card -> card.getId()==numbers.get(0));
                             break;
                         }
                         catch (IllegalArgumentException e)
                         {
-                            System.out.println("Errore: l'oggetto non è un Character o il Player non è un Visitor!");
+                            System.out.println("Errors: the object is not Character type or player is not Visitor");
                         }
                     }
 
@@ -236,30 +236,30 @@ public class Match {
                 if(!found) throw new IllegalArgumentException("Invalid string");
             }
             case U -> {
-                if(numeri.size()!=1)
+                if(numbers.size()!=1)
                 {
                     throw new IllegalArgumentException("Invalid string");
                 }
                 for (int i = 0; i < board.getTopRow().size(); i++)
                 {
-                    if(board.getTopRow().get(i).getId()==numeri.get(0))
+                    if(board.getTopRow().get(i).getId()==numbers.get(0))
                     {
                         try{
-                            ((Character)board.getTopRow().get(i)).accept((Visitor)p); //verificare se aggiungere implements Visitor in Player
+                            ((Character)board.getTopRow().get(i)).accept((Visitor)p);
                             found=true;
-                            board.getTopRow().removeIf(card -> card.getId()==numeri.get(0));
+                            board.getTopRow().removeIf(card -> card.getId()==numbers.get(0));
                             break;
                         }
                         catch (IllegalArgumentException e)
                         {
-                            System.out.println("Errore: l'oggetto non è un Character o il Player non è un Visitor!");
+                            System.out.println("Errors: the object is not Character type or player is not Visitor");
                         }
                     }
                 }
                 if(!found) throw new IllegalArgumentException("Invalid string");
             }
             case DD -> {
-                if(numeri.size()!=2)
+                if(numbers.size()!=2)
                 {
                     throw new IllegalArgumentException("Invalid string");
                 }
@@ -268,16 +268,16 @@ public class Match {
                     found=false;
                     for (int i = 0; i < board.getBottomRow().size(); i++)
                     {
-                        if(board.getBottomRow().get(i).getId()==numeri.get(a))
+                        if(board.getBottomRow().get(i).getId()==numbers.get(a))
                         {
                             try{
-                                ((Character)board.getBottomRow().get(i)).accept((Visitor)p); //verificare se aggiungere implements Visitor in Player
+                                ((Character)board.getBottomRow().get(i)).accept((Visitor)p);
                                 found=true;
                                 break;
                             }
                             catch (IllegalArgumentException e)
                             {
-                                System.out.println("Errore: l'oggetto non è un Character o il Player non è un Visitor!");
+                                System.out.println("Errors: the object is not Character type or player is not Visitor");
                             }
                         }
                     }
@@ -285,12 +285,12 @@ public class Match {
                 }
                 if(found)
                 {
-                    board.getBottomRow().removeIf(card -> card.getId()==numeri.get(0));
-                    board.getBottomRow().removeIf(card -> card.getId()==numeri.get(1));
+                    board.getBottomRow().removeIf(card -> card.getId()==numbers.get(0));
+                    board.getBottomRow().removeIf(card -> card.getId()==numbers.get(1));
                 }
             }
             case DU -> {
-                if(numeri.size()!=2)
+                if(numbers.size()!=2)
                 {
                     throw new IllegalArgumentException("Invalid string");
                 }
@@ -301,16 +301,16 @@ public class Match {
                     {
                         for (int i = 0; i < board.getBottomRow().size(); i++)
                         {
-                            if(board.getBottomRow().get(i).getId()==numeri.get(a))
+                            if(board.getBottomRow().get(i).getId()==numbers.get(a))
                             {
                                 try{
-                                    ((Character)board.getBottomRow().get(i)).accept((Visitor)p); //verificare se aggiungere implements Visitor in Player
+                                    ((Character)board.getBottomRow().get(i)).accept((Visitor)p);
                                     found=true;
                                     break;
                                 }
                                 catch (IllegalArgumentException e)
                                 {
-                                    System.out.println("Errore: l'oggetto non è un Character o il Player non è un Visitor!");
+                                    System.out.println("Errors: the object is not Character type or player is not Visitor");
                                 }
                             }
                         }
@@ -319,28 +319,28 @@ public class Match {
                     {
                         for (int i = 0; i < board.getTopRow().size(); i++)
                         {
-                            if(board.getTopRow().get(i).getId()==numeri.get(a))
+                            if(board.getTopRow().get(i).getId()==numbers.get(a))
                             {
                                 try{
-                                    ((Character)board.getTopRow().get(i)).accept((Visitor)p); //verificare se aggiungere implements Visitor in Player
+                                    ((Character)board.getTopRow().get(i)).accept((Visitor)p);
                                     found=true;
-                                    board.getTopRow().removeIf(card -> card.getId()==numeri.get(1));
+                                    board.getTopRow().removeIf(card -> card.getId()==numbers.get(1));
                                     break;
                                 }
                                 catch (IllegalArgumentException e)
                                 {
-                                    System.out.println("Errore: l'oggetto non è un Character o il Player non è un Visitor!");
+                                    System.out.println("Errors: the object is not Character type or player is not Visitor");
                                 }
                             }
                         }
                     }
                     if(!found) throw new IllegalArgumentException("Invalid string");
-                    else board.getTopRow().removeIf(card -> card.getId()==numeri.get(0));
+                    else board.getTopRow().removeIf(card -> card.getId()==numbers.get(0));
 
                 }
             }
             case UU -> {
-                if(numeri.size()!=2)
+                if(numbers.size()!=2)
                 {
                     throw new IllegalArgumentException("Invalid string");
                 }
@@ -349,16 +349,16 @@ public class Match {
                     found=false;
                     for (int i = 0; i < board.getTopRow().size(); i++)
                     {
-                        if(board.getTopRow().get(i).getId()==numeri.get(a))
+                        if(board.getTopRow().get(i).getId()==numbers.get(a))
                         {
                             try{
-                                ((Character)board.getTopRow().get(i)).accept((Visitor)p); //verificare se aggiungere implements Visitor in Player
+                                ((Character)board.getTopRow().get(i)).accept((Visitor)p);
                                 found=true;
                                 break;
                             }
                             catch (IllegalArgumentException e)
                             {
-                                System.out.println("Errore: l'oggetto non è un Character o il Player non è un Visitor!");
+                                System.out.println("Errors: the object is not Character type or player is not Visitor");
                             }
                         }
                     }
@@ -366,12 +366,12 @@ public class Match {
                 }
                 if(found)
                 {
-                    board.getTopRow().removeIf(card -> card.getId()==numeri.get(0));
-                    board.getTopRow().removeIf(card -> card.getId()==numeri.get(1));
+                    board.getTopRow().removeIf(card -> card.getId()==numbers.get(0));
+                    board.getTopRow().removeIf(card -> card.getId()==numbers.get(1));
                 }
             }
             case DUU -> {
-                if(numeri.size()!=3)
+                if(numbers.size()!=3)
                 {
                     throw new IllegalArgumentException("Invalid string");
                 }
@@ -382,16 +382,16 @@ public class Match {
                     {
                         for (int i = 0; i < board.getBottomRow().size(); i++)
                         {
-                            if(board.getBottomRow().get(i).getId()==numeri.get(a))
+                            if(board.getBottomRow().get(i).getId()==numbers.get(a))
                             {
                                 try{
-                                    ((Character)board.getBottomRow().get(i)).accept((Visitor)p); //verificare se aggiungere implements Visitor in Player
+                                    ((Character)board.getBottomRow().get(i)).accept((Visitor)p); //TODO: verificare se aggiungere implements Visitor in Player
                                     found=true;
                                     break;
                                 }
                                 catch (IllegalArgumentException e)
                                 {
-                                    System.out.println("Errore: l'oggetto non è un Character o il Player non è un Visitor!");
+                                    System.out.println("Errors: the object is not Character type or player is not Visitor");
                                 }
                             }
                         }
@@ -400,16 +400,16 @@ public class Match {
                     {
                         for (int i = 0; i < board.getTopRow().size(); i++)
                         {
-                            if(board.getTopRow().get(i).getId()==numeri.get(a))
+                            if(board.getTopRow().get(i).getId()==numbers.get(a))
                             {
                                 try{
-                                    ((Character)board.getTopRow().get(i)).accept((Visitor)p); //verificare se aggiungere implements Visitor in Player
+                                    ((Character)board.getTopRow().get(i)).accept((Visitor)p);
                                     found=true;
                                     break;
                                 }
                                 catch (IllegalArgumentException e)
                                 {
-                                    System.out.println("Errore: l'oggetto non è un Character o il Player non è un Visitor!");
+                                    System.out.println("Errors: the object is not Character type or player is not Visitor");
                                 }
                             }
                         }
@@ -418,39 +418,38 @@ public class Match {
                 }
                 if (found)
                 {
-                    board.getTopRow().removeIf(card -> card.getId()==numeri.get(0));
-                    board.getTopRow().removeIf(card -> card.getId()==numeri.get(1));
-                    board.getTopRow().removeIf(card -> card.getId()==numeri.get(2));
+                    board.getTopRow().removeIf(card -> card.getId()==numbers.get(0));
+                    board.getTopRow().removeIf(card -> card.getId()==numbers.get(1));
+                    board.getTopRow().removeIf(card -> card.getId()==numbers.get(2));
                 }
             }
             default -> throw new IllegalArgumentException("Invalid player");
         }
 
     }
-    public static List<Integer> estraiInteriDaStringa(String stringaInput) {
-        List<Integer> numeri = new ArrayList<>();
+    public static List<Integer> extractIntegers(String stringaInput) {
+        List<Integer> numbers = new ArrayList<>();
 
-        // Controlla se la stringa è nulla o vuota per evitare errori
+        // Ckeck if null string or empty
         if (stringaInput == null || stringaInput.trim().isEmpty()) {
-            return numeri; // Ritorna una lista vuota
+            return numbers; // return empty string
         }
 
-        // 1. Divide la stringa usando la virgola come delimitatore
+        // split the string
         String[] parti = stringaInput.split(",");
 
-        // 2. Itera su ogni parte estratta
+        //
         for (String parte : parti) {
             try {
-                // 3. Rimuove spazi bianchi e converte la stringa in intero
+                // remove blanck spaces
                 int numero = Integer.parseInt(parte.trim());
-                numeri.add(numero);
+                numbers.add(numero);
             } catch (NumberFormatException e) {
-                // Ignora le parti che non sono numeri interi validi
-                System.err.println("Impossibile convertire '" + parte + "' in un numero. Inserirne un altro valido.");
+                System.err.println("Impossible to convert '" + parte + "' in number. insert another number.");
             }
         }
 
-        return numeri;
+        return numbers;
     }
 
     // TODO:
