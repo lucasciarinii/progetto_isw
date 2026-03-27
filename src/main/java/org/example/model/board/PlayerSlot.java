@@ -16,13 +16,17 @@ public class PlayerSlot {
         this.points = points;
     }
 
-    public Player getPlayerName() {
+    public Player getPlayer() {
 
         return player;
     }
 
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
 
-    public void placePlayerAndApplyEffect(@NotNull Player player, int food, int points) {
+
+    public void placePlayerAndApplyEffect(@NotNull Player player) {
 
         Objects.requireNonNull(player, "player parameter can't be null");
 
