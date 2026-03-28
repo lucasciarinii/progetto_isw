@@ -39,17 +39,19 @@ public abstract class BuildingCard extends Card implements Visitable {
     private final int foodCost;
     private final int endPoints;
     private final BuildingCardType class_type;
+    private final boolean isEndGame;
 
-    public BuildingCard(int id, Era era, int foodCost, int endPoints, BuildingCardType class_type) {
+    public BuildingCard(int id, Era era, int foodCost, int endPoints, BuildingCardType class_type, boolean isEndGame) {
         super(id, era);
         this.foodCost = foodCost;
         this.endPoints = endPoints;
         this.class_type = class_type;
+        this.isEndGame = isEndGame;
     }
 
     public void accept(Visitor visitor)  {
         visitor.visit(this);
-    };
+    }
 
 
     public int getFoodCost() {

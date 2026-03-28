@@ -4,7 +4,8 @@
     "id": 100,
     "era": "I",
     "foodCost": 4,
-    "endPoints": 3
+    "endPoints": 3,
+    "isEndGame": false
   },
   {
     "class_type": "SustenanceDiscountBC",
@@ -12,7 +13,8 @@
     "era": "I",
     "foodCost": 4,
     "endPoints": 4,
-    "characterEffect": "GATHERER"
+    "characterEffect": "GATHERER",
+    "isEndGame": false
   },
   {
     "class_type": "SustenanceDiscountBC",
@@ -20,42 +22,48 @@
     "era": "I",
     "foodCost": 5,
     "endPoints": 3,
-    "characterEffect": "ARTIST"
+    "characterEffect": "ARTIST",
+    "isEndGame": false
   },
   {
     "class_type": "ShamanicNoMalusBC",
     "id": 103,
     "era": "I",
     "foodCost": 5,
-    "endPoints": 2
+    "endPoints": 2,
+    "isEndGame": false
   },
   {
     "class_type": "RoundFlowTotemBC",
     "id": 104,
     "era": "I",
     "foodCost": 3,
-    "endPoints": 3
+    "endPoints": 3,
+    "isEndGame": false
   },
   {
     "class_type": "InventorPairsBC",
     "id": 105,
     "era": "I",
     "foodCost": 3,
-    "endPoints": 4
+    "endPoints": 4,
+    "isEndGame": false
   },
   {
     "class_type": "ShamanicDoublePointsBC",
     "id": 106,
     "era": "II",
     "foodCost": 7,
-    "endPoints": 0
+    "endPoints": 0,
+    "isEndGame": false
   },
   {
     "class_type": "ShamanicStarsBC",
     "id": 107,
     "era": "II",
     "foodCost": 6,
-    "endPoints": 4
+    "endPoints": 4,
+    "isEndGame": false
   },
   {
     "class_type": "SustenanceDiscountBC",
@@ -63,35 +71,40 @@
     "era": "II",
     "foodCost": 7,
     "endPoints": 4,
-    "characterEffect": "INVENTOR"
+    "characterEffect": "INVENTOR",
+    "isEndGame": false
   },
   {
     "class_type": "HuntEventBoostBC",
     "id": 109,
     "era": "II",
     "foodCost": 7,
-    "endPoints": 2
+    "endPoints": 2,
+    "isEndGame": false
   },
   {
     "class_type": "EndGameBonusBC",
     "id": 110,
     "era": "II",
     "foodCost": 6,
-    "endPoints": 4
+    "endPoints": 4,
+    "isEndGame": true
   },
   {
     "class_type": "CavePaintingEventBoostBC",
     "id": 111,
     "era": "II",
     "foodCost": 5,
-    "endPoints": 6
+    "endPoints": 6,
+    "isEndGame": false
   },
   {
     "class_type": "SetCollectionEndPointsBC",
     "id": 112,
     "era": "II",
     "foodCost": 5,
-    "endPoints": 6
+    "endPoints": 6,
+    "isEndGame": true
   },
   {
     "class_type": "CharacterEndPointsBC",
@@ -100,7 +113,8 @@
     "foodCost": 8,
     "endPoints": 8,
     "pointsEffect": 3,
-    "characterEffect": "HUNTER"
+    "characterEffect": "HUNTER",
+    "isEndGame": true
   },
   {
     "class_type": "CharacterEndPointsBC",
@@ -109,7 +123,8 @@
     "foodCost": 7,
     "endPoints": 6,
     "pointsEffect": 4,
-    "characterEffect": "GATHERER"
+    "characterEffect": "GATHERER",
+    "isEndGame": true
   },
   {
     "class_type": "CharacterEndPointsBC",
@@ -118,7 +133,8 @@
     "foodCost": 7,
     "endPoints": 4,
     "pointsEffect": 4,
-    "characterEffect": "SHAMAN"
+    "characterEffect": "SHAMAN",
+    "isEndGame": true
   },
   {
     "class_type": "CharacterEndPointsBC",
@@ -127,7 +143,8 @@
     "foodCost": 6,
     "endPoints": 3,
     "pointsEffect": 4,
-    "characterEffect": "BUILDER"
+    "characterEffect": "BUILDER",
+    "isEndGame": true
   },
   {
     "class_type": "CharacterEndPointsBC",
@@ -136,7 +153,8 @@
     "foodCost": 7,
     "endPoints": 4,
     "pointsEffect": 4,
-    "characterEffect": "ARTIST"
+    "characterEffect": "ARTIST",
+    "isEndGame": true
   },
   {
     "class_type": "CharacterEndPointsBC",
@@ -145,20 +163,23 @@
     "foodCost": 6,
     "endPoints": 6,
     "pointsEffect": 2,
-    "characterEffect": "INVENTOR"
+    "characterEffect": "INVENTOR",
+    "isEndGame": true
   },
   {
     "class_type": "RoundFlowBC",
     "id": 119,
     "era": "III",
     "foodCost": 9,
-    "endPoints": 3
+    "endPoints": 3,
+    "isEndGame": false
   },
   {
     "class_type": "EndGameBonus25BC",
     "id": 120,
     "era": "III",
     "foodCost": 10,
-    "endPoints": 25
+    "endPoints": 25,
+    "isEndGame": true
   }
 ]

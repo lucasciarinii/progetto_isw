@@ -21,9 +21,10 @@ public class SustenanceDiscountBC extends BuildingCard {
 			@JsonProperty("foodCost") int foodCost,
 			@JsonProperty("endPoints") int endPoints,
 			@JsonProperty("class_type") BuildingCardType buildingCardType,
-			@JsonProperty("characterEffect") CharacterType characterEffect
+			@JsonProperty("characterEffect") CharacterType characterEffect,
+			@JsonProperty("isEndGame") boolean isEndGame
 	) {
-		super(id, era, foodCost, endPoints, buildingCardType);
+		super(id, era, foodCost, endPoints, buildingCardType, isEndGame);
 		this.characterEffect = characterEffect;
 	}
 

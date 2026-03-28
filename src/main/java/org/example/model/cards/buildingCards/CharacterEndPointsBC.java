@@ -3,11 +3,9 @@ package org.example.model.cards.buildingCards;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
-import org.example.model.interfaces.Visitor;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 import org.example.model.enums.CharacterType;
-import org.example.model.cards.characters.Character;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -18,8 +16,17 @@ public class CharacterEndPointsBC extends BuildingCard {
     private final int pointsEffect;
     private final CharacterType characterEffect;
 
-    public CharacterEndPointsBC(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("class_type") BuildingCardType buildingCardType, @JsonProperty("pointsEffect") int points, @JsonProperty("characterEffect") CharacterType characterEffect) {
-		super(id, era, foodCost, endPoints, buildingCardType);
+    public CharacterEndPointsBC(
+            @JsonProperty("id") int id,
+            @JsonProperty("era") Era era,
+            @JsonProperty("foodCost") int foodCost,
+            @JsonProperty("endPoints") int endPoints,
+            @JsonProperty("class_type") BuildingCardType buildingCardType,
+            @JsonProperty("pointsEffect") int points,
+            @JsonProperty("characterEffect") CharacterType characterEffect,
+            @JsonProperty("isEndGame") boolean isEndGame
+    ) {
+		super(id, era, foodCost, endPoints, buildingCardType, isEndGame);
         this.pointsEffect = points;
         this.characterEffect = characterEffect;
 	}

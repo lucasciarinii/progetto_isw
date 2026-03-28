@@ -3,10 +3,8 @@ package org.example.model.cards.buildingCards;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.model.cards.characters.Inventor;
 import org.example.model.enums.BuildingCardType;
-import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
 import org.example.model.enums.InventionType;
-import org.example.model.interfaces.Visitor;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 
@@ -20,8 +18,15 @@ public class InventorPairsBC extends BuildingCard {
     private int rewardedPairs = 0;
 
     // Col1 Row5
-    public InventorPairsBC(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("class_type") BuildingCardType buildingCardType) {
-        super(id, era, foodCost, endPoints, buildingCardType);
+    public InventorPairsBC(
+            @JsonProperty("id") int id,
+            @JsonProperty("era") Era era,
+            @JsonProperty("foodCost") int foodCost,
+            @JsonProperty("endPoints") int endPoints,
+            @JsonProperty("class_type") BuildingCardType buildingCardType,
+            @JsonProperty("isEndGame") boolean isEndGame
+    ) {
+        super(id, era, foodCost, endPoints, buildingCardType, isEndGame);
     }
 
     @Override

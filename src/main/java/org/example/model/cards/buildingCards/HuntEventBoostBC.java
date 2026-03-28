@@ -13,9 +13,10 @@ public class HuntEventBoostBC extends BuildingCard {
             @JsonProperty("era") Era era,
             @JsonProperty("foodCost") int foodCost,
             @JsonProperty("endPoints") int endPoints,
-            @JsonProperty("class_type") BuildingCardType buildingCardType
+            @JsonProperty("class_type") BuildingCardType buildingCardType,
+            @JsonProperty("isEndGame") boolean isEndGame
     ) {
-        super(id, era, foodCost, endPoints, buildingCardType);
+        super(id, era, foodCost, endPoints, buildingCardType, isEndGame);
     }
 
     @Override

@@ -1,16 +1,10 @@
 package org.example.model.cards.buildingCards;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.example.model.cards.characters.Character;
 import org.example.model.enums.BuildingCardType;
-import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
-import org.example.model.interfaces.Visitor;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
-
-import java.util.EnumMap;
-import java.util.Map;
 
 // Col1 Row1
 public class SetCollectionFoodBC extends BuildingCard {
@@ -24,13 +18,15 @@ public class SetCollectionFoodBC extends BuildingCard {
     //Used to understand if the building effect has already been initialized
     private boolean initialized;
 
-    public SetCollectionFoodBC(@JsonProperty("id") int id,
-                               @JsonProperty("era") Era era,
-                               @JsonProperty("foodCost") int foodCost,
-                               @JsonProperty("endPoints") int endPoints,
-                               @JsonProperty("class_type") BuildingCardType buildingCardType)
-    {
-        super(id, era, foodCost, endPoints, buildingCardType);
+    public SetCollectionFoodBC(
+            @JsonProperty("id") int id,
+            @JsonProperty("era") Era era,
+            @JsonProperty("foodCost") int foodCost,
+            @JsonProperty("endPoints") int endPoints,
+            @JsonProperty("class_type") BuildingCardType buildingCardType,
+            @JsonProperty("isEndGame") boolean isEndGame
+    ) {
+        super(id, era, foodCost, endPoints, buildingCardType, isEndGame);
         this.registeredSets = 0;
         this.initialized = false;
     }
