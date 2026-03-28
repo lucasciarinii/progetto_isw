@@ -8,19 +8,18 @@ package org.example.model.match;
 
 import org.example.model.board.Board;
 import org.example.model.board.OfferTile;
-import org.example.model.board.PlayerSlot;
 import org.example.model.cards.Card;
 import org.example.model.cards.buildingCards.BuildingCard;
+import org.example.model.cards.characters.Builder;
 import org.example.model.cards.characters.Character;
+import org.example.model.cards.characters.Inventor;
 import org.example.model.cards.eventCards.EventCard;
 import org.example.model.cards.eventCards.Sustenance;
 import org.example.model.enums.OfferEffect;
 import org.example.model.interfaces.Visitor;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Match {
 
@@ -441,7 +440,7 @@ public class Match {
         //
         for (String parte : parti) {
             try {
-                // remove blanck spaces
+                // remove blank spaces
                 int numero = Integer.parseInt(parte.trim());
                 numbers.add(numero);
             } catch (NumberFormatException e) {
@@ -454,6 +453,75 @@ public class Match {
 
     // TODO:
     public void endOfGame() {
+        // 1. Solve all the visible events (top and bottom row)
+        List<Sustenance> sustenanceCards = new ArrayList<>();
+        for (Card card : board.getBottomRow()) {
+            if ( card instanceof EventCard && !(card instanceof Sustenance)) {
+                ((EventCard) card).applyEvent(this);
+            } else if (card instanceof Sustenance) {
+                sustenanceCards.add((Sustenance) card);
+            }
+        }
+
+        for (Card card : board.getTopRow()) {
+            if ( card instanceof EventCard && !(card instanceof Sustenance)) {
+                ((EventCard) card).applyEvent(this);
+            } else if (card instanceof Sustenance) {
+                sustenanceCards.add((Sustenance) card);
+            }
+        }
+
+        for (Sustenance s : sustenanceCards) {
+            s.applyEvent(this);
+        }
+
+
+        // 2. add up Prestige points gained during the game
+        for (Player p : players) {
+
+            // add Builders points
+            for (Builder build : p.getBuilders()) {
+                p.addPoints(build.getEndPoints());
+            }
+
+            // add Inventors points
+            int numInventors = p.getInventors().size();
+            int numInventions = (int) p.getInventors().stream()
+                    .map(Inventor::getInvention)
+                    .distinct()
+                    .count();
+            p.addPoints(numInventions * numInventors);
+
+            // add Artists points
+            int numArtistsPoints = (p.getArtists().size() / 2) * 10;
+            p.addPoints( numArtistsPoints);
+
+            // add Building Cards points
+            for ( BuildingCard building : p.getOwnedBuildings() ) {
+                p.addPoints( building.getEndPoints() );
+
+                // apply end game building events
+                if ( building.isEndGameBuilding() ) {
+                    building.applyEffect(p, this);
+                }
+            }
+
+        }
+
+        // 3. find the winner(s)
+        Comparator<Player> ranking = Comparator
+                .comparingInt(Player::getPoints)
+                .thenComparingInt(Player::getFood);
+
+        Player best = Collections.max(players, ranking);
+
+        List<Player> winners = players.stream()
+                .filter(p -> ranking.compare(p, best) == 0)
+                .collect(Collectors.toList());
+
+        gameState.setWinners(winners);
+
+
     }
 
 

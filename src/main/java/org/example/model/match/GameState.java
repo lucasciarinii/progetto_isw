@@ -77,7 +77,7 @@ public class GameState {
 
     public List<Player> getWinners(){return List.copyOf(winners);}
 
-    public void setWinner(List<Player> players){
+    public void setWinners(List<Player> players){
         this.winners = players;
         this.currentPhase = GamePhase.GAME_OVER;
     }
