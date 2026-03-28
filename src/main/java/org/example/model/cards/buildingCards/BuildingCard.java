@@ -62,6 +62,8 @@ public abstract class BuildingCard extends Card implements Visitable {
         return endPoints;
     }
 
+    public boolean isEndGameBuilding() { return isEndGame; }
+
     public BuildingCardType getClassType() {
         return class_type;
     }
