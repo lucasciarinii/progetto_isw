@@ -20,7 +20,7 @@ public class GameState {
     private GamePhase currentPhase;
     private List<Player> turnOrder;
     private int currentPlayerIndex;
-    private Player winner;
+    private List<Player> winners = new ArrayList<>();
 
     public GameState(List<Player> turnOrder) {
         Objects.requireNonNull(turnOrder, "Turn order cannot be null");
@@ -28,7 +28,6 @@ public class GameState {
         this.currentPhase = GamePhase.PLACE_TOTEMS;
         this.turnOrder = new ArrayList<>(turnOrder);
         this.currentPlayerIndex = 0;
-        this.winner = null;
     }
 
     public int getCurrentRound(){return currentRound;}
@@ -76,10 +75,10 @@ public class GameState {
         return currentPhase == GamePhase.GAME_OVER;
     }
 
-    public Player getWinner(){return winner;}
+    public List<Player> getWinners(){return List.copyOf(winners);}
 
-    public void setWinner(Player player){
-        this.winner = player;
+    public void setWinner(List<Player> players){
+        this.winners = players;
         this.currentPhase = GamePhase.GAME_OVER;
     }
 
