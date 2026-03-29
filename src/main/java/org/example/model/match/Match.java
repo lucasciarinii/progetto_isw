@@ -197,13 +197,13 @@ public class Match {
     }
 
     //the cards the user selects are all in one string "ID1, ID2, ID3"
-    public void offerTileAction(Player p, String cards) {
+    public void offerTileAction(Player player, String cards) {
         OfferEffect effect = null;
         boolean found = false;
         List<Integer> numbers = new ArrayList<>(extractIntegers(cards));
 
         for(OfferTile ot : board.getOfferTrack()) {
-            if (ot.getPlayer().equals(p)) {
+            if (ot.getPlayer().equals(player)) {
                 effect = ot.getOfferEffect();
             }
         }
@@ -215,7 +215,7 @@ public class Match {
         switch (effect) {
 
             // Add food effect
-            case FOOD -> p.addFood(3);
+            case FOOD -> player.addFood(3);
 
             // Choose one card from bottomRow
             case D -> {
@@ -233,66 +233,59 @@ public class Match {
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID card") );
 
                 // add card to player
-                ((Character) card).accept((Visitor) p);
+                ((Character) card).accept((Visitor) player);
 
                 // remove card from bottomRow
                 board.getBottomRow().remove(card);
             }
 
+            // Choose one card from topRow
             case U -> {
-                if(numbers.size()!=1)
-                {
-                    throw new IllegalArgumentException("Invalid string");
+                // player must select only one ID card
+                if (numbers.size() != 1) {
+                    throw new IllegalArgumentException("Invalid String: player must select only 1 card");
                 }
-                for (int i = 0; i < board.getTopRow().size(); i++)
-                {
-                    if(board.getTopRow().get(i).getId()==numbers.get(0))
-                    {
-                        try{
-                            ((Character)board.getTopRow().get(i)).accept((Visitor)p);
-                            found=true;
-                            board.getTopRow().removeIf(card -> card.getId()==numbers.get(0));
-                            break;
-                        }
-                        catch (IllegalArgumentException e)
-                        {
-                            System.out.println("Errors: the object is not Character type or player is not Visitor");
-                        }
-                    }
-                }
-                if(!found) throw new IllegalArgumentException("Invalid string");
+
+                // Find the card with corresponding ID
+                Card card = board.getTopRow().stream()
+                        .filter(c -> c.getId() == numbers.get(0))
+                        .filter(Character.class::isInstance)
+                        .findFirst()
+                        .orElseThrow( () -> new IllegalArgumentException("invalid ID card") );
+
+                // add card to player
+                ((Character) card).accept((Visitor) player);
+
+                // remove card from bottomRow
+                board.getTopRow().remove(card);
             }
+
             case DD -> {
-                if(numbers.size()!=2)
-                {
-                    throw new IllegalArgumentException("Invalid string");
+                // player must select exactly two IDs from cards
+                if (numbers.size() != 2) {
+                    throw new IllegalArgumentException("Invalid String: player must select exactly 2 IDs from cards");
                 }
-                for(int a = 0; a < 2; a++)
-                {
-                    found=false;
-                    for (int i = 0; i < board.getBottomRow().size(); i++)
-                    {
-                        if(board.getBottomRow().get(i).getId()==numbers.get(a))
-                        {
-                            try{
-                                ((Character)board.getBottomRow().get(i)).accept((Visitor)p);
-                                found=true;
-                                break;
-                            }
-                            catch (IllegalArgumentException e)
-                            {
-                                System.out.println("Errors: the object is not Character type or player is not Visitor");
-                            }
-                        }
-                    }
-                    if(!found) throw new IllegalArgumentException("Invalid string");
+
+                // Find the card with corresponding ID
+                List<Card> cards_input = board.getBottomRow().stream()
+                        .filter(c -> (c.getId() == numbers.get(0) || c.getId() == numbers.get(1)))
+                        .filter(Character.class::isInstance)
+                        .collect(Collectors.toList());
+
+                // if cards_input.size() != 2 means that at least one of the two selected IDs is invalid (not present in the bottom row or not a Character card)
+                if (cards_input.size() != 2) {
+                    throw new IllegalArgumentException("Invalid ID cards");
                 }
-                if(found)
-                {
-                    board.getBottomRow().removeIf(card -> card.getId()==numbers.get(0));
-                    board.getBottomRow().removeIf(card -> card.getId()==numbers.get(1));
-                }
+
+                // add cards to player
+                ((Character) cards_input.get(0)).accept((Visitor) player);
+                ((Character) cards_input.get(1)).accept((Visitor) player);
+
+                // remove card from bottomRow
+                board.getBottomRow().remove(cards_input.get(0));
+                board.getBottomRow().remove(cards_input.get(1));
             }
+
             case DU -> {
                 if(numbers.size()!=2)
                 {
@@ -308,7 +301,7 @@ public class Match {
                             if(board.getBottomRow().get(i).getId()==numbers.get(a))
                             {
                                 try{
-                                    ((Character)board.getBottomRow().get(i)).accept((Visitor)p);
+                                    ((Character)board.getBottomRow().get(i)).accept((Visitor) player);
                                     found=true;
                                     break;
                                 }
@@ -326,7 +319,7 @@ public class Match {
                             if(board.getTopRow().get(i).getId()==numbers.get(a))
                             {
                                 try{
-                                    ((Character)board.getTopRow().get(i)).accept((Visitor)p);
+                                    ((Character)board.getTopRow().get(i)).accept((Visitor) player);
                                     found=true;
                                     board.getTopRow().removeIf(card -> card.getId()==numbers.get(1));
                                     break;
@@ -356,7 +349,7 @@ public class Match {
                         if(board.getTopRow().get(i).getId()==numbers.get(a))
                         {
                             try{
-                                ((Character)board.getTopRow().get(i)).accept((Visitor)p);
+                                ((Character)board.getTopRow().get(i)).accept((Visitor) player);
                                 found=true;
                                 break;
                             }
@@ -389,7 +382,7 @@ public class Match {
                             if(board.getBottomRow().get(i).getId()==numbers.get(a))
                             {
                                 try{
-                                    ((Character)board.getBottomRow().get(i)).accept((Visitor)p); //TODO: verificare se aggiungere implements Visitor in Player
+                                    ((Character)board.getBottomRow().get(i)).accept((Visitor) player); //TODO: verificare se aggiungere implements Visitor in Player
                                     found=true;
                                     break;
                                 }
@@ -407,7 +400,7 @@ public class Match {
                             if(board.getTopRow().get(i).getId()==numbers.get(a))
                             {
                                 try{
-                                    ((Character)board.getTopRow().get(i)).accept((Visitor)p);
+                                    ((Character)board.getTopRow().get(i)).accept((Visitor) player);
                                     found=true;
                                     break;
                                 }
