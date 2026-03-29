@@ -226,17 +226,18 @@ public class Match {
                 }
 
                 // Find the card with corresponding ID
-                Card card = board.getBottomRow().stream()
+                Character character = board.getBottomRow().stream()
                         .filter(c -> c.getId() == numbers.get(0))
                         .filter(Character.class::isInstance)
+                        .map(Character.class::cast)
                         .findFirst()
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID card") );
 
                 // add card to player
-                ((Character) card).accept((Visitor) player);
+                character.accept((Visitor) player);
 
                 // remove card from bottomRow
-                board.getBottomRow().remove(card);
+                board.getBottomRow().remove(character);
             }
 
             // Choose one card from topRow
@@ -247,17 +248,18 @@ public class Match {
                 }
 
                 // Find the card with corresponding ID
-                Card card = board.getTopRow().stream()
+                Character character = board.getTopRow().stream()
                         .filter(c -> c.getId() == numbers.get(0))
                         .filter(Character.class::isInstance)
+                        .map(Character.class::cast)
                         .findFirst()
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID card") );
 
                 // add card to player
-                ((Character) card).accept((Visitor) player);
+                character.accept((Visitor) player);
 
                 // remove card from bottomRow
-                board.getTopRow().remove(card);
+                board.getTopRow().remove(character);
             }
 
             case DD -> {
@@ -267,9 +269,10 @@ public class Match {
                 }
 
                 // Find the card with corresponding ID
-                List<Card> cards_input = board.getBottomRow().stream()
+                List<Character> cards_input = board.getBottomRow().stream()
                         .filter(c -> (c.getId() == numbers.get(0) || c.getId() == numbers.get(1)))
                         .filter(Character.class::isInstance)
+                        .map(Character.class::cast)
                         .collect(Collectors.toList());
 
                 // if cards_input.size() != 2 means that at least one of the two selected IDs is invalid (not present in the bottom row or not a Character card)
@@ -278,8 +281,8 @@ public class Match {
                 }
 
                 // add cards to player
-                ((Character) cards_input.get(0)).accept((Visitor) player);
-                ((Character) cards_input.get(1)).accept((Visitor) player);
+                cards_input.get(0).accept((Visitor) player);
+                cards_input.get(1).accept((Visitor) player);
 
                 // remove card from bottomRow
                 board.getBottomRow().remove(cards_input.get(0));
@@ -287,55 +290,38 @@ public class Match {
             }
 
             case DU -> {
-                if(numbers.size()!=2)
-                {
-                    throw new IllegalArgumentException("Invalid string");
-                }
-                for(int a = 0; a < 2; a++)
-                {
-                    found=false;
-                    if(a==0)
-                    {
-                        for (int i = 0; i < board.getBottomRow().size(); i++)
-                        {
-                            if(board.getBottomRow().get(i).getId()==numbers.get(a))
-                            {
-                                try{
-                                    ((Character)board.getBottomRow().get(i)).accept((Visitor) player);
-                                    found=true;
-                                    break;
-                                }
-                                catch (IllegalArgumentException e)
-                                {
-                                    System.out.println("Errors: the object is not Character type or player is not Visitor");
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < board.getTopRow().size(); i++)
-                        {
-                            if(board.getTopRow().get(i).getId()==numbers.get(a))
-                            {
-                                try{
-                                    ((Character)board.getTopRow().get(i)).accept((Visitor) player);
-                                    found=true;
-                                    board.getTopRow().removeIf(card -> card.getId()==numbers.get(1));
-                                    break;
-                                }
-                                catch (IllegalArgumentException e)
-                                {
-                                    System.out.println("Errors: the object is not Character type or player is not Visitor");
-                                }
-                            }
-                        }
-                    }
-                    if(!found) throw new IllegalArgumentException("Invalid string");
-                    else board.getTopRow().removeIf(card -> card.getId()==numbers.get(0));
 
+                // player must select exactly two IDs from cards
+                if (numbers.size() != 2) {
+                    throw new IllegalArgumentException("Invalid String: player must select exactly 2 IDs from cards");
                 }
+
+                // Find the card with corresponding ID from bottomRow
+                Character bottomCard = board.getBottomRow().stream()
+                        .filter(c -> c.getId() == numbers.get(0))
+                        .filter(Character.class::isInstance)
+                        .map(Character.class::cast)
+                        .findFirst()
+                        .orElseThrow( () -> new IllegalArgumentException("invalid ID bottomRow card") );
+
+                // find the card with corresponding ID from topRow
+                Character topCard = board.getTopRow().stream()
+                        .filter(c -> c.getId() == numbers.get(0))
+                        .filter(Character.class::isInstance)
+                        .map(Character.class::cast)
+                        .findFirst()
+                        .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );
+
+                // add cards to player
+               bottomCard.accept( (Visitor) player );
+               topCard.accept( (Visitor) player );
+
+                // remove card from bottomRow
+                board.getBottomRow().remove(bottomCard);
+                board.getTopRow().remove(topCard);
+
             }
+
             case UU -> {
                 if(numbers.size()!=2)
                 {
@@ -449,7 +435,7 @@ public class Match {
         return numbers;
     }
 
-    // TODO:
+
     public void endOfGame() {
         // 1. Solve all the visible events (top and bottom row)
         List<Sustenance> sustenanceCards = new ArrayList<>();
