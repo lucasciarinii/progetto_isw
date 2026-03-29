@@ -410,27 +410,29 @@ public class Match {
         }
 
     }
-    private static List<Integer> extractIntegers(String stringaInput) {
+
+    private List<Integer> extractIntegers(String inputString) {
         List<Integer> numbers = new ArrayList<>();
 
-        // Ckeck if null string or empty
-        if (stringaInput == null || stringaInput.trim().isEmpty()) {
+        inputString = inputString.trim();
+
+        // Check if null string or empty string
+        if ( inputString.isEmpty() ) {
             return numbers; // return empty string
         }
 
         // split the string
-        String[] parti = stringaInput.split(",");
+        String[] IDs = inputString.split(",");
 
-        //
-        for (String parte : parti) {
+        // convert string into array of integers
+        for (String ID : IDs) {
             try {
-                // remove blank spaces
-                int numero = Integer.parseInt(parte.trim());
-                numbers.add(numero);
+                numbers.add(Integer.parseInt(ID.trim()));
             } catch (NumberFormatException e) {
-                System.err.println("Impossible to convert '" + parte + "' in number. insert another number.");
+                throw new IllegalArgumentException("ID string not valid: " + ID, e);
             }
         }
+
 
         return numbers;
     }
