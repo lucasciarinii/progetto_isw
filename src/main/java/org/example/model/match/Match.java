@@ -8,6 +8,7 @@ package org.example.model.match;
 
 import org.example.model.board.Board;
 import org.example.model.board.OfferTile;
+import org.example.model.board.PlayerSlot;
 import org.example.model.cards.Card;
 import org.example.model.cards.buildingCards.BuildingCard;
 import org.example.model.cards.characters.Builder;
@@ -182,17 +183,17 @@ public class Match {
     }
 
 
-    public void placeTotemOnOfferTile(Player p, int tile) {
-        board.getOfferTrack().get(tile-1).placePlayer(p);
-        for (int i = 0; i < this.getPlayers().size(); i++)
-        {
-            if (board.getTurnOrderTile().getSlots().get(i).getPlayer()==p)
-            {
-                board.getTurnOrderTile().getSlots().get(i).removeTotem();
+    public void placeTotemOnOfferTile(Player player, int tile) {
+        // 1. Place the player's totem on the selected offer tile
+        board.getOfferTrack().get(tile-1).placePlayer(player);
+
+        // 2. Remove the player's totem from the turn order tile
+        for(PlayerSlot slot : board.getTurnOrderTile().getSlots()) {
+            if(slot.getPlayer().equals(player)) {
+                slot.removeTotem();
                 break;
             }
         }
-
     }
 
     //the cards the user selects are all in one string "ID1, ID2, ID3"
