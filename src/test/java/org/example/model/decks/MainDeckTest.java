@@ -1,14 +1,16 @@
 package org.example.model.decks;
 
+import java.util.NoSuchElementException;
+
 import org.example.model.cards.Card;
 import org.example.model.enums.Era;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
-import java.util.NoSuchElementException;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class MainDeckTest {
 
@@ -88,7 +90,7 @@ class MainDeckTest {
         assertEquals(totalBeforeDraw - 1, totalAfterDraw);
     }
 
-    // Test: MainDeck contains the correct number of cards for different player counts
+    // Test: MainDeck must contain the correct number of cards for different player counts
     @Test
     @Tag("MainDeck")
     @DisplayName("Test: Correct number of cards in MainDeck for different player counts")
