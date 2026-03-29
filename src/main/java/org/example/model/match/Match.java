@@ -60,7 +60,7 @@ public class Match {
         * 8) porre a destra della fila superiore tutte le carte edificio dell'era I ‼️
         * 9) ogni giocatore riceve un totem e una scheda riassuntiva ‼️
         * 10) si piazzano i totem in ordine casuale sulla carta OrderTile ✅
-        * 11) il primo giocatore ottiene 2 cibi, il secondo e terzo 3, il quarto e quinto 5; ✅
+        * 11) il primo giocatore ottiene 2 cibi, il secondo e terzo 3, il quarto e quinto 4; ✅
         * 12) ogni partita dura 10 round composto da due fasi: scegliere la carta del tracciato e risolvere;
         * 13) a partire dall'alto i giocatori scelgono la carta del tracciato devo mettersi;
         * 14) a partire da sinistra il giocatore risolve l'azione della carta;
@@ -152,35 +152,35 @@ public class Match {
 
     private void resolveBottomEvents() {
         // Resolve events of bottomRow (with priority as in the rules)
-        List<Sustenance> sustenance_cards = new ArrayList<>();
+        List<Sustenance> sustenanceCards = new ArrayList<>();
         for (Card card : board.getBottomRow()) {
             if (card instanceof EventCard && !(card instanceof Sustenance)) {
                 ((EventCard) card).applyEvent(this);
             } else if (card instanceof Sustenance) {
-                sustenance_cards.add((Sustenance) card);
+                sustenanceCards.add((Sustenance) card);
             }
         }
 
-        for (Sustenance s : sustenance_cards) {
+        for (Sustenance s : sustenanceCards) {
             s.applyEvent(this);
         }
     }
 
-    private void resolveTopEvents() {
-        // Resolve events of bottomRow (with priority as in the rules)
-        List<Sustenance> sustenance_cards = new ArrayList<>();
-        for (Card card : board.getTopRow()) {
-            if (card instanceof EventCard && !(card instanceof Sustenance)) {
-                ((EventCard) card).applyEvent(this);
-            } else if (card instanceof Sustenance) {
-                sustenance_cards.add((Sustenance) card);
-            }
-        }
-
-        for (Sustenance s : sustenance_cards) {
-            s.applyEvent(this);
-        }
-    }
+//    private void resolveTopEvents() {
+//        // Resolve events of topRow (with priority as in the rules)
+//        List<Sustenance> sustenanceCards = new ArrayList<>();
+//        for (Card card : board.getTopRow()) {
+//            if (card instanceof EventCard && !(card instanceof Sustenance)) {
+//                ((EventCard) card).applyEvent(this);
+//            } else if (card instanceof Sustenance) {
+//                sustenanceCards.add((Sustenance) card);
+//            }
+//        }
+//
+//        for (Sustenance s : sustenanceCards) {
+//            s.applyEvent(this);
+//        }
+//    }
 
 
     public void placeTotemOnOfferTile(Player player, int tile) {
@@ -199,7 +199,6 @@ public class Match {
     //the cards the user selects are all in one string "ID1, ID2, ID3"
     public void offerTileAction(Player player, String cards) {
         OfferEffect effect = null;
-        boolean found = false;
         List<Integer> numbers = new ArrayList<>(extractIntegers(cards));
 
         for(OfferTile ot : board.getOfferTrack()) {
@@ -258,7 +257,7 @@ public class Match {
                 // add card to player
                 character.accept((Visitor) player);
 
-                // remove card from bottomRow
+                // remove card from topRow
                 board.getTopRow().remove(character);
             }
 
@@ -306,7 +305,7 @@ public class Match {
 
                 // find the card with corresponding ID from topRow
                 Character topCard = board.getTopRow().stream()
-                        .filter(c -> c.getId() == numbers.get(0))
+                        .filter(c -> c.getId() == numbers.get(1))
                         .filter(Character.class::isInstance)
                         .map(Character.class::cast)
                         .findFirst()
@@ -316,7 +315,7 @@ public class Match {
                 bottomCard.accept( (Visitor) player );
                 topCard.accept( (Visitor) player );
 
-                // remove card from bottomRow
+                // remove card from bottomRow and topRow
                 board.getBottomRow().remove(bottomCard);
                 board.getTopRow().remove(topCard);
 
@@ -369,14 +368,14 @@ public class Match {
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID bottomRow card") );
 
                 Character topCard1 = board.getTopRow().stream()
-                        .filter(c -> c.getId() == numbers.get(0))
+                        .filter(c -> c.getId() == numbers.get(1))
                         .filter(Character.class::isInstance)
                         .map(Character.class::cast)
                         .findFirst()
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );
 
                 Character topCard2 = board.getTopRow().stream()
-                        .filter(c -> c.getId() == numbers.get(1))
+                        .filter(c -> c.getId() == numbers.get(2))
                         .filter(Character.class::isInstance)
                         .map(Character.class::cast)
                         .findFirst()
@@ -387,13 +386,13 @@ public class Match {
                 topCard1.accept( (Visitor) player );
                 topCard2.accept( (Visitor) player );
 
-                // remove cards from topRow
+                // remove cards from topRow and bottomRow
                 board.getBottomRow().remove(bottomCard);
                 board.getTopRow().remove(topCard1);
                 board.getTopRow().remove(topCard2);
 
             }
-            default -> throw new IllegalArgumentException("Invalid player");
+            default -> throw new IllegalArgumentException("Unknown or unsupported OfferEffect");
         }
 
     }
@@ -405,7 +404,7 @@ public class Match {
 
         // Check if null string or empty string
         if ( inputString.isEmpty() ) {
-            return numbers; // return empty string
+            return numbers;
         }
 
         // split the string
