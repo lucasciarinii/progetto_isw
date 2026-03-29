@@ -226,6 +226,28 @@ class ShamanicRitualTest {
 		}
 	}
 
+	// Verifies the requested flow for full tie: bonus is applied first, then malus to the same players.
+	@Test
+	void applyEventAddsBonusAndThenMalusWhenEveryoneHasSameShamanStars() {
+		for (int playersCount = 2; playersCount <= 5; playersCount++) {
+			Player[] players = new Player[playersCount];
+			int[] beforePoints = new int[playersCount];
+
+			for (int i = 0; i < playersCount; i++) {
+				players[i] = playerWithStars("sameStars_" + playersCount + "_" + i, 2);
+				players[i].addPoints(30);
+				beforePoints[i] = players[i].getPoints();
+			}
+
+			Match match = createMatch(players);
+			shamanicRitual.applyEvent(match);
+
+			for (int i = 0; i < playersCount; i++) {
+				assertEquals(beforePoints[i] + BONUS_POINTS + MALUS_POINTS, players[i].getPoints());
+			}
+		}
+	}
+
 	// Verifies the requested scenario: first player is boosted to win, all tied lowest players get malus.
 	@Test
 	void shamanicStarsOwnerWinsBonusAndAllTiedLowestPlayersLosePoints() {
