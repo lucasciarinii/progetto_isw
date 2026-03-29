@@ -420,6 +420,14 @@ public class Match {
             }
         }
 
+        for (int i = 1; i < numbers.size(); i++) {
+            for (int j = 0; j < i; j++) {
+                if ( numbers.get(i).equals(numbers.get(j)) ) {
+                    throw new IllegalArgumentException("Can't insert duplicate ID");
+                }
+            }
+        }
+
 
         return numbers;
     }
