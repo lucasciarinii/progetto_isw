@@ -65,7 +65,7 @@ public class ShamanicRitual extends EventCard {
                 player.addPoints(gainedPoints);
             }
 
-            else if (stars == minStars) {
+            if (stars == minStars) {
 
                 //Do not lose points if the player has the protection building
                 if ( !hasShamanicNoMalusBC(player) ) {
