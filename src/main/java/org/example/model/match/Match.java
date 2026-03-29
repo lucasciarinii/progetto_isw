@@ -197,44 +197,48 @@ public class Match {
     }
 
     //the cards the user selects are all in one string "ID1, ID2, ID3"
-    public void offerTileAction(Player p, String cards){
-        OfferEffect effect=null;
-        boolean found=false;
+    public void offerTileAction(Player p, String cards) {
+        OfferEffect effect = null;
+        boolean found = false;
         List<Integer> numbers = new ArrayList<>(extractIntegers(cards));
-        for(OfferTile S :board.getOfferTrack())
-        {
-            if (S.getPlayer()==p)
-            {
-                effect = S.getOfferEffect();
+
+        for(OfferTile ot : board.getOfferTrack()) {
+            if (ot.getPlayer().equals(p)) {
+                effect = ot.getOfferEffect();
             }
         }
+
+        if (effect == null) {
+            throw new NullPointerException("effect can't be null");
+        }
+
         switch (effect) {
+
+            // Add food effect
             case FOOD -> p.addFood(3);
+
+            // Choose one card from bottomRow
             case D -> {
-                if(numbers.size()!=1)
-                {
-                    throw new IllegalArgumentException("Invalid string");
-                }
-                for (int i = 0; i < board.getBottomRow().size(); i++)
-                {
-                    if(board.getBottomRow().get(i).getId()==numbers.get(0))
-                    {
-                        try{
-                            ((Character)board.getBottomRow().get(i)).accept((Visitor)p);
-                            found=true;
-                            board.getBottomRow().removeIf(card -> card.getId()==numbers.get(0));
-                            break;
-                        }
-                        catch (IllegalArgumentException e)
-                        {
-                            System.out.println("Errors: the object is not Character type or player is not Visitor");
-                        }
-                    }
 
-
+                // player must select only one ID card
+                if (numbers.size() != 1) {
+                    throw new IllegalArgumentException("Invalid String: player must select only 1 card");
                 }
-                if(!found) throw new IllegalArgumentException("Invalid string");
+
+                // Find the card with corresponding ID
+                Card card = board.getBottomRow().stream()
+                        .filter(c -> c.getId() == numbers.get(0))
+                        .filter(Character.class::isInstance)
+                        .findFirst()
+                        .orElseThrow( () -> new IllegalArgumentException("invalid ID card") );
+
+                // add card to player
+                ((Character) card).accept((Visitor) p);
+
+                // remove card from bottomRow
+                board.getBottomRow().remove(card);
             }
+
             case U -> {
                 if(numbers.size()!=1)
                 {
@@ -427,7 +431,7 @@ public class Match {
         }
 
     }
-    public static List<Integer> extractIntegers(String stringaInput) {
+    private static List<Integer> extractIntegers(String stringaInput) {
         List<Integer> numbers = new ArrayList<>();
 
         // Ckeck if null string or empty
