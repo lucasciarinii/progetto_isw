@@ -9,6 +9,8 @@ import org.example.model.enums.EventEffect;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -205,84 +207,80 @@ class ShamanicRitualTest {
 	}
 
 	// Verifies full tie behavior for 2..5 players: everyone should receive the bonus.
-	@Test
-	void applyEventAwardsBonusToAllPlayersWhenEveryoneIsTiedFrom2To5Players() {
-		for (int playersCount = 2; playersCount <= 5; playersCount++) {
-			Player[] players = new Player[playersCount];
-			int[] beforePoints = new int[playersCount];
+	@ParameterizedTest
+	@ValueSource(ints = {2, 3, 4, 5})
+	void applyEventAwardsBonusToAllPlayersWhenEveryoneIsTiedFrom2To5Players(int playersCount) {
+		Player[] players = new Player[playersCount];
+		int[] beforePoints = new int[playersCount];
 
-			for (int i = 0; i < playersCount; i++) {
-				players[i] = playerWithStars("player_" + playersCount + "_" + i, 2);
-				players[i].addPoints(i + 1);
-				beforePoints[i] = players[i].getPoints();
-			}
+		for (int i = 0; i < playersCount; i++) {
+			players[i] = playerWithStars("player_" + playersCount + "_" + i, 2);
+			players[i].addPoints(i + 1);
+			beforePoints[i] = players[i].getPoints();
+		}
 
-			Match match = createMatch(players);
-			shamanicRitual.applyEvent(match);
+		Match match = createMatch(players);
+		shamanicRitual.applyEvent(match);
 
-			for (int i = 0; i < playersCount; i++) {
-				assertEquals(beforePoints[i] + BONUS_POINTS, players[i].getPoints());
-			}
+		for (int i = 0; i < playersCount; i++) {
+			assertEquals(beforePoints[i] + BONUS_POINTS, players[i].getPoints());
 		}
 	}
 
 	// Verifies the requested flow for full tie: bonus is applied first, then malus to the same players.
-	@Test
-	void applyEventAddsBonusAndThenMalusWhenEveryoneHasSameShamanStars() {
-		for (int playersCount = 2; playersCount <= 5; playersCount++) {
-			Player[] players = new Player[playersCount];
-			int[] beforePoints = new int[playersCount];
+	@ParameterizedTest
+	@ValueSource(ints = {2, 3, 4, 5})
+	void applyEventAddsBonusAndThenMalusWhenEveryoneHasSameShamanStars(int playersCount) {
+		Player[] players = new Player[playersCount];
+		int[] beforePoints = new int[playersCount];
 
-			for (int i = 0; i < playersCount; i++) {
-				players[i] = playerWithStars("sameStars_" + playersCount + "_" + i, 2);
-				players[i].addPoints(30);
-				beforePoints[i] = players[i].getPoints();
-			}
+		for (int i = 0; i < playersCount; i++) {
+			players[i] = playerWithStars("sameStars_" + playersCount + "_" + i, 2);
+			players[i].addPoints(30);
+			beforePoints[i] = players[i].getPoints();
+		}
 
-			Match match = createMatch(players);
-			shamanicRitual.applyEvent(match);
+		Match match = createMatch(players);
+		shamanicRitual.applyEvent(match);
 
-			for (int i = 0; i < playersCount; i++) {
-				assertEquals(beforePoints[i] + BONUS_POINTS + MALUS_POINTS, players[i].getPoints());
-			}
+		for (int i = 0; i < playersCount; i++) {
+			assertEquals(beforePoints[i] + BONUS_POINTS + MALUS_POINTS, players[i].getPoints());
 		}
 	}
 
 	// Verifies the requested scenario: first player is boosted to win, all tied lowest players get malus.
-	@Test
-	void shamanicStarsOwnerWinsBonusAndAllTiedLowestPlayersLosePoints() {
-		for (int playersCount = 3; playersCount <= 5; playersCount++) {
-			Player[] players = new Player[playersCount];
-			int[] beforePoints = new int[playersCount];
+	@ParameterizedTest
+	@ValueSource(ints = {3, 4, 5})
+	void shamanicStarsOwnerWinsBonusAndAllTiedLowestPlayersLosePoints(int playersCount) {
+		Player[] players = new Player[playersCount];
+		int[] beforePoints = new int[playersCount];
 
-			players[0] = playerWithStars("boosted_" + playersCount, 1);
-			for (int i = 1; i < playersCount; i++) {
-				players[i] = playerWithStars("lowTied_" + playersCount + "_" + i, 1);
-			}
+		players[0] = playerWithStars("boosted_" + playersCount, 1);
+		for (int i = 1; i < playersCount; i++) {
+			players[i] = playerWithStars("lowTied_" + playersCount + "_" + i, 1);
+		}
 
-			for (int i = 0; i < playersCount; i++) {
-				players[i].addPoints(20 + i);
-				beforePoints[i] = players[i].getPoints();
-			}
+		for (int i = 0; i < playersCount; i++) {
+			players[i].addPoints(20 + i);
+			beforePoints[i] = players[i].getPoints();
+		}
 
-			ShamanicStarsBC shamanicStarsBC = new ShamanicStarsBC(
-					100 + playersCount,
-					Era.I,
-					0,
-					0,
-					BuildingCardType.ShamanicStarsBC,
-					false
-			);
-			shamanicStarsBC.applyEffect(players[0], null);
+		ShamanicStarsBC shamanicStarsBC = new ShamanicStarsBC(
+				100 + playersCount,
+				Era.I,
+				0,
+				0,
+				BuildingCardType.ShamanicStarsBC,
+				false
+		);
+		shamanicStarsBC.applyEffect(players[0], null);
 
-			Match match = createMatch(players);
-			shamanicRitual.applyEvent(match);
+		Match match = createMatch(players);
+		shamanicRitual.applyEvent(match);
 
-			assertEquals(beforePoints[0] + BONUS_POINTS, players[0].getPoints());
-			for (int i = 1; i < playersCount; i++) {
-				assertEquals(beforePoints[i] + MALUS_POINTS, players[i].getPoints());
-			}
-
+		assertEquals(beforePoints[0] + BONUS_POINTS, players[0].getPoints());
+		for (int i = 1; i < playersCount; i++) {
+			assertEquals(beforePoints[i] + MALUS_POINTS, players[i].getPoints());
 		}
 	}
 
