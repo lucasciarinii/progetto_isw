@@ -313,8 +313,8 @@ public class Match {
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );
 
                 // add cards to player
-               bottomCard.accept( (Visitor) player );
-               topCard.accept( (Visitor) player );
+                bottomCard.accept( (Visitor) player );
+                topCard.accept( (Visitor) player );
 
                 // remove card from bottomRow
                 board.getBottomRow().remove(bottomCard);
@@ -323,88 +323,75 @@ public class Match {
             }
 
             case UU -> {
-                if(numbers.size()!=2)
-                {
-                    throw new IllegalArgumentException("Invalid string");
+
+                // player must select exactly two IDs from cards
+                if (numbers.size() != 2) {
+                    throw new IllegalArgumentException("Invalid String: player must select exactly 2 IDs from cards");
                 }
-                for(int a = 0; a < 2; a++)
-                {
-                    found=false;
-                    for (int i = 0; i < board.getTopRow().size(); i++)
-                    {
-                        if(board.getTopRow().get(i).getId()==numbers.get(a))
-                        {
-                            try{
-                                ((Character)board.getTopRow().get(i)).accept((Visitor) player);
-                                found=true;
-                                break;
-                            }
-                            catch (IllegalArgumentException e)
-                            {
-                                System.out.println("Errors: the object is not Character type or player is not Visitor");
-                            }
-                        }
-                    }
-                    if(!found) throw new IllegalArgumentException("Invalid string");
-                }
-                if(found)
-                {
-                    board.getTopRow().removeIf(card -> card.getId()==numbers.get(0));
-                    board.getTopRow().removeIf(card -> card.getId()==numbers.get(1));
-                }
+
+                // Find the card with corresponding ID from topRow
+                Character topCard1 = board.getTopRow().stream()
+                        .filter(c -> c.getId() == numbers.get(0))
+                        .filter(Character.class::isInstance)
+                        .map(Character.class::cast)
+                        .findFirst()
+                        .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );
+
+                Character topCard2 = board.getTopRow().stream()
+                        .filter(c -> c.getId() == numbers.get(1))
+                        .filter(Character.class::isInstance)
+                        .map(Character.class::cast)
+                        .findFirst()
+                        .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );
+
+                // add cards to player
+                topCard1.accept( (Visitor) player );
+                topCard2.accept( (Visitor) player );
+
+                // remove cards from topRow
+                board.getTopRow().remove(topCard1);
+                board.getTopRow().remove(topCard2);
+
             }
             case DUU -> {
-                if(numbers.size()!=3)
-                {
-                    throw new IllegalArgumentException("Invalid string");
+
+                // player must select exactly three IDs from cards
+                if (numbers.size() != 3) {
+                    throw new IllegalArgumentException("Invalid String: player must select exactly 3 IDs from cards");
                 }
-                for(int a = 0; a < 3; a++)
-                {
-                    found=false;
-                    if(a==0)
-                    {
-                        for (int i = 0; i < board.getBottomRow().size(); i++)
-                        {
-                            if(board.getBottomRow().get(i).getId()==numbers.get(a))
-                            {
-                                try{
-                                    ((Character)board.getBottomRow().get(i)).accept((Visitor) player); //TODO: verificare se aggiungere implements Visitor in Player
-                                    found=true;
-                                    break;
-                                }
-                                catch (IllegalArgumentException e)
-                                {
-                                    System.out.println("Errors: the object is not Character type or player is not Visitor");
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < board.getTopRow().size(); i++)
-                        {
-                            if(board.getTopRow().get(i).getId()==numbers.get(a))
-                            {
-                                try{
-                                    ((Character)board.getTopRow().get(i)).accept((Visitor) player);
-                                    found=true;
-                                    break;
-                                }
-                                catch (IllegalArgumentException e)
-                                {
-                                    System.out.println("Errors: the object is not Character type or player is not Visitor");
-                                }
-                            }
-                        }
-                    }
-                    if(!found) throw new IllegalArgumentException("Invalid string");
-                }
-                if (found)
-                {
-                    board.getTopRow().removeIf(card -> card.getId()==numbers.get(0));
-                    board.getTopRow().removeIf(card -> card.getId()==numbers.get(1));
-                    board.getTopRow().removeIf(card -> card.getId()==numbers.get(2));
-                }
+
+                // Find the card with corresponding ID from topRow
+                Character bottomCard = board.getBottomRow().stream()
+                        .filter(c -> c.getId() == numbers.get(0))
+                        .filter(Character.class::isInstance)
+                        .map(Character.class::cast)
+                        .findFirst()
+                        .orElseThrow( () -> new IllegalArgumentException("invalid ID bottomRow card") );
+
+                Character topCard1 = board.getTopRow().stream()
+                        .filter(c -> c.getId() == numbers.get(0))
+                        .filter(Character.class::isInstance)
+                        .map(Character.class::cast)
+                        .findFirst()
+                        .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );
+
+                Character topCard2 = board.getTopRow().stream()
+                        .filter(c -> c.getId() == numbers.get(1))
+                        .filter(Character.class::isInstance)
+                        .map(Character.class::cast)
+                        .findFirst()
+                        .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );
+
+                // add cards to player
+                bottomCard.accept( (Visitor) player );
+                topCard1.accept( (Visitor) player );
+                topCard2.accept( (Visitor) player );
+
+                // remove cards from topRow
+                board.getBottomRow().remove(bottomCard);
+                board.getTopRow().remove(topCard1);
+                board.getTopRow().remove(topCard2);
+
             }
             default -> throw new IllegalArgumentException("Invalid player");
         }
