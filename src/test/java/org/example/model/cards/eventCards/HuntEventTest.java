@@ -26,8 +26,7 @@ class HuntEventTest {
         }
     }
 
-
-    //* MINIMUM CASES
+    //* TEST CASES
     // Test that applyEvent(null) throws NullPointerException, because there is Objects.requireNonNull(match, ...).
     @Test
     void applyEvent_nullMatch_throwsNullPointerException() {
