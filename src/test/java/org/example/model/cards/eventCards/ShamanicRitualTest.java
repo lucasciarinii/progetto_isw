@@ -38,7 +38,7 @@ class ShamanicRitualTest {
 		assertThrows(NullPointerException.class, () -> shamanicRitual.applyEvent(null));
 	}
 
-	// Verifies the base case: highest stars gets bonus, lowest stars gets malus.
+	// Verifies the base case: highest stars gets bonus, lowest stars gets Malus.
 	@Test
 	void applyEventAwardsAndPenalizesPlayersWithDifferentShamanStars() {
 		Player winner = playerWithStars("winner", 3);
@@ -92,7 +92,7 @@ class ShamanicRitualTest {
 		assertEquals(beforeLoserPoints, protectedLoser.getPoints());
 	}
 
-	// Verifies mixed special cards: winner doubles bonus, loser is protected from malus.
+	// Verifies mixed special cards: winner doubles bonus, loser is protected from Malus.
 	@Test
 	void applyEventHandlesWinnerWithDoublePointsAndLoserWithNoMalusBuilding() {
 		Player winner = playerWithStars("winner", 3);
@@ -112,23 +112,24 @@ class ShamanicRitualTest {
 		assertEquals(beforeLoserPoints, protectedLoser.getPoints());
 	}
 
-	// Verifies no doubling when the maximum stars are tied.
+	// Verifies no doubling when two players tie for maximum stars, while a distinct lowest player gets Malus.
 	@Test
-	void applyEventDoesNotAwardDoublePointsWhenDoublePointsOwnerTiesForMaximumStars() {
+	void applyEventDoesNotAwardDoublePointsWhenDoublePointsOwnerTiesForMaximumStarsWithThirdPlayerLosingPoints() {
 		Player doubleOwner = playerWithStars("doubleOwner", 3);
 		doubleOwner.addBuilding(new ShamanicDoublePointsBC(5, Era.I, 0, 0, BuildingCardType.ShamanicDoublePointsBC, false));
-		doubleOwner.addPoints(4);
 
 		Player tiedWinner = playerWithStars("tiedWinner", 3);
-		tiedWinner.addPoints(13);
+		Player loser = playerWithStars("loser", 1);
 
-		Match match = createMatch(doubleOwner, tiedWinner);
+		Match match = createMatch(doubleOwner, tiedWinner, loser);
 		int beforeDoubleOwnerPoints = doubleOwner.getPoints();
 		int beforeTiedWinnerPoints = tiedWinner.getPoints();
+		int beforeLoserPoints = loser.getPoints();
 		shamanicRitual.applyEvent(match);
 
 		assertEquals(beforeDoubleOwnerPoints + BONUS_POINTS, doubleOwner.getPoints());
 		assertEquals(beforeTiedWinnerPoints + BONUS_POINTS, tiedWinner.getPoints());
+		assertEquals(beforeLoserPoints + MALUS_POINTS, loser.getPoints());
 	}
 
 	// Verifies that ShamanicNoMalusBC does not prevent a winning player from receiving bonus.
@@ -202,8 +203,8 @@ class ShamanicRitualTest {
 		int beforeOpponentPoints = opponent.getPoints();
 		shamanicRitual.applyEvent(match);
 
-		assertEquals(beforeBoostedPoints + BONUS_POINTS, boostedPlayer.getPoints());
-		assertEquals(beforeOpponentPoints + BONUS_POINTS, opponent.getPoints());
+		assertEquals(beforeBoostedPoints + BONUS_POINTS + MALUS_POINTS, boostedPlayer.getPoints());
+		assertEquals(beforeOpponentPoints + BONUS_POINTS + MALUS_POINTS, opponent.getPoints());
 	}
 
 	// Verifies full tie behavior for 2..5 players: everyone should receive the bonus.
@@ -223,11 +224,11 @@ class ShamanicRitualTest {
 		shamanicRitual.applyEvent(match);
 
 		for (int i = 0; i < playersCount; i++) {
-			assertEquals(beforePoints[i] + BONUS_POINTS, players[i].getPoints());
+			assertEquals(beforePoints[i] + BONUS_POINTS + MALUS_POINTS, players[i].getPoints());
 		}
 	}
 
-	// Verifies the requested flow for full tie: bonus is applied first, then malus to the same players.
+	// Verifies the requested flow for full tie: bonus is applied first, then Malus to the same players.
 	@ParameterizedTest
 	@ValueSource(ints = {2, 3, 4, 5})
 	void applyEventAddsBonusAndThenMalusWhenEveryoneHasSameShamanStars(int playersCount) {
@@ -248,7 +249,7 @@ class ShamanicRitualTest {
 		}
 	}
 
-	// Verifies the requested scenario: first player is boosted to win, all tied lowest players get malus.
+	// Verifies the requested scenario: first player is boosted to win, all tied lowest players get Malus.
 	@ParameterizedTest
 	@ValueSource(ints = {3, 4, 5})
 	void shamanicStarsOwnerWinsBonusAndAllTiedLowestPlayersLosePoints(int playersCount) {
