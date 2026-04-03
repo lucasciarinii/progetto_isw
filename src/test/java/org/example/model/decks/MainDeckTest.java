@@ -1,6 +1,8 @@
 package org.example.model.decks;
 
+import java.util.HashSet;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.example.model.cards.Card;
 import org.example.model.enums.Era;
@@ -105,20 +107,61 @@ class MainDeckTest {
         MainDeck mainDeck = new MainDeck(2);
         assertEquals(63, mainDeck.era_I_cards.size() + mainDeck.era_II_cards.size() + mainDeck.era_III_cards.size());
 
-        // TODO: implements in MainDeck json for 3+ players and uncomment the following tests
-//        // Istanzia MainDeck con 3 giocatori
-//        mainDeck = new MainDeck(3);
-//        assertEquals(74, mainDeck.era_I_cards.size() + mainDeck.era_II_cards.size() + mainDeck.era_III_cards.size());
-//
-//        // Istanzia MainDeck con 4 giocatori
-//        mainDeck = new MainDeck(4);
-//        assertEquals(85, mainDeck.era_I_cards.size() + mainDeck.era_II_cards.size() + mainDeck.era_III_cards.size());
-//
-//        // Istanzia MainDeck con 5 giocatori
-//        mainDeck = new MainDeck(5);
-//        assertEquals(96, mainDeck.era_I_cards.size() + mainDeck.era_II_cards.size() + mainDeck.era_III_cards.size());
+        // 3 Players case
+        mainDeck = new MainDeck(3);
+        assertEquals(74, mainDeck.era_I_cards.size() + mainDeck.era_II_cards.size() + mainDeck.era_III_cards.size());
+
+        // 4 Players case
+        mainDeck = new MainDeck(4);
+        assertEquals(85, mainDeck.era_I_cards.size() + mainDeck.era_II_cards.size() + mainDeck.era_III_cards.size());
+
+        // 5 Players case
+        mainDeck = new MainDeck(5);
+        assertEquals(96, mainDeck.era_I_cards.size() + mainDeck.era_II_cards.size() + mainDeck.era_III_cards.size());
     }
 
-    
+    // Test: MainDeck must contain (for each configuration) all card with different ids (no duplicates)
+    @Test
+    @Tag("MainDeck")
+    @DisplayName("Test: ALL ID's in MainDeck are unique (no duplicates)")
+    void testNoDuplicateIds() {
+
+        // 2 Players case
+        MainDeck mainDeck = new MainDeck(2);
+        int totalCards = mainDeck.era_I_cards.size() + mainDeck.era_II_cards.size() + mainDeck.era_III_cards.size();
+        Set<Integer> uniqueIds = new HashSet<>();
+        for (Card card : mainDeck.era_I_cards) uniqueIds.add(card.getId());
+        for (Card card : mainDeck.era_II_cards) uniqueIds.add(card.getId());
+        for (Card card : mainDeck.era_III_cards) uniqueIds.add(card.getId());
+        assertEquals(totalCards, uniqueIds.size());
+
+        // 3 Players case
+        mainDeck = new MainDeck(3);
+        totalCards = mainDeck.era_I_cards.size() + mainDeck.era_II_cards.size() + mainDeck.era_III_cards.size();
+        uniqueIds = new HashSet<>();
+        for (Card card : mainDeck.era_I_cards) uniqueIds.add(card.getId());
+        for (Card card : mainDeck.era_II_cards) uniqueIds.add(card.getId());
+        for (Card card : mainDeck.era_III_cards) uniqueIds.add(card.getId());
+        assertEquals(totalCards, uniqueIds.size());
+
+        // 4 Players case
+        mainDeck = new MainDeck(4);
+        totalCards = mainDeck.era_I_cards.size() + mainDeck.era_II_cards.size() + mainDeck.era_III_cards.size();
+        uniqueIds = new HashSet<>();
+        for (Card card : mainDeck.era_I_cards) uniqueIds.add(card.getId());
+        for (Card card : mainDeck.era_II_cards) uniqueIds.add(card.getId());
+        for (Card card : mainDeck.era_III_cards) uniqueIds.add(card.getId());
+        assertEquals(totalCards, uniqueIds.size());
+
+        // 5 Players case
+        mainDeck = new MainDeck(5);
+        totalCards = mainDeck.era_I_cards.size() + mainDeck.era_II_cards.size() + mainDeck.era_III_cards.size();
+        uniqueIds = new HashSet<>();
+        for (Card card : mainDeck.era_I_cards) uniqueIds.add(card.getId());
+        for (Card card : mainDeck.era_II_cards) uniqueIds.add(card.getId());
+        for (Card card : mainDeck.era_III_cards) uniqueIds.add(card.getId());
+        assertEquals(totalCards, uniqueIds.size());
+    }
+
 
 }
