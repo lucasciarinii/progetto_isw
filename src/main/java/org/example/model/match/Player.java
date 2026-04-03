@@ -31,6 +31,7 @@ public class Player  {
         @Override
         public void visit(Gatherer gatherer) {
             gatherers.add(gatherer);
+            discountOnSustenance += 3;
         }
 
         @Override

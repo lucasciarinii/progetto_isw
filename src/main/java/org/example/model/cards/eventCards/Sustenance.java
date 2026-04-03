@@ -30,8 +30,6 @@ public class Sustenance extends EventCard {
 
         Objects.requireNonNull(match, "Match cannot be null");
 
-
-        //For each player, reset the sustenance discount,
         //apply all sustenance discount buildings, then pay the final food cost
         for (Player player : match.getPlayers()) {
 
@@ -44,8 +42,14 @@ public class Sustenance extends EventCard {
             int totalCharacters = player.getInventors().size() + player.getGatherers().size() + player.getShamans().size() +
                     player.getBuilders().size() + player.getArtists().size() + player.getHunters().size();
 
+            int totalCharacterToPay = totalCharacters - player.getDiscountOnSustenance();
 
-            int remainingCharacters = player.getFood() - totalCharacters;
+            if(totalCharacterToPay < 0) {
+                totalCharacterToPay = 0;
+            }
+
+
+            int remainingCharacters = player.getFood() - totalCharacterToPay;
 
             if ( remainingCharacters < 0 ) {
                 player.addFood( - player.getFood());
@@ -53,7 +57,7 @@ public class Sustenance extends EventCard {
             }
 
             else {
-                player.addFood( - totalCharacters);
+                player.addFood( - totalCharacterToPay);
             }
 
 
