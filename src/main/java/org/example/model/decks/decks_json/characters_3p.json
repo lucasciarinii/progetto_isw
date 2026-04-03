@@ -1,0 +1,367 @@
+[
+  {
+    "id": 0,
+    "era": "I",
+    "CharacterType": "Hunter",
+    "obtainFood": true
+  },
+  {
+    "id": 1,
+    "era": "I",
+    "CharacterType": "Hunter",
+    "obtainFood": true
+  },
+  {
+    "id": 2,
+    "era": "I",
+    "CharacterType": "Hunter",
+    "obtainFood": false
+  },
+  {
+    "id": 63,
+    "era": "I",
+    "CharacterType": "Hunter",
+    "obtainFood": false
+  },
+  {
+    "id": 64,
+    "era": "I",
+    "CharacterType": "Hunter",
+    "obtainFood": false
+  },
+  {
+    "id": 3,
+    "era": "I",
+    "CharacterType": "Builder",
+    "discountBuilding": -1,
+    "endPoints": 3
+  },
+  {
+    "id": 4,
+    "era": "I",
+    "CharacterType": "Builder",
+    "discountBuilding": -2,
+    "endPoints": 0
+  },
+  {
+    "id": 5,
+    "era": "I",
+    "CharacterType": "Builder",
+    "discountBuilding": -1,
+    "endPoints": 2
+  },
+  {
+    "id": 6,
+    "era": "I",
+    "CharacterType": "Gatherer"
+  },
+  {
+    "id": 7,
+    "era": "I",
+    "CharacterType": "Gatherer"
+  },
+  {
+    "id": 65,
+    "era": "I",
+    "CharacterType": "Gatherer"
+  },
+  {
+    "id": 8,
+    "era": "I",
+    "CharacterType": "Artist"
+  },
+  {
+    "id": 9,
+    "era": "I",
+    "CharacterType": "Artist"
+  },
+  {
+    "id": 10,
+    "era": "I",
+    "CharacterType": "Artist"
+  },
+  {
+    "id": 66,
+    "era": "I",
+    "CharacterType": "Artist"
+  },
+  {
+    "id": 11,
+    "era": "I",
+    "CharacterType": "Inventor",
+    "invention": "LEATHER"
+  },
+  {
+    "id": 12,
+    "era": "I",
+    "CharacterType": "Inventor",
+    "invention": "BOAT"
+  },
+  {
+    "id": 13,
+    "era": "I",
+    "CharacterType": "Inventor",
+    "invention": "ARROW"
+  },
+  {
+    "id": 14,
+    "era": "I",
+    "CharacterType": "Inventor",
+    "invention": "BREAD"
+  },
+  {
+    "id": 15,
+    "era": "I",
+    "CharacterType": "Shaman",
+    "numStars": 2
+  },
+  {
+    "id": 16,
+    "era": "I",
+    "CharacterType": "Shaman",
+    "numStars": 1
+  },
+  {
+    "id": 17,
+    "era": "II",
+    "CharacterType": "Hunter",
+    "obtainFood": false
+  },
+  {
+    "id": 18,
+    "era": "II",
+    "CharacterType": "Hunter",
+    "obtainFood": false
+  },
+  {
+    "id": 19,
+    "era": "II",
+    "CharacterType": "Hunter",
+    "obtainFood": true
+  },
+  {
+    "id": 67,
+    "era": "II",
+    "CharacterType": "Hunter",
+    "obtainFood": true
+  },
+  {
+    "id": 20,
+    "era": "II",
+    "CharacterType": "Builder",
+    "discountBuilding": -1,
+    "endPoints": 4
+  },
+  {
+    "id": 21,
+    "era": "II",
+    "CharacterType": "Builder",
+    "discountBuilding": -2,
+    "endPoints": 1
+  },
+  {
+    "id": 22,
+    "era": "II",
+    "CharacterType": "Builder",
+    "discountBuilding": -2,
+    "endPoints": 3
+  },
+  {
+    "id": 68,
+    "era": "II",
+    "CharacterType": "Builder",
+    "discountBuilding": -2,
+    "endPoints": 2
+  },
+  {
+    "id": 23,
+    "era": "II",
+    "CharacterType": "Gatherer"
+  },
+  {
+    "id": 69,
+    "era": "II",
+    "CharacterType": "Gatherer"
+  },
+  {
+    "id": 24,
+    "era": "II",
+    "CharacterType": "Artist"
+  },
+  {
+    "id": 25,
+    "era": "II",
+    "CharacterType": "Artist"
+  },
+  {
+    "id": 26,
+    "era": "II",
+    "CharacterType": "Artist"
+  },
+  {
+    "id": 70,
+    "era": "II",
+    "CharacterType": "Artist"
+  },
+  {
+    "id": 27,
+    "era": "II",
+    "CharacterType": "Inventor",
+    "invention": "LEATHER"
+  },
+  {
+    "id": 28,
+    "era": "II",
+    "CharacterType": "Inventor",
+    "invention": "BOWL"
+  },
+  {
+    "id": 29,
+    "era": "II",
+    "CharacterType": "Inventor",
+    "invention": "STICK"
+  },
+  {
+    "id": 30,
+    "era": "II",
+    "CharacterType": "Inventor",
+    "invention": "TOTEM"
+  },
+  {
+    "id": 31,
+    "era": "II",
+    "CharacterType": "Inventor",
+    "invention": "ROPE"
+  },
+  {
+    "id": 32,
+    "era": "II",
+    "CharacterType": "Shaman",
+    "numStars": 2
+  },
+  {
+    "id": 33,
+    "era": "II",
+    "CharacterType": "Shaman",
+    "numStars": 2
+  },
+  {
+    "id": 34,
+    "era": "III",
+    "CharacterType": "Hunter",
+    "obtainFood": false
+  },
+  {
+    "id": 35,
+    "era": "III",
+    "CharacterType": "Hunter",
+    "obtainFood": false
+  },
+  {
+    "id": 36,
+    "era": "III",
+    "CharacterType": "Hunter",
+    "obtainFood": true
+  },
+  {
+    "id": 37,
+    "era": "III",
+    "CharacterType": "Builder",
+    "discountBuilding": -1,
+    "endPoints": 5
+  },
+  {
+    "id": 38,
+    "era": "III",
+    "CharacterType": "Builder",
+    "discountBuilding": -2,
+    "endPoints": 3
+  },
+  {
+    "id": 39,
+    "era": "III",
+    "CharacterType": "Builder",
+    "discountBuilding": -2,
+    "endPoints": 2
+  },
+  {
+    "id": 40,
+    "era": "III",
+    "CharacterType": "Gatherer"
+  },
+  {
+    "id": 41,
+    "era": "III",
+    "CharacterType": "Artist"
+  },
+  {
+    "id": 42,
+    "era": "III",
+    "CharacterType": "Artist"
+  },
+  {
+    "id": 43,
+    "era": "III",
+    "CharacterType": "Artist"
+  },
+  {
+    "id": 44,
+    "era": "III",
+    "CharacterType": "Inventor",
+    "invention": "TOTEM"
+  },
+  {
+    "id": 45,
+    "era": "III",
+    "CharacterType": "Inventor",
+    "invention": "HOOK"
+  },
+  {
+    "id": 46,
+    "era": "III",
+    "CharacterType": "Inventor",
+    "invention": "JEWELS"
+  },
+  {
+    "id": 47,
+    "era": "III",
+    "CharacterType": "Inventor",
+    "invention": "BREAD"
+  },
+  {
+    "id": 71,
+    "era": "III",
+    "CharacterType": "Inventor",
+    "invention": "BOAT"
+  },
+  {
+    "id": 72,
+    "era": "III",
+    "CharacterType": "Inventor",
+    "invention": "ARROW"
+  },
+  {
+    "id": 48,
+    "era": "III",
+    "CharacterType": "Shaman",
+    "numStars": 2
+  },
+  {
+    "id": 49,
+    "era": "III",
+    "CharacterType": "Shaman",
+    "numStars": 3
+  },
+  {
+    "id": 50,
+    "era": "III",
+    "CharacterType": "Shaman",
+    "numStars": 3
+  },
+  {
+    "id": 73,
+    "era": "III",
+    "CharacterType": "Shaman",
+    "numStars": 2
+  }
+]
