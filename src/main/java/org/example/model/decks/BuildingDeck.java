@@ -20,10 +20,6 @@ public class BuildingDeck extends Deck<BuildingCard> {
         addCardToTopRow(b, Era.I); // add era I cards to the top row of the board
     }
 
-    public BuildingCard draw(BuildingCard buildingCard) {
-        return buildingCard;
-    }
-
     private void initializeDeck(int numPlayers) {
         ObjectMapper mapper = new ObjectMapper();
         try {
