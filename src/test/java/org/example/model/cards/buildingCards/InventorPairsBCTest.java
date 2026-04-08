@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class InventorPairsBCTest {
 
-    // Complete test suite with all cases in English
 
     @Test
     @DisplayName("Zero inventors: food remains 5 after applyEffect")
