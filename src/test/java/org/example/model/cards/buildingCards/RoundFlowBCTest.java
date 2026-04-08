@@ -10,15 +10,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RoundFlowBCTest {
 
-    // Stub Match used only to provide a valid Match instance
-    // without relying on additional game behavior.
+    //Stub Match used only to provide a valid Match instance
+    //without relying on additional game behavior.
     private static class DummyMatch extends Match {
         DummyMatch() {
             super(java.util.List.of(new Player("p1"), new Player("p2")));
         }
     }
 
-    // Test that the constructor correctly initializes all inherited fields.
+    //Test that the constructor correctly initializes all inherited fields.
     @Test
     void constructor_initializesAllFieldsCorrectly() {
         RoundFlowBC card = new RoundFlowBC(
@@ -37,7 +37,7 @@ class RoundFlowBCTest {
         assertEquals(BuildingCardType.RoundFlowBC, card.getClassType());
     }
 
-    // Test that applyEffect does not throw exceptions with valid parameters.
+    //Test that applyEffect does not throw exceptions with valid parameters.
     @Test
     void applyEffect_validOwnerAndMatch_doesNotThrow() {
         Player owner = new Player("owner");
@@ -54,8 +54,8 @@ class RoundFlowBCTest {
         assertDoesNotThrow(() -> card.applyEffect(owner, match));
     }
 
-    // Test that the current empty implementation of applyEffect
-    // does not modify the owner's observable state.
+    //Test that the current empty implementation of applyEffect
+    //does not modify the owner's observable state.
     @Test
     void applyEffect_emptyImplementation_doesNotChangeOwnerState() {
         Player owner = new Player("owner");
@@ -100,8 +100,8 @@ class RoundFlowBCTest {
         assertEquals(beforeHunters, owner.getHunters().size());
     }
 
-    // Test that the current empty implementation of applyEffect
-    // does not alter the observable Match state.
+    //Test that the current empty implementation of applyEffect
+    //does not alter the observable Match state.
     @Test
     void applyEffect_emptyImplementation_doesNotChangeMatchState() {
         Player owner = new Player("owner");
@@ -126,8 +126,8 @@ class RoundFlowBCTest {
         assertEquals(playersBefore, match.getPlayers().size());
     }
 
-    // Test that adding a RoundFlowBC to a player
-    // correctly stores it in the owned buildings list.
+    //Test that adding a RoundFlowBC to a player
+    //correctly stores it in the owned buildings list.
     @Test
     void addBuilding_roundFlowCard_isStoredInOwnedBuildings() {
         Player player = new Player("owner");

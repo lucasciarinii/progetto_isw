@@ -10,15 +10,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RoundFlowTotemBCTest {
 
-    // Stub Match used only to provide a valid Match instance
-    // without relying on additional game behavior.
+    //Stub Match used only to provide a valid Match instance
+    //without relying on additional game behavior.
     private static class DummyMatch extends Match {
         DummyMatch() {
             super(java.util.List.of(new Player("p1"), new Player("p2")));
         }
     }
 
-    // Test that the constructor correctly initializes all inherited fields.
+    //Test that the constructor correctly initializes all inherited fields.
     @Test
     void constructor_initializesAllFieldsCorrectly() {
         RoundFlowTotemBC card = new RoundFlowTotemBC(
@@ -37,7 +37,7 @@ class RoundFlowTotemBCTest {
         assertEquals(BuildingCardType.RoundFlowTotemBC, card.getClassType());
     }
 
-    // Test that applyEffect adds exactly one food to the owner.
+    //Test that applyEffect adds exactly one food to the owner.
     @Test
     void applyEffect_validOwnerAndMatch_addsExactlyOneFoodToOwner() {
         Player owner = new Player("owner");
@@ -58,7 +58,7 @@ class RoundFlowTotemBCTest {
         assertEquals(beforeFood + 1, owner.getFood());
     }
 
-    // Test that applying the effect multiple times adds food cumulatively.
+    //Test that applying the effect multiple times adds food cumulatively.
     @Test
     void applyEffect_calledTwice_addsFoodCumulatively() {
         Player owner = new Player("owner");
@@ -80,8 +80,8 @@ class RoundFlowTotemBCTest {
         assertEquals(beforeFood + 2, owner.getFood());
     }
 
-    // Test that applyEffect changes only food
-    // and does not modify the other observable owner state.
+    //Test that applyEffect changes only food
+    //and does not modify the other observable owner state.
     @Test
     void applyEffect_changesOnlyFood_notOtherOwnerState() {
         Player owner = new Player("owner");
@@ -126,8 +126,8 @@ class RoundFlowTotemBCTest {
         assertEquals(beforeHunters, owner.getHunters().size());
     }
 
-    // Test that adding a RoundFlowTotemBC to a player
-    // correctly stores it in the owned buildings list.
+    //Test that adding a RoundFlowTotemBC to a player
+    //correctly stores it in the owned buildings list.
     @Test
     void addBuilding_roundFlowTotemCard_isStoredInOwnedBuildings() {
         Player player = new Player("owner");
