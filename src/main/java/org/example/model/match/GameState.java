@@ -25,6 +25,7 @@ public class GameState {
     public GameState(List<Player> turnOrder) {
         Objects.requireNonNull(turnOrder, "Turn order cannot be null");
         this.currentRound = 1;
+        this.currentEra = Era.I;
         this.currentPhase = GamePhase.PLACE_TOTEMS;
         this.turnOrder = new ArrayList<>(turnOrder);
         this.currentPlayerIndex = 0;
