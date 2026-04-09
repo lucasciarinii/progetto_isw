@@ -1,5 +1,6 @@
 package org.example.model.match;
 
+import org.example.model.cards.Card;
 import org.example.model.cards.buildingCards.BuildingCard;
 import org.example.model.cards.characters.*;
 import org.example.model.cards.characters.Character;
@@ -211,5 +212,11 @@ public class Player  {
     @Override
     public int hashCode() {
         return this.nickname.hashCode(); // nickname è final e non-null, quindi è sicuro
+    }
+
+    public void acceptCard(Card card) {
+        if (card != null) {
+            card.accept(addToListVisitor); // Usa il visitatore interno che abbiamo definito prima!
+        }
     }
 }

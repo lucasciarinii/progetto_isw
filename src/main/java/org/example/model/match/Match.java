@@ -189,9 +189,14 @@ public class Match {
 
         // 2. Remove the player's totem from the turn order tile
         for(PlayerSlot slot : board.getTurnOrderTile().getSlots()) {
-            if(slot.getPlayer().equals(player)) {
-                slot.removeTotem();
-                break;
+            try {
+                 if(slot.getPlayer().equals(player)) {
+                    slot.removeTotem();
+                    break;
+                }
+            }
+            catch (NullPointerException e) {
+
             }
         }
     }
@@ -202,8 +207,13 @@ public class Match {
         List<Integer> numbers = new ArrayList<>(extractIntegers(cards));
 
         for(OfferTile ot : board.getOfferTrack()) {
-            if (ot.getPlayer().equals(player)) {
-                effect = ot.getOfferEffect();
+            try {
+                if (ot.getPlayer().equals(player)) {
+                    effect = ot.getOfferEffect();
+                }
+            }
+            catch (NullPointerException e) {
+
             }
         }
 
@@ -233,7 +243,7 @@ public class Match {
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID card") );
 
                 // add card to player
-                character.accept((Visitor) player);
+                player.acceptCard(character);
 
                 // remove card from bottomRow
                 board.getBottomRow().remove(character);
@@ -255,7 +265,7 @@ public class Match {
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID card") );
 
                 // add card to player
-                character.accept((Visitor) player);
+                player.acceptCard(character);
 
                 // remove card from topRow
                 board.getTopRow().remove(character);
@@ -280,8 +290,8 @@ public class Match {
                 }
 
                 // add cards to player
-                cards_input.get(0).accept((Visitor) player);
-                cards_input.get(1).accept((Visitor) player);
+                player.acceptCard(cards_input.get(0));
+                player.acceptCard(cards_input.get(1));
 
                 // remove card from bottomRow
                 board.getBottomRow().remove(cards_input.get(0));
@@ -312,8 +322,8 @@ public class Match {
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );
 
                 // add cards to player
-                bottomCard.accept( (Visitor) player );
-                topCard.accept( (Visitor) player );
+                player.acceptCard(bottomCard);
+                player.acceptCard(topCard);
 
                 // remove card from bottomRow and topRow
                 board.getBottomRow().remove(bottomCard);
@@ -344,8 +354,8 @@ public class Match {
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );
 
                 // add cards to player
-                topCard1.accept( (Visitor) player );
-                topCard2.accept( (Visitor) player );
+                player.acceptCard(topCard1);
+                player.acceptCard(topCard2);
 
                 // remove cards from topRow
                 board.getTopRow().remove(topCard1);
@@ -382,9 +392,9 @@ public class Match {
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );
 
                 // add cards to player
-                bottomCard.accept( (Visitor) player );
-                topCard1.accept( (Visitor) player );
-                topCard2.accept( (Visitor) player );
+                player.acceptCard(bottomCard);
+                player.acceptCard(topCard1);
+                player.acceptCard(topCard2);
 
                 // remove cards from topRow and bottomRow
                 board.getBottomRow().remove(bottomCard);

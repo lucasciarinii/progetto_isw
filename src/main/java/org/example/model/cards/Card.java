@@ -1,6 +1,8 @@
 package org.example.model.cards;
 
 import org.example.model.enums.Era;
+import org.example.model.interfaces.Visitor;
+
 import java.util.Objects;
 
 public abstract class Card {
@@ -14,11 +16,13 @@ public abstract class Card {
         this.id = id;
     }
 
-
-
     public Era getEra() {
         return era;
     }
     public int getId() { return id; }
+
+    public void accept(Visitor visitor) {
+        // Default implementation does nothing. Subclasses can override this method to accept visitors.
+    }
 
 }
