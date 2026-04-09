@@ -189,9 +189,14 @@ public class Match {
 
         // 2. Remove the player's totem from the turn order tile
         for(PlayerSlot slot : board.getTurnOrderTile().getSlots()) {
-            if(slot.getPlayer().equals(player)) {
-                slot.removeTotem();
-                break;
+            try {
+                 if(slot.getPlayer().equals(player)) {
+                    slot.removeTotem();
+                    break;
+                }
+            }
+            catch (NullPointerException e) {
+
             }
         }
     }
