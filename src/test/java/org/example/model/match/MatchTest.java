@@ -2,10 +2,12 @@ package org.example.model.match;
 
 import org.example.model.board.PlayerSlot;
 import org.example.model.cards.Card;
+import org.example.model.cards.buildingCards.BuildingCard;
 import org.example.model.cards.buildingCards.SetCollectionFoodBC;
 import org.example.model.cards.characters.Character;
 import org.example.model.cards.characters.Gatherer;
-import org.example.model.cards.eventCards.Sustenance;
+import org.example.model.cards.characters.Hunter;
+import org.example.model.cards.eventCards.*;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
@@ -21,6 +23,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.NoSuchElementException;
+import java.lang.reflect.Field;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -79,6 +83,40 @@ class MatchTest {
         int maxTop = match.getBoard().getTopRow().stream().mapToInt(Card::getId).max().orElse(0);
         int maxBottom = match.getBoard().getBottomRow().stream().mapToInt(Card::getId).max().orElse(0);
         return Math.max(maxTop, maxBottom) + 100;
+    }
+
+    private static void setMainDeckCards(Match match, List<Card> eraICards, List<Card> eraIICards, List<Card> eraIIICards) {
+        try {
+            Field eraIField = org.example.model.decks.Deck.class.getDeclaredField("era_I_cards");
+            Field eraIIField = org.example.model.decks.Deck.class.getDeclaredField("era_II_cards");
+            Field eraIIIField = org.example.model.decks.Deck.class.getDeclaredField("era_III_cards");
+
+            eraIField.setAccessible(true);
+            eraIIField.setAccessible(true);
+            eraIIIField.setAccessible(true);
+
+            eraIField.set(match.getBoard().getMainDeck(), new ArrayList<>(eraICards));
+            eraIIField.set(match.getBoard().getMainDeck(), new ArrayList<>(eraIICards));
+            eraIIIField.set(match.getBoard().getMainDeck(), new ArrayList<>(eraIIICards));
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static Gatherer gatherer(int id, Era era) {
+        return new Gatherer(id, era, CharacterType.GATHERER);
+    }
+
+    private static Hunter hunter(int id) {
+        return new Hunter(id, Era.I, CharacterType.HUNTER, false);
+    }
+
+    private static HuntEvent huntEvent(int id, int points) {
+        return new HuntEvent(id, Era.I, false, EventEffect.HUNT_EVENT, points);
+    }
+
+    private static Sustenance sustenance(int id, int points) {
+        return new Sustenance(id, Era.I, false, EventEffect.SUSTENANCE, points);
     }
 
     //! ===================================
@@ -911,6 +949,214 @@ class MatchTest {
         assertThrows(IllegalArgumentException.class,
                 () -> match.offerTileAction(player, bottomId + "," + validTopId + "," + invalidTopId));
     }
+
+    //! ===================================
+    //! 10) endRoundOperations
+    //! ===================================
+
+    // Test that bottom events are resolved before the bottom row is cleaned.
+    @Test
+    void endRoundOperations_resolvesBottomEventsBeforeCleaningRows() {
+        Match match = new Match(createPlayers(2));
+        Player player = match.getPlayers().get(0);
+        player.addCharacter(hunter(900));
+
+        match.getBoard().getTopRow().clear();
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getBottomRow().add(huntEvent(1000, 2));
+        match.getBoard().getBottomRow().add(new SetCollectionFoodBC(1001, Era.I, 1, 1, BuildingCardType.SetCollectionFoodBC, false));
+        setMainDeckCards(match,
+                List.of(gatherer(2000, Era.I), gatherer(2001, Era.I), gatherer(2002, Era.I), gatherer(2003, Era.I), gatherer(2004, Era.I), gatherer(2005, Era.I)),
+                List.of(),
+                List.of());
+
+        match.endRoundOperations();
+
+        assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card instanceof EventCard));
+        assertTrue(match.getBoard().getBottomRow().stream().anyMatch(card -> card instanceof BuildingCard));
+    }
+
+    // Test that bottom-row Characters and Events are discarded while Buildings remain.
+    @Test
+    void endRoundOperations_discardsCharactersAndEventsFromBottomRow() {
+        Match match = new Match(createPlayers(2));
+
+        match.getBoard().getTopRow().clear();
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getBottomRow().add(gatherer(1020, Era.I));
+        match.getBoard().getBottomRow().add(huntEvent(1021, 1));
+        match.getBoard().getBottomRow().add(new SetCollectionFoodBC(1022, Era.I, 1, 1, BuildingCardType.SetCollectionFoodBC, false));
+        setMainDeckCards(match,
+                List.of(gatherer(2200, Era.I), gatherer(2201, Era.I), gatherer(2202, Era.I), gatherer(2203, Era.I), gatherer(2204, Era.I), gatherer(2205, Era.I)),
+                List.of(),
+                List.of());
+
+        match.endRoundOperations();
+
+        assertEquals(1, match.getBoard().getBottomRow().stream().filter(card -> card instanceof BuildingCard).count());
+        assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card instanceof Character));
+        assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card instanceof Sustenance || card instanceof HuntEvent || card instanceof CavePainting || card instanceof ShamanicRitual));
+    }
+
+    // Test that top-row Characters and Events move to the bottom row.
+    @Test
+    void endRoundOperations_movesCharactersAndEventsFromTopToBottom() {
+        Match match = new Match(createPlayers(2));
+
+        match.getBoard().getTopRow().clear();
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getTopRow().add(gatherer(1030, Era.I));
+        match.getBoard().getTopRow().add(huntEvent(1031, 1));
+        match.getBoard().getTopRow().add(new SetCollectionFoodBC(1032, Era.I, 1, 1, BuildingCardType.SetCollectionFoodBC, false));
+        setMainDeckCards(match,
+                List.of(gatherer(2300, Era.I), gatherer(2301, Era.I), gatherer(2302, Era.I), gatherer(2303, Era.I), gatherer(2304, Era.I), gatherer(2305, Era.I)),
+                List.of(),
+                List.of());
+
+        match.endRoundOperations();
+
+        assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == 1030 || card.getId() == 1031));
+        assertTrue(match.getBoard().getBottomRow().stream().anyMatch(card -> card.getId() == 1030));
+        assertTrue(match.getBoard().getBottomRow().stream().anyMatch(card -> card.getId() == 1031));
+    }
+
+    // Test that moved top-row cards are inserted before the existing bottom-row buildings.
+    @Test
+    void endRoundOperations_movesTopCardsToLeftOfBottomBuildings() {
+        Match match = new Match(createPlayers(2));
+
+        match.getBoard().getTopRow().clear();
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getTopRow().add(gatherer(1040, Era.I));
+        match.getBoard().getTopRow().add(huntEvent(1041, 1));
+        match.getBoard().getBottomRow().add(new SetCollectionFoodBC(1042, Era.I, 1, 1, BuildingCardType.SetCollectionFoodBC, false));
+        setMainDeckCards(match,
+                List.of(gatherer(2400, Era.I), gatherer(2401, Era.I), gatherer(2402, Era.I), gatherer(2403, Era.I), gatherer(2404, Era.I), gatherer(2405, Era.I)),
+                List.of(),
+                List.of());
+
+        match.endRoundOperations();
+
+        assertEquals(1040, match.getBoard().getBottomRow().get(0).getId());
+        assertEquals(1041, match.getBoard().getBottomRow().get(1).getId());
+        assertEquals(1042, match.getBoard().getBottomRow().get(match.getBoard().getBottomRow().size() - 1).getId());
+    }
+
+    // Test that the top row is refilled with exactly players.size() + 4 cards.
+    @Test
+    void endRoundOperations_refillsTopRowByPlayersPlusFourCards() {
+        Match match = new Match(createPlayers(2));
+
+        match.getBoard().getTopRow().clear();
+        match.getBoard().getBottomRow().clear();
+        setMainDeckCards(match,
+                List.of(gatherer(2500, Era.I), gatherer(2501, Era.I), gatherer(2502, Era.I), gatherer(2503, Era.I), gatherer(2504, Era.I), gatherer(2505, Era.I)),
+                List.of(),
+                List.of());
+
+        match.endRoundOperations();
+
+        assertEquals(6, match.getBoard().getTopRow().size());
+    }
+
+    // Test that new drawn cards are inserted to the left of existing top-row buildings.
+    @Test
+    void endRoundOperations_addsNewDrawnCardsToLeftOfExistingTopBuildings() {
+        Match match = new Match(createPlayers(2));
+
+        match.getBoard().getTopRow().clear();
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getTopRow().add(new SetCollectionFoodBC(1050, Era.I, 1, 1, BuildingCardType.SetCollectionFoodBC, false));
+        setMainDeckCards(match,
+                List.of(gatherer(2600, Era.I), gatherer(2601, Era.I), gatherer(2602, Era.I), gatherer(2603, Era.I), gatherer(2604, Era.I), gatherer(2605, Era.I)),
+                List.of(),
+                List.of());
+
+        match.endRoundOperations();
+
+        assertEquals(7, match.getBoard().getTopRow().size());
+        assertInstanceOf(BuildingCard.class, match.getBoard().getTopRow().get(match.getBoard().getTopRow().size() - 1));
+    }
+
+    // Test that drawing a new era card advances the current era.
+    @Test
+    void endRoundOperations_advancesEraWhenDrawingNewEraCard() {
+        Match match = new Match(createPlayers(2));
+
+        match.getBoard().getTopRow().clear();
+        match.getBoard().getBottomRow().clear();
+        setMainDeckCards(match,
+                List.of(gatherer(2700, Era.I), gatherer(2701, Era.I), gatherer(2702, Era.I), gatherer(2703, Era.I), gatherer(2704, Era.I)),
+                List.of(gatherer(2705, Era.II)),
+                List.of());
+
+        match.endRoundOperations();
+
+        assertEquals(Era.II, match.getGameState().getCurrentEra());
+    }
+
+    // Test that turn order is rebuilt from offer track order.
+    @Test
+    void endRoundOperations_rebuildsTurnOrderFromOfferTrack() {
+        Match match = new Match(createPlayers(2));
+        Player first = match.getPlayers().get(0);
+        Player second = match.getPlayers().get(1);
+
+        match.placeTotemOnOfferTile(second, 1);
+        match.placeTotemOnOfferTile(first, 2);
+        List<Player> expectedOrder = List.of(
+                match.getBoard().getOfferTrack().get(0).getPlayer(),
+                match.getBoard().getOfferTrack().get(1).getPlayer()
+        );
+
+        match.getBoard().getTopRow().clear();
+        match.getBoard().getBottomRow().clear();
+        setMainDeckCards(match,
+                List.of(gatherer(2800, Era.I), gatherer(2801, Era.I), gatherer(2802, Era.I), gatherer(2803, Era.I), gatherer(2804, Era.I), gatherer(2805, Era.I)),
+                List.of(),
+                List.of());
+
+        match.endRoundOperations();
+
+        assertSame(expectedOrder.get(0), match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer());
+        assertSame(expectedOrder.get(1), match.getBoard().getTurnOrderTile().getSlots().get(1).getPlayer());
+    }
+
+    // Test that offer tiles are cleared after end-of-round operations.
+    @Test
+    void endRoundOperations_clearsPlayersFromOfferTrack() {
+        Match match = new Match(createPlayers(2));
+        Player first = match.getPlayers().get(0);
+        Player second = match.getPlayers().get(1);
+
+        match.placeTotemOnOfferTile(first, 1);
+        match.placeTotemOnOfferTile(second, 2);
+
+        match.getBoard().getTopRow().clear();
+        match.getBoard().getBottomRow().clear();
+        setMainDeckCards(match,
+                List.of(gatherer(2900, Era.I), gatherer(2901, Era.I), gatherer(2902, Era.I), gatherer(2903, Era.I), gatherer(2904, Era.I), gatherer(2905, Era.I)),
+                List.of(),
+                List.of());
+
+        match.endRoundOperations();
+
+        assertTrue(match.getBoard().getOfferTrack().stream().allMatch(tile -> tile.getPlayer() == null));
+    }
+
+    // Test that an empty main deck currently causes endRoundOperations to throw.
+    @Test
+    void endRoundOperations_whenMainDeckIsEmpty_behaviorIsExplicit() {
+        Match match = new Match(createPlayers(2));
+
+        match.getBoard().getTopRow().clear();
+        match.getBoard().getBottomRow().clear();
+        setMainDeckCards(match, List.of(), List.of(), List.of());
+
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, match::endRoundOperations);
+        assertEquals("No cards left in deck", exception.getMessage());
+    }
+
 
 
 
