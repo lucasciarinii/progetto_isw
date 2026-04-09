@@ -202,8 +202,13 @@ public class Match {
         List<Integer> numbers = new ArrayList<>(extractIntegers(cards));
 
         for(OfferTile ot : board.getOfferTrack()) {
-            if (ot.getPlayer().equals(player)) {
-                effect = ot.getOfferEffect();
+            try {
+                if (ot.getPlayer().equals(player)) {
+                    effect = ot.getOfferEffect();
+                }
+            }
+            catch (NullPointerException e) {
+
             }
         }
 
@@ -312,8 +317,8 @@ public class Match {
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );
 
                 // add cards to player
-                bottomCard.accept( (Visitor) player );
-                topCard.accept( (Visitor) player );
+                player.acceptCard(bottomCard);
+                player.acceptCard(topCard);
 
                 // remove card from bottomRow and topRow
                 board.getBottomRow().remove(bottomCard);
