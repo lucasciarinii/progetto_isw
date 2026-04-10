@@ -43,6 +43,7 @@ public class Player  {
         @Override
         public void visit(Builder builder) {
             builders.add(builder);
+            addDiscountOnBuilding(builder.getDiscountBuilding());
         }
 
         @Override
