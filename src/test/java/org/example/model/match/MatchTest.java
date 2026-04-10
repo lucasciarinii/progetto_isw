@@ -1711,8 +1711,8 @@ class MatchTest {
 
         match.getBoard().getBottomRow().clear();
         match.getBoard().getTopRow().clear();
-        player.addCharacter(new Builder(4020, Era.I, CharacterType.BUILDER, 1, 3));
-        player.addCharacter(new Builder(4021, Era.I, CharacterType.BUILDER, 1, 7));
+        player.addCharacter(new Builder(4020, Era.I, CharacterType.BUILDER, -1, 3));
+        player.addCharacter(new Builder(4021, Era.I, CharacterType.BUILDER, -1, 7));
 
         int pointsBefore = player.getPoints();
 
@@ -1876,7 +1876,7 @@ class MatchTest {
         match.getBoard().getBottomRow().clear();
         match.getBoard().getTopRow().clear();
 
-        player.addCharacter(new Builder(4070, Era.I, CharacterType.BUILDER, 1, 4));
+        player.addCharacter(new Builder(4070, Era.I, CharacterType.BUILDER, -1, 4));
         player.addCharacter(new Inventor(4071, Era.I, CharacterType.INVENTOR, InventionType.ARROW));
         player.addCharacter(new Inventor(4072, Era.I, CharacterType.INVENTOR, InventionType.BOAT));
         player.addCharacter(new Artist(4073, Era.I, CharacterType.ARTIST));
