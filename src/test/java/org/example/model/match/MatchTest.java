@@ -103,20 +103,30 @@ class MatchTest {
         }
     }
 
+    private static void setBuildingDeckCards(Match match, List<BuildingCard> eraICards, List<BuildingCard> eraIICards, List<BuildingCard> eraIIICards) {
+        try {
+            Field eraIField = org.example.model.decks.Deck.class.getDeclaredField("era_I_cards");
+            Field eraIIField = org.example.model.decks.Deck.class.getDeclaredField("era_II_cards");
+            Field eraIIIField = org.example.model.decks.Deck.class.getDeclaredField("era_III_cards");
+
+            eraIField.setAccessible(true);
+            eraIIField.setAccessible(true);
+            eraIIIField.setAccessible(true);
+
+            eraIField.set(match.getBoard().getBuildingDeck(), new ArrayList<>(eraICards));
+            eraIIField.set(match.getBoard().getBuildingDeck(), new ArrayList<>(eraIICards));
+            eraIIIField.set(match.getBoard().getBuildingDeck(), new ArrayList<>(eraIIICards));
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private static Gatherer gatherer(int id, Era era) {
         return new Gatherer(id, era, CharacterType.GATHERER);
     }
 
-    private static Hunter hunter(int id) {
-        return new Hunter(id, Era.I, CharacterType.HUNTER, false);
-    }
-
     private static HuntEvent huntEvent(int id, int points) {
         return new HuntEvent(id, Era.I, false, EventEffect.HUNT_EVENT, points);
-    }
-
-    private static Sustenance sustenance(int id, int points) {
-        return new Sustenance(id, Era.I, false, EventEffect.SUSTENANCE, points);
     }
 
     //! ===================================
@@ -959,7 +969,7 @@ class MatchTest {
     void endRoundOperations_resolvesBottomEventsBeforeCleaningRows() {
         Match match = new Match(createPlayers(2));
         Player player = match.getPlayers().get(0);
-        player.addCharacter(hunter(900));
+        player.addCharacter(new Hunter(900, Era.I, CharacterType.HUNTER, false));
 
         match.getBoard().getTopRow().clear();
         match.getBoard().getBottomRow().clear();
@@ -1155,6 +1165,131 @@ class MatchTest {
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, match::endRoundOperations);
         assertEquals("No cards left in deck", exception.getMessage());
+    }
+
+    //! ===================================
+    //! 11) newEraOperations
+    //! ===================================
+
+    // Test that newEraOperations removes all BuildingCards from the bottom row.
+    @Test
+    void newEraOperations_removesBuildingCardsFromBottomRow() {
+        Match match = new Match(createPlayers(2));
+
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getTopRow().clear();
+        match.getBoard().getBottomRow().add(new SetCollectionFoodBC(3000, Era.I, 1, 1, BuildingCardType.SetCollectionFoodBC, false));
+        match.getBoard().getBottomRow().add(new SetCollectionFoodBC(3001, Era.I, 1, 1, BuildingCardType.SetCollectionFoodBC, false));
+        match.getBoard().getBottomRow().add(gatherer(3002, Era.I));
+        setBuildingDeckCards(match, List.of(), List.of(), List.of());
+
+        match.newEraOperations();
+
+        assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card instanceof BuildingCard));
+    }
+
+    // Test that newEraOperations moves top-row buildings to the bottom row.
+    @Test
+    void newEraOperations_movesTopBuildingsToBottomRow() {
+        Match match = new Match(createPlayers(2));
+
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getTopRow().clear();
+        SetCollectionFoodBC movedBuilding = new SetCollectionFoodBC(3010, Era.I, 1, 1, BuildingCardType.SetCollectionFoodBC, false);
+        match.getBoard().getTopRow().add(movedBuilding);
+        setBuildingDeckCards(match, List.of(), List.of(), List.of());
+
+        match.newEraOperations();
+
+        assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == 3010));
+        assertTrue(match.getBoard().getBottomRow().stream().anyMatch(card -> card.getId() == 3010));
+    }
+
+    // Test that non-building cards in topRow stay in place after newEraOperations.
+    @Test
+    void newEraOperations_keepsNonBuildingTopCardsInTopRow() {
+        Match match = new Match(createPlayers(2));
+
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getTopRow().clear();
+        match.getBoard().getTopRow().add(gatherer(3020, Era.I));
+        match.getBoard().getTopRow().add(huntEvent(3021, 1));
+        setBuildingDeckCards(match, List.of(), List.of(), List.of());
+
+        match.newEraOperations();
+
+        assertTrue(match.getBoard().getTopRow().stream().anyMatch(card -> card.getId() == 3020));
+        assertTrue(match.getBoard().getTopRow().stream().anyMatch(card -> card.getId() == 3021));
+    }
+
+    // Test that newEraOperations adds current-era buildings to the top row.
+    @Test
+    void newEraOperations_addsCurrentEraBuildingsToTopRow() {
+        Match match = new Match(createPlayers(2));
+
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getTopRow().clear();
+        setBuildingDeckCards(match,
+                List.of(new SetCollectionFoodBC(3030, Era.I, 1, 1, BuildingCardType.SetCollectionFoodBC, false),
+                        new SetCollectionFoodBC(3031, Era.I, 1, 1, BuildingCardType.SetCollectionFoodBC, false)),
+                List.of(),
+                List.of());
+
+        match.newEraOperations();
+
+        assertTrue(match.getBoard().getTopRow().stream().anyMatch(card -> card.getId() == 3030));
+        assertTrue(match.getBoard().getTopRow().stream().anyMatch(card -> card.getId() == 3031));
+    }
+
+    // Test that newEraOperations applies the expected operation order across both rows.
+    @Test
+    void newEraOperations_orderIsDiscardBottomThenMoveTopThenAddNewTop() {
+        Match match = new Match(createPlayers(2));
+
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getTopRow().clear();
+
+        match.getBoard().getBottomRow().add(gatherer(3040, Era.I));
+        match.getBoard().getBottomRow().add(new SetCollectionFoodBC(3041, Era.I, 1, 1, BuildingCardType.SetCollectionFoodBC, false));
+
+        match.getBoard().getTopRow().add(new SetCollectionFoodBC(3042, Era.I, 1, 1, BuildingCardType.SetCollectionFoodBC, false));
+        match.getBoard().getTopRow().add(gatherer(3043, Era.I));
+
+        setBuildingDeckCards(match,
+                List.of(new SetCollectionFoodBC(3044, Era.I, 1, 1, BuildingCardType.SetCollectionFoodBC, false)),
+                List.of(),
+                List.of());
+
+        match.newEraOperations();
+
+        assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card.getId() == 3041));
+        assertTrue(match.getBoard().getBottomRow().stream().anyMatch(card -> card.getId() == 3042));
+        assertTrue(match.getBoard().getTopRow().stream().anyMatch(card -> card.getId() == 3043));
+        assertTrue(match.getBoard().getTopRow().stream().anyMatch(card -> card.getId() == 3044));
+    }
+
+    // Test that newEraOperations is robust when no building cards are present in either row.
+    @Test
+    void newEraOperations_withNoBuildingsInRows_doesNothingRelevant() {
+        Match match = new Match(createPlayers(2));
+
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getTopRow().clear();
+
+        match.getBoard().getBottomRow().add(gatherer(3050, Era.I));
+        match.getBoard().getBottomRow().add(huntEvent(3051, 1));
+        match.getBoard().getTopRow().add(gatherer(3052, Era.I));
+        match.getBoard().getTopRow().add(new Sustenance(3053, Era.I, false, EventEffect.SUSTENANCE, 1));
+
+        setBuildingDeckCards(match, List.of(), List.of(), List.of());
+
+        assertDoesNotThrow(match::newEraOperations);
+        assertEquals(2, match.getBoard().getBottomRow().size());
+        assertEquals(2, match.getBoard().getTopRow().size());
+        assertTrue(match.getBoard().getBottomRow().stream().anyMatch(card -> card.getId() == 3050));
+        assertTrue(match.getBoard().getBottomRow().stream().anyMatch(card -> card.getId() == 3051));
+        assertTrue(match.getBoard().getTopRow().stream().anyMatch(card -> card.getId() == 3052));
+        assertTrue(match.getBoard().getTopRow().stream().anyMatch(card -> card.getId() == 3053));
     }
 
 
