@@ -221,6 +221,7 @@ public class Match {
             throw new NullPointerException("effect can't be null");
         }
 
+
         switch (effect) {
 
             // Add food effect
@@ -234,19 +235,37 @@ public class Match {
                     throw new IllegalArgumentException("Invalid String: player must select only 1 card");
                 }
 
+                // if the row does not contain any card at all, an exception will be thrown
+                if( board.getBottomRow().isEmpty()) {
+                    throw new IllegalArgumentException("The row is empty, no card can be selected");
+                }
+
                 // Find the card with corresponding ID
-                Character character = board.getBottomRow().stream()
+                Card card = board.getBottomRow().stream()
                         .filter(c -> c.getId() == numbers.get(0))
-                        .filter(Character.class::isInstance)
-                        .map(Character.class::cast)
+                        .filter(c -> c instanceof Character || c instanceof BuildingCard)
                         .findFirst()
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID card") );
 
+                // Check if the card is BuildingCard, in case we have to check if the player can accept it (if he has enough food to pay the cost)
+                if ( card instanceof BuildingCard ) {
+                    BuildingCard buildingCard = (BuildingCard) card;
+                    if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
+                        throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
+                    }
+                    else {
+                        player.addFood(Math.min(0, -buildingCard.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
+                        player.acceptCard(buildingCard);
+                        board.getBottomRow().remove(buildingCard);
+                        return;
+                    }
+                }
+
                 // add card to player
-                player.acceptCard(character);
+                player.acceptCard(card);
 
                 // remove card from bottomRow
-                board.getBottomRow().remove(character);
+                board.getBottomRow().remove(card);
             }
 
             // Choose one card from topRow
@@ -256,19 +275,37 @@ public class Match {
                     throw new IllegalArgumentException("Invalid String: player must select only 1 card");
                 }
 
+                // if the row does not contain any card at all, an exception will be thrown
+                if( board.getTopRow().isEmpty()) {
+                    throw new IllegalArgumentException("The row is empty, no card can be selected");
+                }
+
                 // Find the card with corresponding ID
-                Character character = board.getTopRow().stream()
+                Card card = board.getTopRow().stream()
                         .filter(c -> c.getId() == numbers.get(0))
-                        .filter(Character.class::isInstance)
-                        .map(Character.class::cast)
+                        .filter(c -> c instanceof Character || c instanceof BuildingCard)
                         .findFirst()
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID card") );
 
+                // Check if the card is BuildingCard, in case we have to check if the player can accept it (if he has enough food to pay the cost)
+                if ( card instanceof BuildingCard ) {
+                    BuildingCard buildingCard = (BuildingCard) card;
+                    if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
+                        throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
+                    }
+                    else {
+                        player.addFood(Math.min(0, -buildingCard.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
+                        player.acceptCard(buildingCard);
+                        board.getTopRow().remove(buildingCard);
+                        return;
+                    }
+                }
+
                 // add card to player
-                player.acceptCard(character);
+                player.acceptCard(card);
 
                 // remove card from topRow
-                board.getTopRow().remove(character);
+                board.getTopRow().remove(card);
             }
 
             case DD -> {
@@ -277,16 +314,67 @@ public class Match {
                     throw new IllegalArgumentException("Invalid String: player must select exactly 2 IDs from cards");
                 }
 
-                // Find the card with corresponding ID
-                List<Character> cards_input = board.getBottomRow().stream()
+                // if the row does not contain any card at all, an exception will be thrown
+                if( board.getBottomRow().isEmpty()) {
+                    throw new IllegalArgumentException("The row is empty, no card can be selected");
+                }
+
+                // Find the cards with corresponding IDs
+                List<Card> cards_input = board.getBottomRow().stream()
                         .filter(c -> (c.getId() == numbers.get(0) || c.getId() == numbers.get(1)))
-                        .filter(Character.class::isInstance)
-                        .map(Character.class::cast)
+                        .filter(c -> c instanceof Character || c instanceof BuildingCard)
                         .collect(Collectors.toList());
 
                 // if cards_input.size() != 2 means that at least one of the two selected IDs is invalid (not present in the bottom row or not a Character card)
                 if (cards_input.size() != 2) {
                     throw new IllegalArgumentException("Invalid ID cards");
+                }
+
+                // Check if the card is BuildingCard, in case we have to check if the player can accept it (if he has enough food to pay the cost)
+                if ( cards_input.get(0) instanceof BuildingCard && cards_input.get(1) instanceof BuildingCard ) {
+                    BuildingCard buildingCard0 = (BuildingCard) cards_input.get(0);
+                    BuildingCard buildingCard1 = (BuildingCard) cards_input.get(1);
+
+                    // Check if the player has enough food to take both building cards
+                    if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard0.getFoodCost() + buildingCard1.getFoodCost() ) {
+                        throw new IllegalArgumentException("Player doesn't have enough food to take these building cards");
+                    }
+                    else {
+                        player.addFood(Math.min(0, -buildingCard0.getFoodCost() - buildingCard1.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
+                        player.acceptCard(buildingCard0);
+                        player.acceptCard(buildingCard1);
+                        board.getBottomRow().remove(buildingCard0);
+                        board.getBottomRow().remove(buildingCard1);
+                        return;
+                    }
+                }
+                if( cards_input.get(0) instanceof BuildingCard ) {
+                    BuildingCard buildingCard = (BuildingCard) cards_input.get(0);
+                    if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
+                        throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
+                    }
+                    else {
+                        player.addFood(Math.min(0, -buildingCard.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
+                        player.acceptCard(buildingCard);
+                        board.getBottomRow().remove(buildingCard);
+                        player.acceptCard(cards_input.get(1));
+                        board.getBottomRow().remove(cards_input.get(1));
+                        return;
+                    }
+                }
+                if( cards_input.get(1) instanceof BuildingCard ) {
+                    BuildingCard buildingCard = (BuildingCard) cards_input.get(1);
+                    if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
+                        throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
+                    }
+                    else {
+                        player.addFood(Math.min(0, -buildingCard.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
+                        player.acceptCard(buildingCard);
+                        board.getBottomRow().remove(buildingCard);
+                        player.acceptCard(cards_input.get(0));
+                        board.getBottomRow().remove(cards_input.get(0));
+                        return;
+                    }
                 }
 
                 // add cards to player
@@ -305,21 +393,71 @@ public class Match {
                     throw new IllegalArgumentException("Invalid String: player must select exactly 2 IDs from cards");
                 }
 
+                // if the row does not contain any card at all, an exception will be thrown
+                if( board.getBottomRow().isEmpty() || board.getTopRow().isEmpty() ) {
+                    throw new IllegalArgumentException("The row is empty, no card can be selected");
+                }
+
                 // Find the card with corresponding ID from bottomRow
-                Character bottomCard = board.getBottomRow().stream()
+                Card bottomCard = board.getBottomRow().stream()
                         .filter(c -> c.getId() == numbers.get(0))
-                        .filter(Character.class::isInstance)
-                        .map(Character.class::cast)
+                        .filter(c -> c instanceof Character || c instanceof BuildingCard)
                         .findFirst()
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID bottomRow card") );
 
                 // find the card with corresponding ID from topRow
-                Character topCard = board.getTopRow().stream()
+                Card topCard = board.getTopRow().stream()
                         .filter(c -> c.getId() == numbers.get(1))
-                        .filter(Character.class::isInstance)
-                        .map(Character.class::cast)
+                        .filter(c -> c instanceof Character || c instanceof BuildingCard)
                         .findFirst()
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );
+
+                // Check if the card is BuildingCard, in case we have to check if the player can accept it (if he has enough food to pay the cost)
+                if ( bottomCard instanceof BuildingCard && topCard instanceof BuildingCard ) {
+                    BuildingCard buildingCard0 = (BuildingCard) bottomCard;
+                    BuildingCard buildingCard1 = (BuildingCard) topCard;
+
+                    // Check if the player has enough food to take both building cards
+                    if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard0.getFoodCost() + buildingCard1.getFoodCost() ) {
+                        throw new IllegalArgumentException("Player doesn't have enough food to take these building cards");
+                    }
+                    else {
+                        player.addFood(Math.min(0, -buildingCard0.getFoodCost() - buildingCard1.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
+                        player.acceptCard(buildingCard0);
+                        player.acceptCard(buildingCard1);
+                        board.getBottomRow().remove(buildingCard0);
+                        board.getTopRow().remove(buildingCard1);
+                        return;
+                    }
+                }
+                if( bottomCard instanceof BuildingCard ) {
+                    BuildingCard buildingCard = (BuildingCard) bottomCard;
+                    if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
+                        throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
+                    }
+                    else {
+                        player.addFood(Math.min(0, -buildingCard.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
+                        player.acceptCard(buildingCard);
+                        board.getBottomRow().remove(buildingCard);
+                        player.acceptCard(topCard);
+                        board.getTopRow().remove(topCard);
+                        return;
+                    }
+                }
+                if( topCard instanceof BuildingCard ) {
+                    BuildingCard buildingCard = (BuildingCard) topCard;
+                    if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
+                        throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
+                    }
+                    else {
+                        player.addFood(Math.min(0, -buildingCard.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
+                        player.acceptCard(buildingCard);
+                        board.getTopRow().remove(buildingCard);
+                        player.acceptCard(bottomCard);
+                        board.getBottomRow().remove(bottomCard);
+                        return;
+                    }
+                }
 
                 // add cards to player
                 player.acceptCard(bottomCard);
@@ -338,20 +476,72 @@ public class Match {
                     throw new IllegalArgumentException("Invalid String: player must select exactly 2 IDs from cards");
                 }
 
-                // Find the card with corresponding ID from topRow
-                Character topCard1 = board.getTopRow().stream()
+                // if the row does not contain any card at all, an exception will be thrown
+                if( board.getTopRow().isEmpty()) {
+                    throw new IllegalArgumentException("The row is empty, no card can be selected");
+                }
+
+                // Find the card with corresponding ID from bottomRow
+                Card topCard1 = board.getTopRow().stream()
                         .filter(c -> c.getId() == numbers.get(0))
-                        .filter(Character.class::isInstance)
-                        .map(Character.class::cast)
+                        .filter(c -> c instanceof Character || c instanceof BuildingCard)
                         .findFirst()
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );
 
-                Character topCard2 = board.getTopRow().stream()
+                // find the card with corresponding ID from topRow
+                Card topCard2 = board.getTopRow().stream()
                         .filter(c -> c.getId() == numbers.get(1))
-                        .filter(Character.class::isInstance)
-                        .map(Character.class::cast)
+                        .filter(c -> c instanceof Character || c instanceof BuildingCard)
                         .findFirst()
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );
+
+                // Check if the card is BuildingCard, in case we have to check if the player can accept it (if he has enough food to pay the cost)
+                if ( topCard1 instanceof BuildingCard && topCard2 instanceof BuildingCard ) {
+                    BuildingCard buildingCard0 = (BuildingCard) topCard1;
+                    BuildingCard buildingCard1 = (BuildingCard) topCard2;
+
+                    // Check if the player has enough food to take both building cards
+                    if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard0.getFoodCost() + buildingCard1.getFoodCost() ) {
+                        throw new IllegalArgumentException("Player doesn't have enough food to take these building cards");
+                    }
+                    else {
+                        player.addFood(Math.min(0, -buildingCard0.getFoodCost() - buildingCard1.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
+                        player.acceptCard(buildingCard0);
+                        player.acceptCard(buildingCard1);
+                        board.getTopRow().remove(buildingCard0);
+                        board.getTopRow().remove(buildingCard1);
+                        return;
+                    }
+                }
+                if( topCard1 instanceof BuildingCard ) {
+                    BuildingCard buildingCard = (BuildingCard) topCard1;
+                    if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
+                        throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
+                    }
+                    else {
+                        player.addFood(Math.min(0, -buildingCard.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
+                        player.addFood(-buildingCard.getFoodCost()); // pay the cost
+                        player.acceptCard(buildingCard);
+                        board.getTopRow().remove(buildingCard);
+                        player.acceptCard(topCard2);
+                        board.getTopRow().remove(topCard2);
+                        return;
+                    }
+                }
+                if( topCard2 instanceof BuildingCard ) {
+                    BuildingCard buildingCard = (BuildingCard) topCard2;
+                    if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
+                        throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
+                    }
+                    else {
+                        player.addFood(Math.min(0, -buildingCard.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
+                        player.acceptCard(buildingCard);
+                        board.getTopRow().remove(buildingCard);
+                        player.acceptCard(topCard1);
+                        board.getTopRow().remove(topCard1);
+                        return;
+                    }
+                }
 
                 // add cards to player
                 player.acceptCard(topCard1);
@@ -369,27 +559,157 @@ public class Match {
                     throw new IllegalArgumentException("Invalid String: player must select exactly 3 IDs from cards");
                 }
 
-                // Find the card with corresponding ID from topRow
-                Character bottomCard = board.getBottomRow().stream()
+                // if the row does not contain any card at all, an exception will be thrown
+                if( board.getBottomRow().isEmpty() || board.getTopRow().isEmpty() ) {
+                    throw new IllegalArgumentException("The row is empty, no card can be selected");
+                }
+
+                // Find the card with corresponding ID from bottomRow
+                Card bottomCard = board.getBottomRow().stream()
                         .filter(c -> c.getId() == numbers.get(0))
-                        .filter(Character.class::isInstance)
-                        .map(Character.class::cast)
+                        .filter(c -> c instanceof Character || c instanceof BuildingCard)
                         .findFirst()
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID bottomRow card") );
 
-                Character topCard1 = board.getTopRow().stream()
+                Card topCard1 = board.getTopRow().stream()
                         .filter(c -> c.getId() == numbers.get(1))
-                        .filter(Character.class::isInstance)
-                        .map(Character.class::cast)
+                        .filter(c -> c instanceof Character || c instanceof BuildingCard)
+                        .findFirst()
+                        .orElseThrow( () -> new IllegalArgumentException("invalid ID bottomRow card") );
+
+                // find the card with corresponding ID from topRow
+                Card topCard2 = board.getTopRow().stream()
+                        .filter(c -> c.getId() == numbers.get(2))
+                        .filter(c -> c instanceof Character || c instanceof BuildingCard)
                         .findFirst()
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );
 
-                Character topCard2 = board.getTopRow().stream()
-                        .filter(c -> c.getId() == numbers.get(2))
-                        .filter(Character.class::isInstance)
-                        .map(Character.class::cast)
-                        .findFirst()
-                        .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );
+                // Check if the card is BuildingCard, in case we have to check if the player can accept it (if he has enough food to pay the cost)
+                if ( topCard1 instanceof BuildingCard && topCard2 instanceof BuildingCard && bottomCard instanceof BuildingCard ) {
+                    BuildingCard buildingCard0 = (BuildingCard) topCard1;
+                    BuildingCard buildingCard1 = (BuildingCard) topCard2;
+                    BuildingCard buildingCard2 = (BuildingCard) bottomCard;
+
+                    // Check if the player has enough food to take both building cards
+                    if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard0.getFoodCost() + buildingCard1.getFoodCost() + buildingCard2.getFoodCost() ) {
+                        throw new IllegalArgumentException("Player doesn't have enough food to take these building cards");
+                    }
+                    else {
+                        player.addFood(Math.min(0, -buildingCard0.getFoodCost() - buildingCard1.getFoodCost() - buildingCard2.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
+                        player.acceptCard(buildingCard0);
+                        player.acceptCard(buildingCard1);
+                        player.acceptCard(buildingCard2);
+                        board.getTopRow().remove(buildingCard0);
+                        board.getTopRow().remove(buildingCard1);
+                        board.getBottomRow().remove(buildingCard2);
+                        return;
+                    }
+                }
+                if( bottomCard instanceof BuildingCard && topCard1 instanceof BuildingCard ) {
+                    BuildingCard buildingCard0 = (BuildingCard) bottomCard;
+                    BuildingCard buildingCard1 = (BuildingCard) topCard1;
+
+                    // Check if the player has enough food to take both building cards
+                    if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard0.getFoodCost() + buildingCard1.getFoodCost() ) {
+                        throw new IllegalArgumentException("Player doesn't have enough food to take these building cards");
+                    }
+                    else {
+                        player.addFood(Math.min(0, -buildingCard0.getFoodCost() - buildingCard1.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
+                        player.acceptCard(buildingCard0);
+                        player.acceptCard(buildingCard1);
+                        board.getBottomRow().remove(buildingCard0);
+                        board.getTopRow().remove(buildingCard1);
+                        player.acceptCard(topCard2);
+                        board.getTopRow().remove(topCard2);
+                        return;
+                    }
+                }
+                if( bottomCard instanceof BuildingCard && topCard2 instanceof BuildingCard ) {
+                    BuildingCard buildingCard0 = (BuildingCard) bottomCard;
+                    BuildingCard buildingCard1 = (BuildingCard) topCard2;
+
+                    // Check if the player has enough food to take both building cards
+                    if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard0.getFoodCost() + buildingCard1.getFoodCost() ) {
+                        throw new IllegalArgumentException("Player doesn't have enough food to take these building cards");
+                    }
+                    else {
+                        player.addFood(Math.min(0, -buildingCard0.getFoodCost() - buildingCard1.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
+                        player.acceptCard(buildingCard0);
+                        player.acceptCard(buildingCard1);
+                        board.getBottomRow().remove(buildingCard0);
+                        board.getTopRow().remove(buildingCard1);
+                        player.acceptCard(topCard1);
+                        board.getTopRow().remove(topCard1);
+                        return;
+                    }
+                }
+                if( topCard1 instanceof BuildingCard && topCard2 instanceof BuildingCard ) {
+                    BuildingCard buildingCard0 = (BuildingCard) topCard1;
+                    BuildingCard buildingCard1 = (BuildingCard) topCard2;
+
+                    // Check if the player has enough food to take both building cards
+                    if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard0.getFoodCost() + buildingCard1.getFoodCost() ) {
+                        throw new IllegalArgumentException("Player doesn't have enough food to take these building cards");
+                    }
+                    else {
+                        player.addFood(Math.min(0, -buildingCard0.getFoodCost() - buildingCard1.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
+                        player.acceptCard(buildingCard0);
+                        player.acceptCard(buildingCard1);
+                        board.getTopRow().remove(buildingCard0);
+                        board.getTopRow().remove(buildingCard1);
+                        player.acceptCard(bottomCard);
+                        board.getBottomRow().remove(bottomCard);
+                        return;
+                    }
+                }
+                if( topCard1 instanceof BuildingCard ) {
+                    BuildingCard buildingCard = (BuildingCard) topCard1;
+                    if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
+                        throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
+                    }
+                    else {
+                        player.addFood(Math.min(0, -buildingCard.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
+                        player.acceptCard(buildingCard);
+                        board.getTopRow().remove(buildingCard);
+                        player.acceptCard(topCard2);
+                        board.getTopRow().remove(topCard2);
+                        player.acceptCard(bottomCard);
+                        board.getBottomRow().remove(bottomCard);
+                        return;
+                    }
+                }
+                if( topCard2 instanceof BuildingCard ) {
+                    BuildingCard buildingCard = (BuildingCard) topCard2;
+                    if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
+                        throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
+                    }
+                    else {
+                        player.addFood(Math.min(0, -buildingCard.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
+                        player.acceptCard(buildingCard);
+                        board.getTopRow().remove(buildingCard);
+                        player.acceptCard(topCard1);
+                        board.getTopRow().remove(topCard1);
+                        player.acceptCard(bottomCard);
+                        board.getBottomRow().remove(bottomCard);
+                        return;
+                    }
+                }
+                if( bottomCard instanceof BuildingCard ) {
+                    BuildingCard buildingCard = (BuildingCard) bottomCard;
+                    if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
+                        throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
+                    }
+                    else {
+                        player.addFood(Math.min(0, -buildingCard.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
+                        player.acceptCard(buildingCard);
+                        board.getBottomRow().remove(buildingCard);
+                        player.acceptCard(topCard1);
+                        board.getTopRow().remove(topCard1);
+                        player.acceptCard(topCard2);
+                        board.getTopRow().remove(topCard2);
+                        return;
+                    }
+                }
 
                 // add cards to player
                 player.acceptCard(bottomCard);
