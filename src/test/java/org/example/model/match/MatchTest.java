@@ -3,15 +3,22 @@ package org.example.model.match;
 import org.example.model.board.PlayerSlot;
 import org.example.model.cards.Card;
 import org.example.model.cards.buildingCards.BuildingCard;
+import org.example.model.cards.buildingCards.EndGameBonus25BC;
+import org.example.model.cards.buildingCards.HuntEventBoostBC;
+import org.example.model.cards.buildingCards.ShamanicNoMalusBC;
 import org.example.model.cards.buildingCards.SetCollectionFoodBC;
 import org.example.model.cards.characters.Character;
+import org.example.model.cards.characters.Builder;
 import org.example.model.cards.characters.Gatherer;
 import org.example.model.cards.characters.Hunter;
+import org.example.model.cards.characters.Inventor;
+import org.example.model.cards.characters.Artist;
 import org.example.model.cards.eventCards.*;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
+import org.example.model.enums.InventionType;
 import org.example.model.enums.OfferEffect;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -57,6 +64,16 @@ class MatchTest {
                 Arguments.of(4, OfferEffect.DU, "Invalid String: player must select exactly 2 IDs from cards"),
                 Arguments.of(2, OfferEffect.UU, "Invalid String: player must select exactly 2 IDs from cards"),
                 Arguments.of(4, OfferEffect.DUU, "Invalid String: player must select exactly 3 IDs from cards")
+        );
+    }
+
+    private static Stream<Arguments> artistCountsAndExpectedPoints() {
+        return Stream.of(
+                Arguments.of(0, 0),
+                Arguments.of(1, 0),
+                Arguments.of(2, 10),
+                Arguments.of(3, 10),
+                Arguments.of(4, 20)
         );
     }
 
@@ -1290,6 +1307,241 @@ class MatchTest {
         assertTrue(match.getBoard().getBottomRow().stream().anyMatch(card -> card.getId() == 3051));
         assertTrue(match.getBoard().getTopRow().stream().anyMatch(card -> card.getId() == 3052));
         assertTrue(match.getBoard().getTopRow().stream().anyMatch(card -> card.getId() == 3053));
+    }
+
+    //! ===================================
+    //! 12) endOfGame
+    //! ===================================
+
+    // Test that endOfGame resolves visible events from both bottom and top rows.
+    @Test
+    void endOfGame_resolvesVisibleBottomAndTopEvents() {
+        Match match = new Match(createPlayers(2));
+        Player player = match.getPlayers().get(0);
+        player.addCharacter(new Hunter(4000, Era.I, CharacterType.HUNTER, false));
+
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getTopRow().clear();
+        match.getBoard().getBottomRow().add(huntEvent(4001, 2));
+        match.getBoard().getTopRow().add(huntEvent(4002, 3));
+
+        int pointsBefore = player.getPoints();
+        int foodBefore = player.getFood();
+
+        match.endOfGame();
+
+        assertEquals(pointsBefore + 5, player.getPoints());
+        assertEquals(foodBefore + 2, player.getFood());
+    }
+
+    // Test that endOfGame resolves Sustenance after the other visible events.
+    @Test
+    void endOfGame_resolvesAllSustenanceAfterOtherEvents() {
+        Match match = new Match(createPlayers(2));
+        Player player = match.getPlayers().get(0);
+        player.addCharacter(new Hunter(4010, Era.I, CharacterType.HUNTER, false));
+
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getTopRow().clear();
+        match.getBoard().getBottomRow().add(new Sustenance(4011, Era.I, false, EventEffect.SUSTENANCE, 2));
+        match.getBoard().getTopRow().add(huntEvent(4012, 4));
+
+        // Normalize food so the event order can be observed from the final score.
+        player.addFood(-player.getFood());
+        int pointsBefore = player.getPoints();
+
+        match.endOfGame();
+
+        assertEquals(pointsBefore + 4, player.getPoints());
+        assertEquals(0, player.getFood());
+    }
+
+    // Test that endOfGame adds the sum of Builder end points to final score.
+    @Test
+    void endOfGame_addsBuilderEndPoints() {
+        Match match = new Match(createPlayers(2));
+        Player player = match.getPlayers().get(0);
+
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getTopRow().clear();
+        player.addCharacter(new Builder(4020, Era.I, CharacterType.BUILDER, 1, 3));
+        player.addCharacter(new Builder(4021, Era.I, CharacterType.BUILDER, 1, 7));
+
+        int pointsBefore = player.getPoints();
+
+        match.endOfGame();
+
+        assertEquals(pointsBefore + 10, player.getPoints());
+    }
+
+    // Test that endOfGame computes inventor scoring as distinct inventions times inventors.
+    @Test
+    void endOfGame_addsInventorScoringAsDistinctInventionsTimesInventors() {
+        Match match = new Match(createPlayers(2));
+        Player player = match.getPlayers().get(0);
+
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getTopRow().clear();
+        player.addCharacter(new Inventor(4030, Era.I, CharacterType.INVENTOR, InventionType.ARROW));
+        player.addCharacter(new Inventor(4031, Era.I, CharacterType.INVENTOR, InventionType.ARROW));
+        player.addCharacter(new Inventor(4032, Era.I, CharacterType.INVENTOR, InventionType.BOAT));
+        player.addCharacter(new Inventor(4033, Era.I, CharacterType.INVENTOR, InventionType.HOOK));
+
+        int pointsBefore = player.getPoints();
+
+        match.endOfGame();
+
+        assertEquals(pointsBefore + 12, player.getPoints());
+    }
+
+    // Test that endOfGame scores artists as ten points per complete pair.
+    @ParameterizedTest
+    @MethodSource("artistCountsAndExpectedPoints")
+    void endOfGame_addsArtistScoringAsTenPerPair(int artistCount, int expectedPointsDelta) {
+        Match match = new Match(createPlayers(2));
+        Player player = match.getPlayers().get(0);
+
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getTopRow().clear();
+        for (int i = 0; i < artistCount; i++) {
+            player.addCharacter(new Artist(4040 + i, Era.I, CharacterType.ARTIST));
+        }
+
+        int pointsBefore = player.getPoints();
+
+        match.endOfGame();
+
+        assertEquals(pointsBefore + expectedPointsDelta, player.getPoints());
+    }
+
+    // Test that endOfGame adds printed end points from all owned buildings.
+    @Test
+    void endOfGame_addsPrintedEndPointsOfOwnedBuildings() {
+        Match match = new Match(createPlayers(2));
+        Player player = match.getPlayers().get(0);
+
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getTopRow().clear();
+
+        player.addBuilding(new HuntEventBoostBC(4050, Era.I, 1, 4, BuildingCardType.HuntEventBoostBC, false));
+        player.addBuilding(new ShamanicNoMalusBC(4051, Era.I, 1, 6, BuildingCardType.ShamanicNoMalusBC, false));
+
+        int pointsBefore = player.getPoints();
+
+        match.endOfGame();
+
+        assertEquals(pointsBefore + 10, player.getPoints());
+    }
+
+    // Test that end-game effects are applied only for buildings marked as end game.
+    @Test
+    void endOfGame_appliesEndGameBuildingEffectsOnlyForEndGameBuildings() {
+        Match match = new Match(createPlayers(2));
+        Player player = match.getPlayers().get(0);
+
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getTopRow().clear();
+
+        player.addBuilding(new EndGameBonus25BC(4060, Era.I, 1, 5, BuildingCardType.EndGameBonus25BC, false));
+        player.addBuilding(new EndGameBonus25BC(4061, Era.I, 1, 7, BuildingCardType.EndGameBonus25BC, true));
+
+        int pointsBefore = player.getPoints();
+
+        match.endOfGame();
+
+        assertEquals(pointsBefore + 37, player.getPoints());
+    }
+
+    // Test that endOfGame sets a single winner when one player has more points.
+    @Test
+    void endOfGame_determinesSingleWinnerByPoints() {
+        Match match = new Match(createPlayers(2));
+        Player first = match.getPlayers().get(0);
+        Player second = match.getPlayers().get(1);
+
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getTopRow().clear();
+
+        first.addPoints(12);
+        second.addPoints(5);
+
+        match.endOfGame();
+
+        assertEquals(1, match.getGameState().getWinners().size());
+        assertSame(first, match.getGameState().getWinners().get(0));
+    }
+
+    // Test that endOfGame breaks ties on points using food.
+    @Test
+    void endOfGame_breaksTieByFood() {
+        Match match = new Match(createPlayers(2));
+        Player first = match.getPlayers().get(0);
+        Player second = match.getPlayers().get(1);
+
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getTopRow().clear();
+
+        first.addFood(-first.getFood());
+        second.addFood(-second.getFood());
+
+        first.addPoints(9);
+        second.addPoints(9);
+        first.addFood(2);
+        second.addFood(5);
+
+        match.endOfGame();
+
+        assertEquals(1, match.getGameState().getWinners().size());
+        assertSame(second, match.getGameState().getWinners().get(0));
+    }
+
+    // Test that endOfGame keeps multiple winners when both points and food are tied.
+    @Test
+    void endOfGame_setsMultipleWinnersWhenPointsAndFoodTie() {
+        Match match = new Match(createPlayers(2));
+        Player first = match.getPlayers().get(0);
+        Player second = match.getPlayers().get(1);
+
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getTopRow().clear();
+
+        first.addFood(-first.getFood());
+        second.addFood(-second.getFood());
+
+        first.addPoints(8);
+        second.addPoints(8);
+        first.addFood(3);
+        second.addFood(3);
+
+        match.endOfGame();
+
+        assertEquals(2, match.getGameState().getWinners().size());
+        assertTrue(match.getGameState().getWinners().contains(first));
+        assertTrue(match.getGameState().getWinners().contains(second));
+    }
+
+    // Test that endOfGame still computes final scoring even without visible events.
+    @Test
+    void endOfGame_withNoVisibleEvents_stillCalculatesFinalScores() {
+        Match match = new Match(createPlayers(2));
+        Player player = match.getPlayers().get(0);
+
+        match.getBoard().getBottomRow().clear();
+        match.getBoard().getTopRow().clear();
+
+        player.addCharacter(new Builder(4070, Era.I, CharacterType.BUILDER, 1, 4));
+        player.addCharacter(new Inventor(4071, Era.I, CharacterType.INVENTOR, InventionType.ARROW));
+        player.addCharacter(new Inventor(4072, Era.I, CharacterType.INVENTOR, InventionType.BOAT));
+        player.addCharacter(new Artist(4073, Era.I, CharacterType.ARTIST));
+        player.addCharacter(new Artist(4074, Era.I, CharacterType.ARTIST));
+        player.addCharacter(new Artist(4075, Era.I, CharacterType.ARTIST));
+        player.addBuilding(new ShamanicNoMalusBC(4076, Era.I, 1, 2, BuildingCardType.ShamanicNoMalusBC, false));
+
+        int pointsBefore = player.getPoints();
+
+        match.endOfGame();
+
+        assertEquals(pointsBefore + 20, player.getPoints());
     }
 
 
