@@ -146,6 +146,10 @@ class MatchTest {
         return new HuntEvent(id, Era.I, false, EventEffect.HUNT_EVENT, points);
     }
 
+    private static int effectiveBuildingCost(Player player, BuildingCard buildingCard) {
+        return Math.max(0, buildingCard.getFoodCost() - player.getDiscountOnBuilding());
+    }
+
     //! ===================================
     //! INIT & CONSTRUCTOR TESTS
     //! ===================================
@@ -395,6 +399,52 @@ class MatchTest {
                 () -> match.offerTileAction(player, "5,5"));
     }
 
+    // Test that selecting an existing EventCard ID from bottomRow is rejected.
+    @Test
+    void offerTileAction_rejectsEventCardFromBottomRow_evenIfIdExists() {
+        Match match = new Match(createPlayers(5));
+        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        int dTileIndex = findOfferTileIndex(match, OfferEffect.D);
+        int eventId = nextUnusedCardId(match);
+
+        match.placeTotemOnOfferTile(player, dTileIndex);
+        match.getBoard().getBottomRow().add(new Sustenance(eventId, Era.I, false, EventEffect.SUSTENANCE, 1));
+
+        int foodBefore = player.getFood();
+        int ownedBuildingsBefore = player.getOwnedBuildings().size();
+        int ownedCharactersBefore = totalOwnedCharacters(player);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> match.offerTileAction(player, String.valueOf(eventId)));
+        assertTrue(match.getBoard().getBottomRow().stream().anyMatch(card -> card.getId() == eventId));
+        assertEquals(ownedBuildingsBefore, player.getOwnedBuildings().size());
+        assertEquals(ownedCharactersBefore, totalOwnedCharacters(player));
+        assertEquals(foodBefore, player.getFood());
+    }
+
+    // Test that selecting an existing EventCard ID from topRow is rejected.
+    @Test
+    void offerTileAction_rejectsEventCardFromTopRow_evenIfIdExists() {
+        Match match = new Match(createPlayers(5));
+        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        int uTileIndex = findOfferTileIndex(match, OfferEffect.U);
+        int eventId = nextUnusedCardId(match);
+
+        match.placeTotemOnOfferTile(player, uTileIndex);
+        match.getBoard().getTopRow().add(new Sustenance(eventId, Era.I, false, EventEffect.SUSTENANCE, 1));
+
+        int foodBefore = player.getFood();
+        int ownedBuildingsBefore = player.getOwnedBuildings().size();
+        int ownedCharactersBefore = totalOwnedCharacters(player);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> match.offerTileAction(player, String.valueOf(eventId)));
+        assertTrue(match.getBoard().getTopRow().stream().anyMatch(card -> card.getId() == eventId));
+        assertEquals(ownedBuildingsBefore, player.getOwnedBuildings().size());
+        assertEquals(ownedCharactersBefore, totalOwnedCharacters(player));
+        assertEquals(foodBefore, player.getFood());
+    }
+
     // Test that offerTileAction accepts trimmed spaces and still reads the selected IDs correctly.
     @Test
     void offerTileAction_trimmedSpacesAreAccepted() {
@@ -443,6 +493,69 @@ class MatchTest {
         }
     }
 
+    // Test that building selection applies the builder discount to the building food cost.
+    @Test
+    void offerTileAction_buildingSelection_appliesBuilderDiscountToFoodCost() {
+        Match match = new Match(createPlayers(5));
+        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        int dTileIndex = findOfferTileIndex(match, OfferEffect.D);
+        int buildingId = nextUnusedCardId(match);
+        SetCollectionFoodBC building = new SetCollectionFoodBC(
+                buildingId,
+                Era.I,
+                4,
+                1,
+                BuildingCardType.SetCollectionFoodBC,
+                false
+        );
+
+        player.addDiscountOnBuilding(2);
+        int expectedCost = effectiveBuildingCost(player, building);
+
+        match.placeTotemOnOfferTile(player, dTileIndex);
+        match.getBoard().getBottomRow().add(building);
+        player.addFood(-player.getFood());
+        player.addFood(expectedCost);
+        int foodBefore = player.getFood();
+
+        assertDoesNotThrow(() -> match.offerTileAction(player, String.valueOf(buildingId)));
+        assertEquals(foodBefore - expectedCost, player.getFood());
+        assertTrue(player.getOwnedBuildings().contains(building));
+        assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card.getId() == buildingId));
+    }
+
+    // Test that building selection never pays a negative effective cost when discount exceeds printed cost.
+    @Test
+    void offerTileAction_buildingSelection_neverReducesCostBelowZero() {
+        Match match = new Match(createPlayers(5));
+        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        int uTileIndex = findOfferTileIndex(match, OfferEffect.U);
+        int buildingId = nextUnusedCardId(match);
+        SetCollectionFoodBC building = new SetCollectionFoodBC(
+                buildingId,
+                Era.I,
+                1,
+                1,
+                BuildingCardType.SetCollectionFoodBC,
+                false
+        );
+
+        player.addDiscountOnBuilding(5);
+        int expectedCost = effectiveBuildingCost(player, building);
+
+        match.placeTotemOnOfferTile(player, uTileIndex);
+        match.getBoard().getTopRow().add(building);
+        player.addFood(-player.getFood());
+        player.addFood(expectedCost);
+        int foodBefore = player.getFood();
+
+        assertDoesNotThrow(() -> match.offerTileAction(player, String.valueOf(buildingId)));
+        assertEquals(0, expectedCost);
+        assertEquals(foodBefore, player.getFood());
+        assertTrue(player.getOwnedBuildings().contains(building));
+        assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == buildingId));
+    }
+
     //! ===================================
     //! 3) offerTileAction(...) - FOOD
     //! ===================================
@@ -486,6 +599,65 @@ class MatchTest {
         assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card.getId() == selected.getId()));
     }
 
+    // Test that D allows choosing a building from bottomRow when the player can pay.
+    @Test
+    void offerTileAction_D_allowsChoosingBuildingFromBottomRow_whenPlayerCanPay() {
+        Match match = new Match(createPlayers(5));
+        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        int dTileIndex = findOfferTileIndex(match, OfferEffect.D);
+        int buildingId = nextUnusedCardId(match);
+        SetCollectionFoodBC building = new SetCollectionFoodBC(
+                buildingId,
+                Era.I,
+                2,
+                1,
+                BuildingCardType.SetCollectionFoodBC,
+                false
+        );
+
+        match.placeTotemOnOfferTile(player, dTileIndex);
+        match.getBoard().getBottomRow().add(building);
+        if (player.getFood() < building.getFoodCost()) {
+            player.addFood(building.getFoodCost() - player.getFood());
+        }
+
+        int foodBefore = player.getFood();
+
+        assertDoesNotThrow(() -> match.offerTileAction(player, String.valueOf(buildingId)));
+        assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card.getId() == buildingId));
+        assertTrue(player.getOwnedBuildings().contains(building));
+        assertEquals(foodBefore - building.getFoodCost(), player.getFood());
+    }
+
+    // Test that D rejects selecting a building from bottomRow when the player cannot pay.
+    @Test
+    void offerTileAction_D_rejectsBuildingFromBottomRow_whenPlayerCannotPay() {
+        Match match = new Match(createPlayers(5));
+        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        int dTileIndex = findOfferTileIndex(match, OfferEffect.D);
+        int buildingId = nextUnusedCardId(match);
+        SetCollectionFoodBC building = new SetCollectionFoodBC(
+                buildingId,
+                Era.I,
+                1,
+                1,
+                BuildingCardType.SetCollectionFoodBC,
+                false
+        );
+
+        match.placeTotemOnOfferTile(player, dTileIndex);
+        match.getBoard().getBottomRow().add(building);
+        player.addFood(-player.getFood());
+
+        int foodBefore = player.getFood();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> match.offerTileAction(player, String.valueOf(buildingId)));
+        assertTrue(match.getBoard().getBottomRow().stream().anyMatch(card -> card.getId() == buildingId));
+        assertFalse(player.getOwnedBuildings().contains(building));
+        assertEquals(foodBefore, player.getFood());
+    }
+
     // Test that D rejects inputs containing more than one card ID.
     @Test
     void offerTileAction_D_rejectsMoreThanOneId() {
@@ -497,28 +669,6 @@ class MatchTest {
 
         assertThrows(IllegalArgumentException.class,
                 () -> match.offerTileAction(player, "1,2"));
-    }
-
-    // Test that D rejects an ID pointing to a BuildingCard in bottomRow.
-    @Test
-    void offerTileAction_D_rejectsBuildingCardId() {
-        Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
-        int dTileIndex = findOfferTileIndex(match, OfferEffect.D);
-        int buildingId = nextUnusedCardId(match);
-
-        match.placeTotemOnOfferTile(player, dTileIndex);
-        match.getBoard().getBottomRow().add(new SetCollectionFoodBC(
-                buildingId,
-                Era.I,
-                1,
-                1,
-                BuildingCardType.SetCollectionFoodBC,
-                false
-        ));
-
-        assertThrows(IllegalArgumentException.class,
-                () -> match.offerTileAction(player, String.valueOf(buildingId)));
     }
 
     // Test that D rejects an ID pointing to an EventCard in bottomRow.
@@ -581,6 +731,65 @@ class MatchTest {
         assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == selected.getId()));
     }
 
+    // Test that U allows choosing a building from topRow when the player can pay.
+    @Test
+    void offerTileAction_U_allowsChoosingBuildingFromTopRow_whenPlayerCanPay() {
+        Match match = new Match(createPlayers(5));
+        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        int uTileIndex = findOfferTileIndex(match, OfferEffect.U);
+        int buildingId = nextUnusedCardId(match);
+        SetCollectionFoodBC building = new SetCollectionFoodBC(
+                buildingId,
+                Era.I,
+                2,
+                1,
+                BuildingCardType.SetCollectionFoodBC,
+                false
+        );
+
+        match.placeTotemOnOfferTile(player, uTileIndex);
+        match.getBoard().getTopRow().add(building);
+        if (player.getFood() < building.getFoodCost()) {
+            player.addFood(building.getFoodCost() - player.getFood());
+        }
+
+        int foodBefore = player.getFood();
+
+        assertDoesNotThrow(() -> match.offerTileAction(player, String.valueOf(buildingId)));
+        assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == buildingId));
+        assertTrue(player.getOwnedBuildings().contains(building));
+        assertEquals(foodBefore - building.getFoodCost(), player.getFood());
+    }
+
+    // Test that U rejects selecting a building from topRow when the player cannot pay.
+    @Test
+    void offerTileAction_U_rejectsBuildingFromTopRow_whenPlayerCannotPay() {
+        Match match = new Match(createPlayers(5));
+        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        int uTileIndex = findOfferTileIndex(match, OfferEffect.U);
+        int buildingId = nextUnusedCardId(match);
+        SetCollectionFoodBC building = new SetCollectionFoodBC(
+                buildingId,
+                Era.I,
+                1,
+                1,
+                BuildingCardType.SetCollectionFoodBC,
+                false
+        );
+
+        match.placeTotemOnOfferTile(player, uTileIndex);
+        match.getBoard().getTopRow().add(building);
+        player.addFood(-player.getFood());
+
+        int foodBefore = player.getFood();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> match.offerTileAction(player, String.valueOf(buildingId)));
+        assertTrue(match.getBoard().getTopRow().stream().anyMatch(card -> card.getId() == buildingId));
+        assertFalse(player.getOwnedBuildings().contains(building));
+        assertEquals(foodBefore, player.getFood());
+    }
+
     // Test that U rejects inputs with zero IDs or more than one ID.
     @Test
     void offerTileAction_U_rejectsWrongNumberOfIds() {
@@ -594,38 +803,6 @@ class MatchTest {
                 () -> match.offerTileAction(player, ""));
         assertThrows(IllegalArgumentException.class,
                 () -> match.offerTileAction(player, "1,2"));
-    }
-
-    // Test that U rejects Building/Event IDs because topRow selection only accepts Character cards.
-    @Test
-    void offerTileAction_U_rejectsNonCharacterCard() {
-        Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
-        int uTileIndex = findOfferTileIndex(match, OfferEffect.U);
-        int buildingId = nextUnusedCardId(match);
-        int eventId = buildingId + 1;
-
-        match.placeTotemOnOfferTile(player, uTileIndex);
-        match.getBoard().getTopRow().add(new SetCollectionFoodBC(
-                buildingId,
-                Era.I,
-                1,
-                1,
-                BuildingCardType.SetCollectionFoodBC,
-                false
-        ));
-        match.getBoard().getTopRow().add(new Sustenance(
-                eventId,
-                Era.I,
-                false,
-                EventEffect.SUSTENANCE,
-                1
-        ));
-
-        assertThrows(IllegalArgumentException.class,
-                () -> match.offerTileAction(player, String.valueOf(buildingId)));
-        assertThrows(IllegalArgumentException.class,
-                () -> match.offerTileAction(player, String.valueOf(eventId)));
     }
 
     // Test that U rejects an ID not matching any valid Character in topRow.
@@ -708,30 +885,6 @@ class MatchTest {
                 () -> match.offerTileAction(player, validCharacterId + "," + missingId));
     }
 
-    // Test that DD fails when one selected ID points to a non-Character card in bottomRow.
-    @Test
-    void offerTileAction_DD_rejectsWhenOneSelectedCardIsNotCharacter() {
-        Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
-        int ddTileIndex = findOfferTileIndex(match, OfferEffect.DD);
-        int characterId = nextUnusedCardId(match);
-        int buildingId = characterId + 1;
-
-        match.placeTotemOnOfferTile(player, ddTileIndex);
-        match.getBoard().getBottomRow().add(new Gatherer(characterId, Era.I, CharacterType.GATHERER));
-        match.getBoard().getBottomRow().add(new SetCollectionFoodBC(
-                buildingId,
-                Era.I,
-                1,
-                1,
-                BuildingCardType.SetCollectionFoodBC,
-                false
-        ));
-
-        assertThrows(IllegalArgumentException.class,
-                () -> match.offerTileAction(player, characterId + "," + buildingId));
-    }
-
     //! ===================================
     //! 7) offerTileAction(...) - DU
     //! ===================================
@@ -761,6 +914,114 @@ class MatchTest {
         assertEquals(ownedBefore + 2, totalOwnedCharacters(player));
         assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card.getId() == bottomCharacter.getId()));
         assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == topCharacter.getId()));
+    }
+
+    // Test that DU allows choosing a payable bottom building and a top character.
+    @Test
+    void offerTileAction_DU_allowsChoosingBottomBuildingAndTopCharacter_whenBuildingIsPayable() {
+        Match match = new Match(createPlayers(5));
+        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        int duTileIndex = findOfferTileIndex(match, OfferEffect.DU);
+        int buildingId = nextUnusedCardId(match);
+        int characterId = buildingId + 1;
+        SetCollectionFoodBC building = new SetCollectionFoodBC(
+                buildingId,
+                Era.I,
+                3,
+                1,
+                BuildingCardType.SetCollectionFoodBC,
+                false
+        );
+        Gatherer topCharacter = new Gatherer(characterId, Era.I, CharacterType.GATHERER);
+
+        int gatherersBefore = player.getGatherers().size();
+        int expectedCost = effectiveBuildingCost(player, building);
+
+        match.placeTotemOnOfferTile(player, duTileIndex);
+        match.getBoard().getBottomRow().add(building);
+        match.getBoard().getTopRow().add(topCharacter);
+        player.addFood(-player.getFood());
+        player.addFood(expectedCost);
+        int foodBefore = player.getFood();
+
+        assertDoesNotThrow(() -> match.offerTileAction(player, buildingId + "," + characterId));
+        assertTrue(player.getOwnedBuildings().contains(building));
+        assertEquals(gatherersBefore + 1, player.getGatherers().size());
+        assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card.getId() == buildingId));
+        assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == characterId));
+        assertEquals(foodBefore - expectedCost, player.getFood());
+    }
+
+    // Test that DU rejects the entire selection when the chosen building is not payable.
+    @Test
+    void offerTileAction_DU_rejectsSelection_whenChosenBuildingIsNotPayable() {
+        Match match = new Match(createPlayers(5));
+        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        int duTileIndex = findOfferTileIndex(match, OfferEffect.DU);
+        int buildingId = nextUnusedCardId(match);
+        int characterId = buildingId + 1;
+        SetCollectionFoodBC bottomBuilding = new SetCollectionFoodBC(
+                buildingId,
+                Era.I,
+                3,
+                1,
+                BuildingCardType.SetCollectionFoodBC,
+                false
+        );
+        Gatherer topCharacter = new Gatherer(characterId, Era.I, CharacterType.GATHERER);
+
+        match.placeTotemOnOfferTile(player, duTileIndex);
+        match.getBoard().getBottomRow().add(bottomBuilding);
+        match.getBoard().getTopRow().add(topCharacter);
+        player.addFood(-player.getFood());
+
+        int foodBefore = player.getFood();
+        int ownedBuildingsBefore = player.getOwnedBuildings().size();
+        int ownedCharactersBefore = totalOwnedCharacters(player);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> match.offerTileAction(player, buildingId + "," + characterId));
+        assertTrue(match.getBoard().getBottomRow().stream().anyMatch(card -> card.getId() == buildingId));
+        assertTrue(match.getBoard().getTopRow().stream().anyMatch(card -> card.getId() == characterId));
+        assertEquals(ownedBuildingsBefore, player.getOwnedBuildings().size());
+        assertEquals(ownedCharactersBefore, totalOwnedCharacters(player));
+        assertEquals(foodBefore, player.getFood());
+    }
+
+    // Test that DU allows choosing a bottom character and a payable top building.
+    @Test
+    void offerTileAction_DU_allowsChoosingBottomCharacterAndTopBuilding_whenBuildingIsPayable() {
+        Match match = new Match(createPlayers(5));
+        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        int duTileIndex = findOfferTileIndex(match, OfferEffect.DU);
+        int characterId = nextUnusedCardId(match);
+        int buildingId = characterId + 1;
+        Gatherer bottomCharacter = new Gatherer(characterId, Era.I, CharacterType.GATHERER);
+        SetCollectionFoodBC topBuilding = new SetCollectionFoodBC(
+                buildingId,
+                Era.I,
+                3,
+                1,
+                BuildingCardType.SetCollectionFoodBC,
+                false
+        );
+
+        int gatherersBefore = player.getGatherers().size();
+        int expectedCost = effectiveBuildingCost(player, topBuilding);
+
+        match.placeTotemOnOfferTile(player, duTileIndex);
+        match.getBoard().getBottomRow().add(bottomCharacter);
+        match.getBoard().getTopRow().add(topBuilding);
+        player.addFood(-player.getFood());
+        player.addFood(expectedCost);
+        int foodBefore = player.getFood();
+
+        assertDoesNotThrow(() -> match.offerTileAction(player, characterId + "," + buildingId));
+        assertEquals(gatherersBefore + 1, player.getGatherers().size());
+        assertTrue(player.getOwnedBuildings().contains(topBuilding));
+        assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card.getId() == characterId));
+        assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == buildingId));
+        assertEquals(foodBefore - expectedCost, player.getFood());
     }
 
     // Test that DU rejects inputs with the wrong number of IDs.
@@ -840,6 +1101,90 @@ class MatchTest {
         assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == secondId));
     }
 
+    // Test that UU allows choosing two payable top-row buildings in the same action.
+    @Test
+    void offerTileAction_UU_allowsChoosingTwoBuildingsFromTopRow_whenPlayerCanPayBoth() {
+        Match match = new Match(createPlayers(5));
+        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        int uuTileIndex = findOfferTileIndex(match, OfferEffect.UU);
+        int firstId = nextUnusedCardId(match);
+        int secondId = firstId + 1;
+        SetCollectionFoodBC firstBuilding = new SetCollectionFoodBC(
+                firstId,
+                Era.I,
+                3,
+                1,
+                BuildingCardType.SetCollectionFoodBC,
+                false
+        );
+        SetCollectionFoodBC secondBuilding = new SetCollectionFoodBC(
+                secondId,
+                Era.I,
+                2,
+                1,
+                BuildingCardType.SetCollectionFoodBC,
+                false
+        );
+
+        int expectedTotalCost = effectiveBuildingCost(player, firstBuilding) + effectiveBuildingCost(player, secondBuilding);
+
+        match.placeTotemOnOfferTile(player, uuTileIndex);
+        match.getBoard().getTopRow().add(firstBuilding);
+        match.getBoard().getTopRow().add(secondBuilding);
+        player.addFood(-player.getFood());
+        player.addFood(expectedTotalCost);
+        int foodBefore = player.getFood();
+
+        assertDoesNotThrow(() -> match.offerTileAction(player, firstId + "," + secondId));
+        assertTrue(player.getOwnedBuildings().contains(firstBuilding));
+        assertTrue(player.getOwnedBuildings().contains(secondBuilding));
+        assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == firstId));
+        assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == secondId));
+        assertEquals(foodBefore - expectedTotalCost, player.getFood());
+    }
+
+    // Test that UU rejects the selection when at least one chosen building is not payable.
+    @Test
+    void offerTileAction_UU_rejectsSelection_whenAtLeastOneBuildingIsNotPayable() {
+        Match match = new Match(createPlayers(5));
+        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        int uuTileIndex = findOfferTileIndex(match, OfferEffect.UU);
+        int firstId = nextUnusedCardId(match);
+        int secondId = firstId + 1;
+        SetCollectionFoodBC firstBuilding = new SetCollectionFoodBC(
+                firstId,
+                Era.I,
+                2,
+                1,
+                BuildingCardType.SetCollectionFoodBC,
+                false
+        );
+        SetCollectionFoodBC secondBuilding = new SetCollectionFoodBC(
+                secondId,
+                Era.I,
+                3,
+                1,
+                BuildingCardType.SetCollectionFoodBC,
+                false
+        );
+
+        match.placeTotemOnOfferTile(player, uuTileIndex);
+        match.getBoard().getTopRow().add(firstBuilding);
+        match.getBoard().getTopRow().add(secondBuilding);
+        player.addFood(-player.getFood());
+        player.addFood(2);
+
+        int foodBefore = player.getFood();
+        int ownedBuildingsBefore = player.getOwnedBuildings().size();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> match.offerTileAction(player, firstId + "," + secondId));
+        assertEquals(ownedBuildingsBefore, player.getOwnedBuildings().size());
+        assertTrue(match.getBoard().getTopRow().stream().anyMatch(card -> card.getId() == firstId));
+        assertTrue(match.getBoard().getTopRow().stream().anyMatch(card -> card.getId() == secondId));
+        assertEquals(foodBefore, player.getFood());
+    }
+
     // Test that UU rejects inputs with the wrong number of IDs.
     @Test
     void offerTileAction_UU_rejectsWrongNumberOfIds() {
@@ -873,37 +1218,13 @@ class MatchTest {
                 () -> match.offerTileAction(player, validId + "," + missingId));
     }
 
-    // Test that UU rejects non-Character cards in topRow.
-    @Test
-    void offerTileAction_UU_rejectsNonCharacterCard() {
-        Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
-        int uuTileIndex = findOfferTileIndex(match, OfferEffect.UU);
-        int characterId = nextUnusedCardId(match);
-        int buildingId = characterId + 1;
-
-        match.placeTotemOnOfferTile(player, uuTileIndex);
-        match.getBoard().getTopRow().add(new Gatherer(characterId, Era.I, CharacterType.GATHERER));
-        match.getBoard().getTopRow().add(new SetCollectionFoodBC(
-                buildingId,
-                Era.I,
-                1,
-                1,
-                BuildingCardType.SetCollectionFoodBC,
-                false
-        ));
-
-        assertThrows(IllegalArgumentException.class,
-                () -> match.offerTileAction(player, characterId + "," + buildingId));
-    }
-
     //! ===================================
     //! 9) offerTileAction(...) - DUU
     //! ===================================
 
-    // Test that DUU selects one Character from bottomRow and two Characters from topRow.
+    // Test that DUU allows choosing one bottom building plus one top character and one top building.
     @Test
-    void offerTileAction_DUU_selectsOneBottomAndTwoTopCharacters() {
+    void offerTileAction_DUU_allowsChoosingOneBottomBuildingAndTwoTopCards_withMixedCharacterBuilding() {
         Match match = new Match(createPlayers(5));
         Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
         int duuTileIndex = findOfferTileIndex(match, OfferEffect.DUU);
@@ -911,17 +1232,43 @@ class MatchTest {
         int topId1 = bottomId + 1;
         int topId2 = bottomId + 2;
 
+        SetCollectionFoodBC bottomBuilding = new SetCollectionFoodBC(
+                bottomId,
+                Era.I,
+                2,
+                1,
+                BuildingCardType.SetCollectionFoodBC,
+                false
+        );
+        Gatherer topCharacter = new Gatherer(topId1, Era.I, CharacterType.GATHERER);
+        SetCollectionFoodBC topBuilding = new SetCollectionFoodBC(
+                topId2,
+                Era.I,
+                2,
+                1,
+                BuildingCardType.SetCollectionFoodBC,
+                false
+        );
+
         match.placeTotemOnOfferTile(player, duuTileIndex);
-        match.getBoard().getBottomRow().add(new Gatherer(bottomId, Era.I, CharacterType.GATHERER));
-        match.getBoard().getTopRow().add(new Gatherer(topId1, Era.I, CharacterType.GATHERER));
-        match.getBoard().getTopRow().add(new Gatherer(topId2, Era.I, CharacterType.GATHERER));
-        int ownedBefore = totalOwnedCharacters(player);
+        match.getBoard().getBottomRow().add(bottomBuilding);
+        match.getBoard().getTopRow().add(topCharacter);
+        match.getBoard().getTopRow().add(topBuilding);
+
+        int gatherersBefore = player.getGatherers().size();
+        int expectedCost = effectiveBuildingCost(player, bottomBuilding) + effectiveBuildingCost(player, topBuilding);
+        player.addFood(-player.getFood());
+        player.addFood(expectedCost);
+        int foodBefore = player.getFood();
 
         assertDoesNotThrow(() -> match.offerTileAction(player, bottomId + "," + topId1 + "," + topId2));
-        assertEquals(ownedBefore + 3, totalOwnedCharacters(player));
+        assertTrue(player.getOwnedBuildings().contains(bottomBuilding));
+        assertTrue(player.getOwnedBuildings().contains(topBuilding));
+        assertEquals(gatherersBefore + 1, player.getGatherers().size());
         assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card.getId() == bottomId));
         assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == topId1));
         assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == topId2));
+        assertEquals(foodBefore - expectedCost, player.getFood());
     }
 
     // Test that DUU rejects inputs with the wrong number of IDs.
@@ -1543,13 +1890,5 @@ class MatchTest {
 
         assertEquals(pointsBefore + 20, player.getPoints());
     }
-
-
-
-
-
-
-
-
 
 }
