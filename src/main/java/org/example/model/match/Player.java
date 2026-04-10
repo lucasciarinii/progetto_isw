@@ -43,7 +43,7 @@ public class Player  {
         @Override
         public void visit(Builder builder) {
             builders.add(builder);
-            addDiscountOnBuilding(builder.getDiscountBuilding());
+            addDiscountOnBuilding(-builder.getDiscountBuilding());
         }
 
         @Override
@@ -212,12 +212,12 @@ public class Player  {
 
     @Override
     public int hashCode() {
-        return this.nickname.hashCode(); // nickname è final e non-null, quindi è sicuro
+        return this.nickname.hashCode();
     }
 
     public void acceptCard(Card card) {
         if (card != null) {
-            card.accept(addToListVisitor); // Usa il visitatore interno che abbiamo definito prima!
+            card.accept(addToListVisitor);
         }
     }
 }
