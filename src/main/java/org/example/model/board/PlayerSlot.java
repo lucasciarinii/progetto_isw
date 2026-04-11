@@ -25,6 +25,13 @@ public class PlayerSlot {
         this.player = player;
     }
 
+    public int getFood() {
+        return food;
+    }
+
+    public int getPoints() {
+        return points;
+    }
 
     public void placePlayerAndApplyEffect(@NotNull Player player) {
 

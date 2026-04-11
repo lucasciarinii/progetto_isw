@@ -3,12 +3,16 @@ package org.example.model.cards;
 import org.example.model.enums.Era;
 import org.example.model.interfaces.Visitor;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Objects;
 
-public abstract class Card {
+public abstract class Card implements Serializable {
 
     private final int id;
     private final Era era;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     public Card(int id, Era era) {
 

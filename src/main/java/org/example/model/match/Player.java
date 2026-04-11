@@ -22,6 +22,13 @@ public class Player  {
     private final List<Builder> builders = new ArrayList<>();
     private final List<Artist> artists = new ArrayList<>();
     private final List<Hunter> hunters = new ArrayList<>();
+
+    private int points = 0;
+    private int food = 0;
+    private int discountOnSustenance = 0;
+    private int discountOnBuilding = 0;
+    private int shamanStars = 0;
+
     private final Visitor addToListVisitor = new Visitor() {
         // Every override adds the selected Character to the appropriate list
         @Override
@@ -61,12 +68,6 @@ public class Player  {
             ownedBuildings.add(building);
         }
     };
-    private int points = 0;
-    private int food = 0;
-    private int discountOnSustenance = 0;
-    private int discountOnBuilding = 0;
-    private int shamanStars = 0;
-
 
     public Player(String nickname) {
         this.nickname = Objects.requireNonNull(nickname, "Nickname cannot be null");
