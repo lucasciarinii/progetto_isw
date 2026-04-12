@@ -1,5 +1,6 @@
 package org.example.server;
 
+import org.example.model.board.OfferTile;
 import org.example.network.GameStateUpdateMessage;
 import org.example.network.Snapshots.OfferTileSnapshot;
 import org.example.network.Snapshots.PlayerSnapshot;
@@ -12,10 +13,7 @@ import org.example.model.match.GameState;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ServerController {
@@ -53,14 +51,14 @@ public class ServerController {
         // update model
         try {
             Player player = getPlayerByNickname(nickname);
+            GamePhase phaseBefore = match.getGameState().getCurrentPhase();
             match.placeTotemOnOfferTile(player, tilePosition);
             match.getGameState().advanceToNextPlayer();
-            notifyAll(buildSnapshot());
+            handlePhaseTransition(phaseBefore);
         } catch (Exception e) {
             sendError(sender, "Invalid move: " + e.getMessage());
         }
 
-        // TODO:  GESTIRE LA TRANSIZIOEN DI FASE?
     }
 
     public void offerTileAction(String nickname, String cards) {
@@ -77,14 +75,14 @@ public class ServerController {
 
         try {
             Player player = getPlayerByNickname(nickname);
+            GamePhase phaseBefore = match.getGameState().getCurrentPhase();
             match.offerTileAction(player, cards);
             match.getGameState().advanceToNextPlayer();
-            notifyAll(buildSnapshot());
+            handlePhaseTransition(phaseBefore);
         } catch (Exception e) {
             sendError(sender, "Mossa non valida: " + e.getMessage());
         }
 
-        // TODO: GESTIRE LA TRANSIZIOEN DI FASE?
     }
 
     //! UTILITY METHODS ---------------------------------------------------------------------------
@@ -216,6 +214,86 @@ public class ServerController {
         );
     }
 
+    //! HANDLE PHASE TRANSITIONS
+    private void handlePhaseTransition(GamePhase phaseBefore) {
+        GamePhase phaseAfter = match.getGameState().getCurrentPhase();
+
+        if (phaseBefore == phaseAfter) {
+            // Same phase, just the current player did the action
+            notifyAll(buildSnapshot());
+            return;
+        }
+
+        // Phase changed: all players have completed the previous phase
+        handleNewPhase(phaseAfter);
+    }
+
+    private void handleNewPhase(GamePhase phase) {
+        switch (phase) {
+
+            case PLACE_TOTEMS -> {
+                // PLACE_TOTEMS: new round
+                // reads the TurnOrderTile and update the Turn Order for PLACE_TOTEMS
+                List<Player> newTurnOrder = match.getBoard().getTurnOrderTile().getSlots().stream()
+                        .map(PlayerSlot::getPlayer)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+                match.getGameState().updateTurnOrder(newTurnOrder);
+                notifyAll(buildSnapshot());
+                // ← wait for clients inputs (placeTotemOnOfferTile)
+            }
+
+            case PLAYER_TURN -> {
+                // PLACE_TOTEMS → PLAYER_TURN
+                // Turns order becomes the order of players on the offer track (left to right)
+                List<Player> offerOrder = match.getBoard().getOfferTrack().stream()
+                        .filter(t -> t.getPlayer() != null)
+                        .map(OfferTile::getPlayer)
+                        .collect(Collectors.toList());
+                match.getGameState().updateTurnOrder(offerOrder);
+                notifyAll(buildSnapshot());
+                // ← wait clients inputs (offerTileAction)
+            }
+
+            case EVENTS_RESOLVE -> {
+                // PLAYER_TURN → EVENTS_RESOLVE: automatic, no inputs
+                // Resolve bottom row events
+                match.resolveBottomEvents();
+
+                // Immediate advances to END_ROUND
+                match.getGameState().advancePhase();
+                handleNewPhase(match.getGameState().getCurrentPhase());
+            }
+
+            case END_ROUND -> {
+                // EVENTS_RESOLVE → END_ROUND: automatic
+                match.endRoundOperations();
+
+                // END_ROUND.next(state) handle internally:
+                //   - round < 10  → advanceRound() + PLACE_TOTEMS
+                //   - round == 10 → END_GAME
+                match.getGameState().advancePhase();
+                handleNewPhase(match.getGameState().getCurrentPhase());
+            }
+
+            case END_GAME -> {
+                // END_ROUND → END_GAME: round 10 completed
+                match.endOfGame();
+
+                // Avanza a GAME_OVER
+                match.getGameState().advancePhase();
+                handleNewPhase(GamePhase.GAME_OVER);
+            }
+
+            case GAME_OVER -> {
+                // FINAL STATE: notifies all clients with the final snapshot (winners included)
+                notifyAll(buildSnapshot());
+                // TODO: GESTIRE L'EVENTUALE CHIUSURA DELLE CONNESSIONI
+            }
+
+             default -> throw new IllegalStateException("Unexpected phase: " + phase);
+        }
+    }
 
 
 }

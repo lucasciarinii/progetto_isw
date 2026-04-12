@@ -116,7 +116,7 @@ public class Match {
     // Invocated at the end of each round, after all players have resolved their actions and before starting a new round
     public void endRoundOperations() {
         // 1. Resolve events of bottomRow (with priority as in the rules)
-        resolveBottomEvents();
+        // resolveBottomEvents(); this is a separate PHASE
 
         // 2. Discard all Characters and EventCards in the bottom row (BuildingCards stay)
         board.getBottomRow().removeIf(card -> card instanceof org.example.model.cards.characters.Character || card instanceof EventCard);
@@ -150,7 +150,7 @@ public class Match {
         }
     }
 
-    private void resolveBottomEvents() {
+    public void resolveBottomEvents() {
         // Resolve events of bottomRow (with priority as in the rules)
         List<Sustenance> sustenanceCards = new ArrayList<>();
         for (Card card : board.getBottomRow()) {
