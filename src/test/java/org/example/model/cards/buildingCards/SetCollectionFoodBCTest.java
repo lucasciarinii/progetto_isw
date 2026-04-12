@@ -167,7 +167,7 @@ class SetCollectionFoodBCTest {
         owner.addCharacter(new Inventor(baseId + 1, Era.I, CharacterType.INVENTOR, InventionType.BOAT));
         owner.addCharacter(new Gatherer(baseId + 2, Era.I, CharacterType.GATHERER));
         owner.addCharacter(new Shaman(baseId + 3, Era.I, CharacterType.SHAMAN, 1));
-        owner.addCharacter(new Builder(baseId + 4, Era.I, CharacterType.BUILDER, 0, 0));
+        owner.addCharacter(new Builder(baseId + 4, Era.I, CharacterType.BUILDER, -1, 0));
         owner.addCharacter(new Artist(baseId + 5, Era.I, CharacterType.ARTIST));
         owner.addCharacter(new Hunter(baseId + 6, Era.I, CharacterType.HUNTER, false));
     }
