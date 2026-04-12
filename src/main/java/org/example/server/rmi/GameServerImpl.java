@@ -42,15 +42,13 @@ public class GameServerImpl extends UnicastRemoteObject implements GameServer, L
     @Override
     public void placeTotemOnOfferTile(String nickname, int tilePosition) throws RemoteException {
         checkGameStarted();
-        ClientConnection conn = serverController.getConnectionByNickname(nickname);
-        serverController.placeTotemOnOfferTile(conn, tilePosition);
+        serverController.placeTotemOnOfferTile(nickname, tilePosition);
     }
 
     @Override
     public void offerTileAction(String nickname, String cards) throws RemoteException {
         checkGameStarted();
-        ClientConnection conn = serverController.getConnectionByNickname(nickname);
-        serverController.offerTileAction(conn, cards);
+        serverController.offerTileAction(nickname, cards);
     }
 
     private void checkGameStarted() throws RemoteException {
