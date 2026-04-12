@@ -15,7 +15,7 @@ public interface GameServer extends Remote {
     // Player places his totem on an offer tile. nickname -> who is placing the totem, tilePosition -> which offer tile (1-based)
     void placeTotemOnOfferTile(String nickname, int tilePosition) throws RemoteException;
 
-    // Player resolves action from the offerTile he is currenlty on. nickname -> who is resolving the offer tile, cards -> string with IDs selected
+    // Player resolves action from the offerTile he is currently on. nickname -> who is resolving the offer tile, cards -> string with IDs selected
     void offerTileAction(String nickname, String cards) throws RemoteException;
 
 }

@@ -38,43 +38,50 @@ public class ServerController {
     }
 
     //! GAME ACTIONS ---------------------------------------------------------------------------
-    public void placeTotemOnOfferTile(ClientConnection sender, int tilePosition) {
-        String nick = clientNicknames.get(sender);
-        Player player = getPlayerByNickname(nick); // utility method to find player by nickname
+    public void placeTotemOnOfferTile(String nickname, int tilePosition) {
+        ClientConnection sender = findConnection(nickname);
+        if (sender == null) {
+            System.err.println("[SERVER] Connection not found for: " + nickname);
+            return;
+        }
 
-        if (!isCorrectPlayer(nick) || !isCorrectPhase(GamePhase.PLACE_TOTEMS)) {
-            sendError(sender, "Invalid Move: it's not your turn or invalid phase"); // utility method to send error message to client
+        if (!isCorrectPlayer(nickname) || !isCorrectPhase(GamePhase.PLACE_TOTEMS)) {
+            sendError(sender, "Invalid move: it's not yourn turn or invalid phase.");
             return;
         }
 
         // update model
         try {
+            Player player = getPlayerByNickname(nickname);
             match.placeTotemOnOfferTile(player, tilePosition);
             match.getGameState().advanceToNextPlayer();
             notifyAll(buildSnapshot());
         } catch (Exception e) {
-            sendError(sender, "Invalid Move: " + e.getMessage());
+            sendError(sender, "Invalid move: " + e.getMessage());
         }
 
         // TODO:  GESTIRE LA TRANSIZIOEN DI FASE?
     }
 
-    public void offerTileAction(ClientConnection sender, String cards) {
-        String nick = clientNicknames.get(sender);
-        Player player = getPlayerByNickname(nick);
-
-        if (!isCorrectPlayer(nick) || !isCorrectPhase(GamePhase.PLAYER_TURN)) {
-            sendError(sender, "Invalid Move: it's not your turn or invalid phase");
+    public void offerTileAction(String nickname, String cards) {
+        ClientConnection sender = findConnection(nickname);
+        if (sender == null) {
+            System.err.println("[SERVER] Connessione non trovata per: " + nickname);
             return;
         }
 
-        // update model
+        if (!isCorrectPlayer(nickname) || !isCorrectPhase(GamePhase.PLAYER_TURN)) {
+            sendError(sender, "Mossa non valida: non è il tuo turno o fase errata.");
+            return;
+        }
+
         try {
+            Player player = getPlayerByNickname(nickname);
             match.offerTileAction(player, cards);
             match.getGameState().advanceToNextPlayer();
             notifyAll(buildSnapshot());
         } catch (Exception e) {
-            sendError(sender, "Invalid move: " + e.getMessage());
+            sendError(sender, "Mossa non valida: " + e.getMessage());
         }
 
         // TODO: GESTIRE LA TRANSIZIOEN DI FASE?
@@ -104,6 +111,15 @@ public class ServerController {
                 .orElseThrow(() -> new IllegalArgumentException("Client not found: " + nickname));
     }
 
+    // Internal lookup to get the ClientConnection associated with a nickname
+    private ClientConnection findConnection(String nickname) {
+        return clientNicknames.entrySet().stream()
+                .filter(e -> e.getValue().equals(nickname))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(null);
+    }
+
     //! NOTIFICATION METHODS ---------------------------------------------------------------------------
     // Notifies all clients with the DTO (GameStateUpdateMessage) built from the current Match state with buildSnapshot() method.
     private void notifyAll(GameStateUpdateMessage update) {
@@ -111,7 +127,7 @@ public class ServerController {
             try {
                 client.sendUpdate(update);
             } catch (Exception e) {
-                // Il client si è disconnesso: lo rimuoviamo
+                // Client disconnected, remove it
                 unregisterClient(client);
             }
         });
