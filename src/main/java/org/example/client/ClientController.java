@@ -3,6 +3,7 @@ package org.example.client;
 import org.example.client.rmi.ClientCallbackImpl;
 import org.example.client.rmi.ClientCallbackListener;
 import org.example.network.GameStateUpdateMessage;
+import org.example.network.LobbyUpdateMessage;
 import org.example.server.rmi.GameServer;
 
 import java.rmi.Naming;
@@ -21,8 +22,10 @@ public class ClientController implements ClientCallbackListener {
     }
 
     //! CONNECTION TO SERVER -----------------------------------------------
+    public void connect(String host, int numPlayers) throws Exception {
+        // Forces RMI to use localhost instead of network board IP
+        System.setProperty("java.rmi.server.hostname", "localhost");
 
-    public void connect(String host) throws Exception {
         // 1. Retrieve the server stub from the registry
         server = (GameServer) Naming.lookup("rmi://" + host + "/GameServer");
 
@@ -30,9 +33,19 @@ public class ClientController implements ClientCallbackListener {
         ClientCallbackImpl callback = new ClientCallbackImpl(this);
 
         // 3. It registers on the server
-        server.register(nickname, callback);
+        server.register(nickname, numPlayers, callback);
 
         System.out.println("Connected to the server (RMI) as: " + nickname);
+    }
+
+    @Override
+    public void onLobbyUpdate(LobbyUpdateMessage update) {
+        if (update.isGameStarting()) {
+            System.out.println("Match is starting!");
+        } else {
+            System.out.println("In lobby: " + update.getConnectedPlayers() + "/" + update.getRequiredPlayers() + " players");
+            System.out.println("Connected: " + update.getPlayerNicknames());
+        }
     }
 
     //! COMMANDS TO SERVER -----------------------------------------------

@@ -126,6 +126,11 @@ public class ServerController {
         }
     }
 
+    // Sends the initial snapshot to all clients when the game exactly starts. Called by LobbyController after registering all clients.
+    public void sendInitialState() {
+        notifyAll(buildSnapshot());
+    }
+
     //! BUILD SNAPSHOT METHOD ---------------------------------------------------------------------------
     // Method used to read 'Match' and builds the corresponding DTO (GameStateUpdateMessage) to send to the clients.
     private GameStateUpdateMessage buildSnapshot() {

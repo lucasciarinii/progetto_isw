@@ -8,8 +8,9 @@ import java.rmi.RemoteException;
 public interface GameServer extends Remote {
 
     /* Register the client: associate client's nickname with the callback object that the server will use to send updates to the client.
-       It is called by the client right after connecting to the server and getting the stub, to complete the registration process. */
-    void register(String nickname, ClientCallback callback) throws RemoteException;
+       It is called by the client right after connecting to the server and getting the stub, to complete the registration process.
+        @param numPlayers: used just by first player */
+    void register(String nickname, int numPlayers, ClientCallback callback) throws RemoteException;
 
     // Player places his totem on an offer tile. nickname -> who is placing the totem, tilePosition -> which offer tile (1-based)
     void placeTotemOnOfferTile(String nickname, int tilePosition) throws RemoteException;

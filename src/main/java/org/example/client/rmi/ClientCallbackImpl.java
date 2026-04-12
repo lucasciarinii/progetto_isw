@@ -1,6 +1,7 @@
 package org.example.client.rmi;
 
 import org.example.network.GameStateUpdateMessage;
+import org.example.network.LobbyUpdateMessage;
 import org.example.server.rmi.ClientCallback;
 
 import java.rmi.RemoteException;
@@ -28,6 +29,11 @@ public class ClientCallbackImpl extends UnicastRemoteObject implements ClientCal
     @Override
     public void receiveError(String errorMessage) throws RemoteException {
         listener.onError(errorMessage);
+    }
+
+    @Override
+    public void receiveLobbyUpdate(LobbyUpdateMessage update) throws RemoteException {
+        listener.onLobbyUpdate(update);
     }
 
 }
