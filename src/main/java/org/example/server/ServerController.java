@@ -127,7 +127,7 @@ public class ServerController {
             try {
                 client.sendUpdate(update);
             } catch (Exception e) {
-                // Il client si è disconnesso: lo rimuoviamo
+                // Client disconnected, remove it
                 unregisterClient(client);
             }
         });
