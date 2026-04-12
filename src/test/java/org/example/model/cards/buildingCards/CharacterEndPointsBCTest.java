@@ -102,8 +102,8 @@ class CharacterEndPointsBCTest {
 
         player.addPoints(-player.getPoints()); // Reset points to 0 for clarity
 		player.addPoints(7);
-		player.addCharacter(new Builder(17, Era.I, CharacterType.BUILDER, 0, 0));
-		player.addCharacter(new Builder(18, Era.I, CharacterType.BUILDER, 0, 0));
+		player.addCharacter(new Builder(17, Era.I, CharacterType.BUILDER, -4, 0));
+		player.addCharacter(new Builder(18, Era.I, CharacterType.BUILDER, -3, 0));
 
 		CharacterEndPointsBC building = new CharacterEndPointsBC(19, Era.I, 0, 0, BuildingCardType.CharacterEndPointsBC, 3, CharacterType.BUILDER, false);
 
@@ -149,7 +149,7 @@ class CharacterEndPointsBCTest {
 			case INVENTOR -> new Inventor(id, Era.I, CharacterType.INVENTOR, InventionType.BOAT);
 			case GATHERER -> new Gatherer(id, Era.I, CharacterType.GATHERER);
 			case SHAMAN -> new Shaman(id, Era.I, CharacterType.SHAMAN, 0);
-			case BUILDER -> new Builder(id, Era.I, CharacterType.BUILDER, 0, 0);
+			case BUILDER -> new Builder(id, Era.I, CharacterType.BUILDER, -3, 0);
 			case ARTIST -> new Artist(id, Era.I, CharacterType.ARTIST);
 			case HUNTER -> new Hunter(id, Era.I, CharacterType.HUNTER, false);
 		};
