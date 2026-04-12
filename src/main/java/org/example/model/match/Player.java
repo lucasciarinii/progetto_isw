@@ -105,7 +105,7 @@ public class Player  {
 
     public void addDiscountOnSustenance(int discountOnSustenance) {
 
-        if (discountOnSustenance <= 0) {
+        if (discountOnSustenance < 0) {
             throw new IllegalArgumentException("discountOnSustenance must be positive");
         }
 
