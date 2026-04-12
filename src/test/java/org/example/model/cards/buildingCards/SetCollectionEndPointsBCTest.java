@@ -171,7 +171,7 @@ class SetCollectionEndPointsBCTest {
     }
 
     private Builder createBuilder(int id) {
-        return new Builder(id, Era.I, CharacterType.BUILDER, 0, 0);
+        return new Builder(id, Era.I, CharacterType.BUILDER, -2, 0);
     }
 
     private Artist createArtist(int id) {
