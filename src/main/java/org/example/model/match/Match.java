@@ -141,13 +141,6 @@ public class Match {
                 this.getGameState().advanceCurrentEra(); // update the current era in the GameState
             }
         }
-
-        // 5. Replace Totems in correct order on turnOrderTile and removing from offerTrack
-        for (int i = 0; i < this.getPlayers().size(); i++)
-        {
-            board.getTurnOrderTile().getSlots().get(i).setPlayer(board.getOfferTrack().get(i).getPlayer());
-            board.getOfferTrack().get(i).removePlayer();
-        }
     }
 
     public void resolveBottomEvents() {
@@ -203,19 +196,15 @@ public class Match {
 
     //the cards the user selects are all in one string "ID1, ID2, ID3"
     public void offerTileAction(Player player, String cards) {
-        OfferEffect effect = null;
         List<Integer> numbers = new ArrayList<>(extractIntegers(cards));
 
-        for(OfferTile ot : board.getOfferTrack()) {
-            try {
-                if (ot.getPlayer().equals(player)) {
-                    effect = ot.getOfferEffect();
-                }
-            }
-            catch (NullPointerException e) {
+        OfferTile selectedTile = board.getOfferTrack().stream()
+                .filter(tile -> tile.getPlayer() != null )
+                .filter(tile -> tile.getPlayer().equals(player))
+                .findFirst()
+                .orElseThrow( () -> new IllegalArgumentException( "player not found on offerTrack") );
 
-            }
-        }
+        OfferEffect effect = selectedTile.getOfferEffect();
 
         if (effect == null) {
             throw new NullPointerException("effect can't be null");
@@ -724,6 +713,16 @@ public class Match {
             }
             default -> throw new IllegalArgumentException("Unknown or unsupported OfferEffect");
         }
+
+        board.getTurnOrderTile().getSlots().stream()
+                .filter(slot -> slot.getPlayer() == null )
+                .findFirst()
+                .ifPresentOrElse(
+                        slot -> slot.placePlayerAndApplyEffect(player),
+                        () -> {throw new IllegalStateException("No slot available"); }
+                );
+
+        selectedTile.removePlayer();
 
     }
 
