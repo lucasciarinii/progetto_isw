@@ -17,13 +17,9 @@ public class PlayerSlot {
     }
 
     public Player getPlayer() {
-
         return player;
     }
 
-    public void setPlayer(Player player) {
-        this.player = player;
-    }
 
     public int getFood() {
         return food;
@@ -33,6 +29,8 @@ public class PlayerSlot {
         return points;
     }
 
+    // Places the player on the slot and triggers the effect of it.
+    // used during the game phases when the player
     public void placePlayerAndApplyEffect(@NotNull Player player) {
 
         Objects.requireNonNull(player, "player parameter can't be null");
