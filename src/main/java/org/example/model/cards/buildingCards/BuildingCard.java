@@ -49,6 +49,7 @@ public abstract class BuildingCard extends Card implements Visitable {
         this.isEndGame = isEndGame;
     }
 
+    @Override
     public void accept(Visitor visitor)  {
         visitor.visit(this);
     }
