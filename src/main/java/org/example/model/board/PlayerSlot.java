@@ -10,8 +10,8 @@ public class PlayerSlot {
     private final int points;
 
     public PlayerSlot(Player player, int food, int points) {
-        if (points >= 0) {
-            throw new IllegalArgumentException("points must be negative");
+        if (points > 0) {
+            throw new IllegalArgumentException("points must be negative or equal to zero");
         }
         this.player = player;
         this.food = food;
