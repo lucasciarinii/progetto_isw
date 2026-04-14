@@ -1346,8 +1346,8 @@ class MatchTest {
 
         match.endRoundOperations();
 
-        assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card instanceof EventCard));
-        assertTrue(match.getBoard().getBottomRow().stream().anyMatch(card -> card instanceof BuildingCard));
+        assertTrue(match.getBoard().getBottomRow().stream().noneMatch(Card::isEventCard));
+        assertTrue(match.getBoard().getBottomRow().stream().anyMatch(Card::isBuilding));
     }
 
     // Test that bottom-row Characters and Events are discarded while Buildings remain.
@@ -1367,9 +1367,9 @@ class MatchTest {
 
         match.endRoundOperations();
 
-        assertEquals(1, match.getBoard().getBottomRow().stream().filter(card -> card instanceof BuildingCard).count());
-        assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card instanceof Character));
-        assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card instanceof Sustenance || card instanceof HuntEvent || card instanceof CavePainting || card instanceof ShamanicRitual));
+        assertEquals(1, match.getBoard().getBottomRow().stream().filter(Card::isBuilding).count());
+        assertTrue(match.getBoard().getBottomRow().stream().noneMatch(Card::isCharacter));
+        assertTrue(match.getBoard().getBottomRow().stream().noneMatch(Card::isEventCard));
     }
 
     // Test that top-row Characters and Events move to the bottom row.
@@ -1549,7 +1549,7 @@ class MatchTest {
 
         match.newEraOperations();
 
-        assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card instanceof BuildingCard));
+        assertTrue(match.getBoard().getBottomRow().stream().noneMatch(Card::isBuilding));
     }
 
     // Test that newEraOperations moves top-row buildings to the bottom row.
