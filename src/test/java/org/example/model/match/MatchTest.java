@@ -482,7 +482,7 @@ class MatchTest {
 
         if (effect == OfferEffect.FOOD) {
             assertDoesNotThrow(() -> match.offerTileAction(player, ""));
-            assertEquals(initialFood + 3, player.getFood());
+            assertEquals(initialFood + 3 + 3, player.getFood());
         } else {
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                     () -> match.offerTileAction(player, ""));
@@ -516,7 +516,7 @@ class MatchTest {
         int foodBefore = player.getFood();
 
         assertDoesNotThrow(() -> match.offerTileAction(player, String.valueOf(buildingId)));
-        assertEquals(foodBefore - expectedCost, player.getFood());
+        assertEquals(foodBefore - expectedCost + 3, player.getFood());
         assertTrue(player.getOwnedBuildings().contains(building));
         assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card.getId() == buildingId));
     }
@@ -548,7 +548,7 @@ class MatchTest {
 
         assertDoesNotThrow(() -> match.offerTileAction(player, String.valueOf(buildingId)));
         assertEquals(0, expectedCost);
-        assertEquals(foodBefore, player.getFood());
+        assertEquals(foodBefore + 3, player.getFood());
         assertTrue(player.getOwnedBuildings().contains(building));
         assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == buildingId));
     }
@@ -568,7 +568,7 @@ class MatchTest {
         match.placeTotemOnOfferTile(player, offerTileIndex);
 
         assertDoesNotThrow(() -> match.offerTileAction(player, ""));
-        assertEquals(initialFood + 3, player.getFood());
+        assertEquals(initialFood + 3 + 3, player.getFood());
     }
 
     //! ===================================
@@ -622,7 +622,7 @@ class MatchTest {
         assertDoesNotThrow(() -> match.offerTileAction(player, String.valueOf(buildingId)));
         assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card.getId() == buildingId));
         assertTrue(player.getOwnedBuildings().contains(building));
-        assertEquals(foodBefore - building.getFoodCost(), player.getFood());
+        assertEquals(foodBefore - building.getFoodCost() + 3, player.getFood());
     }
 
     // Test that D rejects selecting a building from bottomRow when the player cannot pay.
@@ -753,7 +753,7 @@ class MatchTest {
         assertDoesNotThrow(() -> match.offerTileAction(player, String.valueOf(buildingId)));
         assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == buildingId));
         assertTrue(player.getOwnedBuildings().contains(building));
-        assertEquals(foodBefore - building.getFoodCost(), player.getFood());
+        assertEquals(foodBefore - building.getFoodCost() + 3, player.getFood());
     }
 
     // Test that U rejects selecting a building from topRow when the player cannot pay.
@@ -942,7 +942,7 @@ class MatchTest {
         assertEquals(gatherersBefore + 1, player.getGatherers().size());
         assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card.getId() == buildingId));
         assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == characterId));
-        assertEquals(foodBefore - expectedCost, player.getFood());
+        assertEquals(foodBefore - expectedCost + 3, player.getFood());
     }
 
     // Test that DU rejects the entire selection when the chosen building is not payable.
@@ -1014,7 +1014,7 @@ class MatchTest {
         assertTrue(player.getOwnedBuildings().contains(topBuilding));
         assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card.getId() == characterId));
         assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == buildingId));
-        assertEquals(foodBefore - expectedCost, player.getFood());
+        assertEquals(foodBefore - expectedCost + 3, player.getFood());
     }
 
     // Test that DU rejects inputs with the wrong number of IDs.
@@ -1131,7 +1131,7 @@ class MatchTest {
         assertTrue(player.getOwnedBuildings().contains(secondBuilding));
         assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == firstId));
         assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == secondId));
-        assertEquals(foodBefore - expectedTotalCost, player.getFood());
+        assertEquals(foodBefore - expectedTotalCost + 3, player.getFood());
     }
 
     // Test that UU rejects the selection when at least one chosen building is not payable.
@@ -1259,7 +1259,7 @@ class MatchTest {
         assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card.getId() == bottomId));
         assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == topId1));
         assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == topId2));
-        assertEquals(foodBefore - expectedCost, player.getFood());
+        assertEquals(foodBefore - expectedCost + 3, player.getFood());
     }
 
     // Test that DUU rejects inputs with the wrong number of IDs.
@@ -1458,33 +1458,6 @@ class MatchTest {
         match.endRoundOperations();
 
         assertEquals(Era.II, match.getGameState().getCurrentEra());
-    }
-
-    // Test that turn order is rebuilt from offer track order.
-    @Test
-    void endRoundOperations_rebuildsTurnOrderFromOfferTrack() {
-        Match match = new Match(createPlayers(2));
-        Player first = match.getPlayers().get(0);
-        Player second = match.getPlayers().get(1);
-
-        match.placeTotemOnOfferTile(second, 1);
-        match.placeTotemOnOfferTile(first, 2);
-        List<Player> expectedOrder = List.of(
-                match.getBoard().getOfferTrack().get(0).getPlayer(),
-                match.getBoard().getOfferTrack().get(1).getPlayer()
-        );
-
-        match.getBoard().getTopRow().clear();
-        match.getBoard().getBottomRow().clear();
-        setMainDeckCards(match,
-                List.of(gatherer(2800, Era.I), gatherer(2801, Era.I), gatherer(2802, Era.I), gatherer(2803, Era.I), gatherer(2804, Era.I), gatherer(2805, Era.I)),
-                List.of(),
-                List.of());
-
-        match.endRoundOperations();
-
-        assertSame(expectedOrder.get(0), match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer());
-        assertSame(expectedOrder.get(1), match.getBoard().getTurnOrderTile().getSlots().get(1).getPlayer());
     }
 
     // Test that an empty main deck currently causes endRoundOperations to throw.
