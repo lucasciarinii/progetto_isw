@@ -11,6 +11,6 @@ public interface ClientConnection {
     // Sends complete state snapshot to the client (after each valid move)
     void sendUpdate(GameStateUpdateMessage update) throws Exception;
 
-    // Sends an erro to the client (e.g., invalid move, wrong turn, etc.)
+    // Sends an error to the client (e.g., invalid move, wrong turn, etc.)
     void sendError(String errorMessage) throws Exception;
 }
