@@ -106,7 +106,7 @@ public class Player  {
     public void addDiscountOnSustenance(int discountOnSustenance) {
 
         if (discountOnSustenance < 0) {
-            throw new IllegalArgumentException("discountOnSustenance must be positive");
+            throw new IllegalArgumentException("discountOnSustenance must be positive or zero");
         }
 
         this.discountOnSustenance += discountOnSustenance;
@@ -153,8 +153,6 @@ public class Player  {
             throw new IllegalArgumentException("character must not be null");
         }
 
-        // Double dispatch: il tipo runtime di character seleziona il visit(...) corretto.
-        // In questo modo evitiamo if/else o instanceof nel Player.
         // Double dispatch: the runtime type of character select the correct visit(...) in the Characters classes.
         character.accept(addToListVisitor);
 
