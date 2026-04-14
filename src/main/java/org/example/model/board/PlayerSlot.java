@@ -1,7 +1,6 @@
 package org.example.model.board;
 
 import org.example.model.match.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -34,7 +33,7 @@ public class PlayerSlot {
 
     // Places the player on the slot and triggers the effect of it.
     // used during the game phases when the player
-    public void placePlayerAndApplyEffect(@NotNull Player player) {
+    public void placePlayerAndApplyEffect(Player player) {
 
         Objects.requireNonNull(player, "player parameter can't be null");
 
