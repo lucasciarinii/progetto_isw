@@ -7,10 +7,12 @@ import org.example.server.rmi.RMIClientCallback;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
-/*? Client-side implementation of the ClientCallback interface.
-    Server calls the methods of this class to send updates and errors to the client.
-    Note: this class DOES NOT KNOW anything about the view, delegates the work to the ClientController
+/*?
+    It's like an ANSWERING MACHINE: answers to RMI calls from the server,
+    transforms them into method calls on the GameEventListener
+    and passes them to the ClientController, which will update the view accordingly.
 
+    Note: this class DOES NOT KNOW anything about the view, delegates the work to the ClientController
  */
 public class RMIClientCallbackImpl extends UnicastRemoteObject implements RMIClientCallback {
 
