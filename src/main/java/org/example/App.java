@@ -1,7 +1,7 @@
 package org.example;
 
 import org.example.client.ClientController;
-import org.example.server.rmi.GameServerImpl;
+import org.example.server.rmi.RMIGameServerImpl;
 
 import java.util.Scanner;
 
@@ -31,7 +31,7 @@ public class App {
     // =========================================================================
 
     private static void startServer() throws Exception {
-        GameServerImpl.startServer();
+        RMIGameServerImpl.startServer();
         // Il server RMI gira in background su thread daemon —
         // questo loop mantiene il processo vivo
         System.out.println("Server avviato. Premi INVIO per spegnere.");

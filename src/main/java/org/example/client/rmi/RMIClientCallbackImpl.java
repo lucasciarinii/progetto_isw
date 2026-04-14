@@ -2,7 +2,7 @@ package org.example.client.rmi;
 
 import org.example.network.GameStateUpdateMessage;
 import org.example.network.LobbyUpdateMessage;
-import org.example.server.rmi.ClientCallback;
+import org.example.server.rmi.RMIClientCallback;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -12,11 +12,11 @@ import java.rmi.server.UnicastRemoteObject;
     Note: this class DOES NOT KNOW anything about the view, delegates the work to the ClientController
 
  */
-public class ClientCallbackImpl extends UnicastRemoteObject implements ClientCallback {
+public class RMIClientCallbackImpl extends UnicastRemoteObject implements RMIClientCallback {
 
-    private final ClientCallbackListener listener;
+    private final GameEventListener listener;
 
-    public ClientCallbackImpl(ClientCallbackListener listener) throws RemoteException {
+    public RMIClientCallbackImpl(GameEventListener listener) throws RemoteException {
         super();
         this.listener = listener;
     }

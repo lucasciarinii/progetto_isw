@@ -8,7 +8,7 @@ import java.rmi.RemoteException;
 
 //? Remote interface CLIENT-side -> The "contract" of what the client must implement for the server to be able to send updates and errors.
 //? Client implements this interface and exposes a remote object to the server, so that the server can use to send updated or errors
-public interface ClientCallback extends Remote {
+public interface RMIClientCallback extends Remote {
 
     // Server sends snapshot updated of the game state. The client will receive it and use this to update its view.
     void receiveUpdate(GameStateUpdateMessage update) throws RemoteException;

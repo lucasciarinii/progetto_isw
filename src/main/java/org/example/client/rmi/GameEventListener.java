@@ -4,7 +4,7 @@ import org.example.network.GameStateUpdateMessage;
 import org.example.network.LobbyUpdateMessage;
 
 //? This interfaces decouples the ClientCallbackImpl from the ClientController. Whoever wants to receive updates or errors from server implements this interface.
-public interface ClientCallbackListener {
+public interface GameEventListener {
 
     void onUpdate(GameStateUpdateMessage update);
 
