@@ -244,7 +244,7 @@ public class Match {
                         player.addFood(Math.min(0, -buildingCard.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
                         player.acceptCard(buildingCard);
                         board.getBottomRow().remove(buildingCard);
-                        return;
+                        break;
                     }
                 }
 
@@ -284,7 +284,7 @@ public class Match {
                         player.addFood(Math.min(0, -buildingCard.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
                         player.acceptCard(buildingCard);
                         board.getTopRow().remove(buildingCard);
-                        return;
+                        break;
                     }
                 }
 
@@ -332,7 +332,7 @@ public class Match {
                         player.acceptCard(buildingCard1);
                         board.getBottomRow().remove(buildingCard0);
                         board.getBottomRow().remove(buildingCard1);
-                        return;
+                        break;
                     }
                 }
                 if (cards_input.get(0).isBuilding()) {
@@ -346,7 +346,7 @@ public class Match {
                         board.getBottomRow().remove(buildingCard);
                         player.acceptCard(cards_input.get(1));
                         board.getBottomRow().remove(cards_input.get(1));
-                        return;
+                        break;
                     }
                 }
                 if (cards_input.get(1).isBuilding()) {
@@ -360,7 +360,7 @@ public class Match {
                         board.getBottomRow().remove(buildingCard);
                         player.acceptCard(cards_input.get(0));
                         board.getBottomRow().remove(cards_input.get(0));
-                        return;
+                        break;
                     }
                 }
 
@@ -414,7 +414,7 @@ public class Match {
                         player.acceptCard(buildingCard1);
                         board.getBottomRow().remove(buildingCard0);
                         board.getTopRow().remove(buildingCard1);
-                        return;
+                        break;
                     }
                 }
                 if (bottomCard.isBuilding()) {
@@ -428,7 +428,7 @@ public class Match {
                         board.getBottomRow().remove(buildingCard);
                         player.acceptCard(topCard);
                         board.getTopRow().remove(topCard);
-                        return;
+                        break;
                     }
                 }
                 if (topCard.isBuilding()) {
@@ -442,7 +442,7 @@ public class Match {
                         board.getTopRow().remove(buildingCard);
                         player.acceptCard(bottomCard);
                         board.getBottomRow().remove(bottomCard);
-                        return;
+                        break;
                     }
                 }
 
@@ -497,7 +497,7 @@ public class Match {
                         player.acceptCard(buildingCard1);
                         board.getTopRow().remove(buildingCard0);
                         board.getTopRow().remove(buildingCard1);
-                        return;
+                        break;
                     }
                 }
                 if (topCard1.isBuilding()) {
@@ -512,7 +512,7 @@ public class Match {
                         board.getTopRow().remove(buildingCard);
                         player.acceptCard(topCard2);
                         board.getTopRow().remove(topCard2);
-                        return;
+                        break;
                     }
                 }
                 if (topCard2.isBuilding()) {
@@ -526,7 +526,7 @@ public class Match {
                         board.getTopRow().remove(buildingCard);
                         player.acceptCard(topCard1);
                         board.getTopRow().remove(topCard1);
-                        return;
+                        break;
                     }
                 }
 
@@ -589,7 +589,7 @@ public class Match {
                         board.getTopRow().remove(buildingCard0);
                         board.getTopRow().remove(buildingCard1);
                         board.getBottomRow().remove(buildingCard2);
-                        return;
+                        break;
                     }
                 }
                 if (bottomCard.isBuilding() && topCard1.isBuilding()) {
@@ -608,7 +608,7 @@ public class Match {
                         board.getTopRow().remove(buildingCard1);
                         player.acceptCard(topCard2);
                         board.getTopRow().remove(topCard2);
-                        return;
+                        break;
                     }
                 }
                 if (bottomCard.isBuilding() && topCard2.isBuilding()) {
@@ -627,7 +627,7 @@ public class Match {
                         board.getTopRow().remove(buildingCard1);
                         player.acceptCard(topCard1);
                         board.getTopRow().remove(topCard1);
-                        return;
+                        break;
                     }
                 }
                 if (topCard1.isBuilding() && topCard2.isBuilding()) {
@@ -646,7 +646,7 @@ public class Match {
                         board.getTopRow().remove(buildingCard1);
                         player.acceptCard(bottomCard);
                         board.getBottomRow().remove(bottomCard);
-                        return;
+                        break;
                     }
                 }
                 if (topCard1.isBuilding()) {
@@ -662,7 +662,7 @@ public class Match {
                         board.getTopRow().remove(topCard2);
                         player.acceptCard(bottomCard);
                         board.getBottomRow().remove(bottomCard);
-                        return;
+                        break;
                     }
                 }
                 if (topCard2.isBuilding()) {
@@ -678,7 +678,7 @@ public class Match {
                         board.getTopRow().remove(topCard1);
                         player.acceptCard(bottomCard);
                         board.getBottomRow().remove(bottomCard);
-                        return;
+                        break;
                     }
                 }
                 if (bottomCard.isBuilding()) {
@@ -694,19 +694,19 @@ public class Match {
                         board.getTopRow().remove(topCard1);
                         player.acceptCard(topCard2);
                         board.getTopRow().remove(topCard2);
-                        return;
+                        break;
                     }
                 }
 
-                // add cards to player
-                player.acceptCard(bottomCard);
-                player.acceptCard(topCard1);
-                player.acceptCard(topCard2);
-
-                // remove cards from topRow and bottomRow
-                board.getBottomRow().remove(bottomCard);
-                board.getTopRow().remove(topCard1);
-                board.getTopRow().remove(topCard2);
+//                // add cards to player
+//                player.acceptCard(bottomCard);
+//                player.acceptCard(topCard1);
+//                player.acceptCard(topCard2);
+//
+//                // remove cards from topRow and bottomRow
+//                board.getBottomRow().remove(bottomCard);
+//                board.getTopRow().remove(topCard1);
+//                board.getTopRow().remove(topCard2);
 
             }
             default -> throw new IllegalArgumentException("Unknown or unsupported OfferEffect");
