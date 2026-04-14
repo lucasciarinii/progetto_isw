@@ -201,7 +201,7 @@ public class Match {
                 .filter(tile -> tile.getPlayer() != null )
                 .filter(tile -> tile.getPlayer().equals(player))
                 .findFirst()
-                .orElseThrow( () -> new IllegalArgumentException( "player not found on offerTrack") );
+                .orElseThrow( () -> new NullPointerException( "player not found on offerTrack") );
 
         OfferEffect effect = selectedTile.getOfferEffect();
 
