@@ -12,12 +12,10 @@ import org.example.model.board.PlayerSlot;
 import org.example.model.cards.Card;
 import org.example.model.cards.buildingCards.BuildingCard;
 import org.example.model.cards.characters.Builder;
-import org.example.model.cards.characters.Character;
 import org.example.model.cards.characters.Inventor;
 import org.example.model.cards.eventCards.EventCard;
 import org.example.model.cards.eventCards.Sustenance;
 import org.example.model.enums.OfferEffect;
-import org.example.model.interfaces.Visitor;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -96,12 +94,12 @@ public class Match {
     // Invocated at the beginning of each new Era
     public void newEraOperations() {
         // 1. discard any building cards present in the bottom row
-        board.getBottomRow().removeIf(card -> card instanceof BuildingCard);
+        board.getBottomRow().removeIf(Card::isBuilding);
 
         // 2. Move any building card present in the top row to the bottom row, and place them to the right of the Tribe cards
         List<Card> buildingCardsInTopRow = new ArrayList<>();
         board.getTopRow().removeIf(card -> {
-            if (card instanceof BuildingCard) {
+            if (card.isBuilding()) {
                 buildingCardsInTopRow.add(card);
                 return true; // remove from top row
             }
@@ -119,12 +117,12 @@ public class Match {
         // resolveBottomEvents(); this is a separate PHASE
 
         // 2. Discard all Characters and EventCards in the bottom row (BuildingCards stay)
-        board.getBottomRow().removeIf(card -> card instanceof org.example.model.cards.characters.Character || card instanceof EventCard);
+        board.getBottomRow().removeIf(card -> card.isCharacter() || card.isEventCard());
 
         // 3. Move all remaining Character and event cards from the top row to the bottom row (at the left of the BuildingCards) (BuildingCards stay in the top row)
         List<Card> cardsToMove = new ArrayList<>();
         board.getTopRow().removeIf(card -> {
-            if (card instanceof Character || card instanceof EventCard) {
+            if (card.isCharacter() || card.isEventCard()) {
                 cardsToMove.add(card);
                 return true; // Rimuove dalla topRow
             }
@@ -147,9 +145,9 @@ public class Match {
         // Resolve events of bottomRow (with priority as in the rules)
         List<Sustenance> sustenanceCards = new ArrayList<>();
         for (Card card : board.getBottomRow()) {
-            if (card instanceof EventCard && !(card instanceof Sustenance)) {
+            if (card.isEventCard() && !card.isSustenance()) {
                 ((EventCard) card).applyEvent(this);
-            } else if (card instanceof Sustenance) {
+            } else if (card.isSustenance()) {
                 sustenanceCards.add((Sustenance) card);
             }
         }
@@ -163,9 +161,9 @@ public class Match {
 //        // Resolve events of topRow (with priority as in the rules)
 //        List<Sustenance> sustenanceCards = new ArrayList<>();
 //        for (Card card : board.getTopRow()) {
-//            if (card instanceof EventCard && !(card instanceof Sustenance)) {
+//            if (card.isEventCard() && !card.isSustenance()) {
 //                ((EventCard) card).applyEvent(this);
-//            } else if (card instanceof Sustenance) {
+//            } else if (card.isSustenance()) {
 //                sustenanceCards.add((Sustenance) card);
 //            }
 //        }
@@ -232,12 +230,12 @@ public class Match {
                 // Find the card with corresponding ID
                 Card card = board.getBottomRow().stream()
                         .filter(c -> c.getId() == numbers.get(0))
-                        .filter(c -> c instanceof Character || c instanceof BuildingCard)
+                        .filter(c -> c.isCharacter() || c.isBuilding())
                         .findFirst()
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID card") );
 
                 // Check if the card is BuildingCard, in case we have to check if the player can accept it (if he has enough food to pay the cost)
-                if ( card instanceof BuildingCard ) {
+                if (card.isBuilding()) {
                     BuildingCard buildingCard = (BuildingCard) card;
                     if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
                         throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
@@ -272,12 +270,12 @@ public class Match {
                 // Find the card with corresponding ID
                 Card card = board.getTopRow().stream()
                         .filter(c -> c.getId() == numbers.get(0))
-                        .filter(c -> c instanceof Character || c instanceof BuildingCard)
+                        .filter(c -> c.isCharacter() || c.isBuilding())
                         .findFirst()
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID card") );
 
                 // Check if the card is BuildingCard, in case we have to check if the player can accept it (if he has enough food to pay the cost)
-                if ( card instanceof BuildingCard ) {
+                if (card.isBuilding()) {
                     BuildingCard buildingCard = (BuildingCard) card;
                     if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
                         throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
@@ -311,7 +309,7 @@ public class Match {
                 // Find the cards with corresponding IDs
                 List<Card> cards_input = board.getBottomRow().stream()
                         .filter(c -> (c.getId() == numbers.get(0) || c.getId() == numbers.get(1)))
-                        .filter(c -> c instanceof Character || c instanceof BuildingCard)
+                        .filter(c -> c.isCharacter() || c.isBuilding())
                         .collect(Collectors.toList());
 
                 // if cards_input.size() != 2 means that at least one of the two selected IDs is invalid (not present in the bottom row or not a Character card)
@@ -320,7 +318,7 @@ public class Match {
                 }
 
                 // Check if the card is BuildingCard, in case we have to check if the player can accept it (if he has enough food to pay the cost)
-                if ( cards_input.get(0) instanceof BuildingCard && cards_input.get(1) instanceof BuildingCard ) {
+                if (cards_input.get(0).isBuilding() && cards_input.get(1).isBuilding()) {
                     BuildingCard buildingCard0 = (BuildingCard) cards_input.get(0);
                     BuildingCard buildingCard1 = (BuildingCard) cards_input.get(1);
 
@@ -337,7 +335,7 @@ public class Match {
                         return;
                     }
                 }
-                if( cards_input.get(0) instanceof BuildingCard ) {
+                if (cards_input.get(0).isBuilding()) {
                     BuildingCard buildingCard = (BuildingCard) cards_input.get(0);
                     if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
                         throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
@@ -351,7 +349,7 @@ public class Match {
                         return;
                     }
                 }
-                if( cards_input.get(1) instanceof BuildingCard ) {
+                if (cards_input.get(1).isBuilding()) {
                     BuildingCard buildingCard = (BuildingCard) cards_input.get(1);
                     if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
                         throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
@@ -390,19 +388,19 @@ public class Match {
                 // Find the card with corresponding ID from bottomRow
                 Card bottomCard = board.getBottomRow().stream()
                         .filter(c -> c.getId() == numbers.get(0))
-                        .filter(c -> c instanceof Character || c instanceof BuildingCard)
+                        .filter(c -> c.isCharacter() || c.isBuilding())
                         .findFirst()
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID bottomRow card") );
 
                 // find the card with corresponding ID from topRow
                 Card topCard = board.getTopRow().stream()
                         .filter(c -> c.getId() == numbers.get(1))
-                        .filter(c -> c instanceof Character || c instanceof BuildingCard)
+                        .filter(c -> c.isCharacter() || c.isBuilding())
                         .findFirst()
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );
 
                 // Check if the card is BuildingCard, in case we have to check if the player can accept it (if he has enough food to pay the cost)
-                if ( bottomCard instanceof BuildingCard && topCard instanceof BuildingCard ) {
+                if (bottomCard.isBuilding() && topCard.isBuilding()) {
                     BuildingCard buildingCard0 = (BuildingCard) bottomCard;
                     BuildingCard buildingCard1 = (BuildingCard) topCard;
 
@@ -419,7 +417,7 @@ public class Match {
                         return;
                     }
                 }
-                if( bottomCard instanceof BuildingCard ) {
+                if (bottomCard.isBuilding()) {
                     BuildingCard buildingCard = (BuildingCard) bottomCard;
                     if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
                         throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
@@ -433,7 +431,7 @@ public class Match {
                         return;
                     }
                 }
-                if( topCard instanceof BuildingCard ) {
+                if (topCard.isBuilding()) {
                     BuildingCard buildingCard = (BuildingCard) topCard;
                     if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
                         throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
@@ -473,19 +471,19 @@ public class Match {
                 // Find the card with corresponding ID from bottomRow
                 Card topCard1 = board.getTopRow().stream()
                         .filter(c -> c.getId() == numbers.get(0))
-                        .filter(c -> c instanceof Character || c instanceof BuildingCard)
+                        .filter(c -> c.isCharacter() || c.isBuilding())
                         .findFirst()
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );
 
                 // find the card with corresponding ID from topRow
                 Card topCard2 = board.getTopRow().stream()
                         .filter(c -> c.getId() == numbers.get(1))
-                        .filter(c -> c instanceof Character || c instanceof BuildingCard)
+                        .filter(c -> c.isCharacter() || c.isBuilding())
                         .findFirst()
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );
 
                 // Check if the card is BuildingCard, in case we have to check if the player can accept it (if he has enough food to pay the cost)
-                if ( topCard1 instanceof BuildingCard && topCard2 instanceof BuildingCard ) {
+                if (topCard1.isBuilding() && topCard2.isBuilding()) {
                     BuildingCard buildingCard0 = (BuildingCard) topCard1;
                     BuildingCard buildingCard1 = (BuildingCard) topCard2;
 
@@ -502,7 +500,7 @@ public class Match {
                         return;
                     }
                 }
-                if( topCard1 instanceof BuildingCard ) {
+                if (topCard1.isBuilding()) {
                     BuildingCard buildingCard = (BuildingCard) topCard1;
                     if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
                         throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
@@ -517,7 +515,7 @@ public class Match {
                         return;
                     }
                 }
-                if( topCard2 instanceof BuildingCard ) {
+                if (topCard2.isBuilding()) {
                     BuildingCard buildingCard = (BuildingCard) topCard2;
                     if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
                         throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
@@ -556,25 +554,25 @@ public class Match {
                 // Find the card with corresponding ID from bottomRow
                 Card bottomCard = board.getBottomRow().stream()
                         .filter(c -> c.getId() == numbers.get(0))
-                        .filter(c -> c instanceof Character || c instanceof BuildingCard)
+                        .filter(c -> c.isCharacter() || c.isBuilding())
                         .findFirst()
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID bottomRow card") );
 
                 Card topCard1 = board.getTopRow().stream()
                         .filter(c -> c.getId() == numbers.get(1))
-                        .filter(c -> c instanceof Character || c instanceof BuildingCard)
+                        .filter(c -> c.isCharacter() || c.isBuilding())
                         .findFirst()
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID bottomRow card") );
 
                 // find the card with corresponding ID from topRow
                 Card topCard2 = board.getTopRow().stream()
                         .filter(c -> c.getId() == numbers.get(2))
-                        .filter(c -> c instanceof Character || c instanceof BuildingCard)
+                        .filter(c -> c.isCharacter() || c.isBuilding())
                         .findFirst()
                         .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );
 
                 // Check if the card is BuildingCard, in case we have to check if the player can accept it (if he has enough food to pay the cost)
-                if ( topCard1 instanceof BuildingCard && topCard2 instanceof BuildingCard && bottomCard instanceof BuildingCard ) {
+                if (topCard1.isBuilding() && topCard2.isBuilding() && bottomCard.isBuilding()) {
                     BuildingCard buildingCard0 = (BuildingCard) topCard1;
                     BuildingCard buildingCard1 = (BuildingCard) topCard2;
                     BuildingCard buildingCard2 = (BuildingCard) bottomCard;
@@ -594,7 +592,7 @@ public class Match {
                         return;
                     }
                 }
-                if( bottomCard instanceof BuildingCard && topCard1 instanceof BuildingCard ) {
+                if (bottomCard.isBuilding() && topCard1.isBuilding()) {
                     BuildingCard buildingCard0 = (BuildingCard) bottomCard;
                     BuildingCard buildingCard1 = (BuildingCard) topCard1;
 
@@ -613,7 +611,7 @@ public class Match {
                         return;
                     }
                 }
-                if( bottomCard instanceof BuildingCard && topCard2 instanceof BuildingCard ) {
+                if (bottomCard.isBuilding() && topCard2.isBuilding()) {
                     BuildingCard buildingCard0 = (BuildingCard) bottomCard;
                     BuildingCard buildingCard1 = (BuildingCard) topCard2;
 
@@ -632,7 +630,7 @@ public class Match {
                         return;
                     }
                 }
-                if( topCard1 instanceof BuildingCard && topCard2 instanceof BuildingCard ) {
+                if (topCard1.isBuilding() && topCard2.isBuilding()) {
                     BuildingCard buildingCard0 = (BuildingCard) topCard1;
                     BuildingCard buildingCard1 = (BuildingCard) topCard2;
 
@@ -651,7 +649,7 @@ public class Match {
                         return;
                     }
                 }
-                if( topCard1 instanceof BuildingCard ) {
+                if (topCard1.isBuilding()) {
                     BuildingCard buildingCard = (BuildingCard) topCard1;
                     if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
                         throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
@@ -667,7 +665,7 @@ public class Match {
                         return;
                     }
                 }
-                if( topCard2 instanceof BuildingCard ) {
+                if (topCard2.isBuilding()) {
                     BuildingCard buildingCard = (BuildingCard) topCard2;
                     if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
                         throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
@@ -683,7 +681,7 @@ public class Match {
                         return;
                     }
                 }
-                if( bottomCard instanceof BuildingCard ) {
+                if (bottomCard.isBuilding()) {
                     BuildingCard buildingCard = (BuildingCard) bottomCard;
                     if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
                         throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
@@ -765,17 +763,17 @@ public class Match {
         // 1. Solve all the visible events (top and bottom row)
         List<Sustenance> sustenanceCards = new ArrayList<>();
         for (Card card : board.getBottomRow()) {
-            if ( card instanceof EventCard && !(card instanceof Sustenance)) {
+            if (card.isEventCard() && !card.isSustenance()) {
                 ((EventCard) card).applyEvent(this);
-            } else if (card instanceof Sustenance) {
+            } else if (card.isSustenance()) {
                 sustenanceCards.add((Sustenance) card);
             }
         }
 
         for (Card card : board.getTopRow()) {
-            if ( card instanceof EventCard && !(card instanceof Sustenance)) {
+            if (card.isEventCard() && !card.isSustenance()) {
                 ((EventCard) card).applyEvent(this);
-            } else if (card instanceof Sustenance) {
+            } else if (card.isSustenance()) {
                 sustenanceCards.add((Sustenance) card);
             }
         }
