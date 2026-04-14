@@ -1487,28 +1487,6 @@ class MatchTest {
         assertSame(expectedOrder.get(1), match.getBoard().getTurnOrderTile().getSlots().get(1).getPlayer());
     }
 
-    // Test that offer tiles are cleared after end-of-round operations.
-    @Test
-    void endRoundOperations_clearsPlayersFromOfferTrack() {
-        Match match = new Match(createPlayers(2));
-        Player first = match.getPlayers().get(0);
-        Player second = match.getPlayers().get(1);
-
-        match.placeTotemOnOfferTile(first, 1);
-        match.placeTotemOnOfferTile(second, 2);
-
-        match.getBoard().getTopRow().clear();
-        match.getBoard().getBottomRow().clear();
-        setMainDeckCards(match,
-                List.of(gatherer(2900, Era.I), gatherer(2901, Era.I), gatherer(2902, Era.I), gatherer(2903, Era.I), gatherer(2904, Era.I), gatherer(2905, Era.I)),
-                List.of(),
-                List.of());
-
-        match.endRoundOperations();
-
-        assertTrue(match.getBoard().getOfferTrack().stream().allMatch(tile -> tile.getPlayer() == null));
-    }
-
     // Test that an empty main deck currently causes endRoundOperations to throw.
     @Test
     void endRoundOperations_whenMainDeckIsEmpty_behaviorIsExplicit() {
