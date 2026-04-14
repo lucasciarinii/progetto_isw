@@ -7,7 +7,6 @@ import org.example.model.cards.buildingCards.EndGameBonus25BC;
 import org.example.model.cards.buildingCards.HuntEventBoostBC;
 import org.example.model.cards.buildingCards.ShamanicNoMalusBC;
 import org.example.model.cards.buildingCards.SetCollectionFoodBC;
-import org.example.model.cards.characters.Character;
 import org.example.model.cards.characters.Builder;
 import org.example.model.cards.characters.Gatherer;
 import org.example.model.cards.characters.Hunter;
@@ -454,14 +453,12 @@ class MatchTest {
 
         match.placeTotemOnOfferTile(player, offerTileIndex);
 
-        Character bottomCharacter = match.getBoard().getBottomRow().stream()
-                .filter(Character.class::isInstance)
-                .map(Character.class::cast)
+        Card bottomCharacter = match.getBoard().getBottomRow().stream()
+                .filter(Card::isCharacter)
                 .findFirst()
                 .orElseThrow();
-        Character topCharacter = match.getBoard().getTopRow().stream()
-                .filter(Character.class::isInstance)
-                .map(Character.class::cast)
+        Card topCharacter = match.getBoard().getTopRow().stream()
+                .filter(Card::isCharacter)
                 .findFirst()
                 .orElseThrow();
 
@@ -587,9 +584,8 @@ class MatchTest {
 
         match.placeTotemOnOfferTile(player, dTileIndex);
 
-        Character selected = match.getBoard().getBottomRow().stream()
-                .filter(Character.class::isInstance)
-                .map(Character.class::cast)
+        Card selected = match.getBoard().getBottomRow().stream()
+                .filter(Card::isCharacter)
                 .findFirst()
                 .orElseThrow();
         int ownedBefore = totalOwnedCharacters(player);
@@ -719,9 +715,8 @@ class MatchTest {
 
         match.placeTotemOnOfferTile(player, uTileIndex);
 
-        Character selected = match.getBoard().getTopRow().stream()
-                .filter(Character.class::isInstance)
-                .map(Character.class::cast)
+        Card selected = match.getBoard().getTopRow().stream()
+                .filter(Card::isCharacter)
                 .findFirst()
                 .orElseThrow();
         int ownedBefore = totalOwnedCharacters(player);
@@ -898,14 +893,12 @@ class MatchTest {
 
         match.placeTotemOnOfferTile(player, duTileIndex);
 
-        Character bottomCharacter = match.getBoard().getBottomRow().stream()
-                .filter(Character.class::isInstance)
-                .map(Character.class::cast)
+        Card bottomCharacter = match.getBoard().getBottomRow().stream()
+                .filter(Card::isCharacter)
                 .findFirst()
                 .orElseThrow();
-        Character topCharacter = match.getBoard().getTopRow().stream()
-                .filter(Character.class::isInstance)
-                .map(Character.class::cast)
+        Card topCharacter = match.getBoard().getTopRow().stream()
+                .filter(Card::isCharacter)
                 .findFirst()
                 .orElseThrow();
         int ownedBefore = totalOwnedCharacters(player);
@@ -1046,9 +1039,8 @@ class MatchTest {
         Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
         int duTileIndex = findOfferTileIndex(match, OfferEffect.DU);
         int invalidBottomId = nextUnusedCardId(match);
-        Character topCharacter = match.getBoard().getTopRow().stream()
-                .filter(Character.class::isInstance)
-                .map(Character.class::cast)
+        Card topCharacter = match.getBoard().getTopRow().stream()
+                .filter(Card::isCharacter)
                 .findFirst()
                 .orElseThrow();
 
@@ -1064,9 +1056,8 @@ class MatchTest {
         Match match = new Match(createPlayers(5));
         Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
         int duTileIndex = findOfferTileIndex(match, OfferEffect.DU);
-        Character bottomCharacter = match.getBoard().getBottomRow().stream()
-                .filter(Character.class::isInstance)
-                .map(Character.class::cast)
+        Card bottomCharacter = match.getBoard().getBottomRow().stream()
+                .filter(Card::isCharacter)
                 .findFirst()
                 .orElseThrow();
         int invalidTopId = nextUnusedCardId(match);
