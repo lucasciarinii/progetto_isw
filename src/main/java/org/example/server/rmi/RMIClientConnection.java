@@ -6,9 +6,9 @@ import org.example.network.GameStateUpdateMessage;
 //? The "adapter": it let RMI talk with ServerController
 //? RMI Implementation of ClientConnection interface. This is the object that the server will use to send updates and errors to the client, by calling the methods of the ClientCallback interface implemented by the client.
 public class RMIClientConnection implements ClientConnection {
-    private final ClientCallback callback;
+    private final RMIClientCallback callback;
 
-    public RMIClientConnection(ClientCallback callback) {
+    public RMIClientConnection(RMIClientCallback callback) {
         this.callback = callback;
     }
 

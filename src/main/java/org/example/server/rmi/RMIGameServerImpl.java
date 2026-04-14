@@ -1,6 +1,5 @@
 package org.example.server.rmi;
 
-import org.example.server.ClientConnection;
 import org.example.server.LobbyController;
 import org.example.server.LobbyReadyListener;
 import org.example.server.ServerController;
@@ -12,12 +11,12 @@ import java.rmi.server.UnicastRemoteObject;
 
 /*? Concrete Implementation of the GameServer interface -> server actually implements the "contract" of what it can do for clients.
     Receives RMI calls from clients and delegates them to the ServerController, which contains the actual game logic. */
-public class GameServerImpl extends UnicastRemoteObject implements GameServer, LobbyReadyListener {
+public class RMIGameServerImpl extends UnicastRemoteObject implements RMIGameServer, LobbyReadyListener {
 
     private final LobbyController lobby;
     private ServerController serverController; // null finché la lobby non è piena
 
-    public GameServerImpl() throws RemoteException {
+    public RMIGameServerImpl() throws RemoteException {
         super();
         this.lobby = new LobbyController(this);
     }
@@ -30,7 +29,7 @@ public class GameServerImpl extends UnicastRemoteObject implements GameServer, L
     }
 
     @Override
-    public void register(String nickname, int numPlayers, ClientCallback callback)
+    public void register(String nickname, int numPlayers, RMIClientCallback callback)
             throws RemoteException {
         try {
             lobby.registerPlayer(nickname, numPlayers, callback);
@@ -62,7 +61,7 @@ public class GameServerImpl extends UnicastRemoteObject implements GameServer, L
         // Forces RMI to use localhost instead of network board IP
         System.setProperty("java.rmi.server.hostname", "localhost");
 
-        GameServerImpl server = new GameServerImpl();
+        RMIGameServerImpl server = new RMIGameServerImpl();
 
         // Try to create registry, if exists, reuse it
         try {

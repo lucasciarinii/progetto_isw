@@ -8,7 +8,7 @@ package org.example.server;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 import org.example.network.LobbyUpdateMessage;
-import org.example.server.rmi.ClientCallback;
+import org.example.server.rmi.RMIClientCallback;
 import org.example.server.rmi.RMIClientConnection;
 
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ public class LobbyController {
     private int requiredPlayers = -1;  // -1 = not decided yet
 
     // Keeps the order of connection: nickname, callback
-    private final Map<String, ClientCallback> waitingClients = new LinkedHashMap<>();
+    private final Map<String, RMIClientCallback> waitingClients = new LinkedHashMap<>();
 
     // Callback called by GameServerImpl when the lobby is full
     private final LobbyReadyListener onReady;
@@ -34,7 +34,7 @@ public class LobbyController {
         - @param numPlayers     desired number of players (used only by the first one)
         - @param callback       RMI callback to communicate with this client
     */
-    public synchronized void registerPlayer(String nickname, int numPlayers, ClientCallback callback) throws Exception {
+    public synchronized void registerPlayer(String nickname, int numPlayers, RMIClientCallback callback) throws Exception {
 
         // Check if the nickname is already taken
         if (waitingClients.containsKey(nickname)) {
@@ -79,9 +79,9 @@ public class LobbyController {
         ServerController serverController = new ServerController(match);
 
         // Registers each client in the ServerController
-        for (Map.Entry<String, ClientCallback> entry : waitingClients.entrySet()) {
+        for (Map.Entry<String, RMIClientCallback> entry : waitingClients.entrySet()) {
             String nick = entry.getKey();
-            ClientCallback callback = entry.getValue();
+            RMIClientCallback callback = entry.getValue();
             RMIClientConnection connection = new RMIClientConnection(callback);
             serverController.registerClient(connection, nick);
         }
@@ -100,7 +100,7 @@ public class LobbyController {
                 new ArrayList<>(waitingClients.keySet()),
                 gameStarting
         );
-        for (ClientCallback cb : waitingClients.values()) {
+        for (RMIClientCallback cb : waitingClients.values()) {
             try {
                 cb.receiveLobbyUpdate(update);
             } catch (Exception e) {

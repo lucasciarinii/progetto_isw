@@ -1,10 +1,10 @@
 package org.example.client;
 
-import org.example.client.rmi.ClientCallbackImpl;
-import org.example.client.rmi.ClientCallbackListener;
+import org.example.client.rmi.RMIClientCallbackImpl;
+import org.example.client.rmi.GameEventListener;
 import org.example.network.GameStateUpdateMessage;
 import org.example.network.LobbyUpdateMessage;
-import org.example.server.rmi.GameServer;
+import org.example.server.rmi.RMIGameServer;
 
 import java.rmi.Naming;
 
@@ -13,9 +13,9 @@ import java.rmi.Naming;
     - Send commands to the server (placeTotem, offerTileAction)
     - Receive updates/errors through ClientCallbackImpl and updates the view
  */
-public class ClientController implements ClientCallbackListener {
+public class ClientController implements GameEventListener {
     private final String nickname;
-    private GameServer server;       // server stub RMI
+    private RMIGameServer server;       // server stub RMI
 
     public ClientController(String nickname) {
         this.nickname = nickname;
@@ -27,10 +27,10 @@ public class ClientController implements ClientCallbackListener {
         System.setProperty("java.rmi.server.hostname", "localhost");
 
         // 1. Retrieve the server stub from the registry
-        server = (GameServer) Naming.lookup("rmi://" + host + "/GameServer");
+        server = (RMIGameServer) Naming.lookup("rmi://" + host + "/GameServer");
 
         // 2. Create the callback (remote object on client side)
-        ClientCallbackImpl callback = new ClientCallbackImpl(this);
+        RMIClientCallbackImpl callback = new RMIClientCallbackImpl(this);
 
         // 3. It registers on the server
         server.register(nickname, numPlayers, callback);
