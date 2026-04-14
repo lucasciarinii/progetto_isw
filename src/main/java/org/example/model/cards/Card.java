@@ -29,4 +29,9 @@ public abstract class Card implements Serializable {
         // Default implementation does nothing. Subclasses can override this method to accept visitors.
     }
 
+    public boolean isBuilding() { return false; }
+    public boolean isCharacter() { return false; }
+    public boolean isEventCard() { return false; }
+    public boolean isSustenance() { return false; }
+
 }

@@ -26,6 +26,9 @@ public class Sustenance extends EventCard {
     }
 
     @Override
+    public boolean isSustenance() { return true; }
+
+    @Override
     public void applyEvent(Match match) {
 
         Objects.requireNonNull(match, "Match cannot be null");

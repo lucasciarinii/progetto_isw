@@ -8,8 +8,6 @@ import org.example.model.enums.Era;
 import org.example.model.interfaces.Visitor;
 import org.example.model.interfaces.Visitable;
 
-import java.util.Objects;
-
 // Indicates to Jackson to use the "class_type" field to decide the subclass
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -38,6 +36,9 @@ public abstract class Character extends Card implements Visitable {
     }
 
     public abstract void accept(Visitor visitor);
+
+    @Override
+    public boolean isCharacter() { return true; }
 
 
     public CharacterType getCharacterType() {

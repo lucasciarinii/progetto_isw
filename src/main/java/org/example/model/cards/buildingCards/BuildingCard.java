@@ -54,6 +54,9 @@ public abstract class BuildingCard extends Card implements Visitable {
         visitor.visit(this);
     }
 
+    @Override
+    public boolean isBuilding() { return true; }
+
 
     public int getFoodCost() {
         return foodCost;
