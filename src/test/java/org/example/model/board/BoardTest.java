@@ -1,8 +1,6 @@
 package org.example.model.board;
 
 import org.example.model.cards.Card;
-import org.example.model.cards.buildingCards.BuildingCard;
-import org.example.model.cards.eventCards.EventCard;
 import org.example.model.enums.Era;
 import org.example.model.enums.OfferEffect;
 import org.example.model.match.Player;
@@ -14,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -89,9 +88,9 @@ class BoardTest {
         List<Card> bottomRow = board.getBottomRow();
 
         assertEquals(numPlayers + 1, bottomRow.size());
-        assertTrue(bottomRow.stream().allMatch(card -> !(card instanceof EventCard)));
+        assertTrue(bottomRow.stream().noneMatch(Card::isEventCard));
 
-        long buildingCardsInTopRow = topRow.stream().filter(card -> card instanceof BuildingCard).count();
+        long buildingCardsInTopRow = topRow.stream().filter(Card::isBuilding).count();
         assertEquals(expectedEraIBuildingsOnTopRow, buildingCardsInTopRow);
 
         long nonBuildingCardsInTopRow = topRow.size() - buildingCardsInTopRow;
@@ -100,8 +99,8 @@ class BoardTest {
         assertEquals(numPlayers + 4 + expectedEraIBuildingsOnTopRow, topRow.size());
         assertTrue(topRow.stream().allMatch(card -> card.getEra() == Era.I));
 
-        assertTrue(topRow.stream().allMatch(card -> card != null));
-        assertTrue(bottomRow.stream().allMatch(card -> card != null));
+        assertTrue(topRow.stream().allMatch(Objects::nonNull));
+        assertTrue(bottomRow.stream().allMatch(Objects::nonNull));
     }
 
     // Verifies that the offer track exposed by the board is immutable.
