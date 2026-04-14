@@ -1,17 +1,9 @@
 package org.example.model.board;
 
 import org.example.model.cards.Card;
-import org.example.model.cards.buildingCards.BuildingCard;
-import org.example.model.cards.characters.Character;
-import org.example.model.cards.characters.Inventor;
-import org.example.model.cards.eventCards.EventCard;
-import org.example.model.cards.eventCards.Sustenance;
 import org.example.model.decks.BuildingDeck;
 import org.example.model.decks.MainDeck;
-import org.example.model.enums.Era;
 import org.example.model.enums.OfferEffect;
-import org.example.model.interfaces.Visitor;
-import org.example.model.match.Match;
 import org.example.model.match.Player;
 
 import java.util.ArrayList;
@@ -58,7 +50,7 @@ public class Board {
         // bottomRow initialization: draw cards until we have players.size() + 1 cards in the bottom row, if we draw an event card, put it in the top row (and continue to draw until we have enough cards in the bottom row)
         for (int i = 0; i < players.size() + 1; i++) {
             Card drawnCard = mainDeck.draw();
-            if (drawnCard instanceof EventCard) {
+            if (drawnCard != null && drawnCard.isEventCard()) {
                 topRow.add(0, drawnCard);
                 i--; // decrement i to draw another card for the bottom row
             } else
@@ -67,7 +59,7 @@ public class Board {
 
         // topRow initialization: draw cards until we have players.size() + 4 cards in the top row (taking into account the event cards we might have drawn in the previous step)
 
-        long numberOfBuildings = topRow.stream().filter(card -> card instanceof BuildingCard).count();
+        long numberOfBuildings = topRow.stream().filter(Card::isBuilding).count();
         int targetSize = players.size() + 4;
         int nonBuildingCards = topRow.size() - (int)numberOfBuildings;
         int cardsToDraw = targetSize - nonBuildingCards;
