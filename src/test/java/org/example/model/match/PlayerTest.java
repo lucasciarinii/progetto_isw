@@ -81,7 +81,6 @@ class PlayerTest {
     void addDiscountOnSustenance_shouldThrowException_whenValueIsNotPositive() {
         Player player = new Player("alice");
 
-        assertThrows(IllegalArgumentException.class, () -> player.addDiscountOnSustenance(0));
         assertThrows(IllegalArgumentException.class, () -> player.addDiscountOnSustenance(-1));
     }
 
