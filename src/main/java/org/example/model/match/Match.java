@@ -137,6 +137,7 @@ public class Match {
             board.getTopRow().add(0, drawnCard); // add new card to the left of the top row
             if (drawnCard.getEra() != this.getGameState().getCurrentEra()) { // true means that we have drawn a card of a new era, so we need to update the current era in the GameState
                 this.getGameState().advanceCurrentEra(); // update the current era in the GameState
+                newEraOperations();
             }
         }
     }
