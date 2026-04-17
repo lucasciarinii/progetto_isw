@@ -1,6 +1,7 @@
 package org.example.model.cards.characters;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.example.client.view.ConsoleColors;
 import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
 import org.example.model.interfaces.Visitor;
@@ -13,7 +14,7 @@ public class Builder extends Character {
     private final int endPoints;
 
     public Builder(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("CharacterType") CharacterType characterType, @JsonProperty("discountBuilding") int discountBuilding, @JsonProperty("endPoints") int endPoints) {
-        super(id, era, characterType);
+        super(id, era, CharacterType.BUILDER);
         this.discountBuilding = discountBuilding;
         this.endPoints = endPoints;
     }
@@ -35,5 +36,10 @@ public class Builder extends Character {
 
     public int getEndPoints() {
         return endPoints;
+    }
+
+    @Override
+    public String toString() {
+        return "%s%s\tdiscount: %d\n\tendPoints: %d%s\n".formatted(ConsoleColors.GREY, super.toString(), this.discountBuilding, this.endPoints, ConsoleColors.RESET);
     }
 }

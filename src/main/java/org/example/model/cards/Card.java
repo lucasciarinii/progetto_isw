@@ -33,9 +33,4 @@ public abstract class Card implements Serializable {
     public boolean isCharacter() { return false; }
     public boolean isEventCard() { return false; }
     public boolean isSustenance() { return false; }
-
-    @Override
-    public String toString() {
-        return "[ " + id + " | " + era + " ] ";
-    }
 }

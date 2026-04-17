@@ -55,5 +55,8 @@ public abstract class Character extends Card implements Visitable {
         this.newCardInSet = newCardInSet;
     }
 
-
+    @Override
+    public String toString() {
+        return "%s [id: %d]\n".formatted(this.characterType, this.getId());
+    }
 }

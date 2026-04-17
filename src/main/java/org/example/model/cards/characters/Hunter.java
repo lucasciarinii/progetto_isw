@@ -1,6 +1,7 @@
 package org.example.model.cards.characters;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.example.client.view.ConsoleColors;
 import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
 import org.example.model.interfaces.Visitor;
@@ -12,7 +13,7 @@ public class Hunter extends Character {
     private final boolean obtainFood;
 
     public Hunter(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("CharacterType") CharacterType characterType, @JsonProperty("obtainFood") boolean obtainFood) {
-        super(id, era, characterType);
+        super(id, era, CharacterType.HUNTER);
         this.obtainFood = obtainFood;
     }
 
@@ -29,5 +30,12 @@ public class Hunter extends Character {
 
     public boolean isObtainFood() {
         return obtainFood;
+    }
+
+    @Override
+    public String toString() {
+        String RED = "\u001B[31m";
+        String RESET = "\u001B[0m";
+        return "%s%s\tobtainFood: %s%s\n".formatted(ConsoleColors.RED, super.toString(), (obtainFood ? "YES" : "NO"), ConsoleColors.RESET);
     }
 }

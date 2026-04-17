@@ -1,6 +1,7 @@
 package org.example.model.cards.characters;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.example.client.view.ConsoleColors;
 import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
 import org.example.model.interfaces.Visitor;
@@ -14,7 +15,7 @@ public class Gatherer extends Character {
 
 
     public Gatherer(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("CharacterType") CharacterType characterType) {
-        super(id, era, characterType);
+        super(id, era, CharacterType.GATHERER);
     }
 
 
@@ -32,5 +33,8 @@ public class Gatherer extends Character {
         return DISCOUNT_FACTOR;
     }
 
-
+    @Override
+    public String toString() {
+        return "%s%s%s".formatted(ConsoleColors.ORANGE, super.toString(), ConsoleColors.RESET);
+    }
 }
