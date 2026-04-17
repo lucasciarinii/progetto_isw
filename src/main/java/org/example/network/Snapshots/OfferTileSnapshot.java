@@ -20,4 +20,10 @@ public class OfferTileSnapshot implements Serializable {
     public OfferEffect getOfferEffect()   { return offerEffect; }
     public String getOccupantNickname()   { return occupantNickname; }
     public boolean isFree()               { return occupantNickname == null; }
+
+    @Override
+    public String toString() {
+        return "[ %s, %s ] ".formatted((this.occupantNickname == null || this.occupantNickname.isBlank()) ? "EMPTY" : this.occupantNickname.toUpperCase(), offerEffect);
+
+    }
 }

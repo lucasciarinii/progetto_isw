@@ -24,4 +24,9 @@ public class TurnSlotSnapshot implements Serializable {
     public int getPointsBonus()         { return pointsBonus; }
     public String getOccupantNickname() { return occupantNickname; }
     public boolean isFree()             { return occupantNickname == null; }
+
+    @Override
+    public String toString() {
+        return "[%d]-[foodBonus: %d]-[pointsBonus: %d] -> [PLAYER:%s] ".formatted(this.position, this.foodBonus, this.pointsBonus, (this.occupantNickname == null || this.occupantNickname.isBlank()) ? "EMPTY" : this.occupantNickname.toUpperCase());
+    }
 }

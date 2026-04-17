@@ -1,6 +1,7 @@
 package org.example;
 
 import org.example.client.ClientController;
+import org.example.client.view.View;
 import org.example.server.rmi.RMIGameServerImpl;
 
 import java.util.Scanner;
@@ -62,9 +63,6 @@ public class App {
             return;
         }
 
-        // Keep client alive waiting for updates from server (RMI callbacks)
-        System.out.println("Waiting... (presso ENTER to disconnect)");
-        scanner.nextLine();
-        System.exit(0);
+
     }
 }

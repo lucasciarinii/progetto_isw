@@ -2,6 +2,7 @@ package org.example.client;
 
 import org.example.client.rmi.RMIClientCallbackImpl;
 import org.example.client.rmi.GameEventListener;
+import org.example.client.view.View;
 import org.example.network.GameStateUpdateMessage;
 import org.example.network.LobbyUpdateMessage;
 import org.example.server.rmi.RMIGameServer;
@@ -16,9 +17,11 @@ import java.rmi.Naming;
 public class ClientController implements GameEventListener {
     private final String nickname;
     private RMIGameServer server;       // server stub RMI
+    private final View view;
 
     public ClientController(String nickname) {
         this.nickname = nickname;
+        this.view = new View();
     }
 
     //! CONNECTION TO SERVER -----------------------------------------------
@@ -60,12 +63,7 @@ public class ClientController implements GameEventListener {
     //! RECEIVING UPDATES FROM SERVER (called by ClientCallbackImpl) -----------------------------------------------
     @Override
     public void onUpdate(GameStateUpdateMessage update) {
-        // TODO: aggiorna la view con il nuovo stato
-        // Per ora stampiamo solo a console
-        System.out.println("=== AGGIORNAMENTO STATO ===");
-        System.out.println("Round: " + update.getCurrentRound());
-        System.out.println("Fase: " + update.getCurrentPhase());
-        System.out.println("Turno di: " + update.getCurrentPlayerNickname());
+        view.update(update);
     }
 
     @Override

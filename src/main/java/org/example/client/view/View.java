@@ -16,28 +16,21 @@ public class View {
     private Era currentEra;
     private GamePhase currentPhase;
     private String currentPlayerNickname;
-    private List<String> turnOrder;
+    private List<String> turnOrder = new ArrayList<>();
 
     // Board
-    private List<Card> topRow;
-    private List<Card> bottomRow;
-    private List<OfferTileSnapshot> offerTrack;
-    private List<TurnSlotSnapshot> turnOrderSlots;
+    private List<Card> topRow = new ArrayList<>();
+    private List<Card> bottomRow = new ArrayList<>();
+    private List<OfferTileSnapshot> offerTrack = new ArrayList<>();
+    private List<TurnSlotSnapshot> turnOrderSlots = new ArrayList<>();
 
     // Players
-    private List<PlayerSnapshot> players;
+    private List<PlayerSnapshot> players = new ArrayList<>();
 
     // Game over
-    private List<String> winners;
+    private List<String> winners = new ArrayList<>();
 
     public View() {
-        this.turnOrder = new ArrayList<>();
-        this.topRow = new ArrayList<>();
-        this.bottomRow = new ArrayList<>();
-        this.offerTrack = new ArrayList<>();
-        this.turnOrderSlots = new ArrayList<>();
-        this.players = new ArrayList<>();
-        this.winners = new ArrayList<>();
     }
 
     public void update(GameStateUpdateMessage message) {
@@ -56,22 +49,37 @@ public class View {
         display();
     }
 
-    private void display() {
-        System.out.println("\n========================================");
-        System.out.println("===           GAME UPDATE            ===");
-        System.out.println("========================================");
-        System.out.println("Round: " + currentRound + " | Era: " + currentEra + " | Phase: " + currentPhase);
-        System.out.println("Current Player: " + currentPlayerNickname);
-        System.out.println("----------------------------------------");
+    public void display() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+        String logo = """
+                $$\\      $$\\ $$$$$$$$\\  $$$$$$\\   $$$$$$\\   $$$$$$\\ \s
+                $$$\\    $$$ |$$  _____|$$  __$$\\ $$  __$$\\ $$  __$$\\\s
+                $$$$\\  $$$$ |$$ |      $$ /  \\__|$$ /  $$ |$$ /  \\__|
+                $$\\$$\\$$ $$ |$$$$$\\    \\$$$$$$\\  $$ |  $$ |\\$$$$$$\\ \s
+                $$ \\$$$  $$ |$$  __|    \\____$$\\ $$ |  $$ | \\____$$\\\s
+                $$ |\\$  /$$ |$$ |      $$\\   $$ |$$ |  $$ |$$\\   $$ |
+                $$ | \\_/ $$ |$$$$$$$$\\ \\$$$$$$  | $$$$$$  |\\$$$$$$  |
+                \\__|     \\__|\\________| \\______/  \\______/  \\______/\s
+                """;
+
+        System.out.println(logo);
+
+        System.out.println("Round: " + currentRound + " | Era: " + currentEra + " | Phase: " + currentPhase + " | Current Player: " + currentPlayerNickname);
+        System.out.println("----------------------------------------\n");
         
         System.out.println("BOARD:");
-        System.out.println("Top Row: " + topRow);
-        System.out.println("Bottom Row: " + bottomRow);
-        System.out.println("Offer Track: " + offerTrack);
-        System.out.println("Turn Slots: " + turnOrderSlots);
+        System.out.println("\nTop Row:");
+        topRow.forEach(System.out::print);
+        System.out.println("\n\nBottom Row:");
+        bottomRow.forEach(System.out::print);
+        System.out.println("\n\nOffer Track: ");
+        offerTrack.forEach(System.out::print);
+        System.out.println("\n\nTurn Slots: ");
+        turnOrderSlots.forEach(System.out::println);
         System.out.println("----------------------------------------");
 
-        System.out.println("PLAYERS:");
+        System.out.println("\nPLAYERS:");
         for (PlayerSnapshot p : players) {
             System.out.println("- " + p.getNickname() + " | Points: " + p.getPoints() + " | Food: " + p.getFood());
         }
