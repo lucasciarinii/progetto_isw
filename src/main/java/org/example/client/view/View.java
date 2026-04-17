@@ -1,4 +1,4 @@
-package org.example.client;
+package org.example.client.view;
 
 import org.example.model.cards.Card;
 import org.example.model.enums.Era;
