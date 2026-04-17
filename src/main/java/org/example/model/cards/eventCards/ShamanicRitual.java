@@ -1,6 +1,7 @@
 package org.example.model.cards.eventCards;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.example.client.view.ConsoleColors;
 import org.example.model.cards.buildingCards.BuildingCard;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
@@ -24,11 +25,15 @@ public class ShamanicRitual extends EventCard {
             @JsonProperty("bonusPoints") int bonusPoints,
             @JsonProperty("malusPoints") int malusPoints
     ) {
-        super(id, era, isEraFinal, effect);
+        super(id, era, isEraFinal, EventEffect.SHAMANIC_RITUAL);
         this.bonusPoints = bonusPoints;
         this.malusPoints = malusPoints;
     }
 
+    @Override
+    public String toString() {
+        return "%s\tplayer with the most stars: %d points\n\tplayer with least stars: %d points%s\n".formatted(super.toString(), bonusPoints, malusPoints, ConsoleColors.RESET);
+    }
 
     @Override
     public void applyEvent(Match match) {

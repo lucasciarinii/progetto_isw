@@ -1,6 +1,7 @@
 package org.example.model.cards.eventCards;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.example.client.view.ConsoleColors;
 import org.example.model.cards.buildingCards.BuildingCard;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
@@ -21,8 +22,13 @@ public class Sustenance extends EventCard {
             @JsonProperty("eventEffect") EventEffect effect,
             @JsonProperty("points") int points
     ) {
-        super(id, era, isEraFinal, effect);
+        super(id, era, isEraFinal, EventEffect.SUSTENANCE);
         this.points = points;
+    }
+
+    @Override
+    public String toString() {
+        return "%s\tpay 1 food for each character card OR\n\tpay %d points for it%s\n".formatted(super.toString(), points, ConsoleColors.RESET);
     }
 
     @Override

@@ -3,6 +3,7 @@ package org.example.model.cards.eventCards;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.example.client.view.ConsoleColors;
 import org.example.model.cards.Card;
 import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
@@ -33,6 +34,11 @@ public abstract class EventCard extends Card {
         super(id, era);
         this.isEraFinal = isEraFinal;
         this.eventEffect = effect;
+    }
+
+    @Override
+    public String toString() {
+        return "%s%s [id: %d]\n".formatted(ConsoleColors.BROWN, this.eventEffect, this.getId());
     }
 
     @Override
