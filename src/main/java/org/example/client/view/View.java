@@ -65,24 +65,24 @@ public class View {
 
         System.out.println(logo);
 
-        System.out.println("Round: " + currentRound + " | Era: " + currentEra + " | Phase: " + currentPhase + " | Current Player: " + currentPlayerNickname);
-        System.out.println("----------------------------------------\n");
-        
-        System.out.println("BOARD:");
-        System.out.println("\nTop Row:");
-        topRow.forEach(System.out::print);
-        System.out.println("\n\nBottom Row:");
-        bottomRow.forEach(System.out::print);
-        System.out.println("\n\nOffer Track: ");
-        offerTrack.forEach(System.out::print);
-        System.out.println("\n\nTurn Slots: ");
-        turnOrderSlots.forEach(System.out::println);
-        System.out.println("----------------------------------------");
-
-        System.out.println("\nPLAYERS:");
+        System.out.println("ROUND: " + currentRound + " | ERA: " + currentEra + " | PHASE: " + currentPhase + " | CURRENT PLAYER: " + currentPlayerNickname);
+        System.out.println("\nPlayers:");
         for (PlayerSnapshot p : players) {
             System.out.println("- " + p.getNickname() + " | Points: " + p.getPoints() + " | Food: " + p.getFood());
         }
+
+        System.out.println("\n\nTURN ORDER SLOTS ----------------------------------------");
+        turnOrderSlots.forEach(System.out::println);
+        System.out.println("\nOFFER TRACK ----------------------------------------");
+        offerTrack.forEach(System.out::print);
+        System.out.println("\n\nTOP ROW ----------------------------------------");
+        topRow.forEach(System.out::print);
+        System.out.println("\n\nBOTTOM ROW ----------------------------------------");
+        bottomRow.forEach(System.out::print);
+
+
+
+
 
         if (!winners.isEmpty()) {
             System.out.println("****************************************");

@@ -17,7 +17,12 @@ public class ShamanicDoublePointsBC extends BuildingCard {
             @JsonProperty("class_type") BuildingCardType buildingCardType,
             @JsonProperty("isEndGame") boolean isEndGame
     ) {
-        super(id, era, foodCost, endPoints, buildingCardType, isEndGame);
+        super(id, era, foodCost, endPoints, BuildingCardType.ShamanicDoublePointsBC, isEndGame);
+    }
+
+    @Override
+    public String toString() {
+        return "%s\tEffect: during shamanic ritual if you have the most stars get X2 of indicated points\n".formatted(super.toString());
     }
 
     @Override

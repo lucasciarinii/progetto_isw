@@ -17,7 +17,12 @@ public class CavePaintingEventBoostBC extends BuildingCard {
             @JsonProperty("class_type") BuildingCardType buildingCardType,
             @JsonProperty("isEndGame") boolean isEndGame
     ) {
-        super(id, era, foodCost, endPoints, buildingCardType, isEndGame);
+        super(id, era, foodCost, endPoints, BuildingCardType.CavePaintingEventBoostBC, isEndGame);
+    }
+
+    @Override
+    public String toString() {
+        return "%s\tEffect: get 1 food for each artist in your tribe\n".formatted(super.toString());
     }
 
     @Override

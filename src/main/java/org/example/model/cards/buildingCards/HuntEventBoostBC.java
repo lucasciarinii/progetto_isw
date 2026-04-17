@@ -16,7 +16,12 @@ public class HuntEventBoostBC extends BuildingCard {
             @JsonProperty("class_type") BuildingCardType buildingCardType,
             @JsonProperty("isEndGame") boolean isEndGame
     ) {
-        super(id, era, foodCost, endPoints, buildingCardType, isEndGame);
+        super(id, era, foodCost, endPoints, BuildingCardType.HuntEventBoostBC, isEndGame);
+    }
+
+    @Override
+    public String toString() {
+        return "%s\tEffect: during Hunt Event, for each  Hunter in your tribe get +1 points and +1 food\n".formatted(super.toString());
     }
 
     @Override

@@ -30,10 +30,14 @@ public class SustenanceDiscountBC extends BuildingCard {
             @JsonProperty("characterEffect") CharacterType characterEffect,
             @JsonProperty("isEndGame") boolean isEndGame
     ) {
-        super(id, era, foodCost, endPoints, buildingCardType, isEndGame);
+        super(id, era, foodCost, endPoints, BuildingCardType.SustenanceDiscountBC, isEndGame);
         this.characterEffect = characterEffect;
     }
 
+    @Override
+    public String toString() {
+        return "%s\tEffect: during sustenance get a -1 food discount for each %s in your tribe\n".formatted(super.toString(), characterEffect);
+    }
 
     public void applyEffect(Player owner, Match match) {
         // goes in the DICTOUN_LOGIC map to get the appropriate discount based on the characterEffect, defaulting to 0 if the character type is not supported. in order to pass to the map the owner we do apply(owner)

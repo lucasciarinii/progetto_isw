@@ -26,13 +26,17 @@ public class CharacterEndPointsBC extends BuildingCard {
             @JsonProperty("characterEffect") CharacterType characterEffect,
             @JsonProperty("isEndGame") boolean isEndGame
     ) {
-		super(id, era, foodCost, endPoints, buildingCardType, isEndGame);
+		super(id, era, foodCost, endPoints, BuildingCardType.CharacterEndPointsBC, isEndGame);
         this.pointsEffect = points;
         this.characterEffect = characterEffect;
 	}
 
+    @Override
+    public String toString() {
+        return "%s\tEffect: get %d points for each %s in your tribe (end game)\n".formatted(super.toString(), pointsEffect, characterEffect);
+    }
 
-	@Override
+    @Override
 	public void applyEffect(Player owner, Match match) {
 
         //Count the number of characters of the specified type owned by the player

@@ -26,12 +26,16 @@ public class SetCollectionFoodBC extends BuildingCard {
             @JsonProperty("class_type") BuildingCardType buildingCardType,
             @JsonProperty("isEndGame") boolean isEndGame
     ) {
-        super(id, era, foodCost, endPoints, buildingCardType, isEndGame);
+        super(id, era, foodCost, endPoints, BuildingCardType.SetCollectionFoodBC, isEndGame);
         this.registeredSets = 0;
         this.initialized = false;
     }
 
+    @Override
+    public String toString() {
+        return "%s\tEffect: get +5 food each time you complete a new character set\n".formatted(super.toString());
 
+    }
 
     @Override
     public void applyEffect(Player owner, Match match) {

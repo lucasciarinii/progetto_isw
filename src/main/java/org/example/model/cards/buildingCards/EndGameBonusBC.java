@@ -17,9 +17,13 @@ public class EndGameBonusBC extends BuildingCard {
             @JsonProperty("class_type") BuildingCardType buildingCardType,
             @JsonProperty("isEndGame") boolean isEndGame
     ) {
-        super(id, era, foodCost, endPoints, buildingCardType, isEndGame);
+        super(id, era, foodCost, endPoints, BuildingCardType.EndGameBonusBC, isEndGame);
     }
 
+    @Override
+    public String toString() {
+        return "%s\tEffect: get double the points indicated in your Builder cards (end game)\n".formatted(super.toString());
+    }
 
     public void applyEffect(Player owner, Match match) {
         int puntiCostruttore = owner.getBuilders().stream()

@@ -57,6 +57,6 @@ public abstract class Character extends Card implements Visitable {
 
     @Override
     public String toString() {
-        return "%s [id: %d]\n".formatted(this.characterType, this.getId());
+        return "%s [id: %d] {ERA %s}\n".formatted(this.characterType, this.getId(), this.getEra());
     }
 }

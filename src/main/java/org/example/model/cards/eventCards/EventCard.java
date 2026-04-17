@@ -38,7 +38,7 @@ public abstract class EventCard extends Card {
 
     @Override
     public String toString() {
-        return "%s%s [id: %d]\n".formatted(ConsoleColors.BROWN, this.eventEffect, this.getId());
+        return "%s%s [id: %d] {ERA %s}\n".formatted(ConsoleColors.BROWN, this.eventEffect, this.getId(), getEra());
     }
 
     @Override

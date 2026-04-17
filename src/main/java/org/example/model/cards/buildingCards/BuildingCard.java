@@ -50,6 +50,11 @@ public abstract class BuildingCard extends Card implements Visitable {
     }
 
     @Override
+    public String toString() {
+        return "%s [id: %d] {ERA %s}\n\tfood cost: %d, end points: %d\n".formatted(class_type, getId(), getEra(), foodCost, endPoints);
+    }
+
+    @Override
     public void accept(Visitor visitor)  {
         visitor.visit(this);
     }
