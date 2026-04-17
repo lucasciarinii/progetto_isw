@@ -8,9 +8,9 @@ import java.util.Scanner;
 public class App {
 
     public static void main(String[] args) throws Exception {
-        System.out.println("App avviata con args: " + java.util.Arrays.toString(args));
+        System.out.println("App started with args: " + java.util.Arrays.toString(args));
         if (args.length == 0) {
-            System.out.println("Uso:");
+            System.out.println("Use:");
             System.out.println("  java -jar mesos.jar server");
             System.out.println("  java -jar mesos.jar client <host>");
             return;
@@ -22,7 +22,7 @@ public class App {
                 String host = args.length > 1 ? args[1] : "localhost";
                 startClient(host);
             }
-            default -> System.out.println("Argomento non riconosciuto: " + args[0]);
+            default -> System.out.println("Argument not recognized: " + args[0]);
         }
     }
 
@@ -32,11 +32,10 @@ public class App {
 
     private static void startServer() throws Exception {
         RMIGameServerImpl.startServer();
-        // Il server RMI gira in background su thread daemon —
-        // questo loop mantiene il processo vivo
+        // Server RMI runs in background on daemon thread
         System.out.println("Server avviato. Premi INVIO per spegnere.");
         new Scanner(System.in).nextLine();
-        System.out.println("Server spento.");
+        System.out.println("Server OFF.");
         System.exit(0);
     }
 
@@ -47,18 +46,24 @@ public class App {
     private static void startClient(String host) throws Exception {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.print("Inserisci il tuo nickname: ");
+        System.out.print("Insert your nickname: ");
         String nickname = scanner.nextLine().trim();
 
-        System.out.print("Inserisci il numero di giocatori (2-5) " +
-                "[ignorato se non sei il primo a connetterti]: ");
+        System.out.print("Insert number of players: (2-5) " + "[ignore if you are not the first to connect]: ");
         int numPlayers = Integer.parseInt(scanner.nextLine().trim());
 
-        ClientController client = new ClientController(nickname);
-        client.connect(host, numPlayers);
+        try {
+            ClientController client = new ClientController(nickname);
+            client.connect(host, numPlayers);
+        }
+        catch (Exception e) {
+            System.out.println("Impossible to connect to server RIM to address: " + host);
+            System.out.println("Ensure server is active and the address is correct.");
+            return;
+        }
 
-        // Mantiene il client vivo in attesa di aggiornamenti
-        System.out.println("In attesa... (premi INVIO per disconnetterti)");
+        // Keep client alive waiting for updates from server (RMI callbacks)
+        System.out.println("Waiting... (presso ENTER to disconnect)");
         scanner.nextLine();
         System.exit(0);
     }
