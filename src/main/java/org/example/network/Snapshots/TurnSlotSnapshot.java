@@ -27,6 +27,11 @@ public class TurnSlotSnapshot implements Serializable {
 
     @Override
     public String toString() {
-        return "[%d]-[foodBonus: %d]-[pointsBonus: %d] -> [PLAYER:%s] ".formatted(this.position, this.foodBonus, this.pointsBonus, (this.occupantNickname == null || this.occupantNickname.isBlank()) ? "EMPTY" : this.occupantNickname.toUpperCase());
+        if(foodBonus > 0)
+            return "[%d] %s\n\tFood bonus: %d".formatted(position + 1, ((occupantNickname != null && !occupantNickname.isEmpty()) ? occupantNickname.toUpperCase() : "empty"), foodBonus);
+        else if (foodBonus == 0)
+            return "[%d] %s\n\tno bonus".formatted(position + 1, ((occupantNickname != null && !occupantNickname.isEmpty()) ? occupantNickname.toUpperCase() : "empty"));
+        else
+            return "[%d] %s\n\tMALUS (-1 food / -2 points)".formatted(position + 1, ((occupantNickname != null && !occupantNickname.isEmpty()) ? occupantNickname.toUpperCase() : "empty"));
     }
 }

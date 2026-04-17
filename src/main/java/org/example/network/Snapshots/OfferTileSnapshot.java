@@ -23,7 +23,7 @@ public class OfferTileSnapshot implements Serializable {
 
     @Override
     public String toString() {
-        return "[ %s, %s ] ".formatted((this.occupantNickname == null || this.occupantNickname.isBlank()) ? "EMPTY" : this.occupantNickname.toUpperCase(), offerEffect);
+        return "[ %s, %s ] ".formatted((this.occupantNickname == null || this.occupantNickname.isBlank()) ? "empty" : this.occupantNickname.toUpperCase(), offerEffect);
 
     }
 }
