@@ -43,7 +43,7 @@ public class ServerController {
             return;
         }
 
-        if (!isCorrectPlayer(nickname) || !isCorrectPhase(GamePhase.PLACE_TOTEMS)) {
+        if (isWrongPlayer(nickname) || isWrongPhase(GamePhase.PLACE_TOTEMS)) {
             sendError(sender, "Invalid move: it's not yourn turn or invalid phase.");
             return;
         }
@@ -68,7 +68,7 @@ public class ServerController {
             return;
         }
 
-        if (!isCorrectPlayer(nickname) || !isCorrectPhase(GamePhase.PLAYER_TURN)) {
+        if (isWrongPlayer(nickname) || isWrongPhase(GamePhase.PLAYER_TURN)) {
             sendError(sender, "Mossa non valida: non è il tuo turno o fase errata.");
             return;
         }
@@ -86,12 +86,12 @@ public class ServerController {
     }
 
     //! UTILITY METHODS ---------------------------------------------------------------------------
-    private boolean isCorrectPlayer(String nick) {
-        return match.getGameState().getCurrentPlayer().getNickname().equals(nick);
+    private boolean isWrongPlayer(String nick) {
+        return !match.getGameState().getCurrentPlayer().getNickname().equals(nick);
     }
 
-    private boolean isCorrectPhase(GamePhase expected) {
-        return match.getGameState().getCurrentPhase() == expected;
+    private boolean isWrongPhase(GamePhase expected) {
+        return !(match.getGameState().getCurrentPhase() == expected);
     }
 
     private Player getPlayerByNickname(String nick) {
