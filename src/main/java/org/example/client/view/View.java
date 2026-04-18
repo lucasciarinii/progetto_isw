@@ -33,6 +33,14 @@ public class View {
     public View() {
     }
 
+    public List<OfferTileSnapshot> getOfferTrack() {
+        return offerTrack;
+    }
+
+    public GamePhase getCurrentPhase() {
+        return currentPhase;
+    }
+
     public void update(GameStateUpdateMessage message) {
         this.currentRound = message.getCurrentRound();
         this.currentEra = message.getCurrentEra();
@@ -50,8 +58,7 @@ public class View {
     }
 
     public void display() {
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
+        clearScreen();
         String logo = """
                 $$\\      $$\\ $$$$$$$$\\  $$$$$$\\   $$$$$$\\   $$$$$$\\ \s
                 $$$\\    $$$ |$$  _____|$$  __$$\\ $$  __$$\\ $$  __$$\\\s
@@ -66,9 +73,10 @@ public class View {
         System.out.println(logo);
 
         System.out.println("ROUND: " + currentRound + " | ERA: " + currentEra + " | PHASE: " + currentPhase + " | CURRENT PLAYER: " + currentPlayerNickname);
-        System.out.println("\nPlayers:");
+        System.out.println("\nPLAYERS ----------------------------------------");
         for (PlayerSnapshot p : players) {
             System.out.println("- " + p.getNickname() + " | Points: " + p.getPoints() + " | Food: " + p.getFood());
+            p.printAllCards();
         }
 
         System.out.println("\n\nTURN ORDER SLOTS ----------------------------------------");
@@ -81,9 +89,6 @@ public class View {
         bottomRow.forEach(System.out::print);
 
 
-
-
-
         if (!winners.isEmpty()) {
             System.out.println("****************************************");
             System.out.println("GAME OVER! Winners: " + winners);
@@ -91,4 +96,17 @@ public class View {
         }
         System.out.println("========================================\n");
     }
+
+    public void displayWaiting(String currentPlayerNickname) {
+        System.out.println("[WAIT] It's " + currentPlayerNickname + " turn...");
+    }
+
+    public void displayError(String error) {
+        System.out.println("\n[ERROR] " + error + "\n");
+    }
+
+    public static void clearScreen() {
+        System.out.println("\n".repeat(50));
+    }
+
 }

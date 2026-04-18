@@ -1,5 +1,6 @@
 package org.example.network.Snapshots;
 
+import org.example.model.cards.Card;
 import org.example.model.cards.buildingCards.BuildingCard;
 import org.example.model.cards.characters.*;
 
@@ -46,31 +47,13 @@ public class PlayerSnapshot implements Serializable {
         return points;
     }
 
-    public List<Hunter> getOwnedHunters() {
-        return ownedHunters;
-    }
-
-    public List<Gatherer> getOwnedGatherers() {
-        return ownedGatherers;
-    }
-
-    public List<Builder> getOwnedBuilders() {
-        return ownedBuilders;
-    }
-
-    public List<Shaman> getOwnedShamans() {
-        return ownedShamans;
-    }
-
-    public List<Artist> getOwnedArtists() {
-        return ownedArtists;
-    }
-
-    public List<Inventor> getOwnedInventors() {
-        return ownedInventors;
-    }
-
-    public List<BuildingCard> getOwnedBuildings() {
-        return ownedBuildings;
+    public void printAllCards() {
+        ownedHunters.forEach(System.out::println);
+        ownedGatherers.forEach(System.out::println);
+        ownedBuilders.forEach(System.out::println);
+        ownedShamans.forEach(System.out::println);
+        ownedArtists.forEach(System.out::println);
+        ownedInventors.forEach(System.out::println);
+        ownedBuildings.forEach(System.out::println);
     }
 }

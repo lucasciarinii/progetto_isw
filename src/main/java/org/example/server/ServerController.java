@@ -80,7 +80,7 @@ public class ServerController {
             match.getGameState().advanceToNextPlayer();
             handlePhaseTransition(phaseBefore);
         } catch (Exception e) {
-            sendError(sender, "Mossa non valida: " + e.getMessage());
+            sendError(sender, "Invalid move: " + e.getMessage());
         }
 
     }

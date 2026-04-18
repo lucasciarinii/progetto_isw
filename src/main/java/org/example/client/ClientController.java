@@ -2,7 +2,9 @@ package org.example.client;
 
 import org.example.client.rmi.RMIClientCallbackImpl;
 import org.example.client.rmi.GameEventListener;
+import org.example.client.view.CLIInputHandler;
 import org.example.client.view.View;
+import org.example.model.enums.GamePhase;
 import org.example.network.GameStateUpdateMessage;
 import org.example.network.LobbyUpdateMessage;
 import org.example.server.rmi.RMIGameServer;
@@ -18,10 +20,16 @@ public class ClientController implements GameEventListener {
     private final String nickname;
     private RMIGameServer server;       // server stub RMI
     private final View view;
+    private final CLIInputHandler inputHandler;
 
     public ClientController(String nickname) {
         this.nickname = nickname;
         this.view = new View();
+        this.inputHandler = new CLIInputHandler(this);
+    }
+
+    public View getView() {
+        return view;
     }
 
     //! CONNECTION TO SERVER -----------------------------------------------
@@ -37,8 +45,6 @@ public class ClientController implements GameEventListener {
 
         // 3. It registers on the server
         server.register(nickname, numPlayers, callback);
-
-        System.out.println("Connected to the server (RMI) as: " + nickname);
     }
 
     @Override
@@ -64,11 +70,26 @@ public class ClientController implements GameEventListener {
     @Override
     public void onUpdate(GameStateUpdateMessage update) {
         view.update(update);
+
+        if (isMyTurn(update)) {
+            inputHandler.promptForAction(update.getCurrentPhase());
+        } else {
+            view.displayWaiting(update.getCurrentPlayerNickname());
+        }
     }
 
     @Override
     public void onError(String errorMessage) {
-        // TODO: mostra errore nella view
-        System.out.println("[ERRORE] " + errorMessage);
+        view.displayError(errorMessage);
+        inputHandler.promptForAction(view.getCurrentPhase()); // in handleOfferTileAction (promptForAction) there is a while loop that will keep asking for input until the server accepts a valid command, so we can just rely on that and do not need to re-prompt here
+    }
+
+    //! UTILITY METHODS -----------------------------------------------
+    private boolean isMyTurn(GameStateUpdateMessage update) {
+        return update.getCurrentPlayerNickname().equals(nickname) && isInteractivePhase(update.getCurrentPhase());
+    }
+
+    private boolean isInteractivePhase(GamePhase phase) {
+        return phase == GamePhase.PLACE_TOTEMS || phase == GamePhase.PLAYER_TURN;
     }
 }
