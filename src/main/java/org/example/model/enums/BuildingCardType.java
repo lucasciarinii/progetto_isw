@@ -13,5 +13,6 @@ public enum BuildingCardType {
     HuntEventBoostBC,
     RoundFlowBC,
     RoundFlowTotemBC,
-    EndGameBonusBC
+    EndGameBonusBC,
+    EndGameBonus25BC
 }

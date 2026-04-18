@@ -1,12 +1,15 @@
 package org.example.model.cards.eventCards;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.example.client.view.ConsoleColors;
 import org.example.model.cards.buildingCards.BuildingCard;
 import org.example.model.enums.BuildingCardType;
 import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
+
+import java.util.Objects;
 
 public class CavePainting extends EventCard {
 
@@ -23,15 +26,21 @@ public class CavePainting extends EventCard {
             @JsonProperty("malusPoints") int malusPoints,
             @JsonProperty("interval") int interval
     ) {
-        super(id, era, isEraFinal, effect);
+        super(id, era, isEraFinal, EventEffect.CAVE_PAINTINGS);
         this.bonusPoints = bonusPoints;
         this.malusPoints = malusPoints;
         this.interval = interval;
     }
 
+    @Override
+    public String toString() {
+        return "%s\t<%d artists: %d points\n\t>=%d artists: %d points X number of artists%s\n".formatted(super.toString(), interval, malusPoints, interval, bonusPoints, ConsoleColors.RESET);
+    }
 
     @Override
     public void applyEvent(Match match) {
+
+        Objects.requireNonNull(match, "Match cannot be null when applying Cave Painting event");
 
         //For each player, count the number of artists they own
         //and assign points according to the event rules

@@ -1,34 +1,41 @@
 package org.example.model.board;
 
 import org.example.model.enums.OfferEffect;
+import org.example.model.match.Player;
+import java.util.Objects;
 
 
 public class OfferTile {
 
-    private PlayerSlot slot;
+    private Player player;
     private final OfferEffect offerEffect;
-    private final int MinPlayers;
 
-    public OfferTile(OfferEffect offerEffect, int minPlayers) {
-        this.slot = new PlayerSlot(""); // When initialized, there will be no player assigned to the slot, so we can set it to an empty string
-        this.MinPlayers = minPlayers;
-        this.offerEffect = offerEffect;
+    public OfferTile(OfferEffect offerEffect) {
+        this.player = null;
+        this.offerEffect = Objects.requireNonNull(offerEffect, "offerEffect cannot be null");
     }
 
-    public PlayerSlot getSlot() {
-        return this.slot;
-    }
-
-    public void setSlot(PlayerSlot slot) {
-        this.slot = slot;
+    public Player getPlayer() {
+        return player;
     }
 
     public OfferEffect getOfferEffect() {
         return this.offerEffect;
     }
 
-    public int getMinPlayers() {
-        return this.MinPlayers;
+    public void placePlayer(Player player) {
+
+        if ( this.player != null ) {
+            throw new IllegalArgumentException("tile already taken");
+        }
+
+        this.player = player;
     }
+
+
+    public void removePlayer() {
+        this.player = null;
+    }
+
 
 }

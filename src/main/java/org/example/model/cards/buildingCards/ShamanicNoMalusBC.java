@@ -14,9 +14,15 @@ public class ShamanicNoMalusBC extends BuildingCard {
             @JsonProperty("era") Era era,
             @JsonProperty("foodCost") int foodCost,
             @JsonProperty("endPoints") int endPoints,
-            @JsonProperty("class_type") BuildingCardType buildingCardType
+            @JsonProperty("class_type") BuildingCardType buildingCardType,
+            @JsonProperty("isEndGame") boolean isEndGame
     ) {
-        super(id, era, foodCost, endPoints, buildingCardType);
+        super(id, era, foodCost, endPoints, BuildingCardType.ShamanicNoMalusBC, isEndGame);
+    }
+
+    @Override
+    public String toString() {
+        return "%s\tEffect: during shamanic ritual if you have least stars you don't lose points\n".formatted(super.toString());
     }
 
     @Override

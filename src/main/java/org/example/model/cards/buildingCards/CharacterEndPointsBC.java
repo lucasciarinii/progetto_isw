@@ -2,10 +2,10 @@ package org.example.model.cards.buildingCards;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.model.enums.BuildingCardType;
-import org.example.model.enums.CharacterType;
 import org.example.model.enums.Era;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
+import org.example.model.enums.CharacterType;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -16,14 +16,27 @@ public class CharacterEndPointsBC extends BuildingCard {
     private final int pointsEffect;
     private final CharacterType characterEffect;
 
-    public CharacterEndPointsBC(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("class_type") BuildingCardType buildingCardType, @JsonProperty("pointsEffect") int points, @JsonProperty("characterEffect") CharacterType characterEffect) {
-		super(id, era, foodCost, endPoints, buildingCardType);
+    public CharacterEndPointsBC(
+            @JsonProperty("id") int id,
+            @JsonProperty("era") Era era,
+            @JsonProperty("foodCost") int foodCost,
+            @JsonProperty("endPoints") int endPoints,
+            @JsonProperty("class_type") BuildingCardType buildingCardType,
+            @JsonProperty("pointsEffect") int points,
+            @JsonProperty("characterEffect") CharacterType characterEffect,
+            @JsonProperty("isEndGame") boolean isEndGame
+    ) {
+		super(id, era, foodCost, endPoints, BuildingCardType.CharacterEndPointsBC, isEndGame);
         this.pointsEffect = points;
         this.characterEffect = characterEffect;
 	}
 
+    @Override
+    public String toString() {
+        return "%s\tEffect: get %d points for each %s in your tribe (end game)\n".formatted(super.toString(), pointsEffect, characterEffect);
+    }
 
-	@Override
+    @Override
 	public void applyEffect(Player owner, Match match) {
 
         //Count the number of characters of the specified type owned by the player

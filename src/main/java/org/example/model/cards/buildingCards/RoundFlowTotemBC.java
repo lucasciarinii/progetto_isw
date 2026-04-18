@@ -11,8 +11,21 @@ public class RoundFlowTotemBC extends BuildingCard {
 
     private final static int FOOD_BONUS = 1;
 
-    public RoundFlowTotemBC(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("class_type") BuildingCardType buildingCardType) {
-        super(id, era, foodCost, endPoints, buildingCardType);
+    public RoundFlowTotemBC(
+            @JsonProperty("id") int id,
+            @JsonProperty("era") Era era,
+            @JsonProperty("foodCost") int foodCost,
+            @JsonProperty("endPoints") int endPoints,
+            @JsonProperty("class_type") BuildingCardType buildingCardType,
+            @JsonProperty("isEndGame") boolean isEndGame
+    ) {
+        super(id, era, foodCost, endPoints, BuildingCardType.RoundFlowTotemBC, isEndGame);
+    }
+
+    @Override
+    public String toString() {
+        return "%s\tEffect: get +1 food if you return on a bonus tile\n".formatted(super.toString());
+
     }
 
     public void applyEffect(Player owner, Match match) {

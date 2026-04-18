@@ -12,6 +12,7 @@ import org.example.model.enums.GamePhase;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class GameState {
     private int currentRound;
@@ -19,14 +20,15 @@ public class GameState {
     private GamePhase currentPhase;
     private List<Player> turnOrder;
     private int currentPlayerIndex;
-    private Player winner;
+    private List<Player> winners = new ArrayList<>();
 
     public GameState(List<Player> turnOrder) {
+        Objects.requireNonNull(turnOrder, "Turn order cannot be null");
         this.currentRound = 1;
+        this.currentEra = Era.I;
         this.currentPhase = GamePhase.PLACE_TOTEMS;
         this.turnOrder = new ArrayList<>(turnOrder);
         this.currentPlayerIndex = 0;
-        this.winner = null;
     }
 
     public int getCurrentRound(){return currentRound;}
@@ -74,10 +76,10 @@ public class GameState {
         return currentPhase == GamePhase.GAME_OVER;
     }
 
-    public Player getWinner(){return winner;}
+    public List<Player> getWinners(){return List.copyOf(winners);}
 
-    public void setWinner(Player player){
-        this.winner = player;
+    public void setWinners(List<Player> players){
+        this.winners = players;
         this.currentPhase = GamePhase.GAME_OVER;
     }
 

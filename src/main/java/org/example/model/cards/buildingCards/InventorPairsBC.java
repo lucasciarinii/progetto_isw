@@ -18,8 +18,20 @@ public class InventorPairsBC extends BuildingCard {
     private int rewardedPairs = 0;
 
     // Col1 Row5
-    public InventorPairsBC(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("foodCost") int foodCost, @JsonProperty("endPoints") int endPoints, @JsonProperty("class_type") BuildingCardType buildingCardType) {
-        super(id, era, foodCost, endPoints, buildingCardType);
+    public InventorPairsBC(
+            @JsonProperty("id") int id,
+            @JsonProperty("era") Era era,
+            @JsonProperty("foodCost") int foodCost,
+            @JsonProperty("endPoints") int endPoints,
+            @JsonProperty("class_type") BuildingCardType buildingCardType,
+            @JsonProperty("isEndGame") boolean isEndGame
+    ) {
+        super(id, era, foodCost, endPoints, BuildingCardType.InventorComboBC, isEndGame);
+    }
+
+    @Override
+    public String toString() {
+        return "%s\tEffect: get +3 food each time you get an inventors pair with same invention\n".formatted(super.toString());
     }
 
     @Override

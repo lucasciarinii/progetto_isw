@@ -18,18 +18,24 @@ public class SetCollectionFoodBC extends BuildingCard {
     //Used to understand if the building effect has already been initialized
     private boolean initialized;
 
-    public SetCollectionFoodBC(@JsonProperty("id") int id,
-                               @JsonProperty("era") Era era,
-                               @JsonProperty("foodCost") int foodCost,
-                               @JsonProperty("endPoints") int endPoints,
-                               @JsonProperty("class_type") BuildingCardType buildingCardType)
-    {
-        super(id, era, foodCost, endPoints, buildingCardType);
+    public SetCollectionFoodBC(
+            @JsonProperty("id") int id,
+            @JsonProperty("era") Era era,
+            @JsonProperty("foodCost") int foodCost,
+            @JsonProperty("endPoints") int endPoints,
+            @JsonProperty("class_type") BuildingCardType buildingCardType,
+            @JsonProperty("isEndGame") boolean isEndGame
+    ) {
+        super(id, era, foodCost, endPoints, BuildingCardType.SetCollectionFoodBC, isEndGame);
         this.registeredSets = 0;
         this.initialized = false;
     }
 
+    @Override
+    public String toString() {
+        return "%s\tEffect: get +5 food each time you complete a new character set\n".formatted(super.toString());
 
+    }
 
     @Override
     public void applyEffect(Player owner, Match match) {

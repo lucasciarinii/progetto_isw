@@ -12,9 +12,9 @@ public abstract class Deck<T extends Card> {
     protected List<T> era_III_cards;
 
     public Deck() {
-        this.era_I_cards = new ArrayList<>();
-        this.era_II_cards = new ArrayList<>();
-        this.era_III_cards = new ArrayList<>();
+        this.era_I_cards = new ArrayList<T>();
+        this.era_II_cards = new ArrayList<T>();
+        this.era_III_cards = new ArrayList<T>();
     }
 
 }

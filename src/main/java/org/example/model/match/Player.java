@@ -1,5 +1,6 @@
 package org.example.model.match;
 
+import org.example.model.cards.Card;
 import org.example.model.cards.buildingCards.BuildingCard;
 import org.example.model.cards.characters.*;
 import org.example.model.cards.characters.Character;
@@ -8,9 +9,10 @@ import org.example.model.interfaces.Visitor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 
-public class Player {
+public class Player  {
 
     private final String nickname;
     private final List<BuildingCard> ownedBuildings = new ArrayList<>();
@@ -20,6 +22,13 @@ public class Player {
     private final List<Builder> builders = new ArrayList<>();
     private final List<Artist> artists = new ArrayList<>();
     private final List<Hunter> hunters = new ArrayList<>();
+
+    private int points = 0;
+    private int food = 0;
+    private int discountOnSustenance = 0;
+    private int discountOnBuilding = 0;
+    private int shamanStars = 0;
+
     private final Visitor addToListVisitor = new Visitor() {
         // Every override adds the selected Character to the appropriate list
         @Override
@@ -30,6 +39,7 @@ public class Player {
         @Override
         public void visit(Gatherer gatherer) {
             gatherers.add(gatherer);
+            discountOnSustenance += 3;
         }
 
         @Override
@@ -40,6 +50,7 @@ public class Player {
         @Override
         public void visit(Builder builder) {
             builders.add(builder);
+            addDiscountOnBuilding(-builder.getDiscountBuilding());
         }
 
         @Override
@@ -57,20 +68,9 @@ public class Player {
             ownedBuildings.add(building);
         }
     };
-    private int points = 0;
-    private int food = 0;
-    private int discountOnSustenance = 0;
-    private int discountOnBuilding = 0;
-    private int shamanStars = 0;
-
 
     public Player(String nickname) {
-
-        if (nickname == null) {
-            throw new IllegalArgumentException("Nickname cannot be null");
-        }
-        this.nickname = nickname;
-
+        this.nickname = Objects.requireNonNull(nickname, "Nickname cannot be null");
     }
 
     public String getNickname() {
@@ -105,8 +105,8 @@ public class Player {
 
     public void addDiscountOnSustenance(int discountOnSustenance) {
 
-        if (discountOnSustenance <= 0) {
-            throw new IllegalArgumentException("discountOnSustenance must be positive");
+        if (discountOnSustenance < 0) {
+            throw new IllegalArgumentException("discountOnSustenance must be positive or zero");
         }
 
         this.discountOnSustenance += discountOnSustenance;
@@ -153,8 +153,6 @@ public class Player {
             throw new IllegalArgumentException("character must not be null");
         }
 
-        // Double dispatch: il tipo runtime di character seleziona il visit(...) corretto.
-        // In questo modo evitiamo if/else o instanceof nel Player.
         // Double dispatch: the runtime type of character select the correct visit(...) in the Characters classes.
         character.accept(addToListVisitor);
 
@@ -213,6 +211,12 @@ public class Player {
 
     @Override
     public int hashCode() {
-        return this.nickname.hashCode(); // nickname è final e non-null, quindi è sicuro
+        return this.nickname.hashCode();
+    }
+
+    public void acceptCard(Card card) {
+        if (card != null) {
+            card.accept(addToListVisitor);
+        }
     }
 }

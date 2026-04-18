@@ -16,9 +16,16 @@ public class SetCollectionEndPointsBC extends BuildingCard {
             @JsonProperty("era") Era era,
             @JsonProperty("foodCost") int foodCost,
             @JsonProperty("endPoints") int endPoints,
-            @JsonProperty("class_type") BuildingCardType buildingCardType
+            @JsonProperty("class_type") BuildingCardType buildingCardType,
+            @JsonProperty("isEndGame") boolean isEndGame
     ) {
-        super(id, era, foodCost, endPoints, buildingCardType);
+        super(id, era, foodCost, endPoints, BuildingCardType.SetCollectionEndPointsBC, isEndGame);
+    }
+
+    @Override
+    public String toString() {
+        return "%s\tEffect: get +6 points for each completed set of characters (end game)\n".formatted(super.toString());
+
     }
 
     @Override

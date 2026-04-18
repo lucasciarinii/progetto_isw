@@ -3,6 +3,7 @@ package org.example.model.cards.eventCards;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.example.client.view.ConsoleColors;
 import org.example.model.cards.Card;
 import org.example.model.enums.Era;
 import org.example.model.enums.EventEffect;
@@ -14,10 +15,10 @@ import org.example.model.match.Match;
         property = "eventEffect"
 )
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = HuntEvent.class, name = "HuntEvent"),
-        @JsonSubTypes.Type(value = CavePainting.class, name = "CavePainting"),
-        @JsonSubTypes.Type(value = ShamanicRitual.class, name = "ShamanicRitual"),
-        @JsonSubTypes.Type(value = Sustenance.class, name = "Sustenance"),
+        @JsonSubTypes.Type(value = HuntEvent.class, name = "HUNT-EVENT"),
+        @JsonSubTypes.Type(value = CavePainting.class, name = "CAVE_PAINTING"),
+        @JsonSubTypes.Type(value = ShamanicRitual.class, name = "SHAMANIC_RITUAL"),
+        @JsonSubTypes.Type(value = Sustenance.class, name = "SUSTENANCE"),
 })
 public abstract class EventCard extends Card {
 
@@ -34,6 +35,14 @@ public abstract class EventCard extends Card {
         this.isEraFinal = isEraFinal;
         this.eventEffect = effect;
     }
+
+    @Override
+    public String toString() {
+        return "%s%s [id: %d] {ERA %s}\n".formatted(ConsoleColors.BROWN, this.eventEffect, this.getId(), getEra());
+    }
+
+    @Override
+    public boolean isEventCard() { return true; }
 
     public EventEffect getEventEffect() {
         return eventEffect;

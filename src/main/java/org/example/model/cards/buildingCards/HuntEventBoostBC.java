@@ -6,7 +6,6 @@ import org.example.model.enums.Era;
 import org.example.model.match.Match;
 import org.example.model.match.Player;
 
-// Col2 Row2
 public class HuntEventBoostBC extends BuildingCard {
 
     public HuntEventBoostBC(
@@ -14,9 +13,15 @@ public class HuntEventBoostBC extends BuildingCard {
             @JsonProperty("era") Era era,
             @JsonProperty("foodCost") int foodCost,
             @JsonProperty("endPoints") int endPoints,
-            @JsonProperty("class_type") BuildingCardType buildingCardType
+            @JsonProperty("class_type") BuildingCardType buildingCardType,
+            @JsonProperty("isEndGame") boolean isEndGame
     ) {
-        super(id, era, foodCost, endPoints, buildingCardType);
+        super(id, era, foodCost, endPoints, BuildingCardType.HuntEventBoostBC, isEndGame);
+    }
+
+    @Override
+    public String toString() {
+        return "%s\tEffect: during Hunt Event, for each  Hunter in your tribe get +1 points and +1 food\n".formatted(super.toString());
     }
 
     @Override
