@@ -4,7 +4,7 @@ import org.example.client.rmi.RMIClientCallbackImpl;
 import org.example.client.rmi.GameEventListener;
 import org.example.client.view.CLIInputHandler;
 import org.example.client.view.View;
-import org.example.model.enums.GamePhase;
+import org.example.server.model.enums.GamePhase;
 import org.example.network.GameStateUpdateMessage;
 import org.example.network.LobbyUpdateMessage;
 import org.example.server.rmi.RMIGameServer;

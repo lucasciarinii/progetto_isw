@@ -1,17 +1,17 @@
 package org.example.server;
 
-import org.example.model.board.OfferTile;
+import org.example.server.model.board.OfferTile;
 import org.example.network.GameStateUpdateMessage;
 import org.example.network.Snapshots.OfferTileSnapshot;
 import org.example.network.Snapshots.PlayerSnapshot;
 import org.example.network.Snapshots.TurnSlotSnapshot;
 import org.example.server.rmi.RMIClientConnection;
-import org.example.model.board.Board;
-import org.example.model.board.PlayerSlot;
-import org.example.model.enums.GamePhase;
-import org.example.model.match.GameState;
-import org.example.model.match.Match;
-import org.example.model.match.Player;
+import org.example.server.model.board.Board;
+import org.example.server.model.board.PlayerSlot;
+import org.example.server.model.enums.GamePhase;
+import org.example.server.model.match.GameState;
+import org.example.server.model.match.Match;
+import org.example.server.model.match.Player;
 
 import java.util.*;
 import java.util.stream.Collectors;

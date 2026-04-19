@@ -1,0 +1,28 @@
+package org.example.server.model.cards.buildingCards;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.example.server.model.enums.BuildingCardType;
+import org.example.server.model.enums.Era;
+import org.example.server.model.match.Match;
+import org.example.server.model.match.Player;
+
+// Col2 Row8
+public class EndGameBonus25BC extends BuildingCard {
+    public EndGameBonus25BC(
+            @JsonProperty("id") int id,
+            @JsonProperty("era") Era era,
+            @JsonProperty("foodCost") int foodCost,
+            @JsonProperty("endPoints") int endPoints,
+            @JsonProperty("class_type") BuildingCardType buildingCardType,
+            @JsonProperty("isEndGame") boolean isEndGame
+    ) {
+        super(id, era, foodCost, endPoints, BuildingCardType.EndGameBonus25BC, isEndGame);
+    }
+
+    @Override
+    public String toString() {
+        return "%s\tEffect: get 25 points (end game)\n".formatted(super.toString());
+    }
+
+    public void applyEffect(Player owner, Match match) { owner.addPoints(25);}
+}

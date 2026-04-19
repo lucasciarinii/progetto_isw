@@ -1,8 +1,8 @@
 package org.example.client.view;
 
-import org.example.model.cards.Card;
-import org.example.model.enums.Era;
-import org.example.model.enums.GamePhase;
+import org.example.server.model.cards.Card;
+import org.example.server.model.enums.Era;
+import org.example.server.model.enums.GamePhase;
 import org.example.network.GameStateUpdateMessage;
 import org.example.network.Snapshots.OfferTileSnapshot;
 import org.example.network.Snapshots.PlayerSnapshot;

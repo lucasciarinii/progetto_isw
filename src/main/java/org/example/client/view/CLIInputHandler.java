@@ -1,7 +1,7 @@
 package org.example.client.view;
 
 import org.example.client.ClientController;
-import org.example.model.enums.GamePhase;
+import org.example.server.model.enums.GamePhase;
 
 import java.util.Scanner;
 

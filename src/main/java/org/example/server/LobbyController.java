@@ -5,8 +5,8 @@ package org.example.server;
     - When the number is reached, creates Match and ServerController.
 */
 
-import org.example.model.match.Match;
-import org.example.model.match.Player;
+import org.example.server.model.match.Match;
+import org.example.server.model.match.Player;
 import org.example.network.LobbyUpdateMessage;
 import org.example.server.rmi.RMIClientCallback;
 import org.example.server.rmi.RMIClientConnection;

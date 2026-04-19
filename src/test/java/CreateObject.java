@@ -1,7 +1,6 @@
-import org.example.model.match.Match;
-import org.example.model.match.Player;
+import org.example.server.model.match.Match;
+import org.example.server.model.match.Player;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CreateObject {

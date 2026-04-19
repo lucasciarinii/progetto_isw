@@ -1,8 +1,7 @@
 package org.example.network.Snapshots;
 
-import org.example.model.cards.Card;
-import org.example.model.cards.buildingCards.BuildingCard;
-import org.example.model.cards.characters.*;
+import org.example.server.model.cards.buildingCards.BuildingCard;
+import org.example.server.model.cards.characters.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;

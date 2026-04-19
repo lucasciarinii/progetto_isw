@@ -3,9 +3,9 @@ package org.example.network;
 import org.example.network.Snapshots.OfferTileSnapshot;
 import org.example.network.Snapshots.PlayerSnapshot;
 import org.example.network.Snapshots.TurnSlotSnapshot;
-import org.example.model.cards.Card;
-import org.example.model.enums.Era;
-import org.example.model.enums.GamePhase;
+import org.example.server.model.cards.Card;
+import org.example.server.model.enums.Era;
+import org.example.server.model.enums.GamePhase;
 
 import java.io.Serial;
 import java.io.Serializable;
