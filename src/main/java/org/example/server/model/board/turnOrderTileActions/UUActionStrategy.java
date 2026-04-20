@@ -8,30 +8,31 @@ import org.example.server.model.match.Player;
 
 import java.util.List;
 
-public class DDActionStrategy implements OfferActionStrategy {
+public class UUActionStrategy implements OfferActionStrategy {
 
     @Override
     public void execute(Match match, Player player, List<Integer> ids) {
 
         Board board = match.getBoard();
 
-        // 1) The number of selected cards must be 2
+        // player must select exactly two IDs from cards
         if (ids.size() != 2) {
             throw new IllegalArgumentException("Invalid String: player must select exactly 2 IDs from cards");
         }
 
-        // 2) If the row does not contain any card at all, an exception will be thrown
-        if (board.getBottomRow().isEmpty()) {
+        // if the row does not contain any card at all, an exception will be thrown
+        if( board.getTopRow().isEmpty()) {
             throw new IllegalArgumentException("The row is empty, no card can be selected");
         }
 
-        // 3) Find card with corresponding IDs
-        List<Card> cardsInput = board.getBottomRow().stream()
+
+        // 3) Find card with corresponding IDs from topRow
+        List<Card> cardsInput = board.getTopRow().stream()
                 .filter(c -> (c.getId() == ids.get(0) || c.getId() == ids.get(1)))
                 .filter(c -> c.isCharacter() || c.isBuilding())
                 .toList();
 
-        // 4) If cardsInput.size() != 2 means that at least one of the two selected IDs is invalid (not present in the bottom row or not a Character card)
+        // 4) If cardsInput.size() != 2 means that at least one of the two selected IDs is invalid (not present in the top row or not a Character card)
         if (cardsInput.size() != 2) {
             throw new IllegalArgumentException("Invalid ID cards");
         }
@@ -48,8 +49,8 @@ public class DDActionStrategy implements OfferActionStrategy {
                 player.addFood(Math.min(0, -buildingCard0.getFoodCost() - buildingCard1.getFoodCost() + player.getDiscountOnBuilding()));
                 player.acceptCard(buildingCard0);
                 player.acceptCard(buildingCard1);
-                board.getBottomRow().remove(buildingCard0);
-                board.getBottomRow().remove(buildingCard1);
+                board.getTopRow().remove(buildingCard0);
+                board.getTopRow().remove(buildingCard1);
                 return;
             }
         }
@@ -60,9 +61,9 @@ public class DDActionStrategy implements OfferActionStrategy {
             } else {
                 player.addFood(Math.min(0, -buildingCard.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
                 player.acceptCard(buildingCard);
-                board.getBottomRow().remove(buildingCard);
+                board.getTopRow().remove(buildingCard);
                 player.acceptCard(cardsInput.get(1));
-                board.getBottomRow().remove(cardsInput.get(1));
+                board.getTopRow().remove(cardsInput.get(1));
                 return;
             }
         }
@@ -73,9 +74,9 @@ public class DDActionStrategy implements OfferActionStrategy {
             } else {
                 player.addFood(Math.min(0, -buildingCard.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
                 player.acceptCard(buildingCard);
-                board.getBottomRow().remove(buildingCard);
+                board.getTopRow().remove(buildingCard);
                 player.acceptCard(cardsInput.get(0));
-                board.getBottomRow().remove(cardsInput.get(0));
+                board.getTopRow().remove(cardsInput.get(0));
                 return;
             }
         }
@@ -84,8 +85,9 @@ public class DDActionStrategy implements OfferActionStrategy {
         player.acceptCard(cardsInput.get(0));
         player.acceptCard(cardsInput.get(1));
 
-        // 7) Remove cards from bottomRow
-        board.getBottomRow().remove(cardsInput.get(0));
-        board.getBottomRow().remove(cardsInput.get(1));
+        // 7) Remove cards from topRow
+        board.getTopRow().remove(cardsInput.get(0));
+        board.getTopRow().remove(cardsInput.get(1));
     }
+
 }
