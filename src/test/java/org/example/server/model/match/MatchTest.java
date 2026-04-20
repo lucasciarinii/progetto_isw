@@ -1406,7 +1406,7 @@ class MatchTest {
 
         assertEquals(1040, match.getBoard().getBottomRow().getFirst().getId());
         assertEquals(1041, match.getBoard().getBottomRow().get(1).getId());
-        assertEquals(1042, match.getBoard().getBottomRow().get(match.getBoard().getBottomRow().size() - 1).getId());
+        assertEquals(1042, match.getBoard().getBottomRow().getLast().getId());
     }
 
     // Test that the top row is refilled with exactly players.size() + 4 cards.
@@ -1442,7 +1442,7 @@ class MatchTest {
         match.endRoundOperations();
 
         assertEquals(7, match.getBoard().getTopRow().size());
-        assertInstanceOf(BuildingCard.class, match.getBoard().getTopRow().get(match.getBoard().getTopRow().size() - 1));
+        assertInstanceOf(BuildingCard.class, match.getBoard().getTopRow().getLast());
     }
 
     // Test that drawing a new era card advances the current era.
