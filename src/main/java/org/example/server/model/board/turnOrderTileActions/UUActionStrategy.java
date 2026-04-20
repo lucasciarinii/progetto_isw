@@ -28,7 +28,7 @@ public class UUActionStrategy implements OfferActionStrategy {
 
         // 3) Find card with corresponding IDs from topRow
         List<Card> cardsInput = board.getTopRow().stream()
-                .filter(c -> (c.getId() == ids.get(0) || c.getId() == ids.get(1)))
+                .filter(c -> (c.getId() == ids.getFirst() || c.getId() == ids.get(1)))
                 .filter(c -> c.isCharacter() || c.isBuilding())
                 .toList();
 
@@ -75,8 +75,8 @@ public class UUActionStrategy implements OfferActionStrategy {
                 player.addFood(Math.min(0, -buildingCard.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
                 player.acceptCard(buildingCard);
                 board.getTopRow().remove(buildingCard);
-                player.acceptCard(cardsInput.get(0));
-                board.getTopRow().remove(cardsInput.get(0));
+                player.acceptCard(cardsInput.getFirst());
+                board.getTopRow().remove(cardsInput.getFirst());
                 return;
             }
         }

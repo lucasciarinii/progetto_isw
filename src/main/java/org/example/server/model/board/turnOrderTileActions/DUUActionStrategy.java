@@ -27,7 +27,7 @@ public class DUUActionStrategy implements OfferActionStrategy{
 
         // 3) Find the card with corresponding ID from bottomRow
         Card bottomCard = board.getBottomRow().stream()
-                .filter(c -> c.getId() == ids.get(0))
+                .filter(c -> c.getId() == ids.getFirst())
                 .filter(c -> c.isCharacter() || c.isBuilding())
                 .findFirst()
                 .orElseThrow( () -> new IllegalArgumentException("invalid ID bottomRow card") );

@@ -27,7 +27,7 @@ public class DDActionStrategy implements OfferActionStrategy {
 
         // 3) Find card with corresponding IDs
         List<Card> cardsInput = board.getBottomRow().stream()
-                .filter(c -> (c.getId() == ids.get(0) || c.getId() == ids.get(1)))
+                .filter(c -> (c.getId() == ids.getFirst() || c.getId() == ids.get(1)))
                 .filter(c -> c.isCharacter() || c.isBuilding())
                 .toList();
 
@@ -74,8 +74,8 @@ public class DDActionStrategy implements OfferActionStrategy {
                 player.addFood(Math.min(0, -buildingCard.getFoodCost() + player.getDiscountOnBuilding())); // pay the cost (taking into account the discount on building)
                 player.acceptCard(buildingCard);
                 board.getBottomRow().remove(buildingCard);
-                player.acceptCard(cardsInput.get(0));
-                board.getBottomRow().remove(cardsInput.get(0));
+                player.acceptCard(cardsInput.getFirst());
+                board.getBottomRow().remove(cardsInput.getFirst());
                 return;
             }
         }

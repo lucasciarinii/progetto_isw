@@ -1,6 +1,5 @@
 package org.example.server.model.board.turnOrderTileActions;
 
-import org.example.server.model.board.turnOrderTileActions.OfferActionStrategy;
 import org.example.server.model.enums.OfferEffect;
 
 import java.util.EnumMap;
