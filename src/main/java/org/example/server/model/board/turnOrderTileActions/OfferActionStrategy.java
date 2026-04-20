@@ -1,4 +1,4 @@
-package org.example.server.model.board.turnOrderTileActios;
+package org.example.server.model.board.turnOrderTileActions;
 
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;

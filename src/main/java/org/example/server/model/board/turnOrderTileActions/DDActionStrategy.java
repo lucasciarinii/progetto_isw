@@ -1,4 +1,4 @@
-package org.example.server.model.board.turnOrderTileActios;
+package org.example.server.model.board.turnOrderTileActions;
 
 import org.example.server.model.board.Board;
 import org.example.server.model.cards.Card;
