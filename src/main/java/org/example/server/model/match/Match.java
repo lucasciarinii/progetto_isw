@@ -134,7 +134,7 @@ public class Match {
         // 4. Restore the topRow to the number of cards equal to players.size() + 4 (at the left of the BuildingCards)
         for (int i = 0; i < this.getPlayers().size() + 4; i++) {
             Card drawnCard = board.getMainDeck().draw();
-            board.getTopRow().add(0, drawnCard); // add new card to the left of the top row
+            board.getTopRow().addFirst(drawnCard); // add new card to the left of the top row
             if (drawnCard.getEra() != this.getGameState().getCurrentEra()) { // true means that we have drawn a card of a new era, so we need to update the current era in the GameState
                 this.getGameState().advanceCurrentEra(); // update the current era in the GameState
                 newEraOperations();
