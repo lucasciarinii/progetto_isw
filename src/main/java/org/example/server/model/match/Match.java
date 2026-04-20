@@ -181,14 +181,9 @@ public class Match {
 
         // 2. Remove the player's totem from the turn order tile
         for(PlayerSlot slot : board.getTurnOrderTile().getSlots()) {
-            try {
-                 if(slot.getPlayer().equals(player)) {
-                    slot.removeTotem();
-                    break;
-                }
-            }
-            catch (NullPointerException e) {
-
+            if( slot.getPlayer() != null && slot.getPlayer().equals(player)) {
+                slot.removeTotem();
+                break;
             }
         }
     }
@@ -201,7 +196,7 @@ public class Match {
                 .filter(tile -> tile.getPlayer() != null )
                 .filter(tile -> tile.getPlayer().equals(player))
                 .findFirst()
-                .orElseThrow( () -> new NullPointerException( "player not found on offerTrack") );
+                .orElseThrow( () -> new IllegalStateException( "player not found on offerTrack") );
 
         OfferEffect effect = selectedTile.getOfferEffect();
 

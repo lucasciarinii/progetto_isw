@@ -374,7 +374,7 @@ class MatchTest {
         Match match = new Match(createPlayers(playerCount));
         Player player = match.getPlayers().get(0);
 
-        assertThrows(NullPointerException.class,
+        assertThrows(IllegalStateException.class,
                 () -> match.offerTileAction(player, "1"));
     }
 
