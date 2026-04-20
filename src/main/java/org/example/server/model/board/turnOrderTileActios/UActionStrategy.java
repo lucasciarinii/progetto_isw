@@ -8,14 +8,12 @@ import org.example.server.model.match.Player;
 
 import java.util.List;
 
-public class DActionStrategy implements OfferActionStrategy {
-
+public class UActionStrategy implements OfferActionStrategy {
 
     @Override
     public void execute(Match match, Player player, List<Integer> ids) {
 
         Board board = match.getBoard();
-
 
         // 1) The number of selected cards must be 1
         if (ids.size() != 1) {
@@ -23,33 +21,34 @@ public class DActionStrategy implements OfferActionStrategy {
         }
 
         // 2) If the row does not contain any card at all, an exception will be thrown
-        if ( match.getBoard().getBottomRow().isEmpty() ) {
+        if( board.getTopRow().isEmpty()) {
             throw new IllegalArgumentException("The row is empty, no card can be selected");
         }
 
         // 3) Find card with corresponding ID
-        Card card = board.getBottomRow().stream()
+        Card card = board.getTopRow().stream()
                 .filter(c -> c.getId() == ids.getFirst())
                 .filter(c -> c.isCharacter() || c.isBuilding())
                 .findFirst()
-                .orElseThrow( () -> new IllegalArgumentException("Invalid ID card") );
+                .orElseThrow( () -> new IllegalArgumentException("invalid ID card") );
 
         // 4) Cost handling if BuildingCard
         if (card.isBuilding()) {
             BuildingCard buildingCard = (BuildingCard) card;
-            if (player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost()) {
+            if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
                 throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
-            } else {
+            }
+            else {
                 player.addFood(Math.min(0, -buildingCard.getFoodCost() + player.getDiscountOnBuilding()));
                 player.acceptCard(buildingCard);
-                board.getBottomRow().remove(buildingCard);
+                board.getTopRow().remove(buildingCard);
             }
         }
 
         // 5) Add card to player
         player.acceptCard(card);
 
-        // 6) Remove card from bottomRow
-        board.getBottomRow().remove(card);
+        // 6) Remove card from TopRow
+        board.getTopRow().remove(card);
     }
 }
