@@ -1,5 +1,7 @@
 package org.example.server.rmi;
 
+import org.example.server.model.enums.OfferEffect;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -18,4 +20,5 @@ public interface RMIGameServer extends Remote {
     // Player resolves action from the offerTile he is currently on. nickname -> who is resolving the offer tile, cards -> string with IDs selected
     void offerTileAction(String nickname, String cards) throws RemoteException;
 
+    boolean thereAreCardsPickables(OfferEffect offerEffect) throws RemoteException;
 }

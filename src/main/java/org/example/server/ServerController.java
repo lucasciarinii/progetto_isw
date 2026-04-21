@@ -5,6 +5,7 @@ import org.example.network.GameStateUpdateMessage;
 import org.example.network.Snapshots.OfferTileSnapshot;
 import org.example.network.Snapshots.PlayerSnapshot;
 import org.example.network.Snapshots.TurnSlotSnapshot;
+import org.example.server.model.enums.OfferEffect;
 import org.example.server.rmi.RMIClientConnection;
 import org.example.server.model.board.Board;
 import org.example.server.model.board.PlayerSlot;
@@ -116,6 +117,10 @@ public class ServerController {
                 .map(Map.Entry::getKey)
                 .findFirst()
                 .orElse(null);
+    }
+
+    public boolean thereAreCardsPickables(OfferEffect offerEffect) {
+        return match.thereAreCardsPickables(offerEffect);
     }
 
     //! NOTIFICATION METHODS ---------------------------------------------------------------------------

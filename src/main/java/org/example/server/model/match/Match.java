@@ -13,6 +13,7 @@ import org.example.server.model.board.turnOrderTileActions.OfferActionRegistry;
 import org.example.server.model.cards.Card;
 import org.example.server.model.cards.buildingCards.BuildingCard;
 import org.example.server.model.cards.characters.Builder;
+import org.example.server.model.cards.characters.Character;
 import org.example.server.model.cards.characters.Inventor;
 import org.example.server.model.cards.eventCards.EventCard;
 import org.example.server.model.cards.eventCards.Sustenance;
@@ -306,6 +307,23 @@ public class Match {
         gameState.setWinners(winners);
 
 
+    }
+
+    public boolean thereAreCardsPickables(OfferEffect effect) {
+        switch (effect) {
+            case OfferEffect.D, OfferEffect.DD -> {
+                return board.getBottomRow().stream().anyMatch(card -> card instanceof Character);
+            }
+            case OfferEffect.U, OfferEffect.UU -> {
+                return board.getTopRow().stream().anyMatch(card -> card instanceof Character);
+            }
+            case OfferEffect.DU, OfferEffect.DUU -> {
+                return board.getTopRow().stream().anyMatch(card -> card instanceof Character) ||
+                        board.getTopRow().stream().anyMatch(card -> card instanceof Character);
+            }
+            case OfferEffect.FOOD -> {return true;}
+            default -> throw new IllegalArgumentException("Invalid OfferEffect");
+        }
     }
 
 

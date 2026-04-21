@@ -10,6 +10,7 @@ import org.example.network.Snapshots.TurnSlotSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class View {
     private int currentRound;
@@ -103,6 +104,12 @@ public class View {
 
     public void displayError(String error) {
         System.out.println("\n[ERROR] " + error + "\n");
+    }
+
+    public void displayNoCardsPickable() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("\n[INFO] There are no cards pickable, you have to pass this turn. Press any key to continue the game...\n");
+        scanner.nextLine();
     }
 
     public static void clearScreen() {

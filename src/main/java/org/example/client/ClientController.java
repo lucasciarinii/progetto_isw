@@ -4,12 +4,15 @@ import org.example.client.rmi.RMIClientCallbackImpl;
 import org.example.client.rmi.GameEventListener;
 import org.example.client.view.CLIInputHandler;
 import org.example.client.view.View;
+import org.example.network.Snapshots.OfferTileSnapshot;
 import org.example.server.model.enums.GamePhase;
 import org.example.network.GameStateUpdateMessage;
 import org.example.network.LobbyUpdateMessage;
+import org.example.server.model.enums.OfferEffect;
 import org.example.server.rmi.RMIGameServer;
 
 import java.rmi.Naming;
+import java.rmi.RemoteException;
 
 /*? Client-Side Controller:
     - It connects to the RMI server
@@ -72,6 +75,26 @@ public class ClientController implements GameEventListener {
         view.update(update);
 
         if (isMyTurn(update)) {
+            if(update.getCurrentPhase() == GamePhase.PLAYER_TURN) {
+                // Devo recuperare l'effetto relativo alla casella in cui c'è il player
+                OfferEffect offerEffectToCheck =
+                view.getOfferTrack().stream()
+                        .filter(tile -> tile.getOccupantNickname().equals(this.nickname))
+                        .map(OfferTileSnapshot::getOfferEffect)
+                        .findFirst()
+                        .orElse(null);
+                try {
+                    if(!server.thereAreCardsPickables(offerEffectToCheck)) {
+                        view.displayNoCardsPickable();
+                        return;
+                    }
+                }
+                catch (RemoteException r) {
+                    view.displayError("[ERROR] Communication error with server: " + r.getMessage());
+                    return;
+                }
+
+            }
             inputHandler.promptForAction(update.getCurrentPhase());
         } else {
             view.displayWaiting(update.getCurrentPlayerNickname());
