@@ -158,23 +158,6 @@ public class Match {
         }
     }
 
-//    private void resolveTopEvents() {
-//        // Resolve events of topRow (with priority as in the rules)
-//        List<Sustenance> sustenanceCards = new ArrayList<>();
-//        for (Card card : board.getTopRow()) {
-//            if (card.isEventCard() && !card.isSustenance()) {
-//                ((EventCard) card).applyEvent(this);
-//            } else if (card.isSustenance()) {
-//                sustenanceCards.add((Sustenance) card);
-//            }
-//        }
-//
-//        for (Sustenance s : sustenanceCards) {
-//            s.applyEvent(this);
-//        }
-//    }
-
-
     public void placeTotemOnOfferTile(Player player, int tile) {
         // 1. Place the player's totem on the selected offer tile
         board.getOfferTrack().get(tile-1).placePlayer(player);
