@@ -11,12 +11,12 @@ import java.util.List;
 public class DUUActionStrategy implements OfferActionStrategy{
     
     @Override
-    public void execute(Match match, Player player, List<Integer> ids) {
+    public void execute(Match match, Player player, List<Integer> id) {
 
         Board board = match.getBoard();
 
         // 1) The number of selected cards must be 3
-        if (ids.size() != 3) {
+        if (id.size() != 3) {
             throw new IllegalArgumentException("Invalid String: player must select exactly 3 IDs from cards");
         }
 
@@ -27,20 +27,20 @@ public class DUUActionStrategy implements OfferActionStrategy{
 
         // 3) Find the card with corresponding ID from bottomRow
         Card bottomCard = board.getBottomRow().stream()
-                .filter(c -> c.getId() == ids.getFirst())
+                .filter(c -> c.getId() == id.getFirst())
                 .filter(c -> c.isCharacter() || c.isBuilding())
                 .findFirst()
                 .orElseThrow( () -> new IllegalArgumentException("invalid ID bottomRow card") );
 
         Card topCard1 = board.getTopRow().stream()
-                .filter(c -> c.getId() == ids.get(1))
+                .filter(c -> c.getId() == id.get(1))
                 .filter(c -> c.isCharacter() || c.isBuilding())
                 .findFirst()
                 .orElseThrow( () -> new IllegalArgumentException("invalid ID bottomRow card") );
 
         // 4) Find the card with corresponding ID from topRow
         Card topCard2 = board.getTopRow().stream()
-                .filter(c -> c.getId() == ids.get(2))
+                .filter(c -> c.getId() == id.get(2))
                 .filter(c -> c.isCharacter() || c.isBuilding())
                 .findFirst()
                 .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );

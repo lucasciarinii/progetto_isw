@@ -11,12 +11,12 @@ import java.util.List;
 public class DUActionStrategy implements OfferActionStrategy{
 
     @Override
-    public void execute(Match match, Player player, List<Integer> ids) {
+    public void execute(Match match, Player player, List<Integer> id) {
 
         Board board = match.getBoard();
 
         // 1) The number of selected cards must be 2
-        if (ids.size() != 2) {
+        if (id.size() != 2) {
             throw new IllegalArgumentException("Invalid String: player must select exactly 2 IDs from cards");
         }
 
@@ -27,14 +27,14 @@ public class DUActionStrategy implements OfferActionStrategy{
 
         // 3) Find card with corresponding ID from bottomRow
         Card bottomCard = board.getBottomRow().stream()
-                .filter(c -> c.getId() == ids.getFirst())
+                .filter(c -> c.getId() == id.getFirst())
                 .filter(c -> c.isCharacter() || c.isBuilding())
                 .findFirst()
                 .orElseThrow( () -> new IllegalArgumentException("invalid ID bottomRow card") );
 
         // 4) Find card with corresponding ID from topRow
         Card topCard = board.getTopRow().stream()
-                .filter(c -> c.getId() == ids.get(1))
+                .filter(c -> c.getId() == id.get(1))
                 .filter(c -> c.isCharacter() || c.isBuilding())
                 .findFirst()
                 .orElseThrow( () -> new IllegalArgumentException("invalid ID topRow card") );

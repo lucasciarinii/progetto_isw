@@ -11,12 +11,12 @@ import java.util.List;
 public class UUActionStrategy implements OfferActionStrategy {
 
     @Override
-    public void execute(Match match, Player player, List<Integer> ids) {
+    public void execute(Match match, Player player, List<Integer> id) {
 
         Board board = match.getBoard();
 
         // player must select exactly two IDs from cards
-        if (ids.size() != 2) {
+        if (id.size() != 2) {
             throw new IllegalArgumentException("Invalid String: player must select exactly 2 IDs from cards");
         }
 
@@ -28,7 +28,7 @@ public class UUActionStrategy implements OfferActionStrategy {
 
         // 3) Find card with corresponding IDs from topRow
         List<Card> cardsInput = board.getTopRow().stream()
-                .filter(c -> (c.getId() == ids.getFirst() || c.getId() == ids.get(1)))
+                .filter(c -> (c.getId() == id.getFirst() || c.getId() == id.get(1)))
                 .filter(c -> c.isCharacter() || c.isBuilding())
                 .toList();
 
