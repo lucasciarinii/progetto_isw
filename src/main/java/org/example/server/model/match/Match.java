@@ -204,7 +204,7 @@ public class Match {
             throw new NullPointerException("effect can't be null");
         }
 
-        offerActionRegistry.getStrategy(effect).execute(this, player, ids);
+        offerActionRegistry.getActionByEffect(effect).execute(this, player, ids);
 
         board.getTurnOrderTile().getSlots().stream()
                 .filter(slot -> slot.getPlayer() == null )

@@ -7,23 +7,23 @@ import java.util.Map;
 
 public class OfferActionRegistry {
 
-    private final Map<OfferEffect, OfferActionStrategy> strategies = new EnumMap<>(OfferEffect.class);
+    private final Map<OfferEffect, OfferActionStrategy> actions = new EnumMap<>(OfferEffect.class);
 
     public OfferActionRegistry() {
-        strategies.put(OfferEffect.FOOD, new FoodActionStrategy());
-        strategies.put(OfferEffect.D, new DActionStrategy());
-        strategies.put(OfferEffect.U, new UActionStrategy());
-        strategies.put(OfferEffect.DD, new DDActionStrategy());
-        strategies.put(OfferEffect.DU, new DUActionStrategy());
-        strategies.put(OfferEffect.UU, new UUActionStrategy());
-        strategies.put(OfferEffect.DUU, new DUUActionStrategy());
+        actions.put(OfferEffect.FOOD, new FoodActionStrategy());
+        actions.put(OfferEffect.D, new DActionStrategy());
+        actions.put(OfferEffect.U, new UActionStrategy());
+        actions.put(OfferEffect.DD, new DDActionStrategy());
+        actions.put(OfferEffect.DU, new DUActionStrategy());
+        actions.put(OfferEffect.UU, new UUActionStrategy());
+        actions.put(OfferEffect.DUU, new DUUActionStrategy());
     }
 
-    public OfferActionStrategy getStrategy(OfferEffect effect) {
-        OfferActionStrategy strategy = strategies.get(effect);
-        if (strategy == null) {
+    public OfferActionStrategy getActionByEffect(OfferEffect effect) {
+        OfferActionStrategy action = actions.get(effect);
+        if (action == null) {
             throw new IllegalArgumentException("Unknown or unsupported OfferEffect");
         }
-        return strategy;
+        return action;
     }
 }
