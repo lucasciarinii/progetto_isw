@@ -49,7 +49,7 @@ public class CLIInputHandler {
     }
 
     private void handleOfferTileAction() {
-        System.out.print(">>> Insert the number of cards to play (Ex: '1,2,3' or '' to play nothing): ");
+        System.out.print(">>> Insert the number of cards to play (Ex: '1,2,3'): ");
         String input = scanner.nextLine().trim();
         try {
             controller.offerTileAction(input);
