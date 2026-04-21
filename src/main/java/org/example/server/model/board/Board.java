@@ -21,6 +21,10 @@ public class Board {
     public Board(List<Player> players) {
         Objects.requireNonNull(players, "Players list cannot be null");
 
+        if ( players.contains(null) ) {
+            throw new NullPointerException("Players can't be null");
+        }
+
         // turnOrderTile initialization (delegated to TurnOrderTile constructor)
         turnOrderTile = new TurnOrderTile(players);
 
@@ -51,7 +55,7 @@ public class Board {
         for (int i = 0; i < players.size() + 1; i++) {
             Card drawnCard = mainDeck.draw();
             if (drawnCard != null && drawnCard.isEventCard()) {
-                topRow.add(0, drawnCard);
+                topRow.addFirst(drawnCard);
                 i--; // decrement i to draw another card for the bottom row
             } else
                 bottomRow.add(drawnCard);
@@ -67,7 +71,7 @@ public class Board {
         for (int i = 0; i < cardsToDraw; i++) {
             Card drawn = mainDeck.draw();
             if (drawn != null) {
-                topRow.add(0, drawn);
+                topRow.addFirst(drawn);
             } else {
                 break; // deck finished
             }

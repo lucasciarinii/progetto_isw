@@ -1,8 +1,5 @@
 package org.example.server.model.board;
 
-import org.example.server.model.board.Board;
-import org.example.server.model.board.OfferTile;
-import org.example.server.model.board.PlayerSlot;
 import org.example.server.model.cards.Card;
 import org.example.server.model.enums.Era;
 import org.example.server.model.enums.OfferEffect;

@@ -1,7 +1,5 @@
 package org.example.server.model.board;
 
-import org.example.server.model.board.PlayerSlot;
-import org.example.server.model.board.TurnOrderTile;
 import org.example.server.model.match.Player;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
