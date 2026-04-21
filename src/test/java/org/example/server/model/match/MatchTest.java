@@ -21,8 +21,6 @@ import org.example.server.model.enums.EventEffect;
 import org.example.server.model.enums.InventionType;
 import org.example.server.model.enums.OfferEffect;
 import org.example.server.model.decks.Deck;
-import org.example.server.model.match.Match;
-import org.example.server.model.match.Player;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -255,11 +253,11 @@ class MatchTest {
     @ValueSource(ints = {2, 3, 4, 5})
     void placeTotemOnOfferTile_placesPlayerOnSelectedOfferTile(int playerCount) {
         Match match = new Match(createPlayers(playerCount));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
 
         match.placeTotemOnOfferTile(player, 1);
 
-        assertSame(player, match.getBoard().getOfferTrack().get(0).getPlayer());
+        assertSame(player, match.getBoard().getOfferTrack().getFirst().getPlayer());
     }
 
     // Test that placeTotemOnOfferTile removes the player from turn order slots.
@@ -267,7 +265,7 @@ class MatchTest {
     @ValueSource(ints = {2, 3, 4, 5})
     void placeTotemOnOfferTile_removesPlayerFromTurnOrderTile(int playerCount) {
         Match match = new Match(createPlayers(playerCount));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
 
         match.placeTotemOnOfferTile(player, 1);
 
@@ -287,7 +285,7 @@ class MatchTest {
             playersBefore.add(slot.getPlayer());
         }
 
-        Player selectedPlayer = playersBefore.get(0);
+        Player selectedPlayer = playersBefore.getFirst();
         Set<Player> expectedRemainingPlayers = new HashSet<>(playersBefore);
         expectedRemainingPlayers.remove(selectedPlayer);
 
@@ -309,11 +307,11 @@ class MatchTest {
     @ValueSource(ints = {2, 3, 4, 5})
     void placeTotemOnOfferTile_usesOneBasedTileIndex(int playerCount) {
         Match match = new Match(createPlayers(playerCount));
-        Player selectedPlayer = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player selectedPlayer = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
 
         match.placeTotemOnOfferTile(selectedPlayer, 1);
 
-        assertSame(selectedPlayer, match.getBoard().getOfferTrack().get(0).getPlayer());
+        assertSame(selectedPlayer, match.getBoard().getOfferTrack().getFirst().getPlayer());
     }
 
     // Test that tile index 0 throws an out-of-bounds exception.
@@ -321,7 +319,7 @@ class MatchTest {
     @ValueSource(ints = {2, 3, 4, 5})
     void placeTotemOnOfferTile_invalidLowIndex_throws(int playerCount) {
         Match match = new Match(createPlayers(playerCount));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
 
         assertThrows(IndexOutOfBoundsException.class,
                 () -> match.placeTotemOnOfferTile(player, 0));
@@ -332,7 +330,7 @@ class MatchTest {
     @ValueSource(ints = {2, 3, 4, 5})
     void placeTotemOnOfferTile_invalidHighIndex_throws(int playerCount) {
         Match match = new Match(createPlayers(playerCount));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int invalidTileIndex = match.getBoard().getOfferTrack().size() + 1;
 
         assertThrows(IndexOutOfBoundsException.class,
@@ -353,7 +351,7 @@ class MatchTest {
 
         match.placeTotemOnOfferTile(externalPlayer, 1);
 
-        assertSame(externalPlayer, match.getBoard().getOfferTrack().get(0).getPlayer());
+        assertSame(externalPlayer, match.getBoard().getOfferTrack().getFirst().getPlayer());
 
         List<Player> turnOrderAfter = new ArrayList<>();
         for (PlayerSlot slot : match.getBoard().getTurnOrderTile().getSlots()) {
@@ -372,9 +370,9 @@ class MatchTest {
     @ValueSource(ints = {2, 3, 4, 5})
     void offerTileAction_playerWithoutOfferTile_throwsNullPointerException(int playerCount) {
         Match match = new Match(createPlayers(playerCount));
-        Player player = match.getPlayers().get(0);
+        Player player = match.getPlayers().getFirst();
 
-        assertThrows(NullPointerException.class,
+        assertThrows(IllegalStateException.class,
                 () -> match.offerTileAction(player, "1"));
     }
 
@@ -383,7 +381,7 @@ class MatchTest {
     @ValueSource(ints = {2, 3, 4, 5})
     void offerTileAction_invalidIdString_throwsIllegalArgumentException(int playerCount) {
         Match match = new Match(createPlayers(playerCount));
-        Player player = match.getPlayers().get(0);
+        Player player = match.getPlayers().getFirst();
 
         for (String invalidInput : List.of("abc", "1,x", "1,,2")) {
             assertThrows(IllegalArgumentException.class,
@@ -396,7 +394,7 @@ class MatchTest {
     @ValueSource(ints = {2, 3, 4, 5})
     void offerTileAction_duplicateIds_throwsIllegalArgumentException(int playerCount) {
         Match match = new Match(createPlayers(playerCount));
-        Player player = match.getPlayers().get(0);
+        Player player = match.getPlayers().getFirst();
 
         assertThrows(IllegalArgumentException.class,
                 () -> match.offerTileAction(player, "5,5"));
@@ -406,7 +404,7 @@ class MatchTest {
     @Test
     void offerTileAction_rejectsEventCardFromBottomRow_evenIfIdExists() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int dTileIndex = findOfferTileIndex(match, OfferEffect.D);
         int eventId = nextUnusedCardId(match);
 
@@ -429,7 +427,7 @@ class MatchTest {
     @Test
     void offerTileAction_rejectsEventCardFromTopRow_evenIfIdExists() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int uTileIndex = findOfferTileIndex(match, OfferEffect.U);
         int eventId = nextUnusedCardId(match);
 
@@ -452,7 +450,7 @@ class MatchTest {
     @Test
     void offerTileAction_trimmedSpacesAreAccepted() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int offerTileIndex = findOfferTileIndex(match, OfferEffect.DU);
 
         match.placeTotemOnOfferTile(player, offerTileIndex);
@@ -478,7 +476,7 @@ class MatchTest {
     @MethodSource("blankStringOfferEffects")
     void offerTileAction_blankStringWorksOnlyForFood(int playerCount, OfferEffect effect, String expectedMessage) {
         Match match = new Match(createPlayers(playerCount));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int offerTileIndex = findOfferTileIndex(match, effect);
         int initialFood = player.getFood();
 
@@ -498,7 +496,7 @@ class MatchTest {
     @Test
     void offerTileAction_buildingSelection_appliesBuilderDiscountToFoodCost() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int dTileIndex = findOfferTileIndex(match, OfferEffect.D);
         int buildingId = nextUnusedCardId(match);
         SetCollectionFoodBC building = new SetCollectionFoodBC(
@@ -529,7 +527,7 @@ class MatchTest {
     @Test
     void offerTileAction_buildingSelection_neverReducesCostBelowZero() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int uTileIndex = findOfferTileIndex(match, OfferEffect.U);
         int buildingId = nextUnusedCardId(match);
         SetCollectionFoodBC building = new SetCollectionFoodBC(
@@ -565,7 +563,7 @@ class MatchTest {
     @Test
     void offerTileAction_food_addsThreeFood() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int offerTileIndex = findOfferTileIndex(match, OfferEffect.FOOD);
         int initialFood = player.getFood();
 
@@ -583,7 +581,7 @@ class MatchTest {
     @Test
     void offerTileAction_D_selectsOneCharacterFromBottomRow() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int dTileIndex = findOfferTileIndex(match, OfferEffect.D);
 
         match.placeTotemOnOfferTile(player, dTileIndex);
@@ -603,7 +601,7 @@ class MatchTest {
     @Test
     void offerTileAction_D_allowsChoosingBuildingFromBottomRow_whenPlayerCanPay() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int dTileIndex = findOfferTileIndex(match, OfferEffect.D);
         int buildingId = nextUnusedCardId(match);
         SetCollectionFoodBC building = new SetCollectionFoodBC(
@@ -633,7 +631,7 @@ class MatchTest {
     @Test
     void offerTileAction_D_rejectsBuildingFromBottomRow_whenPlayerCannotPay() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int dTileIndex = findOfferTileIndex(match, OfferEffect.D);
         int buildingId = nextUnusedCardId(match);
         SetCollectionFoodBC building = new SetCollectionFoodBC(
@@ -662,7 +660,7 @@ class MatchTest {
     @Test
     void offerTileAction_D_rejectsMoreThanOneId() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int dTileIndex = findOfferTileIndex(match, OfferEffect.D);
 
         match.placeTotemOnOfferTile(player, dTileIndex);
@@ -675,7 +673,7 @@ class MatchTest {
     @Test
     void offerTileAction_D_rejectsEventCardId() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int dTileIndex = findOfferTileIndex(match, OfferEffect.D);
         int eventId = nextUnusedCardId(match);
 
@@ -696,7 +694,7 @@ class MatchTest {
     @Test
     void offerTileAction_D_rejectsMissingId() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int dTileIndex = findOfferTileIndex(match, OfferEffect.D);
         int missingId = nextUnusedCardId(match);
 
@@ -714,7 +712,7 @@ class MatchTest {
     @Test
     void offerTileAction_U_selectsOneCharacterFromTopRow() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int uTileIndex = findOfferTileIndex(match, OfferEffect.U);
 
         match.placeTotemOnOfferTile(player, uTileIndex);
@@ -734,7 +732,7 @@ class MatchTest {
     @Test
     void offerTileAction_U_allowsChoosingBuildingFromTopRow_whenPlayerCanPay() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int uTileIndex = findOfferTileIndex(match, OfferEffect.U);
         int buildingId = nextUnusedCardId(match);
         SetCollectionFoodBC building = new SetCollectionFoodBC(
@@ -764,7 +762,7 @@ class MatchTest {
     @Test
     void offerTileAction_U_rejectsBuildingFromTopRow_whenPlayerCannotPay() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int uTileIndex = findOfferTileIndex(match, OfferEffect.U);
         int buildingId = nextUnusedCardId(match);
         SetCollectionFoodBC building = new SetCollectionFoodBC(
@@ -793,7 +791,7 @@ class MatchTest {
     @Test
     void offerTileAction_U_rejectsWrongNumberOfIds() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int uTileIndex = findOfferTileIndex(match, OfferEffect.U);
 
         match.placeTotemOnOfferTile(player, uTileIndex);
@@ -808,7 +806,7 @@ class MatchTest {
     @Test
     void offerTileAction_U_rejectsMissingId() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int uTileIndex = findOfferTileIndex(match, OfferEffect.U);
         int missingId = nextUnusedCardId(match);
 
@@ -826,7 +824,7 @@ class MatchTest {
     @Test
     void offerTileAction_DD_selectsTwoCharactersFromBottomRow() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int ddTileIndex = findOfferTileIndex(match, OfferEffect.DD);
         int firstId = nextUnusedCardId(match);
         int secondId = firstId + 1;
@@ -846,7 +844,7 @@ class MatchTest {
     @Test
     void offerTileAction_DD_rejectsOnlyOneId() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int ddTileIndex = findOfferTileIndex(match, OfferEffect.DD);
 
         match.placeTotemOnOfferTile(player, ddTileIndex);
@@ -859,7 +857,7 @@ class MatchTest {
     @Test
     void offerTileAction_DD_rejectsThreeIds() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int ddTileIndex = findOfferTileIndex(match, OfferEffect.DD);
 
         match.placeTotemOnOfferTile(player, ddTileIndex);
@@ -872,7 +870,7 @@ class MatchTest {
     @Test
     void offerTileAction_DD_rejectsWhenOneIdIsInvalid() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int ddTileIndex = findOfferTileIndex(match, OfferEffect.DD);
         int validCharacterId = nextUnusedCardId(match);
         int missingId = validCharacterId + 1;
@@ -892,7 +890,7 @@ class MatchTest {
     @Test
     void offerTileAction_DU_selectsOneBottomAndOneTopCharacter() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int duTileIndex = findOfferTileIndex(match, OfferEffect.DU);
 
         match.placeTotemOnOfferTile(player, duTileIndex);
@@ -917,7 +915,7 @@ class MatchTest {
     @Test
     void offerTileAction_DU_allowsChoosingBottomBuildingAndTopCharacter_whenBuildingIsPayable() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int duTileIndex = findOfferTileIndex(match, OfferEffect.DU);
         int buildingId = nextUnusedCardId(match);
         int characterId = buildingId + 1;
@@ -953,7 +951,7 @@ class MatchTest {
     @Test
     void offerTileAction_DU_rejectsSelection_whenChosenBuildingIsNotPayable() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int duTileIndex = findOfferTileIndex(match, OfferEffect.DU);
         int buildingId = nextUnusedCardId(match);
         int characterId = buildingId + 1;
@@ -989,7 +987,7 @@ class MatchTest {
     @Test
     void offerTileAction_DU_allowsChoosingBottomCharacterAndTopBuilding_whenBuildingIsPayable() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int duTileIndex = findOfferTileIndex(match, OfferEffect.DU);
         int characterId = nextUnusedCardId(match);
         int buildingId = characterId + 1;
@@ -1025,7 +1023,7 @@ class MatchTest {
     @Test
     void offerTileAction_DU_rejectsWrongNumberOfIds() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int duTileIndex = findOfferTileIndex(match, OfferEffect.DU);
 
         match.placeTotemOnOfferTile(player, duTileIndex);
@@ -1040,7 +1038,7 @@ class MatchTest {
     @Test
     void offerTileAction_DU_rejectsInvalidBottomId() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int duTileIndex = findOfferTileIndex(match, OfferEffect.DU);
         int invalidBottomId = nextUnusedCardId(match);
         Card topCharacter = match.getBoard().getTopRow().stream()
@@ -1058,7 +1056,7 @@ class MatchTest {
     @Test
     void offerTileAction_DU_rejectsInvalidTopId() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int duTileIndex = findOfferTileIndex(match, OfferEffect.DU);
         Card bottomCharacter = match.getBoard().getBottomRow().stream()
                 .filter(Card::isCharacter)
@@ -1080,7 +1078,7 @@ class MatchTest {
     @Test
     void offerTileAction_UU_selectsTwoCharactersFromTopRow() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int uuTileIndex = findOfferTileIndex(match, OfferEffect.UU);
         int firstId = nextUnusedCardId(match);
         int secondId = firstId + 1;
@@ -1100,7 +1098,7 @@ class MatchTest {
     @Test
     void offerTileAction_UU_allowsChoosingTwoBuildingsFromTopRow_whenPlayerCanPayBoth() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int uuTileIndex = findOfferTileIndex(match, OfferEffect.UU);
         int firstId = nextUnusedCardId(match);
         int secondId = firstId + 1;
@@ -1142,7 +1140,7 @@ class MatchTest {
     @Test
     void offerTileAction_UU_rejectsSelection_whenAtLeastOneBuildingIsNotPayable() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int uuTileIndex = findOfferTileIndex(match, OfferEffect.UU);
         int firstId = nextUnusedCardId(match);
         int secondId = firstId + 1;
@@ -1184,7 +1182,7 @@ class MatchTest {
     @Test
     void offerTileAction_UU_rejectsWrongNumberOfIds() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int uuTileIndex = findOfferTileIndex(match, OfferEffect.UU);
 
         match.placeTotemOnOfferTile(player, uuTileIndex);
@@ -1201,7 +1199,7 @@ class MatchTest {
     @Test
     void offerTileAction_UU_rejectsWhenOneIdIsMissing() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int uuTileIndex = findOfferTileIndex(match, OfferEffect.UU);
         int validId = nextUnusedCardId(match);
         int missingId = validId + 1;
@@ -1221,7 +1219,7 @@ class MatchTest {
     @Test
     void offerTileAction_DUU_allowsChoosingOneBottomBuildingAndTwoTopCards_withMixedCharacterBuilding() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int duuTileIndex = findOfferTileIndex(match, OfferEffect.DUU);
         int bottomId = nextUnusedCardId(match);
         int topId1 = bottomId + 1;
@@ -1270,7 +1268,7 @@ class MatchTest {
     @Test
     void offerTileAction_DUU_rejectsWrongNumberOfIds() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int duuTileIndex = findOfferTileIndex(match, OfferEffect.DUU);
 
         match.placeTotemOnOfferTile(player, duuTileIndex);
@@ -1287,7 +1285,7 @@ class MatchTest {
     @Test
     void offerTileAction_DUU_rejectsInvalidBottomId() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int duuTileIndex = findOfferTileIndex(match, OfferEffect.DUU);
         int invalidBottomId = nextUnusedCardId(match);
         int topId1 = invalidBottomId + 1;
@@ -1305,7 +1303,7 @@ class MatchTest {
     @Test
     void offerTileAction_DUU_rejectsInvalidTopId() {
         Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().get(0).getPlayer();
+        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int duuTileIndex = findOfferTileIndex(match, OfferEffect.DUU);
         int bottomId = nextUnusedCardId(match);
         int validTopId = bottomId + 1;
@@ -1327,7 +1325,7 @@ class MatchTest {
     @Test
     void endRoundOperations_resolvesBottomEventsBeforeCleaningRows() {
         Match match = new Match(createPlayers(2));
-        Player player = match.getPlayers().get(0);
+        Player player = match.getPlayers().getFirst();
         player.addCharacter(new Hunter(900, Era.I, CharacterType.HUNTER, false));
 
         match.getBoard().getTopRow().clear();
@@ -1406,9 +1404,9 @@ class MatchTest {
 
         match.endRoundOperations();
 
-        assertEquals(1040, match.getBoard().getBottomRow().get(0).getId());
+        assertEquals(1040, match.getBoard().getBottomRow().getFirst().getId());
         assertEquals(1041, match.getBoard().getBottomRow().get(1).getId());
-        assertEquals(1042, match.getBoard().getBottomRow().get(match.getBoard().getBottomRow().size() - 1).getId());
+        assertEquals(1042, match.getBoard().getBottomRow().getLast().getId());
     }
 
     // Test that the top row is refilled with exactly players.size() + 4 cards.
@@ -1444,7 +1442,7 @@ class MatchTest {
         match.endRoundOperations();
 
         assertEquals(7, match.getBoard().getTopRow().size());
-        assertInstanceOf(BuildingCard.class, match.getBoard().getTopRow().get(match.getBoard().getTopRow().size() - 1));
+        assertInstanceOf(BuildingCard.class, match.getBoard().getTopRow().getLast());
     }
 
     // Test that drawing a new era card advances the current era.
@@ -1610,7 +1608,7 @@ class MatchTest {
     @Test
     void endOfGame_resolvesVisibleBottomAndTopEvents() {
         Match match = new Match(createPlayers(2));
-        Player player = match.getPlayers().get(0);
+        Player player = match.getPlayers().getFirst();
         player.addCharacter(new Hunter(4000, Era.I, CharacterType.HUNTER, false));
 
         match.getBoard().getBottomRow().clear();
@@ -1631,7 +1629,7 @@ class MatchTest {
     @Test
     void endOfGame_resolvesAllSustenanceAfterOtherEvents() {
         Match match = new Match(createPlayers(2));
-        Player player = match.getPlayers().get(0);
+        Player player = match.getPlayers().getFirst();
         player.addCharacter(new Hunter(4010, Era.I, CharacterType.HUNTER, false));
 
         match.getBoard().getBottomRow().clear();
@@ -1653,7 +1651,7 @@ class MatchTest {
     @Test
     void endOfGame_addsBuilderEndPoints() {
         Match match = new Match(createPlayers(2));
-        Player player = match.getPlayers().get(0);
+        Player player = match.getPlayers().getFirst();
 
         match.getBoard().getBottomRow().clear();
         match.getBoard().getTopRow().clear();
@@ -1671,7 +1669,7 @@ class MatchTest {
     @Test
     void endOfGame_addsInventorScoringAsDistinctInventionsTimesInventors() {
         Match match = new Match(createPlayers(2));
-        Player player = match.getPlayers().get(0);
+        Player player = match.getPlayers().getFirst();
 
         match.getBoard().getBottomRow().clear();
         match.getBoard().getTopRow().clear();
@@ -1692,7 +1690,7 @@ class MatchTest {
     @MethodSource("artistCountsAndExpectedPoints")
     void endOfGame_addsArtistScoringAsTenPerPair(int artistCount, int expectedPointsDelta) {
         Match match = new Match(createPlayers(2));
-        Player player = match.getPlayers().get(0);
+        Player player = match.getPlayers().getFirst();
 
         match.getBoard().getBottomRow().clear();
         match.getBoard().getTopRow().clear();
@@ -1711,7 +1709,7 @@ class MatchTest {
     @Test
     void endOfGame_addsPrintedEndPointsOfOwnedBuildings() {
         Match match = new Match(createPlayers(2));
-        Player player = match.getPlayers().get(0);
+        Player player = match.getPlayers().getFirst();
 
         match.getBoard().getBottomRow().clear();
         match.getBoard().getTopRow().clear();
@@ -1730,7 +1728,7 @@ class MatchTest {
     @Test
     void endOfGame_appliesEndGameBuildingEffectsOnlyForEndGameBuildings() {
         Match match = new Match(createPlayers(2));
-        Player player = match.getPlayers().get(0);
+        Player player = match.getPlayers().getFirst();
 
         match.getBoard().getBottomRow().clear();
         match.getBoard().getTopRow().clear();
@@ -1749,7 +1747,7 @@ class MatchTest {
     @Test
     void endOfGame_determinesSingleWinnerByPoints() {
         Match match = new Match(createPlayers(2));
-        Player first = match.getPlayers().get(0);
+        Player first = match.getPlayers().getFirst();
         Player second = match.getPlayers().get(1);
 
         match.getBoard().getBottomRow().clear();
@@ -1761,14 +1759,14 @@ class MatchTest {
         match.endOfGame();
 
         assertEquals(1, match.getGameState().getWinners().size());
-        assertSame(first, match.getGameState().getWinners().get(0));
+        assertSame(first, match.getGameState().getWinners().getFirst());
     }
 
     // Test that endOfGame breaks ties on points using food.
     @Test
     void endOfGame_breaksTieByFood() {
         Match match = new Match(createPlayers(2));
-        Player first = match.getPlayers().get(0);
+        Player first = match.getPlayers().getFirst();
         Player second = match.getPlayers().get(1);
 
         match.getBoard().getBottomRow().clear();
@@ -1785,14 +1783,14 @@ class MatchTest {
         match.endOfGame();
 
         assertEquals(1, match.getGameState().getWinners().size());
-        assertSame(second, match.getGameState().getWinners().get(0));
+        assertSame(second, match.getGameState().getWinners().getFirst());
     }
 
     // Test that endOfGame keeps multiple winners when both points and food are tied.
     @Test
     void endOfGame_setsMultipleWinnersWhenPointsAndFoodTie() {
         Match match = new Match(createPlayers(2));
-        Player first = match.getPlayers().get(0);
+        Player first = match.getPlayers().getFirst();
         Player second = match.getPlayers().get(1);
 
         match.getBoard().getBottomRow().clear();
@@ -1817,7 +1815,7 @@ class MatchTest {
     @Test
     void endOfGame_withNoVisibleEvents_stillCalculatesFinalScores() {
         Match match = new Match(createPlayers(2));
-        Player player = match.getPlayers().get(0);
+        Player player = match.getPlayers().getFirst();
 
         match.getBoard().getBottomRow().clear();
         match.getBoard().getTopRow().clear();
