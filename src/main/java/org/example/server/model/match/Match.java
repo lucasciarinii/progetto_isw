@@ -183,10 +183,6 @@ public class Match {
 
         OfferEffect effect = selectedTile.getOfferEffect();
 
-        if (effect == null) {
-            throw new NullPointerException("effect can't be null");
-        }
-
         offerActionRegistry.getActionByEffect(effect).execute(this, player, ids);
 
         board.getTurnOrderTile().getSlots().stream()
