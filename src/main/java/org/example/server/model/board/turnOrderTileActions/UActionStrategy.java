@@ -11,13 +11,14 @@ import java.util.List;
 public class UActionStrategy implements OfferActionStrategy {
 
     @Override
-    public void execute(Match match, Player player, int id) {
+    public void execute(Match match, Player player, List<Integer> ids) {
 
+        int id = ids.getFirst();
         Board board = match.getBoard();
 
         //TODO: cambiare in modo tale che peschi solamente se le carte sono del tipo "pescabile"
         // 1) If the row does not contain any card at all, an exception will be thrown
-        if( board.getTopRow().isEmpty()) {
+        if (board.getTopRow().isEmpty()) {
             throw new IllegalArgumentException("The row is empty, no card can be selected");
         }
 
@@ -26,15 +27,14 @@ public class UActionStrategy implements OfferActionStrategy {
                 .filter(c -> c.getId() == id)
                 .filter(c -> c.isCharacter() || c.isBuilding())
                 .findFirst()
-                .orElseThrow( () -> new IllegalArgumentException("invalid ID card") );
+                .orElseThrow(() -> new IllegalArgumentException("invalid ID card"));
 
         // 3) Cost handling if BuildingCard
         if (card.isBuilding()) {
             BuildingCard buildingCard = (BuildingCard) card;
-            if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
+            if (player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost()) {
                 throw new IllegalArgumentException("Player doesn't have enough food to buy this building card");
-            }
-            else {
+            } else {
                 player.addFood(Math.min(0, -buildingCard.getFoodCost() + player.getDiscountOnBuilding()));
                 player.acceptCard(buildingCard);
                 board.getTopRow().remove(buildingCard);

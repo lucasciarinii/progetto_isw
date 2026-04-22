@@ -11,9 +11,9 @@ public class FoodActionStrategy implements OfferActionStrategy {
 
     // When the player chooses the tile with the food bonus, they receive the bonus.
     @Override
-    public void execute(Match match, Player player, int id) {
-        if ( id > 0 ) {
-            throw new IllegalArgumentException("FOOD effect does not accept card ID");
+    public void execute(Match match, Player player, List<Integer> ids) {
+        if (!ids.isEmpty()) {
+            throw new IllegalArgumentException("FOOD effect does not accept card IDs");
         }
 
         player.addFood(FOOD_BONUS);

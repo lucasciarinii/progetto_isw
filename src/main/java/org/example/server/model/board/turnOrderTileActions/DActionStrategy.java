@@ -6,18 +6,21 @@ import org.example.server.model.cards.buildingCards.BuildingCard;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
 
+import java.util.List;
+
 
 public class DActionStrategy implements OfferActionStrategy {
 
 
     @Override
-    public void execute(Match match, Player player, int id) {
+    public void execute(Match match, Player player, List<Integer> ids) {
 
+        int id = ids.getFirst();
         Board board = match.getBoard();
 
         //TODO: cambiare in modo tale che peschi solamente se le carte sono del tipo "pescabile"
         // 1) If the row does not contain any card at all, an exception will be thrown
-        if ( match.getBoard().getBottomRow().isEmpty() ) {
+        if (match.getBoard().getBottomRow().isEmpty()) {
             throw new IllegalArgumentException("The row is empty, no card can be selected");
         }
 
@@ -26,7 +29,7 @@ public class DActionStrategy implements OfferActionStrategy {
                 .filter(c -> c.getId() == id)
                 .filter(c -> c.isCharacter() || c.isBuilding())
                 .findFirst()
-                .orElseThrow( () -> new IllegalArgumentException("Invalid ID card") );
+                .orElseThrow(() -> new IllegalArgumentException("Invalid ID card"));
 
         // 3) Cost handling if BuildingCard
         if (card.isBuilding()) {
