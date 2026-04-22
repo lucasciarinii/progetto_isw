@@ -18,10 +18,9 @@ public class DActionStrategy implements OfferActionStrategy {
         int id = ids.getFirst();
         Board board = match.getBoard();
 
-        //TODO: cambiare in modo tale che peschi solamente se le carte sono del tipo "pescabile"
         // 1) If the row does not contain any card at all, an exception will be thrown
-        if (match.getBoard().getBottomRow().isEmpty()) {
-            throw new IllegalArgumentException("The row is empty, no card can be selected");
+        if ( isValidForDrawing(board.getBottomRow() )) {
+            throw new IllegalArgumentException("The row does not contain drawable cards, no cards selected");
         }
 
         // 2) Find card with corresponding ID
@@ -48,5 +47,15 @@ public class DActionStrategy implements OfferActionStrategy {
 
         // 6) Remove card from bottomRow
         board.getBottomRow().remove(card);
+    }
+
+
+    private boolean isValidForDrawing(List<Card> row) {
+        if ( row == null || row.isEmpty() ) {
+            return true;
+        }
+
+        return row.stream()
+                .anyMatch(c -> c.isCharacter() || c.isBuilding());
     }
 }
