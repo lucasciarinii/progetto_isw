@@ -17,7 +17,7 @@ public class UActionStrategy implements OfferActionStrategy {
         Board board = match.getBoard();
 
         // 1) If the row does not contain any card at all, an exception will be thrown
-        if ( isValidForDrawing(board.getTopRow())) {
+        if ( !isValidForDrawing(board.getTopRow(), player)) {
             throw new IllegalArgumentException("The row does not contain drawable cards, no cards selected");
         }
 
@@ -47,12 +47,13 @@ public class UActionStrategy implements OfferActionStrategy {
         board.getTopRow().remove(card);
     }
 
-    private boolean isValidForDrawing(List<Card> row) {
+    private boolean isValidForDrawing(List<Card> row, Player player) {
         if ( row == null || row.isEmpty() ) {
             return true;
         }
 
         return row.stream()
+                .filter(c -> c.isCharacter() || (c.isBuilding() && ((BuildingCard) c).getFoodCost() < player.getFood()))
                 .anyMatch(c -> c.isCharacter() || c.isBuilding());
     }
 }
