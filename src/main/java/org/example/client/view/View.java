@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class View {
+    private GameStateUpdateMessage lastUpdate;
     private int currentRound;
     private Era currentEra;
     private GamePhase currentPhase;
@@ -43,6 +44,7 @@ public class View {
     }
 
     public void update(GameStateUpdateMessage message) {
+        this.lastUpdate = message;
         this.currentRound = message.getCurrentRound();
         this.currentEra = message.getCurrentEra();
         this.currentPhase = message.getCurrentPhase();
@@ -57,6 +59,8 @@ public class View {
         
         display();
     }
+
+    public GameStateUpdateMessage getLastUpdate() { return lastUpdate; }
 
     public void display() {
         clearScreen();
