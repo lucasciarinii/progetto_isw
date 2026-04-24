@@ -3,60 +3,36 @@ package org.example.server.model.board.turnOrderTileActions;
 import org.example.server.model.board.Board;
 import org.example.server.model.cards.Card;
 import org.example.server.model.cards.buildingCards.BuildingCard;
+import org.example.server.model.exceptions.InvalidCardException;
+import org.example.server.model.exceptions.NoDrawableCardException;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
 
 import java.util.List;
 
+/* Commento Luca:
+Secondo me la logica migliore è: usare due classi del tipo DPick e UPick che fanno quello che adesso attualmente fanno DActionStrategy e UActionStrategy
+tranne per le ultime due azioni: ciò ritorneranno solo la carta da dover aggiungere (e non fanno l'azione effettiva)
+e poi dentro a tutte e 6 le altre classi (Comprese DActionStrategy e UActionStrategy) se non sono state lanciate eccezioni (per errori vari),
+aggiungere le carte al giocatore e rimuoverle dalla board. In questo modo si evita di aggiungere magari la prima carta,
+senza sapere che la seconda vada effettivamente bene...
+*/
 
 public class DActionStrategy implements OfferActionStrategy {
 
+    private final DPick singleD = new DPick();
 
     @Override
-    public void execute(Match match, Player player, List<Integer> ids) {
+    public void execute(Match match, Player player, List<Integer> ids) throws NoDrawableCardException, InvalidCardException {
+        // Try to pick the card
+        Card c1 = singleD.execute(match, player, ids.getFirst());
 
-        int id = ids.getFirst();
-        Board board = match.getBoard();
-
-        // 1) If the row does not contain any card at all, an exception will be thrown
-        if ( !isValidForDrawing(board.getBottomRow(), player)) {
-            throw new IllegalArgumentException("The row does not contain drawable cards, no cards selected");
+        // If no exception is thrown, then we can add the cards to the player and remove them from the board
+        if(c1.isBuilding()) {
+            player.addFood(Math.min(0, -((BuildingCard) c1).getFoodCost() + player.getDiscountOnBuilding()));
         }
+        player.acceptCard(c1);
+        match.getBoard().getBottomRow().remove(c1);
 
-        // 2) Find card with corresponding ID
-        Card card = board.getBottomRow().stream()
-                .filter(c -> c.getId() == id)
-                .filter(c -> c.isCharacter() || c.isBuilding())
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Invalid ID card"));
-
-        // 3) Cost handling if BuildingCard
-        if (card.isBuilding()) {
-            BuildingCard buildingCard = (BuildingCard) card;
-            if (player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost()) {
-                throw new IllegalArgumentException("Player doesn't have enough food to buy this building card");
-            } else {
-                player.addFood(Math.min(0, -buildingCard.getFoodCost() + player.getDiscountOnBuilding()));
-                player.acceptCard(buildingCard);
-                board.getBottomRow().remove(buildingCard);
-            }
-        }
-
-        // 5) Add card to player
-        player.acceptCard(card);
-
-        // 6) Remove card from bottomRow
-        board.getBottomRow().remove(card);
-    }
-
-
-    private boolean isValidForDrawing(List<Card> row, Player player) {
-        if ( row == null || row.isEmpty() ) {
-            return true;
-        }
-
-        return row.stream()
-                .filter(c -> c.isCharacter() || (c.isBuilding() && ((BuildingCard) c).getFoodCost() < player.getFood()))
-                .anyMatch(c -> c.isCharacter() || c.isBuilding());
     }
 }

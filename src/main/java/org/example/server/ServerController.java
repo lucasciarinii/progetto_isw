@@ -6,6 +6,8 @@ import org.example.network.Snapshots.OfferTileSnapshot;
 import org.example.network.Snapshots.PlayerSnapshot;
 import org.example.network.Snapshots.TurnSlotSnapshot;
 import org.example.server.model.enums.OfferEffect;
+import org.example.server.model.exceptions.InvalidCardException;
+import org.example.server.model.exceptions.NoDrawableCardException;
 import org.example.server.rmi.RMIClientConnection;
 import org.example.server.model.board.Board;
 import org.example.server.model.board.PlayerSlot;
@@ -65,12 +67,12 @@ public class ServerController {
     public void offerTileAction(String nickname, String cards) {
         ClientConnection sender = findConnection(nickname);
         if (sender == null) {
-            System.err.println("[SERVER] Connessione non trovata per: " + nickname);
+            System.err.println("[SERVER] Connection not found for: " + nickname);
             return;
         }
 
         if (isWrongPlayer(nickname) || isWrongPhase(GamePhase.PLAYER_TURN)) {
-            sendError(sender, "Mossa non valida: non è il tuo turno o fase errata.");
+            sendError(sender, "Invalid move: it's not yourn turn or invalid phase.");
             return;
         }
 
@@ -80,8 +82,17 @@ public class ServerController {
             match.offerTileAction(player, cards);
             match.getGameState().advanceToNextPlayer();
             handlePhaseTransition(phaseBefore);
-        } catch (Exception e) {
+        } catch (NoDrawableCardException e) {
+            sendError(sender, e.getMessage());
+            GamePhase phaseBefore = match.getGameState().getCurrentPhase();
+            match.getGameState().advanceToNextPlayer();
+            handlePhaseTransition(phaseBefore);
+        }
+        catch (InvalidCardException e) {
             sendError(sender, "Invalid move: " + e.getMessage());
+        }
+        catch (Exception e) {
+            sendError(sender, "Generic Exception: " + e.getMessage());
         }
 
     }
@@ -119,8 +130,8 @@ public class ServerController {
                 .orElse(null);
     }
 
-    public boolean thereAreCardsPickables(OfferEffect offerEffect) {
-        return match.thereAreCardsPickables(offerEffect);
+    public boolean thereAreCardsPickables(String nickname, OfferEffect offerEffect) {
+        return match.thereAreCardsPickables(nickname, offerEffect);
     }
 
     //! NOTIFICATION METHODS ---------------------------------------------------------------------------

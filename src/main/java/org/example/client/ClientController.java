@@ -84,7 +84,7 @@ public class ClientController implements GameEventListener {
                         .findFirst()
                         .orElse(null);
                 try {
-                    if(!server.thereAreCardsPickables(offerEffectToCheck)) {
+                    if(!server.thereAreCardsPickables(nickname, offerEffectToCheck)) {
                         view.displayNoCardsPickable();
                         return;
                     }

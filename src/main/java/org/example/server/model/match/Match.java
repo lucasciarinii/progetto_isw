@@ -18,6 +18,8 @@ import org.example.server.model.cards.characters.Inventor;
 import org.example.server.model.cards.eventCards.EventCard;
 import org.example.server.model.cards.eventCards.Sustenance;
 import org.example.server.model.enums.OfferEffect;
+import org.example.server.model.exceptions.InvalidCardException;
+import org.example.server.model.exceptions.NoDrawableCardException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -173,7 +175,7 @@ public class Match {
     }
 
     //the cards the user selects are all in one string "ID1, ID2, ID3"
-    public void offerTileAction(Player player, String cards) {
+    public void offerTileAction(Player player, String cards) throws NoDrawableCardException, InvalidCardException {
         List<Integer> ids = new ArrayList<>(extractIntegers(cards));
 
         OfferTile selectedTile = board.getOfferTrack().stream()
@@ -309,17 +311,31 @@ public class Match {
 
     }
 
-    public boolean thereAreCardsPickables(OfferEffect effect) {
+    public boolean thereAreCardsPickables(String nickname, OfferEffect effect) {
+        Player player = players.stream()
+                .filter(p -> p.getNickname().equals(nickname))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Player not found: " + nickname));
+
         switch (effect) {
             case OfferEffect.D, OfferEffect.DD -> {
-                return board.getBottomRow().stream().anyMatch(card -> card instanceof Character);
+                return board.getBottomRow().stream()
+                    .filter(c -> c.isCharacter() || (c.isBuilding() && ((BuildingCard) c).getFoodCost() < player.getFood()))
+                        .anyMatch(c -> c.isCharacter() || c.isBuilding());
             }
             case OfferEffect.U, OfferEffect.UU -> {
-                return board.getTopRow().stream().anyMatch(card -> card instanceof Character);
+                return board.getTopRow().stream()
+                    .filter(c -> c.isCharacter() || (c.isBuilding() && ((BuildingCard) c).getFoodCost() < player.getFood()))
+                    .anyMatch(c -> c.isCharacter() || c.isBuilding());
             }
             case OfferEffect.DU, OfferEffect.DUU -> {
-                return board.getTopRow().stream().anyMatch(card -> card instanceof Character) ||
-                        board.getTopRow().stream().anyMatch(card -> card instanceof Character);
+                boolean b1 = board.getTopRow().stream()
+                        .filter(c -> c.isCharacter() || (c.isBuilding() && ((BuildingCard) c).getFoodCost() < player.getFood()))
+                        .anyMatch(c -> c.isCharacter() || c.isBuilding());
+                boolean b2 = board.getBottomRow().stream()
+                        .filter(c -> c.isCharacter() || (c.isBuilding() && ((BuildingCard) c).getFoodCost() < player.getFood()))
+                        .anyMatch(c -> c.isCharacter() || c.isBuilding());
+                return b1 || b2;
             }
             case OfferEffect.FOOD -> {return true;}
             default -> throw new IllegalArgumentException("Invalid OfferEffect");
