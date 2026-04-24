@@ -16,22 +16,28 @@ public class DUActionStrategy implements OfferActionStrategy {
 
     @Override
     public void execute(Match match, Player player, List<Integer> ids) throws NoDrawableCardException, InvalidCardException {
-        // Try to pick the cards
-        Card c1 = singleD.execute(match, player, ids.get(0));
-        Card c2 = singleU.execute(match, player, ids.get(1));
+        List<Card> bottomRow = match.getBoard().getBottomRow();
+        List<Card> topRow    = match.getBoard().getTopRow();
 
-        // If no exception is thrown, then we can add the cards to the player and remove them from the board
-        if(c1.isBuilding()) {
-            player.addFood(Math.min(0, -((BuildingCard) c1).getFoodCost() + player.getDiscountOnBuilding()));
-        }
-        player.acceptCard(c1);
-        match.getBoard().getBottomRow().remove(c1);
+        // 1) Count how many pickable cards are in top and bottom row
+        int pickableBottom = (int) countPickable(bottomRow, player);
+        int pickableTop = (int) countPickable(topRow, player);
 
-        if(c2.isBuilding()) {
-            player.addFood(Math.min(0, -((BuildingCard) c2).getFoodCost() + player.getDiscountOnBuilding()));
-        }
-        player.acceptCard(c2);
-        match.getBoard().getTopRow().remove(c2);
+        // 2) If there aren't any, throw exception to skip turn
+        if (pickableBottom == 0 && pickableTop == 0)
+            throw new NoDrawableCardException("No drawable cards (both in top and bottom row), turn skipped.");
+
+        int toPickBottom = Math.min(1, pickableBottom);
+        int toPickTop = Math.min(1, pickableTop);
+
+        // 3) Try to pick the cards
+        Card cBottom = (toPickBottom == 1) ? singleD.execute(match, player, ids.getFirst()) : null;
+        Card cTop = (toPickTop == 1) ? singleU.execute(match, player, ids.get(toPickBottom)) : null; // if toPickBottom is 0, we want to pick from the top row, so we take the first id, otherwise we take the second id
+
+        if (cBottom != null)
+            applyCard(cBottom, player, bottomRow);
+        if (cTop != null)
+            applyCard(cTop, player, topRow);
 
     }
 }

@@ -16,24 +16,20 @@ public class UUActionStrategy implements OfferActionStrategy {
 
     @Override
     public void execute(Match match, Player player, List<Integer> ids) throws NoDrawableCardException, InvalidCardException {
+        // 1) Count how many pickable cards are in the top row
+        int toPick = (int) Math.min(2, countPickable(match.getBoard().getTopRow(), player));
+
+        // 2) If there aren't any, throw exception to skip turn
+        if (toPick == 0)
+            throw new NoDrawableCardException("No drawable card in the top row, turn skipped.");
 
         // Try to pick the cards
         Card c1 = singleU.execute(match, player, ids.get(0));
-        Card c2 = singleU.execute(match, player, ids.get(1));
+        Card c2 = (toPick == 2) ? singleU.execute(match, player, ids.get(1)) : null;
 
-        // If no exception is thrown, then we can add the cards to the player and remove them from the board
-        if(c1.isBuilding()) {
-            player.addFood(Math.min(0, -((BuildingCard) c1).getFoodCost() + player.getDiscountOnBuilding()));
-        }
-        player.acceptCard(c1);
-        match.getBoard().getTopRow().remove(c1);
-
-        if(c2.isBuilding()) {
-            player.addFood(Math.min(0, -((BuildingCard) c2).getFoodCost() + player.getDiscountOnBuilding()));
-        }
-        player.acceptCard(c2);
-        match.getBoard().getTopRow().remove(c2);
-
+        applyCard(c1, player, match.getBoard().getTopRow());
+        if (c2 != null)
+            applyCard(c2, player, match.getBoard().getTopRow());
     }
 
 }
