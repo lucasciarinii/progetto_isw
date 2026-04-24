@@ -113,4 +113,11 @@ class EndGameBonusBCTest {
         // 5 (initial value) + 14 (bonus) = 19
         assertEquals(19, player.getPoints());
     }
+
+    @Test
+    @DisplayName("Test that EndGameBonusBC.toString returns the correct string")
+    void testToString() {
+        EndGameBonusBC card = new EndGameBonusBC(121, Era.III, 10, 0, BuildingCardType.EndGameBonusBC, true);
+        assertTrue(card.toString().endsWith("\tEffect: get double the points indicated in your Builder cards (end game)\n"));
+    }
 }
