@@ -65,7 +65,7 @@ public class ServerController {
     public void offerTileAction(String nickname, String cards) {
         ClientConnection sender = findConnection(nickname);
         if (sender == null) {
-            System.err.println("[SERVER] Connessione non trovata per: " + nickname);
+            System.err.println("[SERVER] Connection not found for: " + nickname);
             return;
         }
 
