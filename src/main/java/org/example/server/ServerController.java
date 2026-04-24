@@ -83,6 +83,15 @@ public class ServerController {
             match.getGameState().advanceToNextPlayer();
             handlePhaseTransition(phaseBefore);
         } catch (NoDrawableCardException e) {
+            // We must still move the player to the TurnOrderTile
+            OfferTile selectedTile = match.getBoard().getOfferTrack().stream()
+                    .filter(tile -> tile.getPlayer() != null )
+                    .filter(tile -> tile.getPlayer().getNickname().equals(nickname))
+                    .findFirst()
+                    .orElseThrow( () -> new IllegalStateException( "player not found on offerTrack") );
+            selectedTile.removePlayer();
+
+            // Warn about the NoDrawableCard and skip his turn
             sendError(sender, e.getMessage());
             GamePhase phaseBefore = match.getGameState().getCurrentPhase();
             match.getGameState().advanceToNextPlayer();
@@ -95,6 +104,23 @@ public class ServerController {
             sendError(sender, "Generic Exception: " + e.getMessage());
         }
 
+    }
+
+    public void skipTurn(String nickname) {
+        ClientConnection sender = findConnection(nickname);
+        if (sender == null) {
+            System.err.println("[SERVER] SkipTurn failed: connection not found for: " + nickname);
+            return;
+        }
+
+        if (isWrongPlayer(nickname) || isWrongPhase(GamePhase.PLAYER_TURN)) {
+            sendError(sender, "SkipTurn failed: invalid move: it's not yourn turn or invalid phase.");
+            return;
+        }
+
+        GamePhase phaseBefore = match.getGameState().getCurrentPhase();
+        match.getGameState().advanceToNextPlayer();
+        handlePhaseTransition(phaseBefore);
     }
 
     //! UTILITY METHODS ---------------------------------------------------------------------------
@@ -128,10 +154,6 @@ public class ServerController {
                 .map(Map.Entry::getKey)
                 .findFirst()
                 .orElse(null);
-    }
-
-    public boolean thereAreCardsPickables(String nickname, OfferEffect offerEffect) {
-        return match.thereAreCardsPickables(nickname, offerEffect);
     }
 
     //! NOTIFICATION METHODS ---------------------------------------------------------------------------
@@ -201,6 +223,7 @@ public class ServerController {
                         p.getNickname(),
                         p.getFood(),
                         p.getPoints(),
+                        p.getDiscountOnBuilding(),
                         new ArrayList<>(p.getHunters()),
                         new ArrayList<>(p.getGatherers()),
                         new ArrayList<>(p.getBuilders()),

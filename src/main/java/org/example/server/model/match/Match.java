@@ -310,37 +310,4 @@ public class Match {
 
 
     }
-
-    public boolean thereAreCardsPickables(String nickname, OfferEffect effect) {
-        Player player = players.stream()
-                .filter(p -> p.getNickname().equals(nickname))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Player not found: " + nickname));
-
-        switch (effect) {
-            case OfferEffect.D, OfferEffect.DD -> {
-                return board.getBottomRow().stream()
-                    .filter(c -> c.isCharacter() || (c.isBuilding() && ((BuildingCard) c).getFoodCost() < player.getFood()))
-                        .anyMatch(c -> c.isCharacter() || c.isBuilding());
-            }
-            case OfferEffect.U, OfferEffect.UU -> {
-                return board.getTopRow().stream()
-                    .filter(c -> c.isCharacter() || (c.isBuilding() && ((BuildingCard) c).getFoodCost() < player.getFood()))
-                    .anyMatch(c -> c.isCharacter() || c.isBuilding());
-            }
-            case OfferEffect.DU, OfferEffect.DUU -> {
-                boolean b1 = board.getTopRow().stream()
-                        .filter(c -> c.isCharacter() || (c.isBuilding() && ((BuildingCard) c).getFoodCost() < player.getFood()))
-                        .anyMatch(c -> c.isCharacter() || c.isBuilding());
-                boolean b2 = board.getBottomRow().stream()
-                        .filter(c -> c.isCharacter() || (c.isBuilding() && ((BuildingCard) c).getFoodCost() < player.getFood()))
-                        .anyMatch(c -> c.isCharacter() || c.isBuilding());
-                return b1 || b2;
-            }
-            case OfferEffect.FOOD -> {return true;}
-            default -> throw new IllegalArgumentException("Invalid OfferEffect");
-        }
-    }
-
-
 }

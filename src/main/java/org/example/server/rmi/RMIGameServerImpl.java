@@ -51,9 +51,10 @@ public class RMIGameServerImpl extends UnicastRemoteObject implements RMIGameSer
         serverController.offerTileAction(nickname, cards);
     }
 
-    public boolean thereAreCardsPickables(String nickname, OfferEffect offerEffect) throws RemoteException {
+    @Override
+    public void skipTurn(String nickname) throws RemoteException {
         checkGameStarted();
-        return serverController.thereAreCardsPickables(nickname, offerEffect);
+        serverController.skipTurn(nickname);
     }
 
     private void checkGameStarted() throws RemoteException {
