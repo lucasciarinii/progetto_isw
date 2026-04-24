@@ -69,37 +69,50 @@ public class ClientController implements GameEventListener {
         server.offerTileAction(nickname, cards);
     }
 
+    // TODO: RICONTROLLARE QUESTA FUNZIONE
     //! RECEIVING UPDATES FROM SERVER (called by ClientCallbackImpl) -----------------------------------------------
+//    @Override
+//    public void onUpdate(GameStateUpdateMessage update) {
+//        view.update(update);
+//
+//        if (isMyTurn(update)) {
+//            if(update.getCurrentPhase() == GamePhase.PLAYER_TURN) {
+//                // Devo recuperare l'effetto relativo alla casella in cui c'è il player
+//                OfferEffect offerEffectToCheck =
+//                view.getOfferTrack().stream()
+//                        .filter(tile -> tile.getOccupantNickname().equals(this.nickname))
+//                        .map(OfferTileSnapshot::getOfferEffect)
+//                        .findFirst()
+//                        .orElse(null);
+//                try {
+//                    if(!server.thereAreCardsPickables(nickname, offerEffectToCheck)) {
+//                        view.displayNoCardsPickable();
+//                        return;
+//                    }
+//                }
+//                catch (RemoteException r) {
+//                    view.displayError("[ERROR] Communication error with server: " + r.getMessage());
+//                    return;
+//                }
+//
+//            }
+//            inputHandler.promptForAction(update.getCurrentPhase());
+//        } else {
+//            view.displayWaiting(update.getCurrentPlayerNickname());
+//        }
+//    }
+
     @Override
     public void onUpdate(GameStateUpdateMessage update) {
         view.update(update);
 
         if (isMyTurn(update)) {
-            if(update.getCurrentPhase() == GamePhase.PLAYER_TURN) {
-                // Devo recuperare l'effetto relativo alla casella in cui c'è il player
-                OfferEffect offerEffectToCheck =
-                view.getOfferTrack().stream()
-                        .filter(tile -> tile.getOccupantNickname().equals(this.nickname))
-                        .map(OfferTileSnapshot::getOfferEffect)
-                        .findFirst()
-                        .orElse(null);
-                try {
-                    if(!server.thereAreCardsPickables(nickname, offerEffectToCheck)) {
-                        view.displayNoCardsPickable();
-                        return;
-                    }
-                }
-                catch (RemoteException r) {
-                    view.displayError("[ERROR] Communication error with server: " + r.getMessage());
-                    return;
-                }
-
-            }
             inputHandler.promptForAction(update.getCurrentPhase());
         } else {
             view.displayWaiting(update.getCurrentPlayerNickname());
         }
     }
+
 
     @Override
     public void onError(String errorMessage) {

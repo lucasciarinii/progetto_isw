@@ -142,6 +142,7 @@ public class ServerController {
                 client.sendUpdate(update);
             } catch (Exception e) {
                 // Client disconnected, remove it
+                System.out.print("[SERVER] Failed to send update to " + clientNicknames.get(client) + ", unregistering client. Reason: " + e.getMessage());
                 unregisterClient(client);
             }
         });
