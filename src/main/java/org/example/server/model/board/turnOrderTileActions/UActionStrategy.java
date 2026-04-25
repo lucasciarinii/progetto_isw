@@ -3,6 +3,8 @@ package org.example.server.model.board.turnOrderTileActions;
 import org.example.server.model.board.Board;
 import org.example.server.model.cards.Card;
 import org.example.server.model.cards.buildingCards.BuildingCard;
+import org.example.server.model.exceptions.InvalidCardException;
+import org.example.server.model.exceptions.NoDrawableCardException;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
 
@@ -10,45 +12,21 @@ import java.util.List;
 
 public class UActionStrategy implements OfferActionStrategy {
 
+    private final UPick singleU = new UPick();
+
     @Override
-    public void execute(Match match, Player player, List<Integer> ids) {
+    public void execute(Match match, Player player, List<Integer> ids) throws NoDrawableCardException, InvalidCardException {
+        // 1) Check if row has drawable cards
+        int pickable = (int) countPickable(match.getBoard().getTopRow(), player);
 
-        Board board = match.getBoard();
+        // 2) If not, throw exception to skip turn
+        if (pickable == 0)
+            throw new NoDrawableCardException("No drawable card in the top row, turn skipped.");
 
-        // 1) The number of selected cards must be 1
-        if (ids.size() != 1) {
-            throw new IllegalArgumentException("Invalid String: player must select only 1 card");
-        }
+        // 3) Try to pick the card - if ID is not valid, InvalidCardException -> client will have to choose again
+        Card c1 = singleU.execute(match, player, ids.getFirst());
 
-        // 2) If the row does not contain any card at all, an exception will be thrown
-        if( board.getTopRow().isEmpty()) {
-            throw new IllegalArgumentException("The row is empty, no card can be selected");
-        }
-
-        // 3) Find card with corresponding ID
-        Card card = board.getTopRow().stream()
-                .filter(c -> c.getId() == ids.getFirst())
-                .filter(c -> c.isCharacter() || c.isBuilding())
-                .findFirst()
-                .orElseThrow( () -> new IllegalArgumentException("invalid ID card") );
-
-        // 4) Cost handling if BuildingCard
-        if (card.isBuilding()) {
-            BuildingCard buildingCard = (BuildingCard) card;
-            if ( player.getFood() + player.getDiscountOnBuilding() < buildingCard.getFoodCost() ) {
-                throw new IllegalArgumentException("Player doesn't have enough food to take this building card");
-            }
-            else {
-                player.addFood(Math.min(0, -buildingCard.getFoodCost() + player.getDiscountOnBuilding()));
-                player.acceptCard(buildingCard);
-                board.getTopRow().remove(buildingCard);
-            }
-        }
-
-        // 5) Add card to player
-        player.acceptCard(card);
-
-        // 6) Remove card from TopRow
-        board.getTopRow().remove(card);
+        // No possible exception from here on, so we can add the card to the player and remove it from the board
+        applyCard(c1, player, match.getBoard().getTopRow());
     }
 }
