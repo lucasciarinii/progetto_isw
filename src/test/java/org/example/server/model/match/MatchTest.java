@@ -60,12 +60,12 @@ class MatchTest {
     private static Stream<Arguments> blankStringOfferEffects() {
         return Stream.of(
                 Arguments.of(5, OfferEffect.FOOD, null),
-                Arguments.of(2, OfferEffect.D, "Invalid String: player must select only 1 card"),
-                Arguments.of(2, OfferEffect.U, "Invalid String: player must select only 1 card"),
-                Arguments.of(3, OfferEffect.DD, "Invalid String: player must select exactly 2 IDs from cards"),
-                Arguments.of(4, OfferEffect.DU, "Invalid String: player must select exactly 2 IDs from cards"),
-                Arguments.of(2, OfferEffect.UU, "Invalid String: player must select exactly 2 IDs from cards"),
-                Arguments.of(4, OfferEffect.DUU, "Invalid String: player must select exactly 3 IDs from cards")
+                Arguments.of(2, OfferEffect.D, NoSuchElementException.class),
+                Arguments.of(2, OfferEffect.U, NoSuchElementException.class),
+                Arguments.of(3, OfferEffect.DD, IndexOutOfBoundsException.class),
+                Arguments.of(4, OfferEffect.DU, NoSuchElementException.class),
+                Arguments.of(2, OfferEffect.UU, IndexOutOfBoundsException.class),
+                Arguments.of(4, OfferEffect.DUU, NoSuchElementException.class)
         );
     }
 
@@ -472,10 +472,10 @@ class MatchTest {
         assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == topCharacter.getId()));
     }
 
-    // Test that blank input is accepted only for FOOD and rejected for all card-selection offers.
+    // Test that blank input is accepted only for FOOD and rejected with the refactored exception flow for card-selection offers.
     @ParameterizedTest
     @MethodSource("blankStringOfferEffects")
-    void offerTileAction_blankStringWorksOnlyForFood(int playerCount, OfferEffect effect, String expectedMessage) {
+    void offerTileAction_blankStringWorksOnlyForFood(int playerCount, OfferEffect effect, Class<? extends Throwable> expectedExceptionType) {
         Match match = new Match(createPlayers(playerCount));
         Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int offerTileIndex = findOfferTileIndex(match, effect);
@@ -487,9 +487,8 @@ class MatchTest {
             assertDoesNotThrow(() -> match.offerTileAction(player, ""));
             assertEquals(initialFood + 3 + 3, player.getFood());
         } else {
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            assertThrows(expectedExceptionType,
                     () -> match.offerTileAction(player, ""));
-            assertEquals(expectedMessage, exception.getMessage());
         }
     }
 
@@ -657,19 +656,6 @@ class MatchTest {
         assertEquals(foodBefore, player.getFood());
     }
 
-    // Test that D rejects inputs containing more than one card ID.
-    @Test
-    void offerTileAction_D_rejectsMoreThanOneId() {
-        Match match = new Match(createPlayers(5));
-        Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
-        int dTileIndex = findOfferTileIndex(match, OfferEffect.D);
-
-        match.placeTotemOnOfferTile(player, dTileIndex);
-
-        assertThrows(InvalidCardException.class,
-                () -> match.offerTileAction(player, "1,2"));
-    }
-
     // Test that D rejects an ID pointing to an EventCard in bottomRow.
     @Test
     void offerTileAction_D_rejectsEventCardId() {
@@ -788,7 +774,7 @@ class MatchTest {
         assertEquals(foodBefore, player.getFood());
     }
 
-    // Test that U rejects inputs with zero IDs or more than one ID.
+    // Test that U requires at least one ID and uses only the first one when extra IDs are provided.
     @Test
     void offerTileAction_U_rejectsWrongNumberOfIds() {
         Match match = new Match(createPlayers(5));
@@ -797,10 +783,17 @@ class MatchTest {
 
         match.placeTotemOnOfferTile(player, uTileIndex);
 
-        assertThrows(IllegalArgumentException.class,
+        Card selected = match.getBoard().getTopRow().stream()
+                .filter(Card::isCharacter)
+                .findFirst()
+                .orElseThrow();
+        int ownedBefore = totalOwnedCharacters(player);
+
+        assertThrows(NoSuchElementException.class,
                 () -> match.offerTileAction(player, ""));
-        assertThrows(IllegalArgumentException.class,
-                () -> match.offerTileAction(player, "1,2"));
+        assertDoesNotThrow(() -> match.offerTileAction(player, selected.getId() + "," + nextUnusedCardId(match)));
+        assertEquals(ownedBefore + 1, totalOwnedCharacters(player));
+        assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == selected.getId()));
     }
 
     // Test that U rejects an ID not matching any valid Character in topRow.
@@ -1020,7 +1013,7 @@ class MatchTest {
         assertEquals(foodBefore - expectedCost + 3, player.getFood());
     }
 
-    // Test that DU rejects inputs with the wrong number of IDs.
+    // Test that DU requires enough IDs for available picks and ignores extra IDs beyond required picks.
     @Test
     void offerTileAction_DU_rejectsWrongNumberOfIds() {
         Match match = new Match(createPlayers(5));
@@ -1029,10 +1022,23 @@ class MatchTest {
 
         match.placeTotemOnOfferTile(player, duTileIndex);
 
-        assertThrows(IllegalArgumentException.class,
+        Card bottomCharacter = match.getBoard().getBottomRow().stream()
+                .filter(Card::isCharacter)
+                .findFirst()
+                .orElseThrow();
+        Card topCharacter = match.getBoard().getTopRow().stream()
+                .filter(Card::isCharacter)
+                .findFirst()
+                .orElseThrow();
+        int ownedBefore = totalOwnedCharacters(player);
+
+        assertThrows(NoSuchElementException.class,
                 () -> match.offerTileAction(player, ""));
-        assertThrows(IllegalArgumentException.class,
-                () -> match.offerTileAction(player, "1,2,3"));
+        assertDoesNotThrow(() -> match.offerTileAction(player,
+                bottomCharacter.getId() + "," + topCharacter.getId() + "," + nextUnusedCardId(match)));
+        assertEquals(ownedBefore + 2, totalOwnedCharacters(player));
+        assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card.getId() == bottomCharacter.getId()));
+        assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == topCharacter.getId()));
     }
 
     // Test that DU rejects an invalid bottomRow ID.
@@ -1179,21 +1185,28 @@ class MatchTest {
         assertEquals(foodBefore, player.getFood());
     }
 
-    // Test that UU rejects inputs with the wrong number of IDs.
+    // Test that UU rejects missing IDs when two picks are available and ignores extra IDs.
     @Test
     void offerTileAction_UU_rejectsWrongNumberOfIds() {
         Match match = new Match(createPlayers(5));
         Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int uuTileIndex = findOfferTileIndex(match, OfferEffect.UU);
+        int firstId = nextUnusedCardId(match);
+        int secondId = firstId + 1;
 
         match.placeTotemOnOfferTile(player, uuTileIndex);
+        match.getBoard().getTopRow().add(new Gatherer(firstId, Era.I, CharacterType.GATHERER));
+        match.getBoard().getTopRow().add(new Gatherer(secondId, Era.I, CharacterType.GATHERER));
+        int ownedBefore = totalOwnedCharacters(player);
 
-        assertThrows(InvalidCardException.class,
+        assertThrows(IndexOutOfBoundsException.class,
                 () -> match.offerTileAction(player, ""));
-        assertThrows(InvalidCardException.class,
-                () -> match.offerTileAction(player, "1"));
-        assertThrows(InvalidCardException.class,
-                () -> match.offerTileAction(player, "1,2,3"));
+        assertThrows(IndexOutOfBoundsException.class,
+                () -> match.offerTileAction(player, String.valueOf(firstId)));
+        assertDoesNotThrow(() -> match.offerTileAction(player, firstId + "," + secondId + "," + nextUnusedCardId(match)));
+        assertEquals(ownedBefore + 2, totalOwnedCharacters(player));
+        assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == firstId));
+        assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == secondId));
     }
 
     // Test that UU rejects an ID that is missing from topRow.
@@ -1265,21 +1278,30 @@ class MatchTest {
         assertEquals(foodBefore - expectedCost + 3, player.getFood());
     }
 
-    // Test that DUU rejects inputs with the wrong number of IDs.
+    // Test that DUU requires enough IDs for available picks and ignores extra IDs beyond required picks.
     @Test
     void offerTileAction_DUU_rejectsWrongNumberOfIds() {
         Match match = new Match(createPlayers(5));
         Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int duuTileIndex = findOfferTileIndex(match, OfferEffect.DUU);
+        int bottomId = nextUnusedCardId(match);
+        int topId1 = bottomId + 1;
+        int topId2 = bottomId + 2;
 
         match.placeTotemOnOfferTile(player, duuTileIndex);
+        match.getBoard().getBottomRow().add(new Gatherer(bottomId, Era.I, CharacterType.GATHERER));
+        match.getBoard().getTopRow().add(new Gatherer(topId1, Era.I, CharacterType.GATHERER));
+        match.getBoard().getTopRow().add(new Gatherer(topId2, Era.I, CharacterType.GATHERER));
+        int ownedBefore = totalOwnedCharacters(player);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(NoSuchElementException.class,
                 () -> match.offerTileAction(player, ""));
-        assertThrows(IllegalArgumentException.class,
-                () -> match.offerTileAction(player, "1,2"));
-        assertThrows(IllegalArgumentException.class,
-                () -> match.offerTileAction(player, "1,2,3,4"));
+        assertDoesNotThrow(() -> match.offerTileAction(player,
+                bottomId + "," + topId1 + "," + topId2 + "," + nextUnusedCardId(match)));
+        assertEquals(ownedBefore + 3, totalOwnedCharacters(player));
+        assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card.getId() == bottomId));
+        assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == topId1));
+        assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == topId2));
     }
 
     // Test that DUU rejects an invalid bottomRow ID.
