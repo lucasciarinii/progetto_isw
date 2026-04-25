@@ -45,6 +45,7 @@ public class Player  {
         @Override
         public void visit(Shaman shaman) {
             shamans.add(shaman);
+            shamanStars += shaman.getNumStars();
         }
 
         @Override

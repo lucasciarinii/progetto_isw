@@ -5,6 +5,9 @@ import org.example.network.GameStateUpdateMessage;
 import org.example.network.Snapshots.OfferTileSnapshot;
 import org.example.network.Snapshots.PlayerSnapshot;
 import org.example.network.Snapshots.TurnSlotSnapshot;
+import org.example.server.model.enums.OfferEffect;
+import org.example.server.model.exceptions.InvalidCardException;
+import org.example.server.model.exceptions.NoDrawableCardException;
 import org.example.server.rmi.RMIClientConnection;
 import org.example.server.model.board.Board;
 import org.example.server.model.board.PlayerSlot;
@@ -64,12 +67,12 @@ public class ServerController {
     public void offerTileAction(String nickname, String cards) {
         ClientConnection sender = findConnection(nickname);
         if (sender == null) {
-            System.err.println("[SERVER] Connessione non trovata per: " + nickname);
+            System.err.println("[SERVER] Connection not found for: " + nickname);
             return;
         }
 
         if (isWrongPlayer(nickname) || isWrongPhase(GamePhase.PLAYER_TURN)) {
-            sendError(sender, "Mossa non valida: non è il tuo turno o fase errata.");
+            sendError(sender, "Invalid move: it's not yourn turn or invalid phase.");
             return;
         }
 
@@ -79,10 +82,45 @@ public class ServerController {
             match.offerTileAction(player, cards);
             match.getGameState().advanceToNextPlayer();
             handlePhaseTransition(phaseBefore);
-        } catch (Exception e) {
+        } catch (NoDrawableCardException e) {
+            // We must still move the player to the TurnOrderTile
+            OfferTile selectedTile = match.getBoard().getOfferTrack().stream()
+                    .filter(tile -> tile.getPlayer() != null )
+                    .filter(tile -> tile.getPlayer().getNickname().equals(nickname))
+                    .findFirst()
+                    .orElseThrow( () -> new IllegalStateException( "player not found on offerTrack") );
+            selectedTile.removePlayer();
+
+            // Warn about the NoDrawableCard and skip his turn
+            sendError(sender, e.getMessage());
+            GamePhase phaseBefore = match.getGameState().getCurrentPhase();
+            match.getGameState().advanceToNextPlayer();
+            handlePhaseTransition(phaseBefore);
+        }
+        catch (InvalidCardException e) {
             sendError(sender, "Invalid move: " + e.getMessage());
         }
+        catch (Exception e) {
+            sendError(sender, "Generic Exception: " + e.getMessage());
+        }
 
+    }
+
+    public void skipTurn(String nickname) {
+        ClientConnection sender = findConnection(nickname);
+        if (sender == null) {
+            System.err.println("[SERVER] SkipTurn failed: connection not found for: " + nickname);
+            return;
+        }
+
+        if (isWrongPlayer(nickname) || isWrongPhase(GamePhase.PLAYER_TURN)) {
+            sendError(sender, "SkipTurn failed: invalid move: it's not yourn turn or invalid phase.");
+            return;
+        }
+
+        GamePhase phaseBefore = match.getGameState().getCurrentPhase();
+        match.getGameState().advanceToNextPlayer();
+        handlePhaseTransition(phaseBefore);
     }
 
     //! UTILITY METHODS ---------------------------------------------------------------------------
@@ -126,6 +164,7 @@ public class ServerController {
                 client.sendUpdate(update);
             } catch (Exception e) {
                 // Client disconnected, remove it
+                System.out.print("[SERVER] Failed to send update to " + clientNicknames.get(client) + ", unregistering client. Reason: " + e.getMessage());
                 unregisterClient(client);
             }
         });
@@ -184,6 +223,7 @@ public class ServerController {
                         p.getNickname(),
                         p.getFood(),
                         p.getPoints(),
+                        p.getDiscountOnBuilding(),
                         new ArrayList<>(p.getHunters()),
                         new ArrayList<>(p.getGatherers()),
                         new ArrayList<>(p.getBuilders()),

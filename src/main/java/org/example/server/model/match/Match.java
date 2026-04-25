@@ -13,10 +13,13 @@ import org.example.server.model.board.turnOrderTileActions.OfferActionRegistry;
 import org.example.server.model.cards.Card;
 import org.example.server.model.cards.buildingCards.BuildingCard;
 import org.example.server.model.cards.characters.Builder;
+import org.example.server.model.cards.characters.Character;
 import org.example.server.model.cards.characters.Inventor;
 import org.example.server.model.cards.eventCards.EventCard;
 import org.example.server.model.cards.eventCards.Sustenance;
 import org.example.server.model.enums.OfferEffect;
+import org.example.server.model.exceptions.InvalidCardException;
+import org.example.server.model.exceptions.NoDrawableCardException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -172,7 +175,7 @@ public class Match {
     }
 
     //the cards the user selects are all in one string "ID1, ID2, ID3"
-    public void offerTileAction(Player player, String cards) {
+    public void offerTileAction(Player player, String cards) throws NoDrawableCardException, InvalidCardException {
         List<Integer> ids = new ArrayList<>(extractIntegers(cards));
 
         OfferTile selectedTile = board.getOfferTrack().stream()
@@ -303,6 +306,4 @@ public class Match {
 
 
     }
-
-
 }

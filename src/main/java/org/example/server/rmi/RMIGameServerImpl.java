@@ -3,6 +3,7 @@ package org.example.server.rmi;
 import org.example.server.LobbyController;
 import org.example.server.LobbyReadyListener;
 import org.example.server.ServerController;
+import org.example.server.model.enums.OfferEffect;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -48,6 +49,12 @@ public class RMIGameServerImpl extends UnicastRemoteObject implements RMIGameSer
     public void offerTileAction(String nickname, String cards) throws RemoteException {
         checkGameStarted();
         serverController.offerTileAction(nickname, cards);
+    }
+
+    @Override
+    public void skipTurn(String nickname) throws RemoteException {
+        checkGameStarted();
+        serverController.skipTurn(nickname);
     }
 
     private void checkGameStarted() throws RemoteException {

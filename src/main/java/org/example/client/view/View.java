@@ -10,8 +10,10 @@ import org.example.network.Snapshots.TurnSlotSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class View {
+    private GameStateUpdateMessage lastUpdate;
     private int currentRound;
     private Era currentEra;
     private GamePhase currentPhase;
@@ -42,6 +44,7 @@ public class View {
     }
 
     public void update(GameStateUpdateMessage message) {
+        this.lastUpdate = message;
         this.currentRound = message.getCurrentRound();
         this.currentEra = message.getCurrentEra();
         this.currentPhase = message.getCurrentPhase();
@@ -56,6 +59,8 @@ public class View {
         
         display();
     }
+
+    public GameStateUpdateMessage getLastUpdate() { return lastUpdate; }
 
     public void display() {
         clearScreen();
@@ -103,6 +108,12 @@ public class View {
 
     public void displayError(String error) {
         System.out.println("\n[ERROR] " + error + "\n");
+    }
+
+    public void displayNoCardsPickable() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("\n[INFO] There are no cards pickable, you have to pass this turn. Press any key to continue the game...\n");
+        scanner.nextLine();
     }
 
     public static void clearScreen() {
