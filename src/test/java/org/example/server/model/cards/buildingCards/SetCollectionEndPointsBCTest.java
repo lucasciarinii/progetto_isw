@@ -12,6 +12,7 @@ import org.example.server.model.enums.CharacterType;
 import org.example.server.model.enums.Era;
 import org.example.server.model.enums.InventionType;
 import org.example.server.model.match.Player;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,6 +36,19 @@ class SetCollectionEndPointsBCTest {
         assertEquals(5, card.getFoodCost());
         assertEquals(12, card.getEndPoints());
         assertEquals(BuildingCardType.SetCollectionEndPointsBC, card.getClassType());
+    }
+
+    @Test
+    @DisplayName("correct string")
+    void correctString() { SetCollectionEndPointsBC card = new SetCollectionEndPointsBC(
+            1,
+            Era.III,
+            3,
+            6,
+            BuildingCardType.SetCollectionEndPointsBC,
+            true
+    );
+        assertTrue(card.toString().endsWith("\tEffect: get +6 points for each completed set of characters (end game)\n"));
     }
 
     //Test that no complete set gives no additional points.

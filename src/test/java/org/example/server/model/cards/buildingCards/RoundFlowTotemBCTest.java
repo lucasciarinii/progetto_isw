@@ -5,6 +5,7 @@ import org.example.server.model.enums.BuildingCardType;
 import org.example.server.model.enums.Era;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -145,5 +146,17 @@ class RoundFlowTotemBCTest {
 
         assertEquals(1, player.getOwnedBuildings().size());
         assertTrue(player.getOwnedBuildings().contains(card));
+    }
+
+    @Test
+    @DisplayName("correct string")
+    void correctString() { RoundFlowTotemBC card = new RoundFlowTotemBC(
+            4,
+            Era.I,
+            3,
+            7,
+            BuildingCardType.RoundFlowTotemBC,
+            false);
+        assertTrue(card.toString().endsWith("\tEffect: get +1 food if you return on a bonus tile\n"));
     }
 }

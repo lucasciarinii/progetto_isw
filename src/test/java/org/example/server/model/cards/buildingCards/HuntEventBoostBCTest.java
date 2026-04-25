@@ -94,4 +94,10 @@ class HuntEventBoostBCTest {
         assertEquals(10, player.getPoints());
         assertEquals(10, player.getFood());
     }
+
+    @Test
+    @DisplayName("correct string")
+    void correctString() {HuntEventBoostBC card = new HuntEventBoostBC(1, Era.III, 10, 25, BuildingCardType.HuntEventBoostBC, false);
+        assertTrue(card.toString().endsWith("\tEffect: during Hunt Event, for each  Hunter in your tribe get +1 points and +1 food\n"));
+    }
 }

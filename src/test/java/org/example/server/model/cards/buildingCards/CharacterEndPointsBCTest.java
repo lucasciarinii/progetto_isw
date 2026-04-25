@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CharacterEndPointsBCTest {
 
@@ -155,5 +156,12 @@ class CharacterEndPointsBCTest {
 			case ARTIST -> new Artist(id, Era.I, CharacterType.ARTIST);
 			case HUNTER -> new Hunter(id, Era.I, CharacterType.HUNTER, false);
 		};
+	}
+
+	@Test
+	@DisplayName("correct string")
+	void correctString() {
+		CharacterEndPointsBC card = new CharacterEndPointsBC(1, Era.I, 3, 6, BuildingCardType.CharacterEndPointsBC, 2, CharacterType.ARTIST, false);
+		assertTrue(card.toString().endsWith("\tEffect: get 2 points for each ARTIST in your tribe (end game)\n"));
 	}
 }

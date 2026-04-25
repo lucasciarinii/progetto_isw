@@ -4,6 +4,7 @@ import org.example.server.model.cards.buildingCards.ShamanicStarsBC;
 import org.example.server.model.enums.BuildingCardType;
 import org.example.server.model.enums.Era;
 import org.example.server.model.match.Player;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -121,5 +122,18 @@ class ShamanicStarsBCTest {
 
         assertEquals(1, player.getOwnedBuildings().size());
         assertTrue(player.getOwnedBuildings().contains(card));
+    }
+
+    @Test
+    @DisplayName("correct string")
+    void correctString() {ShamanicStarsBC card = new ShamanicStarsBC(
+            3,
+            Era.III,
+            4,
+            8,
+            BuildingCardType.ShamanicStarsBC,
+            false
+    );
+        assertTrue(card.toString().endsWith("\tEffect: during shamanic ritual get +3 stars\n"));
     }
 }

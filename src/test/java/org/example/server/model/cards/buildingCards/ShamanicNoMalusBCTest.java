@@ -4,6 +4,7 @@ import org.example.server.model.cards.buildingCards.ShamanicNoMalusBC;
 import org.example.server.model.enums.BuildingCardType;
 import org.example.server.model.enums.Era;
 import org.example.server.model.match.Player;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -104,5 +105,11 @@ class ShamanicNoMalusBCTest {
 
         assertEquals(1, player.getOwnedBuildings().size());
         assertTrue(player.getOwnedBuildings().contains(card));
+    }
+
+    @Test
+    @DisplayName("correct string")
+    void correctString() {ShamanicNoMalusBC card = new ShamanicNoMalusBC(3, Era.III, 4, 8, BuildingCardType.ShamanicNoMalusBC, false);
+        assertTrue(card.toString().endsWith("\tEffect: during shamanic ritual if you have least stars you don't lose points\n"));
     }
 }

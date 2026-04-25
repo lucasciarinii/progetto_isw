@@ -5,7 +5,10 @@ import org.example.server.model.enums.BuildingCardType;
 import org.example.server.model.enums.Era;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -145,5 +148,13 @@ class RoundFlowBCTest {
 
         assertEquals(1, player.getOwnedBuildings().size());
         assertTrue(player.getOwnedBuildings().contains(card));
+    }
+
+    @Test
+    @DisplayName("correct string")
+    void correctString() {
+        RoundFlowBC card = new RoundFlowBC(1, Era.I, 3,
+                7, BuildingCardType.RoundFlowBC, false);
+        assertTrue(card.toString().endsWith("	Effect: in this round and in the next ones (after action resolving) get a top card\n"));
     }
 }

@@ -12,12 +12,26 @@ import org.example.server.model.enums.CharacterType;
 import org.example.server.model.enums.Era;
 import org.example.server.model.enums.InventionType;
 import org.example.server.model.match.Player;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class SetCollectionFoodBCTest {
 
+    @Test
+    @DisplayName("correct string")
+    void correctString() {
+        SetCollectionFoodBC card = new SetCollectionFoodBC(
+                42,
+                Era.II,
+                5,
+                12,
+                BuildingCardType.SetCollectionFoodBC,
+                false
+        );
+        assertTrue(card.toString().endsWith("\tEffect: get +5 food each time you complete a new character set\n"));
+    }
     //Test that the constructor correctly initializes all inherited fields.
     @Test
     void constructor_initializesAllFieldsCorrectly() {

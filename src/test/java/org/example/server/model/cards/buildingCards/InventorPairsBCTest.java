@@ -262,4 +262,13 @@ class InventorPairsBCTest {
         InventorPairsBC card = new InventorPairsBC(8, Era.I, 0, 0, BuildingCardType.CavePaintingEventBoostBC, false);
         assertTrue(card.toString().endsWith("\tEffect: get +3 food each time you get an inventors pair with same invention\n"));
     }
+
+    @Test
+    @DisplayName("player null must throw an exception")
+    void playerNull() {
+        Match match = new Match(List.of(new Player("Alice"), new Player("Bob")));
+        InventorPairsBC card = new InventorPairsBC(1, Era.I, 0, 0, BuildingCardType.InventorComboBC, false);
+
+        assertThrows(IllegalArgumentException.class, () -> card.applyEffect(null, match));
+    }
 }

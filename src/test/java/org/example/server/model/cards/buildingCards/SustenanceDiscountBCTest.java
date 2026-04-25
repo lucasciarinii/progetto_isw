@@ -11,6 +11,7 @@ import org.example.server.model.enums.CharacterType;
 import org.example.server.model.enums.Era;
 import org.example.server.model.enums.InventionType;
 import org.example.server.model.match.Player;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -43,6 +44,19 @@ class SustenanceDiscountBCTest {
         assertEquals(BuildingCardType.SustenanceDiscountBC, card.getClassType());
     }
 
+    @Test
+    @DisplayName("correct string")
+    void correctString() { SustenanceDiscountBC card = new SustenanceDiscountBC(
+            10,
+            Era.I,
+            3,
+            6,
+            BuildingCardType.SustenanceDiscountBC,
+            CharacterType.INVENTOR,
+            false
+    );
+        assertTrue(card.toString().endsWith("\tEffect: during sustenance get a -1 food discount for each INVENTOR in your tribe\n"));
+    }
 
     // Parametrized test that verifies applyEffect correctly computes discount for supported character types
     // Tests verify that the discount equals the number of characters owned by the player for each supported type
