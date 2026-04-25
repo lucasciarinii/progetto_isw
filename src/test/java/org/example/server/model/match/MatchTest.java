@@ -21,6 +21,7 @@ import org.example.server.model.enums.EventEffect;
 import org.example.server.model.enums.InventionType;
 import org.example.server.model.enums.OfferEffect;
 import org.example.server.model.decks.Deck;
+import org.example.server.model.exceptions.InvalidCardException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -415,7 +416,7 @@ class MatchTest {
         int ownedBuildingsBefore = player.getOwnedBuildings().size();
         int ownedCharactersBefore = totalOwnedCharacters(player);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, String.valueOf(eventId)));
         assertTrue(match.getBoard().getBottomRow().stream().anyMatch(card -> card.getId() == eventId));
         assertEquals(ownedBuildingsBefore, player.getOwnedBuildings().size());
@@ -438,7 +439,7 @@ class MatchTest {
         int ownedBuildingsBefore = player.getOwnedBuildings().size();
         int ownedCharactersBefore = totalOwnedCharacters(player);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, String.valueOf(eventId)));
         assertTrue(match.getBoard().getTopRow().stream().anyMatch(card -> card.getId() == eventId));
         assertEquals(ownedBuildingsBefore, player.getOwnedBuildings().size());
@@ -649,7 +650,7 @@ class MatchTest {
 
         int foodBefore = player.getFood();
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, String.valueOf(buildingId)));
         assertTrue(match.getBoard().getBottomRow().stream().anyMatch(card -> card.getId() == buildingId));
         assertFalse(player.getOwnedBuildings().contains(building));
@@ -665,7 +666,7 @@ class MatchTest {
 
         match.placeTotemOnOfferTile(player, dTileIndex);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, "1,2"));
     }
 
@@ -686,7 +687,7 @@ class MatchTest {
                 1
         ));
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, String.valueOf(eventId)));
     }
 
@@ -700,7 +701,7 @@ class MatchTest {
 
         match.placeTotemOnOfferTile(player, dTileIndex);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, String.valueOf(missingId)));
     }
 
@@ -780,7 +781,7 @@ class MatchTest {
 
         int foodBefore = player.getFood();
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, String.valueOf(buildingId)));
         assertTrue(match.getBoard().getTopRow().stream().anyMatch(card -> card.getId() == buildingId));
         assertFalse(player.getOwnedBuildings().contains(building));
@@ -812,7 +813,7 @@ class MatchTest {
 
         match.placeTotemOnOfferTile(player, uTileIndex);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, String.valueOf(missingId)));
     }
 
@@ -849,7 +850,7 @@ class MatchTest {
 
         match.placeTotemOnOfferTile(player, ddTileIndex);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, "1"));
     }
 
@@ -862,7 +863,7 @@ class MatchTest {
 
         match.placeTotemOnOfferTile(player, ddTileIndex);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, "1,2,3"));
     }
 
@@ -878,7 +879,7 @@ class MatchTest {
         match.placeTotemOnOfferTile(player, ddTileIndex);
         match.getBoard().getBottomRow().add(new Gatherer(validCharacterId, Era.I, CharacterType.GATHERER));
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, validCharacterId + "," + missingId));
     }
 
@@ -974,7 +975,7 @@ class MatchTest {
         int ownedBuildingsBefore = player.getOwnedBuildings().size();
         int ownedCharactersBefore = totalOwnedCharacters(player);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, buildingId + "," + characterId));
         assertTrue(match.getBoard().getBottomRow().stream().anyMatch(card -> card.getId() == buildingId));
         assertTrue(match.getBoard().getTopRow().stream().anyMatch(card -> card.getId() == characterId));
@@ -1048,7 +1049,7 @@ class MatchTest {
 
         match.placeTotemOnOfferTile(player, duTileIndex);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, invalidBottomId + "," + topCharacter.getId()));
     }
 
@@ -1066,7 +1067,7 @@ class MatchTest {
 
         match.placeTotemOnOfferTile(player, duTileIndex);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, bottomCharacter.getId() + "," + invalidTopId));
     }
 
@@ -1170,7 +1171,7 @@ class MatchTest {
         int foodBefore = player.getFood();
         int ownedBuildingsBefore = player.getOwnedBuildings().size();
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, firstId + "," + secondId));
         assertEquals(ownedBuildingsBefore, player.getOwnedBuildings().size());
         assertTrue(match.getBoard().getTopRow().stream().anyMatch(card -> card.getId() == firstId));
@@ -1187,11 +1188,11 @@ class MatchTest {
 
         match.placeTotemOnOfferTile(player, uuTileIndex);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, ""));
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, "1"));
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, "1,2,3"));
     }
 
@@ -1207,7 +1208,7 @@ class MatchTest {
         match.placeTotemOnOfferTile(player, uuTileIndex);
         match.getBoard().getTopRow().add(new Gatherer(validId, Era.I, CharacterType.GATHERER));
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, validId + "," + missingId));
     }
 
@@ -1295,7 +1296,7 @@ class MatchTest {
         match.getBoard().getTopRow().add(new Gatherer(topId1, Era.I, CharacterType.GATHERER));
         match.getBoard().getTopRow().add(new Gatherer(topId2, Era.I, CharacterType.GATHERER));
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, invalidBottomId + "," + topId1 + "," + topId2));
     }
 
@@ -1313,7 +1314,7 @@ class MatchTest {
         match.getBoard().getBottomRow().add(new Gatherer(bottomId, Era.I, CharacterType.GATHERER));
         match.getBoard().getTopRow().add(new Gatherer(validTopId, Era.I, CharacterType.GATHERER));
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, bottomId + "," + validTopId + "," + invalidTopId));
     }
 
