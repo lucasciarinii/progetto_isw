@@ -255,4 +255,11 @@ class InventorPairsBCTest {
         card.applyEffect(player, match);
         assertEquals(11, player.getFood()); // 5 + 6 = 2 complete pairs
     }
+
+    @Test
+    @DisplayName("Test that inventorPairsBC.toString returns the correct string")
+    void testToString() {
+        InventorPairsBC card = new InventorPairsBC(8, Era.I, 0, 0, BuildingCardType.CavePaintingEventBoostBC, false);
+        assertTrue(card.toString().endsWith("\tEffect: get +3 food each time you get an inventors pair with same invention\n"));
+    }
 }

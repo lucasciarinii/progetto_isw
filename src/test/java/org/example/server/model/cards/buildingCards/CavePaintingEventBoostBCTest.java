@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CavePaintingEventBoostBCTest {
 
@@ -71,5 +72,11 @@ class CavePaintingEventBoostBCTest {
         cavePainting.applyEvent(match);
 
         assertEquals(6, playerWithBoost.getFood());
+    }
+    @Test
+    @DisplayName("Test that cavePaintingEventBoostBC.toString returns the correct string")
+    void testToString() {
+        CavePaintingEventBoostBC card = new CavePaintingEventBoostBC(8, Era.I, 0, 0, BuildingCardType.CavePaintingEventBoostBC, false);
+        assertTrue(card.toString().endsWith("Effect: get 1 food for each artist in your tribe\n"));
     }
 }
