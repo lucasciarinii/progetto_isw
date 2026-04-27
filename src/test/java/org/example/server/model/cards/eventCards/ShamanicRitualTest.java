@@ -296,4 +296,5 @@ class ShamanicRitualTest {
 		return new Match(new ArrayList<>(Arrays.asList(players)));
 	}
 
+
 }

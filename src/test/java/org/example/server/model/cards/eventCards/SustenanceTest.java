@@ -1,5 +1,6 @@
 package org.example.server.model.cards.eventCards;
 
+import org.example.client.view.ConsoleColors;
 import org.example.server.model.cards.characters.*;
 import org.example.server.model.cards.eventCards.Sustenance;
 import org.example.server.model.enums.CharacterType;
@@ -13,8 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class SustenanceTest {
 
@@ -265,5 +265,50 @@ class SustenanceTest {
         assertEquals(0, player.getFood());
     }
 
+	//Test that isSustenance returns true.
+	@Test
+	@DisplayName("isSustenance returns true")
+	void isSustenance_returnsTrue() {
+		Sustenance sustenance = new Sustenance(10, Era.I, false, EventEffect.SUSTENANCE, 3);
 
+		assertTrue(sustenance.isSustenance());
+	}
+
+	//Test that toString contains the sustenance description and points value.
+	@Test
+	@DisplayName("toString contains sustenance text and points")
+	void toString_containsExpectedText() {
+		Sustenance sustenance = new Sustenance(11, Era.II, false, EventEffect.SUSTENANCE, 4);
+
+		String result = sustenance.toString();
+
+		assertTrue(result.contains("pay 1 food for each character card OR"));
+		assertTrue(result.contains("pay 4 points for it"));
+		assertTrue(result.endsWith(ConsoleColors.RESET + "\n"));
+	}
+
+	//Test that applyEvent clamps the food cost to zero when discount exceeds total characters.
+	@Test
+	@DisplayName("applyEvent clamps negative sustenance cost to zero")
+	void applyEvent_discountGreaterThanCharacters_clampsCostToZero() {
+		Sustenance sustenance = new Sustenance(12, Era.I, false, EventEffect.SUSTENANCE, 2);
+
+		Match match = new Match(List.of(new Player("Alice"), new Player("Bob")));
+		Player player = match.getPlayers().get(0);
+
+		player.addFood(-player.getFood());
+		player.addFood(5);
+
+		//One Gatherer is one character, but usually gives discount 3 through Player logic.
+		//So totalCharacterToPay becomes 1 - 3 = -2 and must be clamped to 0.
+		player.addCharacter(new Gatherer(2000, Era.I, CharacterType.GATHERER));
+
+		int pointsBefore = player.getPoints();
+		int foodBefore = player.getFood();
+
+		sustenance.applyEvent(match);
+
+		assertEquals(pointsBefore, player.getPoints());
+		assertEquals(foodBefore, player.getFood());
+	}
 }
