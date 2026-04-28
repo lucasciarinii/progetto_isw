@@ -4,28 +4,21 @@ import java.time.LocalDateTime;
 
 public class RankingEntry {
     private final String nickname;
-    private final int finalScore;
-    private final LocalDateTime gameDate;
-    private final int numPlayers;
-    private final int inGamePlacement;
+    private final int wins;
+    private final double avgScore;
 
-    public RankingEntry(String nickname, int finalScore, LocalDateTime gameDate,
-                        int numPlayers, int inGamePlacement) {
+    public RankingEntry(String nickname, int wins, double avgScore) {
         this.nickname = nickname;
-        this.finalScore = finalScore;
-        this.gameDate = gameDate;
-        this.numPlayers = numPlayers;
-        this.inGamePlacement = inGamePlacement;
+        this.wins = wins;
+        this.avgScore = avgScore;
     }
 
-    public String getNickname()       { return nickname; }
-    public int getFinalScore()        { return finalScore; }
-    public LocalDateTime getGameDate(){ return gameDate; }
-    public int getNumPlayers()        { return numPlayers; }
-    public int getInGamePlacement()   { return inGamePlacement; }
+    public String getNickname() { return nickname; }
+    public int getWins()        { return wins; }
+    public double getAvgScore() { return avgScore; }
 
     @Override
     public String toString() {
-        return nickname + " | Score: " + finalScore + " | Date: " + gameDate + " | Placement: " + inGamePlacement;
+        return String.format("%s | Wins: %d | Avg score: %.1f", nickname, wins, avgScore);
     }
 }

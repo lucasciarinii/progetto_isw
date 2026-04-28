@@ -9,22 +9,22 @@ import java.util.Map;
 public class GameDAO {
 
     /**
-     * Save a complete game on a DB
-     * @param numPlayers number of players in the game
-     * @param results    maps nickname -> final score
-     * @param placements maps nickname -> final position (1 = first)
+     Save a complete game on a DB
+     @param numPlayers number of players in the game
+     @param results    maps nickname -> final score
+     @param placements maps nickname -> final position (1 = first)
      */
 
     public void saveGame(int numPlayers, Map<String, Integer> results, Map<String, Integer> placements) throws SQLException {
 
         Connection conn = DatabaseConnection.getInstance();
-        conn.setAutoCommit(false); // transazione atomica
+        conn.setAutoCommit(false); // we have to do 2 operations, so we want to commit only if both succeed
 
         try {
             // 1) Insert the game and get the generated ID
             int gameId;
             String insertGame = "INSERT INTO game (num_players) VALUES (?)";
-            try (PreparedStatement ps = conn.prepareStatement(insertGame, Statement.RETURN_GENERATED_KEYS)) {
+            try (PreparedStatement ps = conn.prepareStatement(insertGame, Statement.RETURN_GENERATED_KEYS)) { // with Statement.RETURN_GENERATED_KEYS we can get the auto-incremented ID needed for the next step
                 ps.setInt(1, numPlayers);
                 ps.executeUpdate();
                 ResultSet keys = ps.getGeneratedKeys();
@@ -32,7 +32,7 @@ public class GameDAO {
                 gameId = keys.getInt(1);
             }
 
-            // 2) Inserisce i risultati di ogni giocatore
+            // 2) Insert results for each player
             String insertResult = "INSERT INTO game_result (game_id, nickname, final_score, in_game_placement) VALUES (?, ?, ?, ?)";
             try (PreparedStatement ps = conn.prepareStatement(insertResult)) {
                 for (Map.Entry<String, Integer> entry : results.entrySet()) {
@@ -57,17 +57,17 @@ public class GameDAO {
     }
 
     /**
-     * Restituisce la classifica globale per partite con un dato numero di giocatori,
-     * ordinata per punteggio decrescente.
+     Returns the ranking of players for the specific number of players of the match,
+     ordered by number of wins and then by average score (descending).
+     @param numPlayers the number of players in the matches to consider for the ranking
      */
     public List<RankingEntry> getRanking(int numPlayers) throws SQLException {
         String query = """
-                SELECT gr.nickname, gr.final_score, g.game_date, g.num_players, gr.in_game_placement
-                FROM game_result gr
-                JOIN game g ON gr.game_id = g.id
-                WHERE g.num_players = ?
-                ORDER BY gr.final_score DESC
-                """;
+            SELECT nickname, wins, avg_score
+            FROM ranking_view
+            WHERE num_players = ?
+            ORDER BY rank_position
+            """;
 
         List<RankingEntry> ranking = new ArrayList<>();
         try (PreparedStatement ps = DatabaseConnection.getInstance().prepareStatement(query)) {
@@ -76,10 +76,8 @@ public class GameDAO {
             while (rs.next()) {
                 ranking.add(new RankingEntry(
                         rs.getString("nickname"),
-                        rs.getInt("final_score"),
-                        rs.getTimestamp("game_date").toLocalDateTime(),
-                        rs.getInt("num_players"),
-                        rs.getInt("in_game_placement")
+                        rs.getInt("wins"),
+                        rs.getDouble("avg_score")
                 ));
             }
         }
@@ -87,34 +85,26 @@ public class GameDAO {
     }
 
     /**
-     * Restituisce la posizione globale di un giocatore nella classifica
-     * per partite con un dato numero di giocatori (basata sul miglior punteggio).
+     Returns position of that player in the ranking for matches with a given number of players,
+     based on wins and average score.
+        @param nickname the player nickname
+        @param numPlayers the number of players in the matches to consider for the ranking
      */
     public int getPlayerGlobalRank(String nickname, int numPlayers) throws SQLException {
         String query = """
-                SELECT COUNT(*) + 1 AS rank_position
-                FROM (
-                    SELECT gr.nickname, MAX(gr.final_score) AS best_score
-                    FROM game_result gr
-                    JOIN game g ON gr.game_id = g.id
-                    WHERE g.num_players = ?
-                    GROUP BY gr.nickname
-                ) ranked
-                WHERE best_score > (
-                    SELECT MAX(gr2.final_score)
-                    FROM game_result gr2
-                    JOIN game g2 ON gr2.game_id = g2.id
-                    WHERE gr2.nickname = ? AND g2.num_players = ?
-                )
-                """;
+            SELECT rank_position
+            FROM ranking_view
+            WHERE num_players = ? AND nickname = ?
+            """;
 
         try (PreparedStatement ps = DatabaseConnection.getInstance().prepareStatement(query)) {
             ps.setInt(1, numPlayers);
             ps.setString(2, nickname);
-            ps.setInt(3, numPlayers);
             ResultSet rs = ps.executeQuery();
-            rs.next();
-            return rs.getInt("rank_position");
+            if (rs.next()) {
+                return rs.getInt("rank_position");
+            }
+            return -1; // player not found in the ranking
         }
     }
 }

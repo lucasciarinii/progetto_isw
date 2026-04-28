@@ -1,5 +1,6 @@
 package org.example.server.rmi;
 
+import org.example.network.RankingUpdateMessage;
 import org.example.server.ClientConnection;
 import org.example.network.GameStateUpdateMessage;
 
@@ -22,4 +23,8 @@ public class RMIClientConnection implements ClientConnection {
         callback.receiveError(errorMessage);
     }
 
+    @Override
+    public void sendRankingUpdate(RankingUpdateMessage rankingUpdate) throws Exception {
+        callback.receiveRankingUpdate(rankingUpdate);
+    }
 }
