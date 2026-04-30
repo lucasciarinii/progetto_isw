@@ -22,6 +22,12 @@ public class DatabaseConnection {
 
     public static Connection getInstance() throws SQLException {
         if (instance == null || instance.isClosed()) {
+            try {
+                // Ensure the MySQL driver class is loaded and registered with DriverManager.
+                Class.forName("com.mysql.cj.jdbc.Driver");
+            } catch (ClassNotFoundException e) {
+                throw new SQLException("MySQL JDBC Driver not found on classpath", e);
+            }
             instance = DriverManager.getConnection(URL, USER, PASSWORD);
         }
         return instance;
