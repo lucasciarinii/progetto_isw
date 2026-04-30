@@ -13,7 +13,6 @@ import org.example.server.model.enums.GamePhase;
 import org.example.network.GameStateUpdateMessage;
 import org.example.network.LobbyUpdateMessage;
 import org.example.server.model.enums.OfferEffect;
-import org.example.server.model.match.Player;
 import org.example.server.rmi.RMIGameServer;
 
 import java.rmi.Naming;
@@ -102,7 +101,7 @@ public class ClientController implements GameEventListener {
                 }
             }
             inputHandler.promptForAction(update.getCurrentPhase());
-        } else {
+        } else if ( !isMyTurn(update) && isInteractivePhase(update.getCurrentPhase()) ) {
             view.displayWaiting(update.getCurrentPlayerNickname());
         }
     }
