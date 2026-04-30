@@ -8,7 +8,6 @@ import org.example.network.GameStateUpdateMessage;
 import org.example.network.Snapshots.OfferTileSnapshot;
 import org.example.network.Snapshots.PlayerSnapshot;
 import org.example.network.Snapshots.TurnSlotSnapshot;
-import org.example.server.model.enums.OfferEffect;
 import org.example.server.model.exceptions.InvalidCardException;
 import org.example.server.model.exceptions.NoDrawableCardException;
 import org.example.server.rmi.RMIClientConnection;
@@ -27,7 +26,7 @@ import java.util.stream.Collectors;
 public class ServerController {
     private final Match match;
     // Maps each connected client to the corresponding player nickname (set at connection time)
-    private Map<ClientConnection, String> clientNicknames = new HashMap<>();
+    private final Map<ClientConnection, String> clientNicknames = new HashMap<>();
 
     //! CONSTRUCTOR ---------------------------------------------------------------------------
     public ServerController(Match match) {
@@ -292,8 +291,8 @@ public class ServerController {
                 // PLACE_TOTEMS → PLAYER_TURN
                 // Turns order becomes the order of players on the offer track (left to right)
                 List<Player> offerOrder = match.getBoard().getOfferTrack().stream()
-                        .filter(t -> t.getPlayer() != null)
                         .map(OfferTile::getPlayer)
+                        .filter(Objects::nonNull)
                         .collect(Collectors.toList());
                 match.getGameState().updateTurnOrder(offerOrder);
                 notifyAll(buildSnapshot());
