@@ -1,7 +1,7 @@
 package org.example;
 
 import org.example.client.ClientController;
-import org.example.client.view.gui.FxClientLauncher;
+import org.example.client.view.gui.FxLauncher;
 import org.example.server.rmi.RMIGameServerImpl;
 
 import java.util.Scanner;
@@ -47,7 +47,7 @@ public class App {
     // CLIENT
     // =========================================================================
 
-    private static void startClient(String host, String mode) throws Exception {
+    private static void startClient(String host, String mode) {
         switch (mode) {
             case "tui" -> startClientTui(host);
             case "gui" -> startClientGui(host);
@@ -56,7 +56,7 @@ public class App {
     }
 
 
-    private static void startClientTui(String host) throws Exception {
+    private static void startClientTui(String host) {
         Scanner scanner = new Scanner(System.in);
 
         System.out.print("Insert your nickname: ");
@@ -76,7 +76,7 @@ public class App {
     }
 
 
-    private static void startClientGui(String host) throws Exception {
-        FxClientLauncher.launchClient(host);
+    private static void startClientGui(String host) {
+        FxLauncher.launchClient(host);
     }
 }
