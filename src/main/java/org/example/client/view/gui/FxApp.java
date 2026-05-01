@@ -27,7 +27,8 @@ public class FxApp extends Application {
         controller.setHost(host);
 
         stage.setTitle("MESOS - Client GUI");
-        stage.setScene(new Scene(root, 900, 650));
+        stage.setScene(new Scene(root, 470, 200));
+        stage.setResizable(false);
         stage.show();
     }
 
