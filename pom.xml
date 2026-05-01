@@ -12,7 +12,16 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <javafx.version>20.0.2</javafx.version>
+    <javafx.platform>linux</javafx.platform>
   </properties>
+
+  <repositories>
+    <repository>
+      <id>central</id>
+      <url>https://repo.maven.apache.org/maven2/</url>
+    </repository>
+  </repositories>
 
   <dependencies>
     <dependency>
@@ -34,12 +43,6 @@
       </dependency>
       <dependency>
           <groupId>org.junit.jupiter</groupId>
-          <artifactId>junit-jupiter</artifactId>
-          <version>6.1.0-M1</version>
-          <scope>test</scope>
-      </dependency>
-      <dependency>
-          <groupId>org.junit.jupiter</groupId>
           <artifactId>junit-jupiter-params</artifactId>
           <version>6.1.0-M1</version>
           <scope>test</scope>
@@ -54,6 +57,18 @@
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
         <version>8.0.33</version>
+      </dependency>
+      <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-controls</artifactId>
+        <version>${javafx.version}</version>
+        <classifier>${javafx.platform}</classifier>
+      </dependency>
+      <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-fxml</artifactId>
+        <version>${javafx.version}</version>
+        <classifier>${javafx.platform}</classifier>
       </dependency>
   </dependencies>
     <build>
