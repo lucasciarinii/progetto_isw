@@ -1,8 +1,10 @@
 package org.example.server.database;
 
-import java.time.LocalDateTime;
+import java.io.Serializable;
 
-public class RankingEntry {
+// DTO used in RankingUpdateMessage: must be Serializable to be sent over RMI
+public class RankingEntry implements Serializable {
+    private static final long serialVersionUID = 1L;
     private final String nickname;
     private final int wins;
     private final double avgScore;

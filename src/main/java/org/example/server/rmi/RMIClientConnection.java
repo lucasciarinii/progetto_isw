@@ -27,4 +27,9 @@ public class RMIClientConnection implements ClientConnection {
     public void sendRankingUpdate(RankingUpdateMessage rankingUpdate) throws Exception {
         callback.receiveRankingUpdate(rankingUpdate);
     }
+
+    @Override
+    public void sendShutdown() throws Exception {
+        callback.receiveShutdown();
+    }
 }

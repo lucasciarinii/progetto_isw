@@ -15,6 +15,9 @@ public interface ClientConnection {
     // Sends an error to the client (e.g., invalid move, wrong turn, etc.)
     void sendError(String errorMessage) throws Exception;
 
-    // Sends ranking udpate
+    // Sends ranking update
     void sendRankingUpdate(RankingUpdateMessage rankingUpdate) throws Exception;
+
+    // Sends shutdown message
+    void sendShutdown() throws Exception;
 }

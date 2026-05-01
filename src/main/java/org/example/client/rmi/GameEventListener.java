@@ -15,4 +15,5 @@ public interface GameEventListener {
 
     void onRankingUpdate(RankingUpdateMessage rankingUpdate);
 
+    void onShutdown();
 }
