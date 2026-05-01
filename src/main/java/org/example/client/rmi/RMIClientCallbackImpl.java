@@ -44,4 +44,9 @@ public class RMIClientCallbackImpl extends UnicastRemoteObject implements RMICli
         listener.onRankingUpdate(rankingUpdate);
     }
 
+    @Override
+    public void receiveShutdown() throws RemoteException {
+        listener.onShutdown();
+    }
+
 }

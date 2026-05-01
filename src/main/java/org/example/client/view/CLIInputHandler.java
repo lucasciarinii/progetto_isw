@@ -136,4 +136,9 @@ private List<Integer> askIds(String rowName, List<Card> row, int count) {
                                         + player.getDiscountOnBuilding()))
                 .count();
     }
+
+    public void warnExit() {
+        System.out.println("GAME ENDED, THANKS FOR PLAYING...");
+        System.exit(0);
+    }
 }

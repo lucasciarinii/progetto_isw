@@ -117,6 +117,11 @@ public class ClientController implements GameEventListener {
         view.displayRankingUpdate(rankingMessage.getRanking(), rankingMessage.getPlayerRankPosition());
     }
 
+    @Override
+    public void onShutdown() {
+        inputHandler.warnExit();
+    }
+
     //! UTILITY METHODS -----------------------------------------------
     private boolean isMyTurn(GameStateUpdateMessage update) {
         return update.getCurrentPlayerNickname().equals(nickname) && isInteractivePhase(update.getCurrentPhase());

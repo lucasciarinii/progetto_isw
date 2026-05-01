@@ -22,4 +22,8 @@ public interface RMIClientCallback extends Remote {
 
     // Server sends results of queries to the client.
     void receiveRankingUpdate(RankingUpdateMessage rankingUpdate) throws RemoteException;
+
+    // Server sends a shutdown message to the clients in order to handle first sending ranking update
+    void receiveShutdown() throws RemoteException;
+
 }
