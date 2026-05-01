@@ -33,6 +33,7 @@ public class FxController {
         try {
             ClientController client = new ClientController(nickname);
             client.connect(host, numPlayers);
+            //TODO: update scene after client connection to show game
         } catch (Exception e) {
             throw new Exception("Impossible to connect to server");
         }
