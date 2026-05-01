@@ -31,8 +31,8 @@ public class FxController {
         }
 
         try {
-            ClientController client = new ClientController(host);
-            client.connect(nickname, numPlayers);
+            ClientController client = new ClientController(nickname);
+            client.connect(host, numPlayers);
         } catch (Exception e) {
             throw new Exception("Impossible to connect to server");
         }
