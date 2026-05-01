@@ -1,8 +1,9 @@
 package org.example.client.view;
 
-import org.example.model.cards.Card;
-import org.example.model.enums.Era;
-import org.example.model.enums.GamePhase;
+import org.example.server.database.RankingEntry;
+import org.example.server.model.cards.Card;
+import org.example.server.model.enums.Era;
+import org.example.server.model.enums.GamePhase;
 import org.example.network.GameStateUpdateMessage;
 import org.example.network.Snapshots.OfferTileSnapshot;
 import org.example.network.Snapshots.PlayerSnapshot;
@@ -10,8 +11,10 @@ import org.example.network.Snapshots.TurnSlotSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class View {
+    private GameStateUpdateMessage lastUpdate;
     private int currentRound;
     private Era currentEra;
     private GamePhase currentPhase;
@@ -42,6 +45,7 @@ public class View {
     }
 
     public void update(GameStateUpdateMessage message) {
+        this.lastUpdate = message;
         this.currentRound = message.getCurrentRound();
         this.currentEra = message.getCurrentEra();
         this.currentPhase = message.getCurrentPhase();
@@ -56,6 +60,8 @@ public class View {
         
         display();
     }
+
+    public GameStateUpdateMessage getLastUpdate() { return lastUpdate; }
 
     public void display() {
         clearScreen();
@@ -103,6 +109,37 @@ public class View {
 
     public void displayError(String error) {
         System.out.println("\n[ERROR] " + error + "\n");
+    }
+
+    public void displayNoCardsPickable() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("\n[INFO] There are no cards pickable, you have to pass this turn. Press any key to continue the game...\n");
+        scanner.nextLine();
+    }
+
+    public void displayRankingUpdate(List<RankingEntry> ranking, int playerRankPosition) {
+        System.out.println("\n========================================");
+        System.out.println("         GLOBAL RANKING");
+        System.out.println("========================================");
+
+        if (ranking.isEmpty()) {
+            System.out.println("No players in ranking yet.");
+        } else {
+            int position = 1;
+            for (RankingEntry entry : ranking) {
+                String arrow = (entry.getNickname().equals(currentPlayerNickname)) ? " <<<" : "";
+                System.out.printf("%2d. %-20s Wins: %d | Avg score: %.1f%s%n", position, entry.getNickname(), entry.getWins(), entry.getAvgScore(), arrow);
+                position++;
+            }
+        }
+
+        System.out.println("----------------------------------------");
+        if (playerRankPosition == -1) {
+            System.out.println("You are not in the ranking yet (no wins).");
+        } else {
+            System.out.println("Your position: #" + playerRankPosition);
+        }
+        System.out.println("========================================\n");
     }
 
     public static void clearScreen() {

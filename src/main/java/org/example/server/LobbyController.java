@@ -5,8 +5,8 @@ package org.example.server;
     - When the number is reached, creates Match and ServerController.
 */
 
-import org.example.model.match.Match;
-import org.example.model.match.Player;
+import org.example.server.model.match.Match;
+import org.example.server.model.match.Player;
 import org.example.network.LobbyUpdateMessage;
 import org.example.server.rmi.RMIClientCallback;
 import org.example.server.rmi.RMIClientConnection;
@@ -16,7 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LobbyController {
+public class LobbyController implements GameOverListener {
     private int requiredPlayers = -1;  // -1 = not decided yet
 
     // Keeps the order of connection: nickname, callback
@@ -77,6 +77,7 @@ public class LobbyController {
         // Creates the Match and ServerController
         Match match = new Match(players);
         ServerController serverController = new ServerController(match);
+        serverController.setGameOverListener(this);
 
         // Registers each client in the ServerController
         for (Map.Entry<String, RMIClientCallback> entry : waitingClients.entrySet()) {
@@ -107,5 +108,13 @@ public class LobbyController {
                 System.err.println("[LOBBY] Errore notifica client: " + e.getMessage());
             }
         }
+    }
+
+    @Override
+    public void onGameOver(ServerController controller) {
+        // Reset lobby state for a new match
+        waitingClients.clear();
+        requiredPlayers = -1;
+        System.out.println("[LOBBY] Ready for a new game.");
     }
 }

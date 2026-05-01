@@ -3,6 +3,7 @@ package org.example.server.rmi;
 import org.example.server.LobbyController;
 import org.example.server.LobbyReadyListener;
 import org.example.server.ServerController;
+import org.example.server.model.enums.OfferEffect;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -25,7 +26,7 @@ public class RMIGameServerImpl extends UnicastRemoteObject implements RMIGameSer
     @Override
     public void onLobbyReady(ServerController serverController) {
         this.serverController = serverController;
-        System.out.println("[SERVER] Lobby piena, partita avviata!");
+        System.out.println("[SERVER] Lobby full, game started!");
     }
 
     @Override
@@ -34,7 +35,7 @@ public class RMIGameServerImpl extends UnicastRemoteObject implements RMIGameSer
         try {
             lobby.registerPlayer(nickname, numPlayers, callback);
         } catch (Exception e) {
-            throw new RemoteException("Errore registrazione: " + e.getMessage());
+            throw new RemoteException("Registration Error: " + e.getMessage());
         }
     }
 
@@ -48,6 +49,12 @@ public class RMIGameServerImpl extends UnicastRemoteObject implements RMIGameSer
     public void offerTileAction(String nickname, String cards) throws RemoteException {
         checkGameStarted();
         serverController.offerTileAction(nickname, cards);
+    }
+
+    @Override
+    public void skipTurn(String nickname) throws RemoteException {
+        checkGameStarted();
+        serverController.skipTurn(nickname);
     }
 
     private void checkGameStarted() throws RemoteException {

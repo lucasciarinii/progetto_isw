@@ -1,29 +1,44 @@
 package org.example.server;
 
-import org.example.model.board.OfferTile;
+import org.example.network.RankingUpdateMessage;
+import org.example.server.database.DatabaseConnection;
+import org.example.server.database.GameDAO;
+import org.example.server.database.RankingEntry;
+import org.example.server.model.board.OfferTile;
 import org.example.network.GameStateUpdateMessage;
 import org.example.network.Snapshots.OfferTileSnapshot;
 import org.example.network.Snapshots.PlayerSnapshot;
 import org.example.network.Snapshots.TurnSlotSnapshot;
+import org.example.server.model.exceptions.InvalidCardException;
+import org.example.server.model.exceptions.NoDrawableCardException;
 import org.example.server.rmi.RMIClientConnection;
-import org.example.model.board.Board;
-import org.example.model.board.PlayerSlot;
-import org.example.model.enums.GamePhase;
-import org.example.model.match.GameState;
-import org.example.model.match.Match;
-import org.example.model.match.Player;
+import org.example.server.model.board.Board;
+import org.example.server.model.board.PlayerSlot;
+import org.example.server.model.enums.GamePhase;
+import org.example.server.model.match.GameState;
+import org.example.server.model.match.Match;
+import org.example.server.model.match.Player;
 
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ServerController {
     private final Match match;
     // Maps each connected client to the corresponding player nickname (set at connection time)
-    private Map<ClientConnection, String> clientNicknames = new HashMap<>();
+    private final Map<ClientConnection, String> clientNicknames = new HashMap<>();
+    private GameOverListener onGameOver;
+
 
     //! CONSTRUCTOR ---------------------------------------------------------------------------
     public ServerController(Match match) {
         this.match = match;
+    }
+
+    public void setGameOverListener(GameOverListener listener) {
+        this.onGameOver = listener;
     }
 
     //! CLIENT REGISTRATION ---------------------------------------------------------------------------
@@ -33,6 +48,24 @@ public class ServerController {
 
     public void unregisterClient(ClientConnection client) {
         clientNicknames.remove(client);
+    }
+
+    // Close the connection
+    private void shutdown() {
+        // Empty local map
+        new ArrayList<>(clientNicknames.keySet()).forEach(this::unregisterClient);
+
+        // Close DB connection
+//        try {
+//            DatabaseConnection.getInstance().close();
+//        } catch (SQLException e) {
+//            System.err.println("[DB] Error closing connection: " + e.getMessage());
+//        }
+
+        System.out.println("[SERVER] Game match session closed.");
+        if (onGameOver != null) {
+            onGameOver.onGameOver(this);
+        }
     }
 
     //! GAME ACTIONS ---------------------------------------------------------------------------
@@ -64,12 +97,12 @@ public class ServerController {
     public void offerTileAction(String nickname, String cards) {
         ClientConnection sender = findConnection(nickname);
         if (sender == null) {
-            System.err.println("[SERVER] Connessione non trovata per: " + nickname);
+            System.err.println("[SERVER] Connection not found for: " + nickname);
             return;
         }
 
         if (isWrongPlayer(nickname) || isWrongPhase(GamePhase.PLAYER_TURN)) {
-            sendError(sender, "Mossa non valida: non è il tuo turno o fase errata.");
+            sendError(sender, "Invalid move: it's not yourn turn or invalid phase.");
             return;
         }
 
@@ -79,10 +112,45 @@ public class ServerController {
             match.offerTileAction(player, cards);
             match.getGameState().advanceToNextPlayer();
             handlePhaseTransition(phaseBefore);
-        } catch (Exception e) {
+        } catch (NoDrawableCardException e) {
+            // We must still move the player to the TurnOrderTile
+            OfferTile selectedTile = match.getBoard().getOfferTrack().stream()
+                    .filter(tile -> tile.getPlayer() != null )
+                    .filter(tile -> tile.getPlayer().getNickname().equals(nickname))
+                    .findFirst()
+                    .orElseThrow( () -> new IllegalStateException( "player not found on offerTrack") );
+            selectedTile.removePlayer();
+
+            // Warn about the NoDrawableCard and skip his turn
+            sendError(sender, e.getMessage());
+            GamePhase phaseBefore = match.getGameState().getCurrentPhase();
+            match.getGameState().advanceToNextPlayer();
+            handlePhaseTransition(phaseBefore);
+        }
+        catch (InvalidCardException e) {
             sendError(sender, "Invalid move: " + e.getMessage());
         }
+        catch (Exception e) {
+            sendError(sender, "Generic Exception: " + e.getMessage());
+        }
 
+    }
+
+    public void skipTurn(String nickname) {
+        ClientConnection sender = findConnection(nickname);
+        if (sender == null) {
+            System.err.println("[SERVER] SkipTurn failed: connection not found for: " + nickname);
+            return;
+        }
+
+        if (isWrongPlayer(nickname) || isWrongPhase(GamePhase.PLAYER_TURN)) {
+            sendError(sender, "SkipTurn failed: invalid move: it's not yourn turn or invalid phase.");
+            return;
+        }
+
+        GamePhase phaseBefore = match.getGameState().getCurrentPhase();
+        match.getGameState().advanceToNextPlayer();
+        handlePhaseTransition(phaseBefore);
     }
 
     //! UTILITY METHODS ---------------------------------------------------------------------------
@@ -126,6 +194,7 @@ public class ServerController {
                 client.sendUpdate(update);
             } catch (Exception e) {
                 // Client disconnected, remove it
+                System.out.print("[SERVER] Failed to send update to " + clientNicknames.get(client) + ", unregistering client. Reason: " + e.getMessage());
                 unregisterClient(client);
             }
         });
@@ -184,6 +253,7 @@ public class ServerController {
                         p.getNickname(),
                         p.getFood(),
                         p.getPoints(),
+                        p.getDiscountOnBuilding(),
                         new ArrayList<>(p.getHunters()),
                         new ArrayList<>(p.getGatherers()),
                         new ArrayList<>(p.getBuilders()),
@@ -247,8 +317,8 @@ public class ServerController {
                 // PLACE_TOTEMS → PLAYER_TURN
                 // Turns order becomes the order of players on the offer track (left to right)
                 List<Player> offerOrder = match.getBoard().getOfferTrack().stream()
-                        .filter(t -> t.getPlayer() != null)
                         .map(OfferTile::getPlayer)
+                        .filter(Objects::nonNull)
                         .collect(Collectors.toList());
                 match.getGameState().updateTurnOrder(offerOrder);
                 notifyAll(buildSnapshot());
@@ -267,6 +337,12 @@ public class ServerController {
 
             case END_ROUND -> {
                 // EVENTS_RESOLVE → END_ROUND: automatic
+                if(match.getGameState().getCurrentRound() == 10) {
+                    // If it's the end of round 10, we go directly to END_GAME
+                    match.getGameState().advancePhase();
+                    handleNewPhase(match.getGameState().getCurrentPhase());
+                    return;
+                }
                 match.endRoundOperations();
 
                 // END_ROUND.next(state) handle internally:
@@ -288,7 +364,72 @@ public class ServerController {
             case GAME_OVER -> {
                 // FINAL STATE: notifies all clients with the final snapshot (winners included)
                 notifyAll(buildSnapshot());
-                // TODO: GESTIRE L'EVENTUALE CHIUSURA DELLE CONNESSIONI
+
+                // DB: save game results in the DB
+                // 1) Build results and placements
+                Map<String, Integer> results    = new HashMap<>();
+                Map<String, Integer> placements = new HashMap<>();
+
+                List<Player> sorted = match.getPlayers().stream()
+                        .sorted(Comparator.comparingInt(Player::getPoints).reversed())
+                        .toList();
+
+                for (int i = 0; i < sorted.size(); i++) {
+                    Player p = sorted.get(i);
+                    results.put(p.getNickname(), p.getPoints());
+                    placements.put(p.getNickname(), i + 1);
+                }
+
+                // 2) Store on DB
+                GameDAO dao = new GameDAO();
+                try {
+                    dao.saveGame(match.getPlayers().size(), results, placements);
+                } catch (SQLException e) {
+                    System.err.println("[DB ERROR] Failed to save game: " + e.getMessage());
+                }
+
+                // 3) Execute query and get results
+                try {
+                    List<RankingEntry> ranking = dao.getRanking(match.getPlayers().size());
+                    for (Player p : match.getPlayers()) {
+                        int rankPosition = dao.getPlayerGlobalRank(p.getNickname(), match.getPlayers().size());
+                        RankingUpdateMessage msg = new RankingUpdateMessage(ranking, rankPosition);
+
+                        // Find ClientConnection corresponding to nickname and send ranking update
+                        clientNicknames.entrySet().stream()
+                                .filter(entry -> entry.getValue().equals(p.getNickname()))
+                                .map(Map.Entry::getKey)
+                                .findFirst()
+                                .ifPresent(conn -> {
+                                    try {
+                                        conn.sendRankingUpdate(msg);
+                                    } catch (RemoteException e) {
+                                        System.err.println("[ERROR] Failed to send ranking to " + p.getNickname());
+                                    }
+                                    catch (Exception e) {
+                                        System.err.println("[ERROR] in send ranking " + p.getNickname() + ": exception" + e.getMessage());
+                                    }
+                                });
+                    }
+                } catch (SQLException e) {
+                    System.err.println("[DB ERROR] Failed to retrieve ranking: " + e.getMessage());
+                }
+
+                // 4) Now we can send shutdown to all clients (of this match)
+                clientNicknames.keySet().forEach(conn -> {
+                    try {
+                        conn.sendShutdown();
+                    }
+                    catch (RemoteException e) {
+                        // Nothing, it's just client disconnection
+                    }
+                    catch (Exception e) {
+                        System.err.println("[ERROR] Failed to send shutdown to client");
+                    }
+                });
+
+                // Close connection
+                shutdown();
             }
 
              default -> throw new IllegalStateException("Unexpected phase: " + phase);

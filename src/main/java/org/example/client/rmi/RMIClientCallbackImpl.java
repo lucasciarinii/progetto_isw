@@ -2,6 +2,7 @@ package org.example.client.rmi;
 
 import org.example.network.GameStateUpdateMessage;
 import org.example.network.LobbyUpdateMessage;
+import org.example.network.RankingUpdateMessage;
 import org.example.server.rmi.RMIClientCallback;
 
 import java.rmi.RemoteException;
@@ -36,6 +37,16 @@ public class RMIClientCallbackImpl extends UnicastRemoteObject implements RMICli
     @Override
     public void receiveLobbyUpdate(LobbyUpdateMessage update) throws RemoteException {
         listener.onLobbyUpdate(update);
+    }
+
+    @Override
+    public void receiveRankingUpdate(RankingUpdateMessage rankingUpdate) throws RemoteException {
+        listener.onRankingUpdate(rankingUpdate);
+    }
+
+    @Override
+    public void receiveShutdown() throws RemoteException {
+        listener.onShutdown();
     }
 
 }

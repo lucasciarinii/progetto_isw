@@ -1,0 +1,35 @@
+package org.example.server.model.cards.buildingCards;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.example.server.model.cards.characters.Builder;
+import org.example.server.model.enums.BuildingCardType;
+import org.example.server.model.enums.Era;
+import org.example.server.model.match.Match;
+import org.example.server.model.match.Player;
+
+// Col2 Row3
+public class EndGameBonusBC extends BuildingCard {
+    public EndGameBonusBC(
+            @JsonProperty("id") int id,
+            @JsonProperty("era") Era era,
+            @JsonProperty("foodCost") int foodCost,
+            @JsonProperty("endPoints") int endPoints,
+            @JsonProperty("class_type") BuildingCardType buildingCardType,
+            @JsonProperty("isEndGame") boolean isEndGame
+    ) {
+        super(id, era, foodCost, endPoints, BuildingCardType.EndGameBonusBC, isEndGame);
+    }
+
+    @Override
+    public String toString() {
+        return "%s\tEffect: get double the points indicated in your Builder cards (end game)\n".formatted(super.toString());
+    }
+
+    public void applyEffect(Player owner, Match match) {
+        int puntiCostruttore = owner.getBuilders().stream()
+                .mapToInt(Builder::getEndPoints)
+                .sum();
+
+        owner.addPoints(puntiCostruttore);
+    }
+}

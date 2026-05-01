@@ -1,6 +1,6 @@
 package org.example.network.Snapshots;
 
-import org.example.model.enums.OfferEffect;
+import org.example.server.model.enums.OfferEffect;
 
 import java.io.Serial;
 import java.io.Serializable;

@@ -2,6 +2,7 @@ package org.example.server.rmi;
 
 import org.example.network.GameStateUpdateMessage;
 import org.example.network.LobbyUpdateMessage;
+import org.example.network.RankingUpdateMessage;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -18,4 +19,11 @@ public interface RMIClientCallback extends Remote {
 
     // Server sends snapshot updated of the lobby state. The client will receive it.
     void receiveLobbyUpdate(LobbyUpdateMessage update) throws RemoteException;
+
+    // Server sends results of queries to the client.
+    void receiveRankingUpdate(RankingUpdateMessage rankingUpdate) throws RemoteException;
+
+    // Server sends a shutdown message to the clients in order to handle first sending ranking update
+    void receiveShutdown() throws RemoteException;
+
 }

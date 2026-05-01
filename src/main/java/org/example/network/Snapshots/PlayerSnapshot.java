@@ -1,8 +1,7 @@
 package org.example.network.Snapshots;
 
-import org.example.model.cards.Card;
-import org.example.model.cards.buildingCards.BuildingCard;
-import org.example.model.cards.characters.*;
+import org.example.server.model.cards.buildingCards.BuildingCard;
+import org.example.server.model.cards.characters.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,6 +11,7 @@ public class PlayerSnapshot implements Serializable {
     private final String nickname;
     private final int food;
     private final int points;
+    private final int discountOnBuilding;
     private final List<Hunter> ownedHunters;
     private final List<Gatherer> ownedGatherers;
     private final List<Builder> ownedBuilders;
@@ -21,10 +21,11 @@ public class PlayerSnapshot implements Serializable {
     private final List<BuildingCard> ownedBuildings; // List of building cards owned by the player (can be empty)
 
 
-    public PlayerSnapshot(String nickname, int food, int points, List<Hunter> hunters, List<Gatherer> gatherers, List<Builder> builders, List<Shaman> shamans, List<Artist> artists, List<Inventor> inventors, List<BuildingCard> ownedBuildings) {
+    public PlayerSnapshot(String nickname, int food, int points, int discountOnBuilding, List<Hunter> hunters, List<Gatherer> gatherers, List<Builder> builders, List<Shaman> shamans, List<Artist> artists, List<Inventor> inventors, List<BuildingCard> ownedBuildings) {
         this.nickname = nickname;
         this.food = food;
         this.points = points;
+        this.discountOnBuilding = discountOnBuilding;
         this.ownedHunters = new ArrayList<>(hunters);
         this.ownedGatherers = new ArrayList<>(gatherers);
         this.ownedBuilders = new ArrayList<>(builders);
@@ -46,6 +47,8 @@ public class PlayerSnapshot implements Serializable {
     public int getPoints() {
         return points;
     }
+
+    public int getDiscountOnBuilding() { return discountOnBuilding; }
 
     public void printAllCards() {
         ownedHunters.forEach(System.out::println);
