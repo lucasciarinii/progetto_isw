@@ -22,7 +22,7 @@ public class App {
             case "server" -> startServer();
             case "client" -> {
                 String mode = args.length > 1 ? args[1] : "tui";
-                String host = args.length > 1 ? args[1] : "localhost";
+                String host = args.length > 2 ? args[2] : "localhost";
                 startClient(host, mode);
             }
             default -> System.out.println("Argument not recognized: " + args[0]);
