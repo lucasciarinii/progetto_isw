@@ -26,7 +26,7 @@ public class RMIGameServerImpl extends UnicastRemoteObject implements RMIGameSer
     @Override
     public void onLobbyReady(ServerController serverController) {
         this.serverController = serverController;
-        System.out.println("[SERVER] Lobby piena, partita avviata!");
+        System.out.println("[SERVER] Lobby full, game started!");
     }
 
     @Override
@@ -35,7 +35,7 @@ public class RMIGameServerImpl extends UnicastRemoteObject implements RMIGameSer
         try {
             lobby.registerPlayer(nickname, numPlayers, callback);
         } catch (Exception e) {
-            throw new RemoteException("Errore registrazione: " + e.getMessage());
+            throw new RemoteException("Registration Error: " + e.getMessage());
         }
     }
 
