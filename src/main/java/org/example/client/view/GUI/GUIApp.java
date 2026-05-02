@@ -19,7 +19,7 @@ public class GUIApp extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(
-                GUIApp.class.getResource("/java/org/example/client/view/GUI/fxml/main-scene.fxml")
+                GUIApp.class.getResource("/fxml/main-scene.fxml")
         );
         Parent root = loader.load();
 

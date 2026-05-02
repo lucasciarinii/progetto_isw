@@ -2,6 +2,7 @@ package org.example;
 
 import org.example.client.ClientController;
 import org.example.client.view.GUI.GUILauncher;
+import org.example.client.view.TUI.TUIHandler;
 import org.example.server.rmi.RMIGameServerImpl;
 
 import java.util.Scanner;
@@ -66,8 +67,10 @@ public class App {
         int numPlayers = Integer.parseInt(scanner.nextLine().trim());
 
         try {
-            ClientController client = new ClientController(nickname);
-            client.connect(host, numPlayers);
+            TUIHandler tui = new TUIHandler();
+            ClientController clientController = new ClientController(nickname, tui);
+            tui.setController(clientController);
+            clientController.connect(host, numPlayers);
         }
         catch (Exception e) {
             System.out.println("Impossible to connect to server RIM to address: " + host);

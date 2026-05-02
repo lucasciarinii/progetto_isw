@@ -3,6 +3,7 @@ package org.example.client.view.GUI.GUIController;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import org.example.client.ClientController;
+import org.example.client.view.GUI.GUIHandler;
 
 public class GUIController {
 
@@ -31,8 +32,10 @@ public class GUIController {
         }
 
         try {
-            ClientController client = new ClientController(nickname);
-            client.connect(host, numPlayers);
+            GUIHandler gui = new GUIHandler();
+            ClientController clientController = new ClientController(nickname, gui);
+            gui.setController(clientController);
+            clientController.connect(host, numPlayers);
             //TODO: update scene after client connection to show game
         } catch (Exception e) {
             throw new Exception("Impossible to connect to server");
