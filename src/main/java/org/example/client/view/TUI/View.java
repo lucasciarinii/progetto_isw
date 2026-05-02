@@ -1,4 +1,4 @@
-package org.example.client.view.tui;
+package org.example.client.view.TUI;
 
 import org.example.server.database.RankingEntry;
 import org.example.server.model.cards.Card;

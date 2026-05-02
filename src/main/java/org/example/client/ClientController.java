@@ -2,8 +2,8 @@ package org.example.client;
 
 import org.example.client.rmi.RMIClientCallbackImpl;
 import org.example.client.rmi.GameEventListener;
-import org.example.client.view.tui.CLIInputHandler;
-import org.example.client.view.tui.View;
+import org.example.client.view.TUI.CLIInputHandler;
+import org.example.client.view.TUI.View;
 import org.example.network.RankingUpdateMessage;
 import org.example.network.Snapshots.OfferTileSnapshot;
 import org.example.network.Snapshots.PlayerSnapshot;
