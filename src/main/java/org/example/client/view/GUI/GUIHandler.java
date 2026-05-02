@@ -6,6 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.example.client.ClientController;
+import org.example.client.view.GUI.GUIController.GUIGameController;
 import org.example.client.view.GUI.GUIController.GUILobbyController;
 import org.example.client.view.UIHandler;
 import org.example.network.GameStateUpdateMessage;
@@ -18,6 +19,7 @@ public class GUIHandler implements UIHandler {
     private Stage stage;
 
     private GUILobbyController GUILobbyController;
+    private GUIGameController GUIGameController;
 
     // SETTERS ---------------------------------------------------------------------------------------------------------
 
@@ -35,19 +37,30 @@ public class GUIHandler implements UIHandler {
     @Override
     public void onLobbyUpdate(LobbyUpdateMessage update) {
         Platform.runLater(() -> {
+
             if (GUILobbyController != null) {
                 GUILobbyController.update(update);
             }
             else {
                 switchToLobby(update);
             }
+
         });
     }
 
 
     @Override
     public void onGameStateUpdate(GameStateUpdateMessage update) {
+        Platform.runLater(() -> {
 
+            if ( GUIGameController != null) {
+                GUIGameController.update(update);
+            } else {
+                // Load game scene
+                switchToGame(update);
+            }
+
+        });
     }
 
 
@@ -99,6 +112,27 @@ public class GUIHandler implements UIHandler {
 
         } catch (Exception e) {
             System.err.println("Failed to load lobby scene: " +  e.getMessage());
+        }
+    }
+
+
+    private void switchToGame(GameStateUpdateMessage update) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/game.fxml")
+            );
+
+            Parent root = loader.load();
+
+            GUIGameController = loader.getController();
+            GUIGameController.update(update);
+            stage.setScene(new Scene(root));
+            stage.setResizable(true);
+
+
+        } catch (Exception e) {
+            System.err.println("Failed to load game scene: " +  e.getMessage());
+
         }
     }
 }
