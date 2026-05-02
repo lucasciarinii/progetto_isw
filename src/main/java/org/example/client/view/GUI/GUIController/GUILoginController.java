@@ -64,6 +64,7 @@ public class GUILoginController {
         try {
             errorLabel.setTextFill(Color.BLACK);
             errorLabel.setText("Connecting...");
+            controller.connect(host,  numPlayers);
         } catch (Exception e) {
             throw new Exception("Impossible to connect to server");
         }
