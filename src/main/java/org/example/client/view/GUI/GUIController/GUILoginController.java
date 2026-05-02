@@ -1,5 +1,6 @@
 package org.example.client.view.GUI.GUIController;
 
+import com.mysql.cj.xdevapi.Client;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -29,9 +30,10 @@ public class GUILoginController {
 
     @FXML
     public void onConnect() throws Exception {
-        String nickname = nicknameField.getText();
-        String numPlayersText = numPlayersField.getText();
+        String nickname = nicknameField.getText().trim();
+        String numPlayersText = numPlayersField.getText().trim();
 
+        // 1) Check inputs
         if (nickname.isEmpty()) {
             errorLabel.setText("Nickname cannot be empty");
             return;
@@ -50,12 +52,16 @@ public class GUILoginController {
             return;
         }
 
-        // Connection
+        // 2) GUIHandler and ClientController creation
+        GUIHandler gui = new GUIHandler();
+        gui.setPrimaryStage(stage);
+
+        ClientController controller = new ClientController(nickname, gui);
+        gui.setController(controller);
+
+
+        // 3) Connection to server
         try {
-            GUIHandler gui = new GUIHandler();
-            ClientController clientController = new ClientController(nickname, gui);
-            gui.setController(clientController);
-            clientController.connect(host, numPlayers);
             errorLabel.setTextFill(Color.BLACK);
             errorLabel.setText("Connecting...");
         } catch (Exception e) {
