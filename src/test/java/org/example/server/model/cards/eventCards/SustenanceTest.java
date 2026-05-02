@@ -1,8 +1,7 @@
 package org.example.server.model.cards.eventCards;
 
-import org.example.client.view.ConsoleColors;
+import org.example.client.view.tui.ConsoleColors;
 import org.example.server.model.cards.characters.*;
-import org.example.server.model.cards.eventCards.Sustenance;
 import org.example.server.model.enums.CharacterType;
 import org.example.server.model.enums.Era;
 import org.example.server.model.enums.EventEffect;

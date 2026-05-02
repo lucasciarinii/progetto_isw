@@ -1,7 +1,7 @@
 package org.example.server.model.cards.characters;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.example.client.view.ConsoleColors;
+import org.example.client.view.tui.ConsoleColors;
 import org.example.server.model.enums.CharacterType;
 import org.example.server.model.enums.Era;
 import org.example.server.model.interfaces.Visitor;

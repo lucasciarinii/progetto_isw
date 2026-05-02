@@ -1,10 +1,10 @@
-package org.example.client.view.gui.controller;
+package org.example.client.view.GUI.GUIController;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import org.example.client.ClientController;
 
-public class FxController {
+public class GUIController {
 
     @FXML public TextField nicknameField;
     @FXML public TextField numPlayersField;

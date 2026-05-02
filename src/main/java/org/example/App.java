@@ -1,7 +1,7 @@
 package org.example;
 
 import org.example.client.ClientController;
-import org.example.client.view.gui.FxLauncher;
+import org.example.client.view.GUI.GUILauncher;
 import org.example.server.rmi.RMIGameServerImpl;
 
 import java.util.Scanner;
@@ -77,6 +77,6 @@ public class App {
 
 
     private static void startClientGui(String host) {
-        FxLauncher.launchClient(host);
+        GUILauncher.launchGuiClient(host);
     }
 }

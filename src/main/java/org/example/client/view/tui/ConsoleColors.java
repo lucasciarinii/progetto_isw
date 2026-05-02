@@ -1,4 +1,4 @@
-package org.example.client.view;
+package org.example.client.view.tui;
 
 public class ConsoleColors {
     public static final String RESET = "\u001B[0m";

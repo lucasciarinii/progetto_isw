@@ -1,6 +1,6 @@
 package org.example.server.model.cards.eventCards;
 
-import org.example.client.view.ConsoleColors;
+import org.example.client.view.tui.ConsoleColors;
 import org.example.server.model.enums.Era;
 import org.example.server.model.enums.EventEffect;
 import org.example.server.model.match.Match;

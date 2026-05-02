@@ -1,4 +1,4 @@
-package org.example.client.view;
+package org.example.client.view.tui;
 
 import org.example.client.ClientController;
 import org.example.network.GameStateUpdateMessage;

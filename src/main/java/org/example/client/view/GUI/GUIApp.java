@@ -1,29 +1,29 @@
-package org.example.client.view.gui;
+package org.example.client.view.GUI;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.example.client.view.gui.controller.FxController;
+import org.example.client.view.GUI.GUIController.GUIController;
 
-public class FxApp extends Application {
+public class GUIApp extends Application {
 
     private static String host =  "localhost";
 
     public static void setHost(String host) {
-        FxApp.host = host;
+        GUIApp.host = host;
     }
 
 
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(
-                FxApp.class.getResource("/java/org/example/client/view/gui/fxml/main-scene.fxml")
+                GUIApp.class.getResource("/java/org/example/client/view/GUI/fxml/main-scene.fxml")
         );
         Parent root = loader.load();
 
-        FxController controller = loader.getController();
+        GUIController controller = loader.getController();
         controller.setHost(host);
 
         stage.setTitle("MESOS - Client GUI");
