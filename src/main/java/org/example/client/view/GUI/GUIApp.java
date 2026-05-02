@@ -5,7 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.example.client.view.GUI.GUIController.GUIController;
+import org.example.client.view.GUI.GUIController.GUILoginController;
 
 public class GUIApp extends Application {
 
@@ -19,12 +19,13 @@ public class GUIApp extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(
-                GUIApp.class.getResource("/fxml/main-scene.fxml")
+                GUIApp.class.getResource("/fxml/login.fxml")
         );
         Parent root = loader.load();
 
-        GUIController controller = loader.getController();
+        GUILoginController controller = loader.getController();
         controller.setHost(host);
+        controller.setStage(stage);
 
         stage.setTitle("MESOS - Client GUI");
         stage.setScene(new Scene(root, 470, 200));
