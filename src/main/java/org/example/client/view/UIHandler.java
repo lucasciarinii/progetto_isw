@@ -8,8 +8,8 @@ import org.example.server.model.enums.GamePhase;
 public interface UIHandler {
 
     public void onLobbyUpdate(LobbyUpdateMessage update);
-    public void onUpdate(GameStateUpdateMessage update);
-    public void onError(String errorMessage);
+    public void onGameStateUpdate(GameStateUpdateMessage update);
+    public void onError(String errorMessage, GamePhase currentPhase);
     public void onRankingUpdate(RankingUpdateMessage rankingMessage);
     public void onShutdown();
     public void promptForAction(GamePhase phase);

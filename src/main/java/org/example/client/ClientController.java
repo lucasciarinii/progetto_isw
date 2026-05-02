@@ -3,7 +3,7 @@ package org.example.client;
 import org.example.client.rmi.RMIClientCallbackImpl;
 import org.example.client.rmi.GameEventListener;
 import org.example.client.view.TUI.CLIInputHandler;
-import org.example.client.view.TUI.View;
+import org.example.client.view.TUI.TUIView;
 import org.example.network.RankingUpdateMessage;
 import org.example.network.Snapshots.OfferTileSnapshot;
 import org.example.network.Snapshots.PlayerSnapshot;
@@ -27,19 +27,19 @@ import java.util.List;
 public class ClientController implements GameEventListener {
     private final String nickname;
     private RMIGameServer server;       // server stub RMI
-    private final View view;
+    private final TUIView TUIView;
     private final CLIInputHandler inputHandler;
 
     public ClientController(String nickname) {
         this.nickname = nickname;
-        this.view = new View();
+        this.TUIView = new TUIView();
         this.inputHandler = new CLIInputHandler(this);
     }
 
     public String getNickname() { return nickname; }
 
-    public View getView() {
-        return view;
+    public TUIView getView() {
+        return TUIView;
     }
 
     //! CONNECTION TO SERVER -----------------------------------------------
@@ -79,7 +79,7 @@ public class ClientController implements GameEventListener {
     //! RECEIVING UPDATES FROM SERVER (called by ClientCallbackImpl) -----------------------------------------------
     @Override
     public void onUpdate(GameStateUpdateMessage update) {
-        view.update(update);
+        TUIView.update(update);
 
         if (isMyTurn(update)) {
             if (update.getCurrentPhase() == GamePhase.PLAYER_TURN) {
@@ -90,31 +90,31 @@ public class ClientController implements GameEventListener {
                         .orElse(null);
 
                 if (!hasPickableCards(effect, update)) { // Client-Side check
-                    view.displayNoCardsPickable();
+                    TUIView.displayNoCardsPickable();
                     // Warn server to go on
                     try {
                         server.skipTurn(nickname);
                     } catch (RemoteException e) {
-                        view.displayError("Communication error: " + e.getMessage());
+                        TUIView.displayError("Communication error: " + e.getMessage());
                     }
                     return;
                 }
             }
             inputHandler.promptForAction(update.getCurrentPhase());
         } else if ( !isMyTurn(update) && isInteractivePhase(update.getCurrentPhase()) ) {
-            view.displayWaiting(update.getCurrentPlayerNickname());
+            TUIView.displayWaiting(update.getCurrentPlayerNickname());
         }
     }
 
     @Override
     public void onError(String errorMessage) {
-        view.displayError(errorMessage);
-        inputHandler.promptForAction(view.getCurrentPhase()); // in handleOfferTileAction (promptForAction) there is a while loop that will keep asking for input until the server accepts a valid command, so we can just rely on that and do not need to re-prompt here
+        TUIView.displayError(errorMessage);
+        inputHandler.promptForAction(TUIView.getCurrentPhase()); // in handleOfferTileAction (promptForAction) there is a while loop that will keep asking for input until the server accepts a valid command, so we can just rely on that and do not need to re-prompt here
     }
 
     @Override
     public void onRankingUpdate(RankingUpdateMessage rankingMessage) {
-        view.displayRankingUpdate(rankingMessage.getRanking(), rankingMessage.getPlayerRankPosition());
+        TUIView.displayRankingUpdate(rankingMessage.getRanking(), rankingMessage.getPlayerRankPosition());
     }
 
     @Override

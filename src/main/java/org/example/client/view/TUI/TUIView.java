@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class View {
+public class TUIView {
     private GameStateUpdateMessage lastUpdate;
     private int currentRound;
     private Era currentEra;
@@ -33,7 +33,7 @@ public class View {
     // Game over
     private List<String> winners = new ArrayList<>();
 
-    public View() {
+    public TUIView() {
     }
 
     public List<OfferTileSnapshot> getOfferTrack() {
