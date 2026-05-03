@@ -50,5 +50,18 @@ public enum GamePhase implements GamePhaseInterface {
         public GamePhase next(GameState state) {
             return GAME_OVER; // no next phase, game is over
         }
+    };
+
+
+    @Override
+    public String toString() {
+        return switch(this) {
+            case PLACE_TOTEMS -> "PLACE_TOTEMS";
+            case PLAYER_TURN -> "PLAYER_TURN";
+            case EVENTS_RESOLVE -> "EVENTS_RESOLVE";
+            case END_ROUND -> "END_ROUND";
+            case END_GAME -> "END_GAME";
+            case GAME_OVER -> "GAME_OVER";
+        };
     }
 }
