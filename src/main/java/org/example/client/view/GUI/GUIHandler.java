@@ -4,19 +4,25 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import org.example.client.ClientController;
 import org.example.client.view.GUI.GUIController.GUIGameController;
 import org.example.client.view.GUI.GUIController.GUILobbyController;
+import org.example.client.view.GUI.registry.CardImageRegistry;
+import org.example.client.view.GUI.registry.PlayerColorRegistry;
 import org.example.client.view.UIHandler;
 import org.example.network.GameStateUpdateMessage;
 import org.example.network.LobbyUpdateMessage;
 import org.example.network.RankingUpdateMessage;
 import org.example.server.model.enums.GamePhase;
 
+import java.util.List;
+
 public class GUIHandler implements UIHandler {
     private ClientController controller;
     private Stage stage;
+    private String localNickname = controller.getNickname();
 
     private GUILobbyController GUILobbyController;
     private GUIGameController GUIGameController;
@@ -27,10 +33,10 @@ public class GUIHandler implements UIHandler {
         this.controller = controller;
     }
 
-
     public void setPrimaryStage(Stage primaryStage) {
         this.stage = primaryStage;
     }
+
 
     // -----------------------------------------------------------------------------------------------------------------
 
@@ -77,7 +83,14 @@ public class GUIHandler implements UIHandler {
 
     @Override
     public void onShutdown() {
-
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Match Ended");
+            alert.setHeaderText("Server closed the match.");
+            alert.setContentText("Thanks for playing MESOS");
+            alert.showAndWait();
+            Platform.exit();
+        });
     }
 
     @Override
@@ -109,6 +122,7 @@ public class GUIHandler implements UIHandler {
             GUILobbyController = loader.getController();
             GUILobbyController.update(update);
             stage.setScene(new Scene(root));
+            stage.setTitle("MESOS — Lobby");
 
         } catch (Exception e) {
             System.err.println("Failed to load lobby scene: " +  e.getMessage());
@@ -117,6 +131,16 @@ public class GUIHandler implements UIHandler {
 
 
     private void switchToGame(GameStateUpdateMessage update) {
+        // 1. Assign colors to players
+        List<String> nicknames = update.getPlayers().stream()
+                .map(p -> p.getNickname())
+                .collect(java.util.stream.Collectors.toList());
+        PlayerColorRegistry.getInstance().init(nicknames);
+
+        // 2. Initialize CardImageRegistry with the number of players (to load correct card images)
+        int numPlayers = update.getPlayers().size();
+        CardImageRegistry.getInstance().init(numPlayers);
+
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/fxml/game.fxml")
@@ -128,6 +152,7 @@ public class GUIHandler implements UIHandler {
             GUIGameController.update(update);
 
             stage.setScene(new Scene(root));
+            stage.setTitle("MESOS — Match");
             stage.setFullScreen(true);
 
         } catch (Exception e) {

@@ -6,6 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.example.client.view.GUI.GUIController.GUILoginController;
+import org.example.client.view.GUI.registry.CardImageRegistry;
 
 public class GUIApp extends Application {
 
@@ -18,6 +19,7 @@ public class GUIApp extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+
         FXMLLoader loader = new FXMLLoader(
                 GUIApp.class.getResource("/fxml/login.fxml")
         );

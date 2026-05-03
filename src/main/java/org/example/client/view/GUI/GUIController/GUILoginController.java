@@ -8,6 +8,7 @@ import javafx.stage.Stage;
 import org.example.client.ClientController;
 import org.example.client.view.GUI.GUIHandler;
 import javafx.scene.paint.Color;
+import org.example.client.view.GUI.registry.CardImageRegistry;
 
 import java.awt.*;
 
