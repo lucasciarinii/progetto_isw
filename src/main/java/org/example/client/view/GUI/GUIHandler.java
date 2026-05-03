@@ -126,9 +126,9 @@ public class GUIHandler implements UIHandler {
 
             GUIGameController = loader.getController();
             GUIGameController.update(update);
-            stage.setScene(new Scene(root));
-            stage.setResizable(true);
 
+            stage.setScene(new Scene(root));
+            stage.setFullScreen(true);
 
         } catch (Exception e) {
             System.err.println("Failed to load game scene: " +  e.getMessage());
