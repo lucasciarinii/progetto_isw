@@ -6,6 +6,7 @@ import org.example.server.model.cards.Card;
 import org.example.server.model.cards.characters.Character;
 import org.example.server.model.cards.eventCards.EventCard;
 
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
@@ -44,14 +45,17 @@ public class MainDeck extends Deck<Card> {
 
     private void loadCardsFromJson(ObjectMapper mapper, int numPlayers) {
         // Let's decide the json file beforehand
-        Path p = null;
-        switch (numPlayers) {
-            case 2 -> p = Path.of("src/main/java/org/example/server/model/decks/decks_json/characters_2p.json");
-            case 3 -> p = Path.of("src/main/java/org/example/server/model/decks/decks_json/characters_3p.json");
-            case 4 -> p = Path.of("src/main/java/org/example/server/model/decks/decks_json/characters_4p.json");
-            case 5 -> p = Path.of("src/main/java/org/example/server/model/decks/decks_json/characters_5p.json");
-            default -> throw new IllegalArgumentException("Number of players must be between 2 and 5");
+        Path p;
+        if (numPlayers < 2 || numPlayers > 5) throw new IllegalArgumentException("Invalid players");
+
+        try {
+            p = Path.of(getClass().getClassLoader().getResource("json/characters_%dp.json".formatted(numPlayers)).toURI());
         }
+        catch (URISyntaxException e) {
+            throw new RuntimeException("Failed to load character cards JSON file", e);
+        }
+
+
         try {
             // 1. Read all character objects from the JSON file into a List<Character>>
             List<Character> characterCards = mapper.readValue(
