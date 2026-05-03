@@ -50,6 +50,14 @@ public class PlayerSnapshot implements Serializable {
 
     public int getDiscountOnBuilding() { return discountOnBuilding; }
 
+    public List<Hunter>       getOwnedHunters()   { return ownedHunters; }
+    public List<Gatherer>     getOwnedGatherers() { return ownedGatherers; }
+    public List<Builder>      getOwnedBuilders()  { return ownedBuilders; }
+    public List<Shaman>       getOwnedShamans()   { return ownedShamans; }
+    public List<Artist>       getOwnedArtists()   { return ownedArtists; }
+    public List<Inventor>     getOwnedInventors() { return ownedInventors; }
+    public List<BuildingCard> getOwnedBuildings() { return ownedBuildings; }
+
     public void printAllCards() {
         ownedHunters.forEach(System.out::println);
         ownedGatherers.forEach(System.out::println);
