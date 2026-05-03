@@ -21,13 +21,13 @@ public class MainDeck extends Deck<Card> {
 
     public Card draw() {
         if (!era_I_cards.isEmpty()) {
-            return era_I_cards.remove(0);
+            return era_I_cards.removeFirst();
         }
         if (!era_II_cards.isEmpty()) {
-            return era_II_cards.remove(0);
+            return era_II_cards.removeFirst();
         }
         if (!era_III_cards.isEmpty()) {
-            return era_III_cards.remove(0);
+            return era_III_cards.removeFirst();
         }
 
         throw new NoSuchElementException("No cards left in deck");
@@ -74,7 +74,7 @@ public class MainDeck extends Deck<Card> {
             }
 
             // 1. Read all event objects from the JSON file into a List<EventCard>>
-            p = Path.of("src/main/java/org/example/server/model/decks/decks_json/events.json");
+            p = Path.of(getClass().getClassLoader().getResource("json/events.json".formatted(numPlayers)).toURI());
             List<EventCard> eventCards = mapper.readValue(
                     p.toFile(),
                     new TypeReference<List<EventCard>>() {
