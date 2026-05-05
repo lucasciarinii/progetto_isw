@@ -6,7 +6,7 @@
     "foodCost": 4,
     "endPoints": 3,
     "isEndGame": false,
-    "image": "SetCollectionFoodBC.jpg"
+    "image": "buildings_img/SetCollectionFoodBC.jpg"
   },
   {
     "class_type": "SustenanceDiscountBC",
@@ -16,7 +16,7 @@
     "endPoints": 4,
     "characterEffect": "GATHERER",
     "isEndGame": false,
-    "image": "SustenanceDiscountBC_gatherer.jpg"
+    "image": "buildings_img/SustenanceDiscountBC_gatherer.jpg"
   },
   {
     "class_type": "SustenanceDiscountBC",
@@ -26,7 +26,7 @@
     "endPoints": 3,
     "characterEffect": "ARTIST",
     "isEndGame": false,
-    "image": "SustenanceDiscountBC_artist.jpg"
+    "image": "buildings_img/SustenanceDiscountBC_artist.jpg"
   },
   {
     "class_type": "ShamanicNoMalusBC",
@@ -35,7 +35,7 @@
     "foodCost": 5,
     "endPoints": 2,
     "isEndGame": false,
-    "image": "ShamanicNoMalusBC.jpg"
+    "image": "buildings_img/ShamanicNoMalusBC.jpg"
   },
   {
     "class_type": "RoundFlowTotemBC",
@@ -44,7 +44,7 @@
     "foodCost": 3,
     "endPoints": 3,
     "isEndGame": false,
-    "image": "RoundFlowTotemBC.jpg"
+    "image": "buildings_img/RoundFlowTotemBC.jpg"
   },
   {
     "class_type": "InventorPairsBC",
@@ -53,7 +53,7 @@
     "foodCost": 3,
     "endPoints": 4,
     "isEndGame": false,
-    "image": "InventorPairsBC.jpg"
+    "image": "buildings_img/InventorPairsBC.jpg"
   },
   {
     "class_type": "ShamanicDoublePointsBC",
@@ -62,7 +62,7 @@
     "foodCost": 7,
     "endPoints": 0,
     "isEndGame": false,
-    "image": "ShamanicDoublePointsBC.jpg"
+    "image": "buildings_img/ShamanicDoublePointsBC.jpg"
   },
   {
     "class_type": "ShamanicStarsBC",
@@ -71,7 +71,7 @@
     "foodCost": 6,
     "endPoints": 4,
     "isEndGame": false,
-    "image": "ShamanicStarsBC.jpg"
+    "image": "buildings_img/ShamanicStarsBC.jpg"
   },
   {
     "class_type": "SustenanceDiscountBC",
@@ -81,7 +81,7 @@
     "endPoints": 4,
     "characterEffect": "INVENTOR",
     "isEndGame": false,
-    "image": "SustenanceDiscountBC_inventor.jpg"
+    "image": "buildings_img/SustenanceDiscountBC_inventor.jpg"
   },
   {
     "class_type": "HuntEventBoostBC",
@@ -90,7 +90,7 @@
     "foodCost": 7,
     "endPoints": 2,
     "isEndGame": false,
-    "image": "HuntEventBoostBC.jpg"
+    "image": "buildings_img/HuntEventBoostBC.jpg"
   },
   {
     "class_type": "EndGameBonusBC",
@@ -99,7 +99,7 @@
     "foodCost": 6,
     "endPoints": 4,
     "isEndGame": true,
-    "image": "EndGameBonusBC.jpg"
+    "image": "buildings_img/EndGameBonusBC.jpg"
   },
   {
     "class_type": "CavePaintingEventBoostBC",
@@ -108,7 +108,7 @@
     "foodCost": 5,
     "endPoints": 6,
     "isEndGame": false,
-    "image": "CavePaintingEventBoostBC.jpg"
+    "image": "buildings_img/CavePaintingEventBoostBC.jpg"
   },
   {
     "class_type": "SetCollectionEndPointsBC",
@@ -117,7 +117,7 @@
     "foodCost": 5,
     "endPoints": 6,
     "isEndGame": true,
-    "image": "SetCollectionEndPointsBC.jpg"
+    "image": "buildings_img/SetCollectionEndPointsBC.jpg"
   },
   {
     "class_type": "CharacterEndPointsBC",
@@ -128,7 +128,7 @@
     "pointsEffect": 3,
     "characterEffect": "HUNTER",
     "isEndGame": true,
-    "image": "CharacterEndPointsBC_hunter.jpg"
+    "image": "buildings_img/CharacterEndPointsBC_hunter.jpg"
   },
   {
     "class_type": "CharacterEndPointsBC",
@@ -139,7 +139,7 @@
     "pointsEffect": 4,
     "characterEffect": "GATHERER",
     "isEndGame": true,
-    "image": "CharacterEndPointsBC_gatherer.jpg"
+    "image": "buildings_img/CharacterEndPointsBC_gatherer.jpg"
   },
   {
     "class_type": "CharacterEndPointsBC",
@@ -150,7 +150,7 @@
     "pointsEffect": 4,
     "characterEffect": "SHAMAN",
     "isEndGame": true,
-    "image": "CharacterEndPointsBC_shaman.jpg"
+    "image": "buildings_img/CharacterEndPointsBC_shaman.jpg"
   },
   {
     "class_type": "CharacterEndPointsBC",
@@ -161,7 +161,7 @@
     "pointsEffect": 4,
     "characterEffect": "BUILDER",
     "isEndGame": true,
-    "image": "CharacterEndPointsBC_builder.jpg"
+    "image": "buildings_img/CharacterEndPointsBC_builder.jpg"
   },
   {
     "class_type": "CharacterEndPointsBC",
@@ -172,7 +172,7 @@
     "pointsEffect": 4,
     "characterEffect": "ARTIST",
     "isEndGame": true,
-    "image": "CharacterEndPointsBC_artist.jpg"
+    "image": "buildings_img/CharacterEndPointsBC_artist.jpg"
   },
   {
     "class_type": "CharacterEndPointsBC",
@@ -183,7 +183,7 @@
     "pointsEffect": 2,
     "characterEffect": "INVENTOR",
     "isEndGame": true,
-    "image": "CharacterEndPointsBC_inventor.jpg"
+    "image": "buildings_img/CharacterEndPointsBC_inventor.jpg"
   },
   {
     "class_type": "RoundFlowBC",
@@ -192,7 +192,7 @@
     "foodCost": 9,
     "endPoints": 3,
     "isEndGame": false,
-    "image": "RoundFlowBC.jpg"
+    "image": "buildings_img/RoundFlowBC.jpg"
   },
   {
     "class_type": "EndGameBonus25BC",
@@ -201,6 +201,6 @@
     "foodCost": 10,
     "endPoints": 25,
     "isEndGame": true,
-    "image": "EndGameBonus25BC.jpg"
+    "image": "buildings_img/EndGameBonus25BC.jpg"
   }
 ]
