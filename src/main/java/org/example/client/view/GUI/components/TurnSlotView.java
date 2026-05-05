@@ -33,7 +33,7 @@ public class TurnSlotView extends StackPane {
     // TODO: tutte le dimensioni dobbiamo sistemarle ad occhio ----------------------------
     // Tile dimensions — same proportion as the image
     public static final double TILE_WIDTH = 110;
-    public static final double TILE_HEIGHT = 220;
+    public static final double TILE_HEIGHT = 180;
 
     // Position X of the center of the totem inside each slot (to be adjusted by eye)
     private static final double TOTEM_X = 30;

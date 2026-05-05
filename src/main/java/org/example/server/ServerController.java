@@ -203,7 +203,7 @@ public class ServerController {
     // Notifies the sender client with an error message (e.g., invalid move, wrong turn, etc.). If sending fails (e.g., client disconnected), we unregister the client.
     private void sendError(ClientConnection client, String message) {
         try {
-            client.sendError(message);
+            client.sendError(message, match.getGameState().getCurrentPhase());
         } catch (Exception e) {
             unregisterClient(client);
         }

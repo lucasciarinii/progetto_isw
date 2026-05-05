@@ -4,6 +4,12 @@ import org.example.server.model.interfaces.GamePhaseInterface;
 import org.example.server.model.match.GameState;
 
 public enum GamePhase implements GamePhaseInterface {
+    LOBBY {
+        @Override
+        public GamePhase next(GameState state) {
+            return PLACE_TOTEMS;
+        }
+    },
 
     PLACE_TOTEMS {
         @Override
@@ -56,6 +62,7 @@ public enum GamePhase implements GamePhaseInterface {
     @Override
     public String toString() {
         return switch(this) {
+            case LOBBY -> "LOBBY";
             case PLACE_TOTEMS -> "PLACE_TOTEMS";
             case PLAYER_TURN -> "PLAYER_TURN";
             case EVENTS_RESOLVE -> "EVENTS_RESOLVE";

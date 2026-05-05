@@ -5,6 +5,7 @@ package org.example.server;
     - When the number is reached, creates Match and ServerController.
 */
 
+import org.example.server.model.enums.GamePhase;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
 import org.example.network.LobbyUpdateMessage;
@@ -38,14 +39,14 @@ public class LobbyController implements GameOverListener {
 
         // Check if the nickname is already taken
         if (waitingClients.containsKey(nickname)) {
-            callback.receiveError("Nickname already used: " + nickname);
+            callback.receiveError("Nickname already used: " + nickname, GamePhase.LOBBY);
             return;
         }
 
         // First player decides how many players will be in the game (2-5)
         if (waitingClients.isEmpty()) {
             if (numPlayers < 2 || numPlayers > 5) {
-                callback.receiveError("Invalid number of players. Choose between 2 and 5.");
+                callback.receiveError("Invalid number of players. Choose between 2 and 5.", GamePhase.LOBBY);
                 return;
             }
             requiredPlayers = numPlayers;
