@@ -3,6 +3,7 @@ package org.example.client.rmi;
 import org.example.network.GameStateUpdateMessage;
 import org.example.network.LobbyUpdateMessage;
 import org.example.network.RankingUpdateMessage;
+import org.example.server.model.enums.GamePhase;
 import org.example.server.rmi.RMIClientCallback;
 
 import java.rmi.RemoteException;
@@ -30,8 +31,8 @@ public class RMIClientCallbackImpl extends UnicastRemoteObject implements RMICli
     }
 
     @Override
-    public void receiveError(String errorMessage) throws RemoteException {
-        listener.onError(errorMessage);
+    public void receiveError(String errorMessage, GamePhase phase) throws RemoteException {
+        listener.onError(errorMessage, phase);
     }
 
     @Override

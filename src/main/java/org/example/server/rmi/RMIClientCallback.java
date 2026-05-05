@@ -3,6 +3,7 @@ package org.example.server.rmi;
 import org.example.network.GameStateUpdateMessage;
 import org.example.network.LobbyUpdateMessage;
 import org.example.network.RankingUpdateMessage;
+import org.example.server.model.enums.GamePhase;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -15,7 +16,7 @@ public interface RMIClientCallback extends Remote {
     void receiveUpdate(GameStateUpdateMessage update) throws RemoteException;
 
     // Server sends an error message to the client, for example if the client made an invalid move. The client will receive it and use this.
-    void receiveError(String errorMessage) throws RemoteException;
+    void receiveError(String errorMessage, GamePhase phase) throws RemoteException;
 
     // Server sends snapshot updated of the lobby state. The client will receive it.
     void receiveLobbyUpdate(LobbyUpdateMessage update) throws RemoteException;

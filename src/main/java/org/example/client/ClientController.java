@@ -97,8 +97,8 @@ public class ClientController implements GameEventListener {
     }
 
     @Override
-    public void onError(String errorMessage) {
-        ui.onError(errorMessage, /* currentPhase dal lastUpdate */ null);
+    public void onError(String errorMessage, GamePhase phase) {
+        ui.onError(errorMessage, phase);
     }
 
     @Override

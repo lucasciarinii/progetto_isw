@@ -7,13 +7,14 @@ package org.example.server;
 
 import org.example.network.GameStateUpdateMessage;
 import org.example.network.RankingUpdateMessage;
+import org.example.server.model.enums.GamePhase;
 
 public interface ClientConnection {
     // Sends complete state snapshot to the client (after each valid move)
     void sendUpdate(GameStateUpdateMessage update) throws Exception;
 
     // Sends an error to the client (e.g., invalid move, wrong turn, etc.)
-    void sendError(String errorMessage) throws Exception;
+    void sendError(String errorMessage, GamePhase phase) throws Exception;
 
     // Sends ranking update
     void sendRankingUpdate(RankingUpdateMessage rankingUpdate) throws Exception;
