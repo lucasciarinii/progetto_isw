@@ -1,7 +1,6 @@
 -- ============================================
 -- TEST DATA — 2-player games
 -- ============================================
-game
 INSERT INTO game (num_players) VALUES (2); -- id 1
 INSERT INTO game (num_players) VALUES (2); -- id 2
 INSERT INTO game (num_players) VALUES (2); -- id 3
