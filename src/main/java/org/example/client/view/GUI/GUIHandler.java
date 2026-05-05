@@ -176,7 +176,15 @@ public class GUIHandler implements UIHandler {
 
             stage.setScene(new Scene(root));
             stage.setTitle("MESOS — Match");
-            stage.setFullScreen(true);
+
+            stage.setResizable(true);
+            stage.show();
+
+            Platform.runLater(() -> {
+                if (stage.isShowing()) {
+                    stage.setFullScreen(true);
+                }
+            });
 
         } catch (Exception e) {
             System.err.println("Failed to load game scene: " +  e.getMessage());
