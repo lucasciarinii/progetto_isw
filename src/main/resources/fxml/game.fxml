@@ -8,7 +8,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.image.ImageView?>
 
-
 <BorderPane
         xmlns="http://javafx.com/javafx"
         xmlns:fx="http://javafx.com/fxml"
@@ -16,13 +15,8 @@
         prefWidth="1280" prefHeight="800"
         style="-fx-background-color: #12120c;">
 
-    <!-- ═══════════════════════════════════════════════════════════
-         TOP — info bar + action bar
-    ═══════════════════════════════════════════════════════════ -->
     <top>
         <VBox style="-fx-background-color: #1a1a10;">
-
-            <!-- Barra info -->
             <HBox spacing="24" style="-fx-padding: 6 16 6 16; -fx-border-color: #333322; -fx-border-width: 0 0 1 0;">
                 <Label text="ROUND" style="-fx-text-fill: #888866; -fx-font-size: 10px;"/>
                 <Label fx:id="roundLabel"   style="-fx-text-fill: #f0e0b0; -fx-font-size: 12px; -fx-font-weight: bold;"/>
@@ -37,7 +31,6 @@
                 <Label fx:id="currentPlayerLabel" style="-fx-text-fill: #ffcc00; -fx-font-size: 12px; -fx-font-weight: bold;"/>
             </HBox>
 
-            <!-- Barra azioni -->
             <HBox spacing="16" style="-fx-padding: 6 16 6 16; -fx-border-color: #333322; -fx-border-width: 0 0 1 0;">
                 <Button fx:id="confirmButton"
                         text="Conferma"
@@ -48,43 +41,31 @@
                        style="-fx-text-fill: #a0a080; -fx-font-size: 11px;"
                        text="In attesa..."/>
             </HBox>
-
         </VBox>
     </top>
 
-    <!-- ═══════════════════════════════════════════════════════════
-         CENTER — tabellone di gioco
-    ═══════════════════════════════════════════════════════════ -->
     <center>
         <VBox spacing="12" style="-fx-padding: 14 16 14 16;">
 
-            <!-- Fila 1: TOP ROW -->
             <HBox fx:id="topRowBox" spacing="8" style="-fx-alignment: center-left;"/>
 
-            <!-- Fila 2: mazzo + TurnSlot + OfferTrack -->
             <HBox spacing="16" style="-fx-alignment: center-left;">
-                <!-- Retro mazzo (dipende dall'era) -->
+
                 <ImageView
                         fx:id="deckBackView"
-                        fitWidth="90" fitHeight="130"
+                        fitWidth="110" fitHeight="160"
                         preserveRatio="false" smooth="true"/>
 
-                <!-- Tessera ordine di turno -->
                 <HBox fx:id="turnSlotBox"/>
 
-                <!-- Offer track -->
                 <HBox fx:id="offerTrackBox" spacing="8"/>
             </HBox>
 
-            <!-- Fila 3: BOTTOM ROW -->
             <HBox fx:id="bottomRowBox" spacing="8" style="-fx-alignment: center-left;"/>
 
         </VBox>
     </center>
 
-    <!-- ═══════════════════════════════════════════════════════════
-         BOTTOM — pannelli giocatori scrollabili orizzontalmente
-    ═══════════════════════════════════════════════════════════ -->
     <bottom>
         <VBox style="-fx-border-color: #333322; -fx-border-width: 1 0 0 0;">
             <ScrollPane
