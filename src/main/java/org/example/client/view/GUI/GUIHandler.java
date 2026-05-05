@@ -36,7 +36,10 @@ public class GUIHandler implements UIHandler {
 
     public void setPrimaryStage(Stage primaryStage) {
         this.stage = primaryStage;
-        this.stage.setOnCloseRequest(_ -> Platform.exit());
+        this.stage.setOnCloseRequest(_ -> {
+            Platform.exit();
+            System.exit(0);
+        });
     }
 
 
