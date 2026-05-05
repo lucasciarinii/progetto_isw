@@ -4,14 +4,16 @@
     "era": "I",
     "isEraFinal": false,
     "eventEffect": "SUSTENANCE",
-    "points": -1
+    "points": -1,
+    "image": "events_img/sustenance/s_1.jpg"
   },
   {
     "id": 52,
     "era": "I",
     "isEraFinal": false,
     "eventEffect": "HUNT-EVENT",
-    "points": 1
+    "points": 1,
+    "image": "events_img/hunt_event/hh_1.jpg"
   },
   {
     "id": 53,
@@ -19,7 +21,8 @@
     "isEraFinal": false,
     "eventEffect": "SHAMANIC_RITUAL",
     "bonusPoints": 5,
-    "malusPoints": -3
+    "malusPoints": -3,
+    "image": "events_img/shamanic_ritual/sr_5_3.jpg"
   },
   {
     "id": 54,
@@ -28,21 +31,24 @@
     "eventEffect": "CAVE_PAINTING",
     "bonusPoints": 1,
     "malusPoints": -2,
-    "interval": 1
+    "interval": 1,
+    "image": "events_img/shamanic_ritual/cp_1.jpg"
   },
   {
     "id": 55,
     "era": "II",
     "isEraFinal": false,
     "eventEffect": "SUSTENANCE",
-    "points": -2
+    "points": -2,
+    "image": "events_img/sustenance/s_2.jpg"
   },
   {
     "id": 56,
     "era": "II",
     "isEraFinal": false,
     "eventEffect": "HUNT-EVENT",
-    "points": 2
+    "points": 2,
+    "image": "events_img/hunt_event/hh_2.jpg"
   },
   {
     "id": 57,
@@ -50,7 +56,8 @@
     "isEraFinal": false,
     "eventEffect": "SHAMANIC_RITUAL",
     "bonusPoints": 10,
-    "malusPoints": -5
+    "malusPoints": -5,
+    "image": "events_img/shamanic_ritual/sr_10_5.jpg"
   },
   {
     "id": 58,
@@ -59,14 +66,16 @@
     "eventEffect": "CAVE_PAINTING",
     "bonusPoints": 2,
     "malusPoints": -2,
-    "interval": 2
+    "interval": 2,
+    "image": "events_img/shamanic_ritual/cp_2.jpg"
   },
   {
     "id": 59,
     "era": "III",
     "isEraFinal": false,
     "eventEffect": "HUNT-EVENT",
-    "points": 3
+    "points": 3,
+    "image": "events_img/hunt_event/hh_3.jpg"
   },
   {
     "id": 60,
@@ -75,14 +84,16 @@
     "eventEffect": "CAVE_PAINTING",
     "bonusPoints": 3,
     "malusPoints": -2,
-    "interval": 3
+    "interval": 3,
+    "image": "events_img/shamanic_ritual/cp_3.jpg"
   },
   {
     "id": 61,
     "era": "III",
     "isEraFinal": true,
     "eventEffect": "SUSTENANCE",
-    "points": -3
+    "points": -3,
+    "image": "events_img/sustenance/s_1.jpg"
   },
   {
     "id": 62,
@@ -90,6 +101,7 @@
     "isEraFinal": true,
     "eventEffect": "SHAMANIC_RITUAL",
     "bonusPoints": 15,
-    "malusPoints": -7
+    "malusPoints": -7,
+    "image": "events_img/shamanic_ritual/sr_15_7.jpg"
   }
 ]
