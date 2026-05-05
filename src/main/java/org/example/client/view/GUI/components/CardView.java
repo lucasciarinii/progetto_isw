@@ -27,7 +27,6 @@ public class CardView extends StackPane {
     // State ──────────────────────────────────────────────────────────────────
     public enum State { NORMAL, SELECTABLE, SELECTED, DISABLED }
 
-    private State currentState = State.NORMAL;
     private boolean selected = false;
     private Runnable onClickCallback = null;
 
@@ -107,14 +106,14 @@ public class CardView extends StackPane {
 
     // Set the visual state of the card. Handle border, gray overlay and cursor.
     public void setState(State state) {
-        this.currentState = state;
+        this.selected = (state == State.SELECTED);
 
         // Reset effects before handling new state
         imageView.setEffect(null);
         overlay.setVisible(false);
         setOnMouseClicked(null);
         setStyle(getBaseStyle());
-
+//! EXTERNAL methods ─────────────────────────────────────────────────────────
         switch (state) {
             case NORMAL -> {
                 setStyle(getBaseStyle() + BORDER_NORMAL);

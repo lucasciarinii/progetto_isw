@@ -22,7 +22,6 @@ import java.util.List;
 public class GUIHandler implements UIHandler {
     private ClientController controller;
     private Stage stage;
-    private String localNickname;
 
     private GUILobbyController GUILobbyController;
     private GUIGameController GUIGameController;
@@ -42,7 +41,6 @@ public class GUIHandler implements UIHandler {
     // -----------------------------------------------------------------------------------------------------------------
 
     private void init() {
-        localNickname = controller.getNickname();
     }
 
     @Override
@@ -77,7 +75,11 @@ public class GUIHandler implements UIHandler {
 
     @Override
     public void onError(String errorMessage, GamePhase currentPhase) {
-
+        Platform.runLater(() -> {
+            if (GUIGameController != null) {
+                GUIGameController.showError(errorMessage);
+            }
+        });
     }
 
 
@@ -100,17 +102,29 @@ public class GUIHandler implements UIHandler {
 
     @Override
     public void promptForAction(GamePhase phase) {
-
+        Platform.runLater(() -> {
+            if (GUIGameController != null) {
+                GUIGameController.promptForAction(phase);
+            }
+        });
     }
 
     @Override
     public void displayNoCardsPickable() {
-
+        Platform.runLater(() -> {
+            if (GUIGameController != null) {
+                GUIGameController.showNoCardsPickable();
+            }
+        });
     }
 
     @Override
     public void displayWaiting(String currentPlayerNickname) {
-
+        Platform.runLater(() -> {
+            if (GUIGameController != null) {
+                GUIGameController.showWaiting(currentPlayerNickname);
+            }
+        });
     }
 
 
@@ -154,6 +168,8 @@ public class GUIHandler implements UIHandler {
             Parent root = loader.load();
 
             GUIGameController = loader.getController();
+            GUIGameController.setController(controller);
+            GUIGameController.setLocalNickname(controller.getNickname());
             GUIGameController.update(update);
 
             stage.setScene(new Scene(root));

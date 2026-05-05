@@ -109,8 +109,29 @@ public class GUIGameController {
 
         // Riabilita l'interazione usando la fase dell'ultimo update
         if (lastUpdate != null && lastUpdate.getCurrentPlayerNickname().equals(localNickname)) {
+            selectedCards.clear();
             promptForAction(lastUpdate.getCurrentPhase());
         }
+    }
+
+    /**
+     * Mostra un messaggio informativo quando il giocatore non può selezionare alcuna carta.
+     */
+    public void showNoCardsPickable() {
+        confirmButton.setVisible(false);
+        selectedCards.clear();
+        statusLabel.setTextFill(Color.web("#a0a080"));
+        statusLabel.setText("Nessuna carta selezionabile: il turno verrà saltato.");
+    }
+
+    /**
+     * Mostra che è il turno di un altro giocatore.
+     */
+    public void showWaiting(String currentPlayerNickname) {
+        confirmButton.setVisible(false);
+        selectedCards.clear();
+        statusLabel.setTextFill(Color.web("#a0a080"));
+        statusLabel.setText("Turno di " + currentPlayerNickname + "...");
     }
 
     // ── Aggiornamento barra info ───────────────────────────────────────────────
@@ -219,7 +240,7 @@ public class GUIGameController {
      */
     private void enablePlaceTotems() {
         statusLabel.setTextFill(Color.web("#ffcc00"));
-        statusLabel.setText("Scegli una tessera dove piazzare il tuo totem.");
+        statusLabel.setText("Choose a tile where to place the totem.");
 
         List<OfferTileView> tileViews = offerTrackBox.getChildren()
                 .stream()
@@ -409,7 +430,7 @@ public class GUIGameController {
 
     private void showGameOver(List<String> winners) {
         statusLabel.setTextFill(Color.web("#ffcc00"));
-        statusLabel.setText("🏆 Partita terminata! Vincitori: " + String.join(", ", winners));
+        statusLabel.setText("Partita terminata! Vincitori: " + String.join(", ", winners));
         confirmButton.setVisible(false);
     }
 
