@@ -23,8 +23,8 @@ public class PlayerPanelView extends VBox {
 
     private final PlayerSnapshot snapshot;
 
-    private final Label foodLabel;
     private final Label pointsLabel;
+    private final Label foodLabel;
     private final Label discountLabel;
     private final HBox stacksContainer;
 
@@ -58,17 +58,17 @@ public class PlayerPanelView extends VBox {
         header.getChildren().addAll(dot, nicknameLabel);
 
         // Stats
+        pointsLabel = new Label("Points: " + snapshot.getPoints());
         foodLabel = new Label("Food: " + snapshot.getFood());
-        pointsLabel = new Label("Stars: " + snapshot.getPoints());
         discountLabel = new Label("Building Discount: -" + snapshot.getDiscountOnBuilding());
 
         String statStyle = "-fx-text-fill: #d0c8a0; -fx-font-size: 11px;";
-        foodLabel.setStyle(statStyle);
         pointsLabel.setStyle(statStyle);
+        foodLabel.setStyle(statStyle);
         discountLabel.setStyle(statStyle);
         discountLabel.setVisible(snapshot.getDiscountOnBuilding() > 0);
 
-        HBox stats = new HBox(10, foodLabel, pointsLabel);
+        HBox stats = new HBox(10, pointsLabel, foodLabel);
         stats.setAlignment(Pos.CENTER_LEFT);
 
         Label separator = new Label("─────────────────────────");
@@ -90,8 +90,8 @@ public class PlayerPanelView extends VBox {
     }
 
     public void update(PlayerSnapshot newSnapshot) {
+        pointsLabel.setText("Points: " + newSnapshot.getPoints());
         foodLabel.setText("Food: " + newSnapshot.getFood());
-        pointsLabel.setText("Stars: " + newSnapshot.getPoints());
         discountLabel.setText("Building Discount: -" + newSnapshot.getDiscountOnBuilding());
         discountLabel.setVisible(newSnapshot.getDiscountOnBuilding() > 0);
 
