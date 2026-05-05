@@ -40,18 +40,18 @@ public class GUIGameController {
     @FXML private HBox      turnSlotBox;
     @FXML private HBox      playersBox;
 
-    // ── Stato interno ─────────────────────────────────────────────────────────
+    // ── Internal State ─────────────────────────────────────────────────────────
     private ClientController controller;
     private String localNickname;
     private GameStateUpdateMessage lastUpdate;
 
-    // Carte attualmente selezionate dal giocatore
+    // Cards selected by the player
     private final List<CardView> selectedCards = new ArrayList<>();
 
-    // Pannelli giocatori — tenuti in memoria per aggiornarli senza ricrearli
+    // Player panels — Objects kept in memory to update them without recreating them
     private final List<PlayerPanelView> playerPanels = new ArrayList<>();
 
-    // ── Setters chiamati da GUIHandler ────────────────────────────────────────
+    // ── Setters called from GUIHandler ────────────────────────────────────────
 
     public void setController(ClientController controller) {
         this.controller = controller;
@@ -61,11 +61,11 @@ public class GUIGameController {
         this.localNickname = nickname;
     }
 
-    // ── Metodi pubblici (chiamati da GUIHandler) ───────────────────────────────
+    // ── public methods (called from GUIHandler) ───────────────────────────────
 
     /**
-     * Aggiorna l'intera schermata con il nuovo stato della partita.
-     * Chiamato ad ogni GameStateUpdateMessage.
+     * Update whole screen with new state of the game.
+     * Called for each GameStateUpdateMessage received
      */
     public void update(GameStateUpdateMessage update) {
         this.lastUpdate = update;
@@ -78,19 +78,19 @@ public class GUIGameController {
         updateTurnSlot(update);
         updatePlayerPanels(update.getPlayers());
 
-        // Resetta stato interazione ad ogni update
+        // Reset the state at each interaction for each update
         confirmButton.setVisible(false);
         selectedCards.clear();
 
-        // Controlla game over
+        // Check game over
         if (!update.getWinners().isEmpty()) {
             showGameOver(update.getWinners());
         }
     }
 
     /**
-     * Abilita l'interazione per la fase corrente.
-     * Chiamato da GUIHandler dopo update().
+     * Enable the interaction for the current phase.
+     * Called from GUIHandler after update().
      */
     public void promptForAction(GamePhase phase) {
         switch (phase) {
@@ -101,13 +101,13 @@ public class GUIGameController {
     }
 
     /**
-     * Mostra un messaggio di errore nella barra azioni.
+     * Show an error message in the action bar.
      */
     public void showError(String message) {
         statusLabel.setTextFill(Color.web("#e63946"));
-        statusLabel.setText("⚠ " + message);
+        statusLabel.setText("[ERROR] " + message);
 
-        // Riabilita l'interazione usando la fase dell'ultimo update
+        // Re-enable the interaction using the phase of the last update
         if (lastUpdate != null && lastUpdate.getCurrentPlayerNickname().equals(localNickname)) {
             selectedCards.clear();
             promptForAction(lastUpdate.getCurrentPhase());
@@ -121,7 +121,7 @@ public class GUIGameController {
         confirmButton.setVisible(false);
         selectedCards.clear();
         statusLabel.setTextFill(Color.web("#a0a080"));
-        statusLabel.setText("Nessuna carta selezionabile: il turno verrà saltato.");
+        statusLabel.setText("No selectable card: the turn will be skipped.");
     }
 
     /**
@@ -153,10 +153,10 @@ public class GUIGameController {
         // Messaggio stato
         if (update.getCurrentPlayerNickname().equals(localNickname)) {
             statusLabel.setTextFill(Color.web("#00cc66"));
-            statusLabel.setText("È il tuo turno!");
+            statusLabel.setText("It's your turn!");
         } else {
             statusLabel.setTextFill(Color.web("#a0a080"));
-            statusLabel.setText("Turno di " + update.getCurrentPlayerNickname() + "...");
+            statusLabel.setText(update.getCurrentPlayerNickname() + " turn...");
         }
     }
 
@@ -233,10 +233,10 @@ public class GUIGameController {
         }
     }
 
-    // ── Interazione PLACE_TOTEMS ───────────────────────────────────────────────
+    // ── PLACE_TOTEMS Interaction ───────────────────────────────────────────────
 
     /**
-     * Rende cliccabili le tessere libere dell'offer track.
+     * Makes the available tiles on the offer track clickable.
      */
     private void enablePlaceTotems() {
         statusLabel.setTextFill(Color.web("#ffcc00"));
@@ -246,7 +246,7 @@ public class GUIGameController {
                 .stream()
                 .filter(n -> n instanceof OfferTileView)
                 .map(n -> (OfferTileView) n)
-                .collect(Collectors.toList());
+                .toList();
 
         for (OfferTileView tv : tileViews) {
             if (tv.getSnapshot().isFree()) {
@@ -261,12 +261,12 @@ public class GUIGameController {
         }
     }
 
-    // ── Interazione PLAYER_TURN ───────────────────────────────────────────────
+    // ── PLAYER_TURN Interaction ───────────────────────────────────────────────
 
     /**
-     * Abilita la selezione delle carte in base all'effetto della tessera
-     * su cui il giocatore locale ha piazzato il totem.
-     * Replica la logica di TUIHandler.handleOfferTileAction().
+     * Enable the selection of the card based on the effect of the tile
+     * on witch the local player has placed the totem.
+     * It replicates the logic of TUIHandler.handleOfferTileAction
      */
     private void enablePlayerTurn() {
         // Trova l'effetto della tessera occupata dal giocatore locale
@@ -281,7 +281,7 @@ public class GUIGameController {
         // Caso FOOD: nessuna interazione, azione automatica
         if (effect == OfferEffect.FOOD) {
             statusLabel.setTextFill(Color.web("#a0a080"));
-            statusLabel.setText("Tessera cibo — turno automatico.");
+            statusLabel.setText("Food Tile — automatic turn.");
             try {
                 controller.offerTileAction("");
             } catch (Exception e) {
@@ -290,13 +290,13 @@ public class GUIGameController {
             return;
         }
 
-        // Trova lo snapshot del giocatore locale
+        // Find the local player snapshot
         PlayerSnapshot localPlayer = lastUpdate.getPlayers().stream()
                 .filter(p -> p.getNickname().equals(localNickname))
                 .findFirst()
                 .orElseThrow();
 
-        // Calcola quante carte può prendere da ogni riga
+        // Calculate how many cards can be drawn from each row
         int fromBottom = 0;
         int fromTop    = 0;
 
@@ -330,7 +330,7 @@ public class GUIGameController {
 //            return;
 //        }
 
-        // Abilita selezione carte nelle righe corrette
+        // Enable card selection on the right rows
         enableCardSelection(fromBottom, fromTop, totalToSelect, localPlayer);
     }
 
@@ -340,9 +340,9 @@ public class GUIGameController {
     private void enableCardSelection(int fromBottom, int fromTop,
                                      int totalToSelect, PlayerSnapshot localPlayer) {
         statusLabel.setTextFill(Color.web("#ffcc00"));
-        statusLabel.setText("Seleziona " + totalToSelect + " carta/e.");
+        statusLabel.setText("Select " + totalToSelect + " card/s.");
 
-        // Abilita carte top row
+        // Enable top row cards
         if (fromTop > 0) {
             for (var node : topRowBox.getChildren()) {
                 if (node instanceof CardView cv) {
@@ -354,13 +354,13 @@ public class GUIGameController {
                 }
             }
         } else {
-            // Riga non usabile: disabilita tutto
+            // Row not usable: disable everything
             topRowBox.getChildren().forEach(n -> {
                 if (n instanceof CardView cv) cv.setState(CardView.State.DISABLED);
             });
         }
 
-        // Abilita carte bottom row
+        // Enable bottom row cards
         if (fromBottom > 0) {
             for (var node : bottomRowBox.getChildren()) {
                 if (node instanceof CardView cv) {
@@ -379,30 +379,30 @@ public class GUIGameController {
     }
 
     /**
-     * Gestisce il click su una carta selezionabile.
+     * Handles the click on a selectable card.
      */
     private void onCardClicked(CardView cv, int totalToSelect) {
         if (cv.isSelected()) {
-            // Deseleziona
+            // Deselect
             cv.toggleSelected();
             selectedCards.remove(cv);
         } else {
             if (selectedCards.size() < totalToSelect) {
-                // Seleziona
+                // Select
                 cv.toggleSelected();
                 selectedCards.add(cv);
             }
         }
 
-        // Aggiorna messaggio
+        // Update message
         int remaining = totalToSelect - selectedCards.size();
         if (remaining > 0) {
             statusLabel.setTextFill(Color.web("#ffcc00"));
-            statusLabel.setText("Seleziona ancora " + remaining + " carta/e.");
+            statusLabel.setText("Select  " + remaining + " other cart/s.");
             confirmButton.setVisible(false);
         } else {
             statusLabel.setTextFill(Color.web("#00cc66"));
-            statusLabel.setText("Pronto! Conferma la selezione.");
+            statusLabel.setText("Ready! Confirm the selection.");
             confirmButton.setVisible(true);
         }
     }
@@ -430,7 +430,7 @@ public class GUIGameController {
 
     private void showGameOver(List<String> winners) {
         statusLabel.setTextFill(Color.web("#ffcc00"));
-        statusLabel.setText("Partita terminata! Vincitori: " + String.join(", ", winners));
+        statusLabel.setText("Game ended! Winners: " + String.join(", ", winners));
         confirmButton.setVisible(false);
     }
 
