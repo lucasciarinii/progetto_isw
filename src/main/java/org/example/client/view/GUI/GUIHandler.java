@@ -15,6 +15,7 @@ import org.example.client.view.UIHandler;
 import org.example.network.GameStateUpdateMessage;
 import org.example.network.LobbyUpdateMessage;
 import org.example.network.RankingUpdateMessage;
+import org.example.network.Snapshots.PlayerSnapshot;
 import org.example.server.model.enums.GamePhase;
 
 import java.util.List;
@@ -152,7 +153,7 @@ public class GUIHandler implements UIHandler {
     private void switchToGame(GameStateUpdateMessage update) {
         // 1. Assign colors to players
         List<String> nicknames = update.getPlayers().stream()
-                .map(p -> p.getNickname())
+                .map(PlayerSnapshot::getNickname)
                 .collect(java.util.stream.Collectors.toList());
         PlayerColorRegistry.getInstance().init(nicknames);
 
