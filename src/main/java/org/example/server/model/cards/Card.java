@@ -1,5 +1,6 @@
 package org.example.server.model.cards;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.example.server.model.enums.Era;
 import org.example.server.model.interfaces.Visitor;
 
@@ -7,6 +8,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class Card implements Serializable {
 
     private final int id;

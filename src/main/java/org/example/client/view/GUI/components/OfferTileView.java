@@ -151,7 +151,7 @@ public class OfferTileView extends StackPane {
 
     // Load the tile image based on the OfferEffect. Images are stored in resources/images/offerTrack/ and named like D.jpeg, FOOD.jpeg, etc.
     private Image loadTileImage(OfferEffect effect) {
-        String path = IMAGE_BASE_PATH + effect.name() + ".jpeg";
+        String path = IMAGE_BASE_PATH + effect.name() + ".jpg";
         try (InputStream is = getClass().getResourceAsStream(path)) {
             if (is == null) {
                 System.err.println("[OfferTileView] Image not found: " + path);
