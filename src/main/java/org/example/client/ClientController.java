@@ -77,12 +77,17 @@ public class ClientController implements GameEventListener {
                         .orElse(null);
                 if (!hasPickableCards(effect, update)) {
                     ui.displayNoCardsPickable();
-                    // Warn server to go on
-                    try {
-                        server.skipTurn(nickname);
-                    } catch (RemoteException e) {
-                        ui.onError(e.getMessage(), update.getCurrentPhase());
-                    }
+                    // skipTurn() must be called on a separate thread to avoid a deadlock:
+                    // onUpdate() runs on the RMI callback thread, and calling server.skipTurn()
+                    // synchronously from it would block that thread while waiting for the server
+                    // to respond — which it cannot, since the callback thread is still occupied.
+                    new Thread(() -> {
+                        try {
+                            server.skipTurn(nickname);
+                        } catch (RemoteException e) {
+                            ui.onError(e.getMessage(), update.getCurrentPhase());
+                        }
+                    }).start();
                     return;
                 }
             }
