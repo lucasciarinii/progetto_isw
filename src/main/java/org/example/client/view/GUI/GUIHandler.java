@@ -22,7 +22,7 @@ import java.util.List;
 public class GUIHandler implements UIHandler {
     private ClientController controller;
     private Stage stage;
-    private String localNickname = controller.getNickname();
+    private String localNickname;
 
     private GUILobbyController GUILobbyController;
     private GUIGameController GUIGameController;
@@ -31,6 +31,7 @@ public class GUIHandler implements UIHandler {
 
     public void setController(ClientController controller) {
         this.controller = controller;
+        init();
     }
 
     public void setPrimaryStage(Stage primaryStage) {
@@ -39,6 +40,10 @@ public class GUIHandler implements UIHandler {
 
 
     // -----------------------------------------------------------------------------------------------------------------
+
+    private void init() {
+        localNickname = controller.getNickname();
+    }
 
     @Override
     public void onLobbyUpdate(LobbyUpdateMessage update) {

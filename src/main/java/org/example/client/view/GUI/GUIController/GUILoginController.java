@@ -30,7 +30,7 @@ public class GUILoginController {
     }
 
     @FXML
-    public void onConnect() throws Exception {
+    public void onConnect() {
         String nickname = nicknameField.getText().trim();
         String numPlayersText = numPlayersField.getText().trim();
 
@@ -67,7 +67,8 @@ public class GUILoginController {
             errorLabel.setText("Connecting...");
             controller.connect(host,  numPlayers);
         } catch (Exception e) {
-            throw new Exception("Impossible to connect to server");
+            errorLabel.setTextFill(Color.RED);
+            errorLabel.setText("Impossible to connect to server");
         }
 
 
