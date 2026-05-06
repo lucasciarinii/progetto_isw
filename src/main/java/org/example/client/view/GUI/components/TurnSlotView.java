@@ -39,12 +39,12 @@ public class TurnSlotView extends StackPane {
     private static final double TOTEM_X = 30;
 
     // Position Y of the first slot (from the top of the tile) and distance between slots
-    private static final double FIRST_SLOT_Y = 18;   // px from top to center of first slot
-    private static final double SLOT_SPACING = 72;   // px between center of one slot and the next
+    private final double FIRST_SLOT_Y;   // px from top to center of first slot
+    private final double SLOT_SPACING;   // px between center of one slot and the next
 
     // Dimensions of the totem box — adapted to the rectangles in the image
-    private static final double TOTEM_W = 48;
-    private static final double TOTEM_H = 26;
+    private static final double TOTEM_W = 50;
+    private static final double TOTEM_H = 30;
 
     private final List<TurnSlotSnapshot> slots;
     private final int numPlayers;
@@ -56,7 +56,28 @@ public class TurnSlotView extends StackPane {
     public TurnSlotView(List<TurnSlotSnapshot> slots) {
         this.slots = slots;
         this.numPlayers = slots.size();
-
+        switch (numPlayers) {
+            case 2:
+                FIRST_SLOT_Y = 40;
+                SLOT_SPACING = 32;
+                break;
+            case 3:
+                FIRST_SLOT_Y = 31;
+                SLOT_SPACING = 32;
+                break;
+            case 4:
+                FIRST_SLOT_Y = 21;
+                SLOT_SPACING = 33;
+                break;
+            case 5:
+                FIRST_SLOT_Y = 9;
+                SLOT_SPACING = 33;
+                break;
+            default:
+                FIRST_SLOT_Y = 18;
+                SLOT_SPACING = 32;
+                break;
+        }
         setPrefSize(TILE_WIDTH, TILE_HEIGHT);
         setMaxSize(TILE_WIDTH, TILE_HEIGHT);
         setMinSize(TILE_WIDTH, TILE_HEIGHT);
