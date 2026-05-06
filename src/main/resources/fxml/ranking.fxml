@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane
+        xmlns="http://javafx.com/javafx"
+        xmlns:fx="http://javafx.com/fxml"
+        fx:controller="org.example.client.view.GUI.GUIController.GUIRankingController"
+        prefWidth="1280" prefHeight="800"
+        style="-fx-background-color: #12120c;">
+
+    <center>
+        <VBox alignment="CENTER" spacing="32"
+              style="-fx-padding: 60 0 40 0;">
+
+            <Label text="GAME OVER"
+                   style="-fx-text-fill: #ffcc00;
+                          -fx-font-size: 42px;
+                          -fx-font-weight: bold;"/>
+
+            <!-- Game results -->
+            <VBox alignment="CENTER" spacing="6">
+                <Label text="MATCH RESULTS"
+                       style="-fx-text-fill: #888866;
+                              -fx-font-size: 13px;
+                              -fx-font-weight: bold;"/>
+                <HBox fx:id="matchResultsBox"
+                      spacing="16"
+                      style="-fx-alignment: center;"/>
+            </VBox>
+
+            <!-- Separator -->
+            <Label text="──────────────────────────────────────────"
+                   style="-fx-text-fill: #333322; -fx-font-size: 12px;"/>
+
+            <!-- Global Ranking -->
+            <VBox alignment="CENTER" spacing="10">
+                <Label text="GLOBAL RANKING"
+                       style="-fx-text-fill: #888866;
+                              -fx-font-size: 13px;
+                              -fx-font-weight: bold;"/>
+
+                <ScrollPane
+                        fitToWidth="true"
+                        prefHeight="300"
+                        hbarPolicy="NEVER"
+                        vbarPolicy="AS_NEEDED"
+                        style="-fx-background: transparent;
+                           -fx-background-color: transparent;
+                           -fx-border-color: transparent;">
+                    <VBox fx:id="rankingBox"
+                          spacing="4"
+                          style="-fx-padding: 0 60 0 60;
+                                 -fx-background-color: transparent;"/>
+                </ScrollPane>
+
+                <!-- Player position -->
+                <Label fx:id="myPositionLabel"
+                       style="-fx-text-fill: #ffcc00;
+                              -fx-font-size: 13px;
+                              -fx-font-weight: bold;"/>
+
+                <!-- Label to wanr about server disconnection -->
+                <Label fx:id="closingLabel"
+                       text="Server closed the connection"
+                       visible="false"
+                       managed="false"
+                       style="-fx-text-fill: #555544; -fx-font-size: 10px; -fx-padding: 12 0 0 0;"/>
+            </VBox>
+
+        </VBox>
+    </center>
+
+</BorderPane>

@@ -148,6 +148,13 @@ public class ServerController {
             return;
         }
 
+        // Remove the player's totem from the offer track before advancing
+        match.getBoard().getOfferTrack().stream()
+                .filter(tile -> tile.getPlayer() != null)
+                .filter(tile -> tile.getPlayer().getNickname().equals(nickname))
+                .findFirst()
+                .ifPresent(OfferTile::removePlayer);
+
         GamePhase phaseBefore = match.getGameState().getCurrentPhase();
         match.getGameState().advanceToNextPlayer();
         handlePhaseTransition(phaseBefore);

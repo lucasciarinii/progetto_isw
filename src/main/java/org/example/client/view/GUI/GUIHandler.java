@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 import org.example.client.ClientController;
 import org.example.client.view.GUI.GUIController.GUIGameController;
 import org.example.client.view.GUI.GUIController.GUILobbyController;
+import org.example.client.view.GUI.GUIController.GUIRankingController;
 import org.example.client.view.GUI.registry.CardImageRegistry;
 import org.example.client.view.GUI.registry.PlayerColorRegistry;
 import org.example.client.view.UIHandler;
@@ -26,6 +27,8 @@ public class GUIHandler implements UIHandler {
 
     private GUILobbyController GUILobbyController;
     private GUIGameController GUIGameController;
+    private GUIRankingController GUIRankingController;
+    private GameStateUpdateMessage lastGameUpdate; // ← aggiunge questo campo
 
     // SETTERS ---------------------------------------------------------------------------------------------------------
 
@@ -66,7 +69,7 @@ public class GUIHandler implements UIHandler {
     @Override
     public void onGameStateUpdate(GameStateUpdateMessage update) {
         Platform.runLater(() -> {
-
+            this.lastGameUpdate = update;
             if ( GUIGameController != null) {
                 GUIGameController.update(update);
             } else {
@@ -90,18 +93,35 @@ public class GUIHandler implements UIHandler {
 
     @Override
     public void onRankingUpdate(RankingUpdateMessage rankingMessage) {
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(
+                        getClass().getResource("/fxml/ranking.fxml")
+                );
+                Parent root = loader.load();
 
+                GUIRankingController = loader.getController();
+                GUIRankingController.populate(
+                        rankingMessage,
+                        lastGameUpdate != null ? lastGameUpdate.getPlayers() : List.of()
+                );
+
+                stage.setScene(new Scene(root));
+                stage.setTitle("MESOS — Results");
+                stage.setFullScreen(true);
+
+            } catch (Exception e) {
+                System.err.println("Failed to load ranking scene: " + e.getMessage());
+            }
+        });
     }
 
     @Override
     public void onShutdown() {
         Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Match Ended");
-            alert.setHeaderText("Server closed the match.");
-            alert.setContentText("Thanks for playing MESOS");
-            alert.showAndWait();
-            Platform.exit();
+            if (GUIRankingController != null) {
+                GUIRankingController.showClosingMessage();
+            }
         });
     }
 
