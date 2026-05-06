@@ -58,7 +58,7 @@ public class TurnSlotView extends StackPane {
         this.numPlayers = slots.size();
         switch (numPlayers) {
             case 2:
-                FIRST_SLOT_Y = 40;
+                FIRST_SLOT_Y = 39;
                 SLOT_SPACING = 32;
                 break;
             case 3:

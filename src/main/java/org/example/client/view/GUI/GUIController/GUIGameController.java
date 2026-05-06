@@ -6,6 +6,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.example.client.ClientController;
 import org.example.client.view.GUI.components.*;
@@ -38,7 +39,8 @@ public class GUIGameController {
     @FXML private HBox      bottomRowBox;
     @FXML private HBox      offerTrackBox;
     @FXML private HBox      turnSlotBox;
-    @FXML private HBox      playersBox;
+    @FXML private VBox      opponentsBox;
+    @FXML private HBox      localPlayerBox;
 
     // ── Internal State ─────────────────────────────────────────────────────────
     private ClientController controller;
@@ -218,15 +220,22 @@ public class GUIGameController {
 
     private void updatePlayerPanels(List<PlayerSnapshot> players) {
         if (playerPanels.isEmpty()) {
-            // Prima volta: crea i pannelli
+            // Prima volta: crea i pannelli e li divide tra Destra e Basso
             for (PlayerSnapshot p : players) {
                 boolean isLocal = p.getNickname().equals(localNickname);
-                PlayerPanelView panel = new PlayerPanelView(p, isLocal);
+
+                // Creiamo il pannello: se NON è il locale, sarà "mini" (true)
+                PlayerPanelView panel = new PlayerPanelView(p, isLocal, !isLocal);
                 playerPanels.add(panel);
-                playersBox.getChildren().add(panel);
+
+                if (isLocal) {
+                    localPlayerBox.getChildren().add(panel); // Tu vai in basso
+                } else {
+                    opponentsBox.getChildren().add(panel);   // Loro vanno a destra
+                }
             }
         } else {
-            // Aggiornamenti successivi: aggiorna i pannelli esistenti
+            // Aggiornamenti successivi: aggiorna i dati nei pannelli esistenti
             for (int i = 0; i < playerPanels.size(); i++) {
                 playerPanels.get(i).update(players.get(i));
             }
