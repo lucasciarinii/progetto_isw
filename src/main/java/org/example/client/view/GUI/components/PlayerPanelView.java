@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.example.client.view.GUI.registry.PlayerColorRegistry;
 import org.example.network.Snapshots.PlayerSnapshot;
@@ -33,16 +34,16 @@ public class PlayerPanelView extends VBox {
         this.snapshot = snapshot;
 
         // Impostiamo le grandezze: piccole per gli avversari, grandi per te
-        this.cardW = isMini ? 45 : 65;
-        this.cardH = isMini ? 65 : 95;
-        this.stackOverlap = isMini ? -45 : -65;
+        this.cardW = isMini ? 45 : 100;
+        this.cardH = isMini ? 65 : 140;
+        this.stackOverlap = isMini ? -45 : -80;
 
         String hex = PlayerColorRegistry.getInstance().getHex(snapshot.getNickname());
         setPadding(new Insets(8));
 
         // Stile del bordo (più spesso per il giocatore locale)
         String borderWidth = isLocalPlayer ? "3" : "1.5";
-        setStyle("-fx-background-color: #181810; -fx-border-color: " + hex +
+        setStyle("-fx-background-color: #1a1a10; -fx-border-color: " + hex +
                 "; -fx-border-width: " + borderWidth + "; -fx-border-radius: 8; -fx-background-radius: 8;");
 
         // --- INTESTAZIONE (Nome + Pallino colorato) ---
@@ -52,55 +53,69 @@ public class PlayerPanelView extends VBox {
         dot.setPrefSize(12, 12);
         dot.setStyle("-fx-background-color: " + hex + "; -fx-background-radius: 6;");
         Label nicknameLabel = new Label(snapshot.getNickname());
-        nicknameLabel.setStyle("-fx-text-fill: " + hex + "; -fx-font-size: " + (isMini ? "11px" : "14px") + "; -fx-font-weight: bold;");
+        nicknameLabel.setStyle("-fx-text-fill: " + hex + "; -fx-font-size: " + (isMini ? "11px" : "16px") + "; -fx-font-weight: bold; -fx-background-color: transparent;");
         header.getChildren().addAll(dot, nicknameLabel);
 
-        // --- STATISTICHE (Cibo, Punti, Sconti) ---
+        // --- STATISTICHE (Cibo, Punti, Sconti con sfondi trasparenti) ---
         foodLabel = new Label("🍖 " + snapshot.getFood());
         pointsLabel = new Label("⭐ " + snapshot.getPoints());
         discountLabel = new Label("Sconto Edifici: -" + snapshot.getDiscountOnBuilding());
         totalPointsLabel = new Label("🏆 "  + snapshot.getPoints());
 
-        String statStyle = "-fx-text-fill: #d0c8a0; -fx-font-size: " + (isMini ? "10px" : "12px") + ";";
+        String statStyle = "-fx-text-fill: #d0c8a0; -fx-font-size: " + (isMini ? "10px" : "13px") + "; -fx-background-color: transparent;";
         foodLabel.setStyle(statStyle);
         pointsLabel.setStyle(statStyle);
         discountLabel.setStyle(statStyle);
         totalPointsLabel.setStyle(statStyle);
         discountLabel.setVisible(snapshot.getDiscountOnBuilding() > 0);
 
-        HBox stats = new HBox(10, foodLabel, pointsLabel, totalPointsLabel);
+        HBox stats = new HBox(15, foodLabel, pointsLabel, totalPointsLabel);
         stats.setAlignment(Pos.CENTER_LEFT);
 
         // --- CARTE ---
-        stacksContainer = new HBox(8);
+        stacksContainer = new HBox(12);
         stacksContainer.setAlignment(Pos.TOP_LEFT);
-        renderCards(snapshot); // Genera le pile di carte
+        stacksContainer.setStyle("-fx-background-color: transparent;"); // Evita sfondi di fallback
+        renderCards(snapshot);
 
         ScrollPane scrollPane = new ScrollPane(stacksContainer);
         scrollPane.setFitToHeight(true);
+
+        // Rimuove lo sfondo bianco e il bordo nativo dello ScrollPane direttamente inline
         scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;");
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
-        // --- ASSEMBLAGGIO FINALE BASATO SU ISMINI ---
+        // --- ASSEMBLAGGIO FLUIDO ---
         if (isMini) {
-            // Layout Orizzontale per gli avversari (Info a sinistra, Carte a destra)
-            setPrefWidth(280); // Larghezza adatta alla colonna di destra
+            // Layout Orizzontale Avversari
+            setMaxWidth(Double.MAX_VALUE);
             scrollPane.setPrefHeight(90);
 
             VBox infoBox = new VBox(5, header, stats, discountLabel);
-            infoBox.setPrefWidth(100);
+            infoBox.setMinWidth(140);
+            infoBox.setPrefWidth(140);
+            infoBox.setStyle("-fx-background-color: transparent;");
 
             HBox miniLayout = new HBox(10, infoBox, scrollPane);
             miniLayout.setAlignment(Pos.CENTER_LEFT);
+            miniLayout.setStyle("-fx-background-color: transparent;");
+
+            HBox.setHgrow(scrollPane, javafx.scene.layout.Priority.ALWAYS);
+
             getChildren().add(miniLayout);
         } else {
-            // Layout Verticale per te (Info sopra, Carte sotto e in grande)
-            setPrefWidth(600); // Largo quasi quanto tutto lo schermo sotto
-            scrollPane.setPrefHeight(160);
+            // Layout Verticale Locale
+            setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(this, javafx.scene.layout.Priority.ALWAYS);
+
+            // Fissiamo l'altezza per evitare sfasamenti all'aggiunta di carte
+            scrollPane.setPrefHeight(180);
+            scrollPane.setMinHeight(180);
+            scrollPane.setMaxHeight(180);
 
             Label separator = new Label("─────────────────────────");
-            separator.setStyle("-fx-text-fill: #333322; -fx-font-size: 9px;");
+            separator.setStyle("-fx-text-fill: #333322; -fx-font-size: 9px; -fx-background-color: transparent;");
 
             getChildren().addAll(header, stats, discountLabel, separator, scrollPane);
         }

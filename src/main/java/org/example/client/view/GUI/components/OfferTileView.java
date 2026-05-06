@@ -25,8 +25,8 @@ import java.io.InputStream;
 
 public class OfferTileView extends StackPane {
 
-    public static final double TILE_WIDTH  = 110;
-    public static final double TILE_HEIGHT = 180;
+    public static final double TILE_WIDTH  = 90;
+    public static final double TILE_HEIGHT = 120;
 
     private static final String IMAGE_BASE_PATH = "/images/offerTrack/";
 

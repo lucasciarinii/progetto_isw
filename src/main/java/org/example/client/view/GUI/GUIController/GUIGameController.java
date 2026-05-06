@@ -183,7 +183,7 @@ public class GUIGameController {
     private void updateTopRow(List<Card> cards) {
         topRowBox.getChildren().clear();
         for (Card card : cards) {
-            CardView cv = new CardView(card, 80, 115);
+            CardView cv = new CardView(card, 100, 150);
             cv.setState(CardView.State.NORMAL);
             topRowBox.getChildren().add(cv);
         }
@@ -192,7 +192,7 @@ public class GUIGameController {
     private void updateBottomRow(List<Card> cards) {
         bottomRowBox.getChildren().clear();
         for (Card card : cards) {
-            CardView cv = new CardView(card, 80, 115);
+            CardView cv = new CardView(card, 100, 150);
             cv.setState(CardView.State.NORMAL);
             bottomRowBox.getChildren().add(cv);
         }
