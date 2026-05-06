@@ -189,15 +189,17 @@ public class ServerController {
     //! NOTIFICATION METHODS ---------------------------------------------------------------------------
     // Notifies all clients with the DTO (GameStateUpdateMessage) built from the current Match state with buildSnapshot() method.
     private void notifyAll(GameStateUpdateMessage update) {
-        clientNicknames.keySet().forEach(client -> {
+        for (ClientConnection client : new ArrayList<>(clientNicknames.keySet())) {
             try {
                 client.sendUpdate(update);
             } catch (Exception e) {
-                // Client disconnected, remove it
-                System.out.print("[SERVER] Failed to send update to " + clientNicknames.get(client) + ", unregistering client. Reason: " + e.getMessage());
+                System.out.print("[SERVER] Failed to send update to "
+                        + clientNicknames.get(client)
+                        + ", unregistering client. Reason: "
+                        + e.getMessage());
                 unregisterClient(client);
             }
-        });
+        }
     }
 
     // Notifies the sender client with an error message (e.g., invalid move, wrong turn, etc.). If sending fails (e.g., client disconnected), we unregister the client.

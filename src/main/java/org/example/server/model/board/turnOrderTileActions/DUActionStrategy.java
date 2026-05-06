@@ -1,7 +1,6 @@
 package org.example.server.model.board.turnOrderTileActions;
 
 import org.example.server.model.cards.Card;
-import org.example.server.model.cards.buildingCards.BuildingCard;
 import org.example.server.model.exceptions.InvalidCardException;
 import org.example.server.model.exceptions.NoDrawableCardException;
 import org.example.server.model.match.Match;
@@ -15,29 +14,38 @@ public class DUActionStrategy implements OfferActionStrategy {
     private final UPick singleU = new UPick();
 
     @Override
-    public void execute(Match match, Player player, List<Integer> ids) throws NoDrawableCardException, InvalidCardException {
-        List<Card> bottomRow = match.getBoard().getBottomRow();
-        List<Card> topRow    = match.getBoard().getTopRow();
+    public void execute(Match match, Player player, List ids) throws NoDrawableCardException, InvalidCardException {
+        List bottomRow = match.getBoard().getBottomRow();
+        List topRow = match.getBoard().getTopRow();
 
-        // 1) Count how many pickable cards are in top and bottom row
+        // Count how many drawable cards are currently available in both rows.
         int pickableBottom = (int) countPickable(bottomRow, player);
         int pickableTop = (int) countPickable(topRow, player);
 
-        // 2) If there aren't any, throw exception to skip turn
-        if (pickableBottom == 0 && pickableTop == 0)
+        // If nothing can be drawn, the action must be skipped.
+        if (pickableBottom == 0 && pickableTop == 0) {
             throw new NoDrawableCardException("No drawable cards (both in top and bottom row), turn skipped.");
+        }
 
         int toPickBottom = Math.min(1, pickableBottom);
         int toPickTop = Math.min(1, pickableTop);
+        int requiredIds = toPickBottom + toPickTop;
 
-        // 3) Try to pick the cards
-        Card cBottom = (toPickBottom == 1) ? singleD.execute(match, player, ids.getFirst()) : null;
-        Card cTop = (toPickTop == 1) ? singleU.execute(match, player, ids.get(toPickBottom)) : null; // if toPickBottom is 0, we want to pick from the top row, so we take the first id, otherwise we take the second id
+        // Validate the number of provided IDs before accessing the list.
+        if (ids.size() < requiredIds) {
+            throw new InvalidCardException("Not enough card IDs provided for DU action.");
+        }
 
-        if (cBottom != null)
+        // Resolve the selected cards only after input validation.
+        Card cBottom = (toPickBottom == 1) ? singleD.execute(match, player, (int) ids.get(0)) : null;
+        Card cTop = (toPickTop == 1) ? singleU.execute(match, player, (int) ids.get(toPickBottom)) : null;
+
+        // Apply the cards and remove them from the board.
+        if (cBottom != null) {
             applyCard(cBottom, player, bottomRow);
-        if (cTop != null)
+        }
+        if (cTop != null) {
             applyCard(cTop, player, topRow);
-
+        }
     }
 }
