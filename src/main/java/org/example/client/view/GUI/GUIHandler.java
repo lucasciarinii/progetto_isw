@@ -167,6 +167,10 @@ public class GUIHandler implements UIHandler {
             GUILobbyController.update(update);
             stage.setScene(new Scene(root));
             stage.setTitle("MESOS — Lobby");
+            stage.setResizable(false);
+            stage.setWidth(520);
+            stage.setHeight(420);
+            stage.centerOnScreen();
 
         } catch (Exception e) {
             System.err.println("Failed to load lobby scene: " +  e.getMessage());

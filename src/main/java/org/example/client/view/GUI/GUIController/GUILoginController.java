@@ -10,7 +10,7 @@ import org.example.client.view.GUI.GUIHandler;
 import javafx.scene.paint.Color;
 import org.example.client.view.GUI.registry.CardImageRegistry;
 
-import java.awt.*;
+import javafx.scene.paint.Color;
 
 public class GUILoginController {
 
@@ -36,7 +36,7 @@ public class GUILoginController {
 
         // 1) Check inputs
         if (nickname.isEmpty()) {
-            errorLabel.setText("Nickname cannot be empty");
+            showError("Nickname cannot be empty");
             return;
         }
 
@@ -44,12 +44,12 @@ public class GUILoginController {
         try {
             numPlayers = Integer.parseInt(numPlayersText);
         } catch (NumberFormatException e) {
-            errorLabel.setText("Invalid number format");
+            showError("Invalid number format");
             return;
         }
 
         if ( numPlayers < 2 || numPlayers > 5) {
-            errorLabel.setText("Invalid number of players (2-5)");
+            showError("Invalid number of players (2-5)");
             return;
         }
 
@@ -63,15 +63,22 @@ public class GUILoginController {
 
         // 3) Connection to server
         try {
-            errorLabel.setTextFill(Color.BLACK);
+            errorLabel.setVisible(false);  // nascondi eventuali errori precedenti
             errorLabel.setText("Connecting...");
-            controller.connect(host,  numPlayers);
+            errorLabel.setStyle("-fx-text-fill: #888866; -fx-font-size: 11px;");
+            errorLabel.setVisible(true);
+            controller.connect(host, numPlayers);
         } catch (Exception e) {
             errorLabel.setTextFill(Color.RED);
-            errorLabel.setText("Impossible to connect to server");
+            showError("Impossible to connect to server");
         }
 
 
+    }
+
+    private void showError(String message) {
+        errorLabel.setText(message);
+        errorLabel.setVisible(true);
     }
 
 }

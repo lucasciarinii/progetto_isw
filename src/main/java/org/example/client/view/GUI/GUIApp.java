@@ -30,9 +30,13 @@ public class GUIApp extends Application {
         controller.setStage(stage);
 
         stage.setTitle("MESOS - Client GUI");
-        stage.setScene(new Scene(root, 470, 200));
+        stage.setScene(new Scene(root));
         stage.setResizable(false);
+        stage.setWidth(520);
+        stage.setHeight(520);
+        stage.centerOnScreen();
         stage.show();
+
     }
 
 
