@@ -27,6 +27,9 @@ import java.util.stream.Collectors;
 
 public class GUIGameController {
 
+    private static final double BOARD_TILE_WIDTH = 120;
+    private static final double BOARD_TILE_HEIGHT = 180;
+
     // ── FXML ──────────────────────────────────────────────────────────────────
     @FXML private Label     roundLabel;
     @FXML private Label     eraLabel;
@@ -183,7 +186,7 @@ public class GUIGameController {
     private void updateTopRow(List<Card> cards) {
         topRowBox.getChildren().clear();
         for (Card card : cards) {
-            CardView cv = new CardView(card, 100, 150);
+            CardView cv = new CardView(card, BOARD_TILE_WIDTH, BOARD_TILE_HEIGHT);
             cv.setState(CardView.State.NORMAL);
             topRowBox.getChildren().add(cv);
         }
@@ -192,7 +195,7 @@ public class GUIGameController {
     private void updateBottomRow(List<Card> cards) {
         bottomRowBox.getChildren().clear();
         for (Card card : cards) {
-            CardView cv = new CardView(card, 100, 150);
+            CardView cv = new CardView(card, BOARD_TILE_WIDTH, BOARD_TILE_HEIGHT);
             cv.setState(CardView.State.NORMAL);
             bottomRowBox.getChildren().add(cv);
         }

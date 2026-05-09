@@ -1,7 +1,5 @@
 package org.example.client.view.GUI.components;
 
-import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -32,52 +30,42 @@ public class TurnSlotView extends StackPane {
 
     // TODO: tutte le dimensioni dobbiamo sistemarle ad occhio ----------------------------
     // Tile dimensions — same proportion as the image
-    public static final double TILE_WIDTH = 80;
-    public static final double TILE_HEIGHT = 120;
+    public static final double TILE_WIDTH = 120;
+    public static final double TILE_HEIGHT = 180;
 
     // Position X of the center of the totem inside each slot (to be adjusted by eye)
-    private static final double TOTEM_X = 30;
+    private static final double TOTEM_X = 38;
+
+    // Dimensions of the totem box — adapted to the rectangles in the image
+    private static final double TOTEM_W = 60;
+    private static final double TOTEM_H = 38;
+
+    private final List<TurnSlotSnapshot> slots;
 
     // Position Y of the first slot (from the top of the tile) and distance between slots
     private final double FIRST_SLOT_Y;   // px from top to center of first slot
     private final double SLOT_SPACING;   // px between center of one slot and the next
 
-    // Dimensions of the totem box — adapted to the rectangles in the image
-    private static final double TOTEM_W = 50;
-    private static final double TOTEM_H = 30;
-
-    private final List<TurnSlotSnapshot> slots;
-    private final int numPlayers;
-
     // Pane above the image where we position the totems with absolute coordinates
-    @FXML
     private final Pane totemLayer;
 
     public TurnSlotView(List<TurnSlotSnapshot> slots) {
         this.slots = slots;
-        this.numPlayers = slots.size();
-        switch (numPlayers) {
-            case 2:
-                FIRST_SLOT_Y = 39;
-                SLOT_SPACING = 32;
-                break;
-            case 3:
-                FIRST_SLOT_Y = 31;
-                SLOT_SPACING = 32;
-                break;
-            case 4:
-                FIRST_SLOT_Y = 21;
-                SLOT_SPACING = 33;
-                break;
-            case 5:
-                FIRST_SLOT_Y = 9;
-                SLOT_SPACING = 33;
-                break;
-            default:
-                FIRST_SLOT_Y = 18;
-                SLOT_SPACING = 32;
-                break;
-        }
+        int numPlayers = slots.size();
+
+        this.FIRST_SLOT_Y = switch (numPlayers) {
+            case 2 -> 50;
+            case 3 -> 40;
+            case 4 -> 27;
+            case 5 -> 11;
+            default -> 22;
+        };
+        this.SLOT_SPACING = switch (numPlayers) {
+            case 2, 3 -> 40;
+            case 4, 5 -> 41;
+            default -> 40;
+        };
+
         setPrefSize(TILE_WIDTH, TILE_HEIGHT);
         setMaxSize(TILE_WIDTH, TILE_HEIGHT);
         setMinSize(TILE_WIDTH, TILE_HEIGHT);
@@ -117,10 +105,9 @@ public class TurnSlotView extends StackPane {
                 VBox totemBox = buildTotemBox(slot.getOccupantNickname());
 
                 // Absolute position of the totem inside the Pane
-                double x = TOTEM_X;
                 double y = FIRST_SLOT_Y + i * SLOT_SPACING;
 
-                totemBox.setLayoutX(x);
+                totemBox.setLayoutX(TOTEM_X);
                 totemBox.setLayoutY(y);
                 totemLayer.getChildren().add(totemBox);
             }
@@ -135,7 +122,7 @@ public class TurnSlotView extends StackPane {
 
         Label label = new Label(getInitials(nickname));
         label.setStyle(
-                "-fx-font-size: 10px; " +
+                "-fx-font-size: 11px; " +
                         "-fx-font-weight: bold; " +
                         "-fx-text-fill: white;"
         );
@@ -173,7 +160,6 @@ public class TurnSlotView extends StackPane {
         if (parts.length == 1) {
             return nickname.substring(0, Math.min(2, nickname.length())).toUpperCase();
         }
-        return (String.valueOf(parts[0].charAt(0)) +
-                String.valueOf(parts[1].charAt(0))).toUpperCase();
+        return (parts[0].charAt(0) + "" + parts[1].charAt(0)).toUpperCase();
     }
 }

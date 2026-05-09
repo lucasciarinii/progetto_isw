@@ -6,6 +6,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.example.client.view.GUI.registry.PlayerColorRegistry;
@@ -25,8 +26,8 @@ import java.io.InputStream;
 
 public class OfferTileView extends StackPane {
 
-    public static final double TILE_WIDTH  = 90;
-    public static final double TILE_HEIGHT = 120;
+    public static final double TILE_WIDTH  = 120;
+    public static final double TILE_HEIGHT = 180;
 
     private static final String IMAGE_BASE_PATH = "/images/offerTrack/";
 
@@ -60,31 +61,31 @@ public class OfferTileView extends StackPane {
         // Label position (1-based)
         posLabel = new Label(String.valueOf(position));
         posLabel.setStyle(
-                "-fx-font-size: 9px; " +
+                "-fx-font-size: 10px; " +
                         "-fx-text-fill: white; " +
                         "-fx-background-color: rgba(0,0,0,0.5); " +
-                        "-fx-padding: 1 3 1 3; " +
+                        "-fx-padding: 2 4 2 4; " +
                         "-fx-background-radius: 3;"
         );
         StackPane.setAlignment(posLabel, Pos.TOP_RIGHT);
-        StackPane.setMargin(posLabel, new Insets(4, 4, 0, 0));
+        StackPane.setMargin(posLabel, new Insets(5, 5, 0, 0));
 
         // Totem box
         totemBox = new VBox();
-        totemBox.setPrefSize(52, 32);
-        totemBox.setMaxSize(52, 32);
-        totemBox.setMinSize(52, 32);
+        totemBox.setPrefSize(64, 42);
+        totemBox.setMaxSize(64, 42);
+        totemBox.setMinSize(64, 42);
         totemBox.setAlignment(Pos.CENTER);
 
         totemLabel = new Label();
         totemLabel.setStyle(
-                "-fx-font-size: 11px; " +
+                "-fx-font-size: 12px; " +
                         "-fx-font-weight: bold; " +
                         "-fx-text-fill: white;"
         );
         totemBox.getChildren().add(totemLabel);
         StackPane.setAlignment(totemBox, Pos.TOP_CENTER);
-        StackPane.setMargin(totemBox, new Insets(30, 0, 0, 0));
+        StackPane.setMargin(totemBox, new Insets(42, 0, 0, 0));
 
         // Assembly
         getChildren().addAll(imageView, posLabel, totemBox);
@@ -102,12 +103,9 @@ public class OfferTileView extends StackPane {
             this.onClickCallback = onClick;
             setCursor(javafx.scene.Cursor.HAND);
             setStyle(baseStyle() + borderSelectable());
-            setOnMouseEntered(e -> setStyle(baseStyle() + borderSelectable() +
-                    "-fx-background-color: #2e2e1a;"));
-            setOnMouseExited(e  -> setStyle(baseStyle() + borderSelectable()));
-            setOnMouseClicked(e -> {
-                if (onClickCallback != null) onClickCallback.run();
-            });
+            setOnMouseEntered(this::handleSelectableMouseEntered);
+            setOnMouseExited(this::handleSelectableMouseExited);
+            setOnMouseClicked(this::handleSelectableMouseClicked);
         } else {
             onClickCallback = null;
             setOnMouseClicked(null);
@@ -170,8 +168,25 @@ public class OfferTileView extends StackPane {
         if (parts.length == 1) {
             return nickname.substring(0, Math.min(2, nickname.length())).toUpperCase();
         }
-        return (String.valueOf(parts[0].charAt(0)) +
-                String.valueOf(parts[1].charAt(0))).toUpperCase();
+        return (parts[0].charAt(0) + "" + parts[1].charAt(0)).toUpperCase();
+    }
+
+    private void handleSelectableMouseEntered(MouseEvent event) {
+        if (event != null) {
+            setStyle(baseStyle() + borderSelectable() + "-fx-background-color: #2e2e1a;");
+        }
+    }
+
+    private void handleSelectableMouseExited(MouseEvent event) {
+        if (event != null) {
+            setStyle(baseStyle() + borderSelectable());
+        }
+    }
+
+    private void handleSelectableMouseClicked(MouseEvent event) {
+        if (event != null && onClickCallback != null) {
+            onClickCallback.run();
+        }
     }
 
     private String baseStyle() {
