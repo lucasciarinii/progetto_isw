@@ -1,14 +1,13 @@
 package org.example.server;
 
-import org.example.network.RankingUpdateMessage;
-import org.example.server.database.DatabaseConnection;
+import org.example.network.messages.RankingUpdateMessage;
 import org.example.server.database.GameDAO;
 import org.example.server.database.RankingEntry;
 import org.example.server.model.board.OfferTile;
-import org.example.network.GameStateUpdateMessage;
-import org.example.network.Snapshots.OfferTileSnapshot;
-import org.example.network.Snapshots.PlayerSnapshot;
-import org.example.network.Snapshots.TurnSlotSnapshot;
+import org.example.network.messages.GameStateUpdateMessage;
+import org.example.network.snapshots.OfferTileSnapshot;
+import org.example.network.snapshots.PlayerSnapshot;
+import org.example.network.snapshots.TurnSlotSnapshot;
 import org.example.server.model.exceptions.InvalidCardException;
 import org.example.server.model.exceptions.NoDrawableCardException;
 import org.example.server.rmi.RMIClientConnection;
@@ -20,7 +19,6 @@ import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
 
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;

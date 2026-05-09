@@ -1,8 +1,8 @@
-package org.example.network;
+package org.example.network.messages;
 
-import org.example.network.Snapshots.OfferTileSnapshot;
-import org.example.network.Snapshots.PlayerSnapshot;
-import org.example.network.Snapshots.TurnSlotSnapshot;
+import org.example.network.snapshots.OfferTileSnapshot;
+import org.example.network.snapshots.PlayerSnapshot;
+import org.example.network.snapshots.TurnSlotSnapshot;
 import org.example.server.model.cards.Card;
 import org.example.server.model.enums.Era;
 import org.example.server.model.enums.GamePhase;

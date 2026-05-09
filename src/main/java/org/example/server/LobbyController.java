@@ -8,7 +8,7 @@ package org.example.server;
 import org.example.server.model.enums.GamePhase;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
-import org.example.network.LobbyUpdateMessage;
+import org.example.network.messages.LobbyUpdateMessage;
 import org.example.server.rmi.RMIClientCallback;
 import org.example.server.rmi.RMIClientConnection;
 

@@ -5,10 +5,9 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.example.client.view.GUI.registry.PlayerColorRegistry;
-import org.example.network.Snapshots.PlayerSnapshot;
+import org.example.network.snapshots.PlayerSnapshot;
 import org.example.server.model.cards.Card;
 
 import java.util.List;

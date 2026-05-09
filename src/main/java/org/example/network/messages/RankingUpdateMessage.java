@@ -1,4 +1,4 @@
-package org.example.network;
+package org.example.network.messages;
 
 import org.example.server.database.RankingEntry;
 

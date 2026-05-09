@@ -1,8 +1,8 @@
 package org.example.server.rmi;
 
-import org.example.network.RankingUpdateMessage;
+import org.example.network.messages.RankingUpdateMessage;
 import org.example.server.ClientConnection;
-import org.example.network.GameStateUpdateMessage;
+import org.example.network.messages.GameStateUpdateMessage;
 import org.example.server.model.enums.GamePhase;
 
 //? The "adapter": it let RMI talk with ServerController

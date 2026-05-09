@@ -6,8 +6,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.example.client.view.GUI.registry.PlayerColorRegistry;
-import org.example.network.RankingUpdateMessage;
-import org.example.network.Snapshots.PlayerSnapshot;
+import org.example.network.messages.RankingUpdateMessage;
+import org.example.network.snapshots.PlayerSnapshot;
 import org.example.server.database.RankingEntry;
 
 import java.util.List;

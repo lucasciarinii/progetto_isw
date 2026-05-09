@@ -1,4 +1,4 @@
-package org.example.network.Snapshots;
+package org.example.network.snapshots;
 
 import java.io.Serial;
 import java.io.Serializable;
