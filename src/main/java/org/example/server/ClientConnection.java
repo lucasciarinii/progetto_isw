@@ -5,8 +5,8 @@ package org.example.server;
 //      - RMIClientConnection
 //      - SocketClientConnection
 
-import org.example.network.GameStateUpdateMessage;
-import org.example.network.RankingUpdateMessage;
+import org.example.network.messages.GameStateUpdateMessage;
+import org.example.network.messages.RankingUpdateMessage;
 import org.example.server.model.enums.GamePhase;
 
 public interface ClientConnection {
