@@ -53,7 +53,7 @@
     "foodCost": 3,
     "endPoints": 4,
     "isEndGame": false,
-    "image": "buildings_img/InventorPairsBC.jpg"
+    "image": "buildings_img/InventorComboBC.jpg"
   },
   {
     "class_type": "ShamanicDoublePointsBC",
