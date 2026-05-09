@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -34,16 +34,14 @@
     </top>
 
     <center>
-        <ScrollPane fitToHeight="true" fitToWidth="true"
-                    hbarPolicy="NEVER"
-                    style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+        <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
 
             <VBox spacing="8" style="-fx-padding: 8 12 8 12; -fx-vgrow: always;" VBox.vgrow="ALWAYS">
-                <HBox fx:id="topRowBox" spacing="6" style="-fx-alignment: center-left; -fx-hgrow: always;" HBox.hgrow="ALWAYS"/>
+                <HBox fx:id="topRowBox" spacing="6" style="-fx-alignment: center-left; -fx-hgrow: always;" HBox.hgrow="ALWAYS" />
 
                 <HBox spacing="4" style="-fx-alignment: center-left;">
-                    <ImageView fx:id="deckBackView" fitWidth="120" fitHeight="180"/>
-                    <HBox fx:id="turnSlotBox"/>
+                    <ImageView fx:id="deckBackView" fitHeight="180" fitWidth="120" />
+                    <HBox fx:id="turnSlotBox" />
                     <HBox fx:id="offerTrackBox">
                         <HBox.margin>
                             <Insets left="12" />
@@ -51,7 +49,7 @@
                     </HBox>
                 </HBox>
 
-                <HBox fx:id="bottomRowBox" spacing="6" style="-fx-alignment: center-left; -fx-hgrow: always;" HBox.hgrow="ALWAYS"/>
+                <HBox fx:id="bottomRowBox" spacing="6" style="-fx-alignment: center-left; -fx-hgrow: always;" HBox.hgrow="ALWAYS" />
             </VBox>
 
         </ScrollPane>
@@ -70,9 +68,10 @@
     <bottom>
         <VBox style="-fx-border-color: #333322; -fx-border-width: 1 0 0 0; -fx-background-color: #1a1a10; -fx-padding: 0 0 20 0;">
             <Label style="-fx-text-fill: #888866; -fx-padding: 5;" text="IL TUO VILLAGGIO" />
-            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="322.0" prefWidth="1280.0" style="-fx-background-color: transparent;">
-                <VBox spacing="10" style="-fx-padding: 10;">
-                    <HBox fx:id="localPlayerBox" spacing="10" />
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="322.0" prefWidth="1280.0"
+                        style="-fx-background: #1a1a10; -fx-background-color: #1a1a10; -fx-control-inner-background: #1a1a10; -fx-background-insets: 0; -fx-border-color: #1a1a10; -fx-border-width: 0;">
+                <VBox spacing="10" style="-fx-padding: 10; -fx-background: #1a1a10; -fx-background-color: #1a1a10;">
+                    <HBox fx:id="localPlayerBox" spacing="10" style="-fx-background-color: #1a1a10;" />
                 </VBox>
             </ScrollPane>
         </VBox>
