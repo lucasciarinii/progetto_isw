@@ -2,7 +2,9 @@ package org.example;
 
 import org.example.client.view.GUI.GUILauncher;
 import org.example.client.view.TUI.TUILauncher;
-import org.example.network.rmi.RMIGameServerImpl;
+import org.example.network.CommunicationProtocol;
+import org.example.network.NetworkAdapterFactory;
+import org.example.network.ServerNetworkAdapter;
 
 import java.util.Scanner;
 
@@ -12,18 +14,26 @@ public class App {
         System.out.println("App started with args: " + java.util.Arrays.toString(args));
         if (args.length == 0) {
             System.out.println("Use:");
-            System.out.println("  java -jar mesos.jar server");
-            System.out.println("  java -jar mesos.jar client tui <host>");
-            System.out.println("  java -jar mesos.jar client gui <host>");
+            System.out.println("  java -jar mesos.jar server [rmi|socket] [port]");
+            System.out.println("  java -jar mesos.jar client tui [rmi|socket] [port] <host>");
+            System.out.println("  java -jar mesos.jar client gui [rmi|socket] [port] <host>");
             return;
         }
 
         switch (args[0]) {
-            case "server" -> startServer();
+            case "server" -> {
+                CommunicationProtocol protocol = parseProtocol(args.length > 1 ? args[1] : "rmi");
+                int port = args.length > 2 ? Integer.parseInt(args[2]) : defaultPort(protocol);
+
+                startServer(protocol, port);
+            }
             case "client" -> {
                 String mode = args.length > 1 ? args[1] : "tui";
-                String host = args.length > 2 ? args[2] : "localhost";
-                startClient(host, mode);
+                CommunicationProtocol protocol = parseProtocol(args.length > 2 ? args[2] : "rmi");
+                int port = args.length > 3 ? Integer.parseInt(args[3]) : defaultPort(protocol);
+                String host = args.length > 4 ? args[4] : "localhost";
+
+                startClient(host, mode, protocol, port);
             }
             default -> System.out.println("Argument not recognized: " + args[0]);
         }
@@ -33,35 +43,45 @@ public class App {
     // SERVER
     // =========================================================================
 
-
-    private static void startServer() throws Exception {
-        RMIGameServerImpl.startServer();
-        // Server RMI runs in background on daemon thread
+    private static void startServer(CommunicationProtocol protocol, int port) throws Exception {
+        ServerNetworkAdapter adapter = NetworkAdapterFactory.createServerAdapter(protocol);
+        adapter.start(port);
         System.out.println("Server Started. Press ENTER to shut down.");
+
         new Scanner(System.in).nextLine();
+        adapter.stop();
         System.out.println("Server OFF.");
         System.exit(0);
+    }
+
+    private static CommunicationProtocol parseProtocol(String raw) {
+        if ("socket".equalsIgnoreCase(raw)) {
+            return CommunicationProtocol.SOCKET;
+        }
+        return CommunicationProtocol.RMI;
+    }
+
+    private static int defaultPort(CommunicationProtocol protocol) {
+        return protocol == CommunicationProtocol.SOCKET ? 9999 : 1099;
     }
 
     // =========================================================================
     // CLIENT
     // =========================================================================
 
-    private static void startClient(String host, String mode) {
+    private static void startClient(String host, String mode, CommunicationProtocol protocol, int port) {
         switch (mode) {
-            case "tui" -> startClientTui(host);
-            case "gui" -> startClientGui(host);
+            case "tui" -> startClientTui(host, protocol, port);
+            case "gui" -> startClientGui(host, protocol, port);
             default -> System.out.println("Client mode not recognized: " + mode + ". Use 'tui' or 'gui'.");
         }
     }
 
-
-    private static void startClientTui(String host) {
-        TUILauncher.launchTuiClient(host);
+    private static void startClientTui(String host, CommunicationProtocol protocol, int port) {
+        TUILauncher.launchTuiClient(host, protocol, port);
     }
 
-
-    private static void startClientGui(String host) {
-        GUILauncher.launchGuiClient(host);
+    private static void startClientGui(String host, CommunicationProtocol protocol, int port) {
+        GUILauncher.launchGuiClient(host, protocol, port);
     }
 }
