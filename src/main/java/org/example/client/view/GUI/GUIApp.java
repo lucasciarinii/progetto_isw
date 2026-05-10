@@ -6,14 +6,24 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.example.client.view.GUI.GUIController.GUILoginController;
-import org.example.client.view.GUI.registry.CardImageRegistry;
+import org.example.network.CommunicationProtocol;
 
 public class GUIApp extends Application {
 
     private static String host =  "localhost";
+    private static CommunicationProtocol protocol = CommunicationProtocol.RMI;
+    private static int port = 1099;
 
     public static void setHost(String host) {
         GUIApp.host = host;
+    }
+
+    public static void setProtocol(CommunicationProtocol protocol) {
+        GUIApp.protocol = protocol;
+    }
+
+    public static void setPort(int port) {
+        GUIApp.port = port;
     }
 
 
@@ -27,6 +37,8 @@ public class GUIApp extends Application {
 
         GUILoginController controller = loader.getController();
         controller.setHost(host);
+        controller.setProtocol(protocol);
+        controller.setPort(port);
         controller.setStage(stage);
 
         stage.setTitle("MESOS - Client GUI");

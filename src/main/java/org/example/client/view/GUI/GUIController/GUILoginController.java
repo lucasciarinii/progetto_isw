@@ -1,16 +1,13 @@
 package org.example.client.view.GUI.GUIController;
 
-import com.mysql.cj.xdevapi.Client;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.example.client.ClientController;
 import org.example.client.view.GUI.GUIHandler;
-import javafx.scene.paint.Color;
-import org.example.client.view.GUI.registry.CardImageRegistry;
-
-import javafx.scene.paint.Color;
+import org.example.network.CommunicationProtocol;
 
 public class GUILoginController {
 
@@ -20,9 +17,19 @@ public class GUILoginController {
 
     private Stage stage;
     private String host = "localhost";
+    private int port = 1099;
+    private CommunicationProtocol protocol = CommunicationProtocol.RMI;
 
     public void setHost(String host) {
         this.host = host;
+    }
+
+    public void setProtocol(CommunicationProtocol protocol) {
+        this.protocol = protocol;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 
     public void setStage(Stage stage) {
@@ -67,7 +74,7 @@ public class GUILoginController {
             errorLabel.setText("Connecting...");
             errorLabel.setStyle("-fx-text-fill: #888866; -fx-font-size: 11px;");
             errorLabel.setVisible(true);
-            controller.connect(host, numPlayers);
+            controller.connect(host, port, numPlayers, protocol);
         } catch (Exception e) {
             errorLabel.setTextFill(Color.RED);
             showError("Impossible to connect to server");
