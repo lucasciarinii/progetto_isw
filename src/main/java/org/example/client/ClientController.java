@@ -1,12 +1,10 @@
 package org.example.client;
 
-import org.example.client.rmi.RMIClientCallbackImpl;
 import org.example.client.rmi.GameEventListener;
 import org.example.client.view.UIHandler;
 import org.example.network.ClientNetworkAdapter;
 import org.example.network.CommunicationProtocol;
 import org.example.network.NetworkAdapterFactory;
-import org.example.network.ServerNetworkAdapter;
 import org.example.network.messages.RankingUpdateMessage;
 import org.example.network.snapshots.OfferTileSnapshot;
 import org.example.network.snapshots.PlayerSnapshot;
@@ -16,10 +14,7 @@ import org.example.server.model.enums.GamePhase;
 import org.example.network.messages.GameStateUpdateMessage;
 import org.example.network.messages.LobbyUpdateMessage;
 import org.example.server.model.enums.OfferEffect;
-import org.example.network.rmi.RMIGameServer;
 
-import java.rmi.Naming;
-import java.rmi.RemoteException;
 import java.util.List;
 
 /*? Client-Side Controller:
@@ -30,7 +25,7 @@ import java.util.List;
 public class ClientController implements GameEventListener {
     private final String nickname;
     private ClientNetworkAdapter networkAdapter;
-    private UIHandler ui;
+    private final UIHandler ui;
 
     public ClientController(String nickname, UIHandler ui) {
         this.nickname = nickname;
@@ -42,7 +37,6 @@ public class ClientController implements GameEventListener {
 
     //! CONNECTION TO SERVER -----------------------------------------------
     public void connect(String host, int port, int numPlayers, CommunicationProtocol protocol) throws Exception {
-
         networkAdapter = NetworkAdapterFactory.createClientAdapter(protocol, this);
         networkAdapter.connect(host, port, nickname, numPlayers);
     }
