@@ -111,6 +111,10 @@ public class LobbyController implements GameOverListener {
         }
     }
 
+    public RMIClientCallback getCallbackByNickname(String nickname) {
+        return waitingClients.get(nickname);
+    }
+
     @Override
     public void onGameOver(ServerController controller) {
         // Reset lobby state for a new match

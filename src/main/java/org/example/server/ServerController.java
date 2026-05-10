@@ -182,6 +182,18 @@ public class ServerController {
                 .orElseThrow(() -> new IllegalArgumentException("Client not found: " + nickname));
     }
 
+    public ClientConnection getClientConnectionByNickname(String nickname) {
+        return clientNicknames.entrySet().stream()
+                .filter(e -> e.getValue().equals(nickname))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Client not found: " + nickname));
+    }
+
+    public GamePhase getCurrentPhase() {
+        return match.getGameState().getCurrentPhase();
+    }
+
     // Internal lookup to get the ClientConnection associated with a nickname
     private ClientConnection findConnection(String nickname) {
         return clientNicknames.entrySet().stream()
