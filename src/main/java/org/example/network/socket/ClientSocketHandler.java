@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -20,6 +19,7 @@ public class ClientSocketHandler implements Runnable {
     private BufferedReader in;
     private String nickname;
     private final ObjectMapper mapper = new ObjectMapper();
+    private SocketClientConnection clientConnection;
 
 
     public ClientSocketHandler(Socket socket, SocketServerNetworkAdapter server,
@@ -73,28 +73,31 @@ public class ClientSocketHandler implements Runnable {
                     this.nickname = nickname;
                     connectedClients.put(nickname, this);
 
-                    // Register the client in server controller
-                    SocketClientConnection connection = new SocketClientConnection(out);
-                    server.getServerController().registerClient(connection, nickname);
+                    if (clientConnection == null) {
+                        clientConnection = new SocketClientConnection(out);
+                    }
+                    server.registerPlayer(nickname, numPlayers, clientConnection);
                     System.out.println("[SERVER] Player " + nickname + " registered");
                     break;
 
                 case "placeTotem":
                     int tilePosition = (int) cmd.get("tilePosition");
-                    server.getServerController().placeTotemOnOfferTile(this.nickname, tilePosition);
+                    server.placeTotemOnOfferTile(this.nickname, tilePosition);
                     break;
 
                 case "offerTileAction":
                     String cards = (String) cmd.get("cards");
-                    server.getServerController().offerTileAction(this.nickname, cards);
+                    server.offerTileAction(this.nickname, cards);
                     break;
 
                 case "skipTurn":
-                    server.getServerController().skipTurn(this.nickname);
+                    server.skipTurn(this.nickname);
                     break;
             }
         } catch (IOException e) {
             System.err.println("[Server] Error processing command: " + e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

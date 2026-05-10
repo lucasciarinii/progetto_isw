@@ -5,6 +5,9 @@ import org.example.network.ServerNetworkAdapter;
 import org.example.network.messages.GameStateUpdateMessage;
 import org.example.network.messages.LobbyUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
+import org.example.server.ClientConnection;
+import org.example.server.LobbyController;
+import org.example.server.LobbyReadyListener;
 import org.example.server.ServerController;
 
 import java.io.IOException;
@@ -13,17 +16,18 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SocketServerNetworkAdapter implements ServerNetworkAdapter {
+public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyReadyListener {
 
-    private final ServerController serverController;
+    private final LobbyController lobby;
     private ServerSocket serverSocket;
     private final Map<String, ClientSocketHandler> connectedClients = new HashMap<>();
     private final ObjectMapper mapper = new ObjectMapper();
 
+    private ServerController serverController;
     private boolean running = false;
 
-    public SocketServerNetworkAdapter(ServerController serverController) {
-        this.serverController = serverController;
+    public SocketServerNetworkAdapter() {
+        this.lobby = new LobbyController(this);
     }
 
 
@@ -111,6 +115,43 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter {
         }
     }
 
+    public void registerPlayer(String nickname, int numPlayers, ClientConnection connection) throws Exception {
+        lobby.registerPlayer(nickname, numPlayers, connection);
+    }
+
+    public void placeTotemOnOfferTile(String nickname, int tilePosition) {
+        if (serverController == null) {
+            System.err.println("[SERVER] Game not started yet.");
+            return;
+        }
+        serverController.placeTotemOnOfferTile(nickname, tilePosition);
+    }
+
+    public void offerTileAction(String nickname, String cards) {
+        if (serverController == null) {
+            System.err.println("[SERVER] Game not started yet.");
+            return;
+        }
+        serverController.offerTileAction(nickname, cards);
+    }
+
+    public void skipTurn(String nickname) {
+        if (serverController == null) {
+            System.err.println("[SERVER] Game not started yet.");
+            return;
+        }
+        serverController.skipTurn(nickname);
+    }
+
+    @Override
+    public void onLobbyReady(ServerController serverController) {
+        this.serverController = serverController;
+    }
+
+    public ServerController getServerController() {
+        return serverController;
+    }
+
     // Accept client connections
     private void acceptConnections() {
         while (running) {
@@ -135,9 +176,5 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter {
                 }
             }
         }
-    }
-
-    public ServerController getServerController() {
-        return serverController;
     }
 }

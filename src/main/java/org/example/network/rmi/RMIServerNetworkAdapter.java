@@ -4,18 +4,15 @@ import org.example.network.ServerNetworkAdapter;
 import org.example.network.messages.GameStateUpdateMessage;
 import org.example.network.messages.LobbyUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
-import org.example.server.ServerController;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.ExportException;
 
 public class RMIServerNetworkAdapter implements ServerNetworkAdapter {
 
-    private final ServerController controller;
     private RMIGameServerImpl rmiServer;
 
-    public RMIServerNetworkAdapter(ServerController controller) {
-        this.controller = controller;
+    public RMIServerNetworkAdapter() {
     }
 
 
@@ -26,13 +23,13 @@ public class RMIServerNetworkAdapter implements ServerNetworkAdapter {
         rmiServer = new RMIGameServerImpl();
 
         try {
-            LocateRegistry.createRegistry(1099);
+            LocateRegistry.createRegistry(port);
         } catch (ExportException e) {
             System.out.println("[SERVER] RMI registry already exists.");
         }
 
-        java.rmi.Naming.rebind("//localhost/GameServer", rmiServer);
-        System.out.println("[SERVER] RMI ready on port 1099. Waiting for players...");
+        java.rmi.Naming.rebind("//localhost:" + port + "/GameServer", rmiServer);
+        System.out.println("[SERVER] RMI ready on port " + port + ". Waiting for players...");
     }
 
     @Override
