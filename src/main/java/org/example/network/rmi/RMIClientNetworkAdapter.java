@@ -33,6 +33,11 @@ public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
     }
 
     @Override
+    public void offerTileAction(String cards) throws Exception {
+        server.offerTileAction(nickname, cards);
+    }
+
+    @Override
     public void skipTurn() throws Exception {
         server.skipTurn(nickname);
     }

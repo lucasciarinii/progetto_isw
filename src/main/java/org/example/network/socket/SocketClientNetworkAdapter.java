@@ -58,6 +58,14 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
     }
 
     @Override
+    public void offerTileAction(String cards) throws Exception {
+        Map<String, Object> cmd = new HashMap<>();
+        cmd.put("action", "offerTileAction");
+        cmd.put("cards", cards);
+        out.println(mapper.writeValueAsString(cmd));
+    }
+
+    @Override
     public void skipTurn() throws Exception {
         Map<String, Object> cmd = new HashMap<>();
         cmd.put("action", "skipTurn");

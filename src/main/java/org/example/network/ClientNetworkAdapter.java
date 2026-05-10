@@ -10,6 +10,9 @@ public interface ClientNetworkAdapter {
     // Client place a totem on a tile
     void placeTotemOnOfferTile(int tilePosition) throws Exception;
 
+    // Client action
+    void offerTileAction(String cards) throws Exception;
+
     // Client executes an action on a tile
     void skipTurn() throws Exception;
 
