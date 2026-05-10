@@ -6,6 +6,7 @@ package org.example.server;
 //      - SocketClientConnection
 
 import org.example.network.messages.GameStateUpdateMessage;
+import org.example.network.messages.LobbyUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
 import org.example.server.model.enums.GamePhase;
 
@@ -18,6 +19,9 @@ public interface ClientConnection {
 
     // Sends ranking update
     void sendRankingUpdate(RankingUpdateMessage rankingUpdate) throws Exception;
+
+    // Sends lobby update
+    void sendLobbyUpdate(LobbyUpdateMessage update) throws Exception;
 
     // Sends shutdown message
     void sendShutdown() throws Exception;
