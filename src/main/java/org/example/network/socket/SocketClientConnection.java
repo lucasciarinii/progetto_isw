@@ -2,6 +2,7 @@ package org.example.network.socket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.network.messages.GameStateUpdateMessage;
+import org.example.network.messages.LobbyUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
 import org.example.server.ClientConnection;
 import org.example.server.model.enums.GamePhase;
@@ -41,6 +42,14 @@ public class SocketClientConnection implements ClientConnection {
         Map<String, Object> msg = new HashMap<>();
         msg.put("event", "RANKING_UPDATE");
         msg.put("data", rankingUpdate);
+        out.println(mapper.writeValueAsString(msg));
+    }
+
+    @Override
+    public void sendLobbyUpdate(LobbyUpdateMessage update) throws Exception {
+        Map<String, Object> msg = new HashMap<>();
+        msg.put("event", "LOBBY_UPDATE");
+        msg.put("data", update);
         out.println(mapper.writeValueAsString(msg));
     }
 
