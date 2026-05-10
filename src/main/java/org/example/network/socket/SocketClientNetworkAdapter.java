@@ -3,6 +3,10 @@ package org.example.network.socket;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.client.ClientController;
 import org.example.network.ClientNetworkAdapter;
+import org.example.network.messages.GameStateUpdateMessage;
+import org.example.network.messages.LobbyUpdateMessage;
+import org.example.network.messages.RankingUpdateMessage;
+import org.example.server.model.enums.GamePhase;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -112,20 +116,25 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
 
             switch (event) {
                 case "GAME_STATE_UPDATE":
-                    // TODO: deserializza GameStateUpdateMessage e chiama clientController.onUpdate()
+                    GameStateUpdateMessage update = mapper.convertValue(msg.get("data"), GameStateUpdateMessage.class);
+                    clientController.onUpdate(update);
                     break;
 
                 case "LOBBY_UPDATE":
-                    // TODO: deserializza LobbyUpdateMessage e chiama clientController.onLobbyUpdate()
+                    LobbyUpdateMessage lobbyUpdate = mapper.convertValue(msg.get("data"), LobbyUpdateMessage.class);
+                    clientController.onLobbyUpdate(lobbyUpdate);
                     break;
 
                 case "ERROR":
                     String error = (String) msg.get("message");
-                    // TODO: chiama clientController.onError()
+                    String phaseRaw = (String) msg.get("phase");
+                    GamePhase phase = phaseRaw != null ? GamePhase.valueOf(phaseRaw) : null;
+                    clientController.onError(error, phase);
                     break;
 
                 case "RANKING_UPDATE":
-                    // TODO: deserializza RankingUpdateMessage e chiama clientController.onRankingUpdate()
+                    RankingUpdateMessage rankingUpdate = mapper.convertValue(msg.get("data"), RankingUpdateMessage.class);
+                    clientController.onRankingUpdate(rankingUpdate);
                     break;
 
                 case "SHUTDOWN":
