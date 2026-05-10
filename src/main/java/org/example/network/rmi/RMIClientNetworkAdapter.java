@@ -24,7 +24,7 @@ public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
 
         server = (RMIGameServer) Naming.lookup("rmi://" + host + "/GameServer");
         RMIClientCallbackImpl callback = new RMIClientCallbackImpl(controller);
-        server.register(nickname, port, callback);
+        server.register(nickname, numPlayers, callback);
     }
 
     @Override
