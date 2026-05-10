@@ -22,7 +22,7 @@ public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
         System.setProperty("java.rmi.server.hostname", "localhost");
         this.nickname = nickname;
 
-        server = (RMIGameServer) Naming.lookup("rmi://" + host + "/GameServer");
+        server = (RMIGameServer) Naming.lookup("rmi://" + host + ":" + port + "/GameServer");
         RMIClientCallbackImpl callback = new RMIClientCallbackImpl(controller);
         server.register(nickname, numPlayers, callback);
     }
