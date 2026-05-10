@@ -3,6 +3,7 @@ package org.example.network.rmi;
 import org.example.network.messages.RankingUpdateMessage;
 import org.example.server.ClientConnection;
 import org.example.network.messages.GameStateUpdateMessage;
+import org.example.network.messages.LobbyUpdateMessage;
 import org.example.server.model.enums.GamePhase;
 
 //? The "adapter": it let RMI talk with ServerController
@@ -32,5 +33,10 @@ public class RMIClientConnection implements ClientConnection {
     @Override
     public void sendShutdown() throws Exception {
         callback.receiveShutdown();
+    }
+
+    @Override
+    public void sendLobbyUpdate(LobbyUpdateMessage update) throws Exception {
+        callback.receiveLobbyUpdate(update);
     }
 }
