@@ -3,6 +3,10 @@ package org.example.client;
 import org.example.client.rmi.RMIClientCallbackImpl;
 import org.example.client.rmi.GameEventListener;
 import org.example.client.view.UIHandler;
+import org.example.network.ClientNetworkAdapter;
+import org.example.network.CommunicationProtocol;
+import org.example.network.NetworkAdapterFactory;
+import org.example.network.ServerNetworkAdapter;
 import org.example.network.messages.RankingUpdateMessage;
 import org.example.network.snapshots.OfferTileSnapshot;
 import org.example.network.snapshots.PlayerSnapshot;
@@ -25,7 +29,7 @@ import java.util.List;
  */
 public class ClientController implements GameEventListener {
     private final String nickname;
-    private RMIGameServer server; // server stub RMI
+    private ClientNetworkAdapter networkAdapter;
     private UIHandler ui;
 
     public ClientController(String nickname, UIHandler ui) {
@@ -37,18 +41,10 @@ public class ClientController implements GameEventListener {
 
 
     //! CONNECTION TO SERVER -----------------------------------------------
-    public void connect(String host, int numPlayers) throws Exception {
-        // Forces RMI to use localhost instead of network board IP
-        System.setProperty("java.rmi.server.hostname", "localhost");
+    public void connect(String host, int port, int numPlayers, CommunicationProtocol protocol) throws Exception {
 
-        // 1. Retrieve the server stub from the registry
-        server = (RMIGameServer) Naming.lookup("rmi://" + host + "/GameServer");
-
-        // 2. Create the callback (remote object on client side)
-        RMIClientCallbackImpl callback = new RMIClientCallbackImpl(this);
-
-        // 3. It registers on the server
-        server.register(nickname, numPlayers, callback);
+        networkAdapter = NetworkAdapterFactory.createClientAdapter(protocol, this);
+        networkAdapter.connect(host, port, nickname, numPlayers);
     }
 
     @Override
@@ -58,11 +54,11 @@ public class ClientController implements GameEventListener {
 
     //! COMMANDS TO SERVER -----------------------------------------------
     public void placeTotemOnOfferTile(int tilePosition) throws Exception {
-        server.placeTotemOnOfferTile(nickname, tilePosition);
+        networkAdapter.placeTotemOnOfferTile(tilePosition);
     }
 
     public void offerTileAction(String cards) throws Exception {
-        server.offerTileAction(nickname, cards);
+        networkAdapter.offerTileAction(cards);
     }
 
     //! RECEIVING UPDATES FROM SERVER (called by ClientCallbackImpl) -----------------------------------------------
@@ -83,8 +79,8 @@ public class ClientController implements GameEventListener {
                     // to respond — which it cannot, since the callback thread is still occupied.
                     new Thread(() -> {
                         try {
-                            server.skipTurn(nickname);
-                        } catch (RemoteException e) {
+                            networkAdapter.skipTurn();
+                        } catch (Exception e) {
                             ui.onError(e.getMessage(), update.getCurrentPhase());
                         }
                     }).start();
