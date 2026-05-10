@@ -5,12 +5,11 @@ package org.example.server;
     - When the number is reached, creates Match and ServerController.
 */
 
+import org.example.server.ClientConnection;
 import org.example.server.model.enums.GamePhase;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
 import org.example.network.messages.LobbyUpdateMessage;
-import org.example.network.rmi.RMIClientCallback;
-import org.example.network.rmi.RMIClientConnection;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -21,7 +20,7 @@ public class LobbyController implements GameOverListener {
     private int requiredPlayers = -1;  // -1 = not decided yet
 
     // Keeps the order of connection: nickname, callback
-    private final Map<String, RMIClientCallback> waitingClients = new LinkedHashMap<>();
+    private final Map<String, ClientConnection> waitingClients = new LinkedHashMap<>();
 
     // Callback called by GameServerImpl when the lobby is full
     private final LobbyReadyListener onReady;
@@ -35,25 +34,25 @@ public class LobbyController implements GameOverListener {
         - @param numPlayers     desired number of players (used only by the first one)
         - @param callback       RMI callback to communicate with this client
     */
-    public synchronized void registerPlayer(String nickname, int numPlayers, RMIClientCallback callback) throws Exception {
+    public synchronized void registerPlayer(String nickname, int numPlayers, ClientConnection connection) throws Exception {
 
         // Check if the nickname is already taken
         if (waitingClients.containsKey(nickname)) {
-            callback.receiveError("Nickname already used: " + nickname, GamePhase.LOBBY);
+            connection.sendError("Nickname already used: " + nickname, GamePhase.LOBBY);
             return;
         }
 
         // First player decides how many players will be in the game (2-5)
         if (waitingClients.isEmpty()) {
             if (numPlayers < 2 || numPlayers > 5) {
-                callback.receiveError("Invalid number of players. Choose between 2 and 5.", GamePhase.LOBBY);
+                connection.sendError("Invalid number of players. Choose between 2 and 5.", GamePhase.LOBBY);
                 return;
             }
             requiredPlayers = numPlayers;
         }
 
         // Add the player to the lobby
-        waitingClients.put(nickname, callback);
+        waitingClients.put(nickname, connection);
         System.out.println("[LOBBY] " + nickname + " is connected. (" + waitingClients.size() + "/" + requiredPlayers + ")");
 
         // Notifies all clients in waiting
@@ -81,10 +80,9 @@ public class LobbyController implements GameOverListener {
         serverController.setGameOverListener(this);
 
         // Registers each client in the ServerController
-        for (Map.Entry<String, RMIClientCallback> entry : waitingClients.entrySet()) {
+        for (Map.Entry<String, ClientConnection> entry : waitingClients.entrySet()) {
             String nick = entry.getKey();
-            RMIClientCallback callback = entry.getValue();
-            RMIClientConnection connection = new RMIClientConnection(callback);
+            ClientConnection connection = entry.getValue();
             serverController.registerClient(connection, nick);
         }
 
@@ -102,16 +100,16 @@ public class LobbyController implements GameOverListener {
                 new ArrayList<>(waitingClients.keySet()),
                 gameStarting
         );
-        for (RMIClientCallback cb : waitingClients.values()) {
+        for (ClientConnection connection : waitingClients.values()) {
             try {
-                cb.receiveLobbyUpdate(update);
+                connection.sendLobbyUpdate(update);
             } catch (Exception e) {
                 System.err.println("[LOBBY] Errore notifica client: " + e.getMessage());
             }
         }
     }
 
-    public RMIClientCallback getCallbackByNickname(String nickname) {
+    public ClientConnection getConnectionByNickname(String nickname) {
         return waitingClients.get(nickname);
     }
 
