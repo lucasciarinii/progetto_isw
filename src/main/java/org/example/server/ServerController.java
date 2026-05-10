@@ -196,7 +196,7 @@ public class ServerController {
     private void notifyAll(GameStateUpdateMessage update) {
         clientNicknames.keySet().forEach(client -> {
             try {
-                client.sendUpdate(update);
+                client.sendGameStateUpdate(update);
             } catch (Exception e) {
                 // Client disconnected, remove it
                 System.out.print("[SERVER] Failed to send update to " + clientNicknames.get(client) + ", unregistering client. Reason: " + e.getMessage());

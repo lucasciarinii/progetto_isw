@@ -15,7 +15,7 @@ public class RMIClientConnection implements ClientConnection {
     }
 
     @Override
-    public void sendUpdate(GameStateUpdateMessage update) throws Exception {
+    public void sendGameStateUpdate(GameStateUpdateMessage update) throws Exception {
         callback.receiveUpdate(update);
     }
 
