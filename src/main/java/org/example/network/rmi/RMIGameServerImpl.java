@@ -36,7 +36,8 @@ public class RMIGameServerImpl extends UnicastRemoteObject implements RMIGameSer
     public void register(String nickname, int numPlayers, RMIClientCallback callback)
             throws RemoteException {
         try {
-            lobby.registerPlayer(nickname, numPlayers, callback);
+            RMIClientConnection connection = new RMIClientConnection(callback);
+            lobby.registerPlayer(nickname, numPlayers, connection);
         } catch (Exception e) {
             throw new RemoteException("Registration Error: " + e.getMessage());
         }
@@ -69,11 +70,15 @@ public class RMIGameServerImpl extends UnicastRemoteObject implements RMIGameSer
     //! CLIENT CONNECTION: this methods sends messages to client
 
     public void sendLobbyUpdateToClient(String nickname, LobbyUpdateMessage update) throws RemoteException {
-        RMIClientCallback callback = lobby.getCallbackByNickname(nickname);
-        if (callback == null) {
+        ClientConnection connection = lobby.getConnectionByNickname(nickname);
+        if (connection == null) {
             throw new RemoteException("Client not found: " + nickname);
         }
-        callback.receiveLobbyUpdate(update);
+        try {
+            connection.sendLobbyUpdate(update);
+        } catch (Exception e) {
+            throw new RemoteException("Failed to send lobby update: " + e.getMessage());
+        }
     }
 
     public void sendGameStateUpdateToClient(String nickname, GameStateUpdateMessage update) throws RemoteException {
