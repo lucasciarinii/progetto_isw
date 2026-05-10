@@ -12,7 +12,7 @@ import org.example.server.model.enums.GamePhase;
 import org.example.network.messages.GameStateUpdateMessage;
 import org.example.network.messages.LobbyUpdateMessage;
 import org.example.server.model.enums.OfferEffect;
-import org.example.server.rmi.RMIGameServer;
+import org.example.network.rmi.RMIGameServer;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;

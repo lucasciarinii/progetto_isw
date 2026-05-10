@@ -2,7 +2,7 @@ package org.example;
 
 import org.example.client.view.GUI.GUILauncher;
 import org.example.client.view.TUI.TUILauncher;
-import org.example.server.rmi.RMIGameServerImpl;
+import org.example.network.rmi.RMIGameServerImpl;
 
 import java.util.Scanner;
 

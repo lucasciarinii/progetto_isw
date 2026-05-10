@@ -1,6 +1,4 @@
-package org.example.server.rmi;
-
-import org.example.server.model.enums.OfferEffect;
+package org.example.network.rmi;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

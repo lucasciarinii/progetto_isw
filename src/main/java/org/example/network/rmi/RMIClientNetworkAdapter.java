@@ -3,7 +3,6 @@ package org.example.network.rmi;
 import org.example.client.ClientController;
 import org.example.client.rmi.RMIClientCallbackImpl;
 import org.example.network.ClientNetworkAdapter;
-import org.example.server.rmi.RMIGameServer;
 
 import java.rmi.Naming;
 

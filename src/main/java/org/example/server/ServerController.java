@@ -10,7 +10,7 @@ import org.example.network.snapshots.PlayerSnapshot;
 import org.example.network.snapshots.TurnSlotSnapshot;
 import org.example.server.model.exceptions.InvalidCardException;
 import org.example.server.model.exceptions.NoDrawableCardException;
-import org.example.server.rmi.RMIClientConnection;
+import org.example.network.rmi.RMIClientConnection;
 import org.example.server.model.board.Board;
 import org.example.server.model.board.PlayerSlot;
 import org.example.server.model.enums.GamePhase;

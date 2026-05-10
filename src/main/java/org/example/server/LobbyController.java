@@ -9,8 +9,8 @@ import org.example.server.model.enums.GamePhase;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
 import org.example.network.messages.LobbyUpdateMessage;
-import org.example.server.rmi.RMIClientCallback;
-import org.example.server.rmi.RMIClientConnection;
+import org.example.network.rmi.RMIClientCallback;
+import org.example.network.rmi.RMIClientConnection;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

@@ -1,9 +1,8 @@
-package org.example.server.rmi;
+package org.example.network.rmi;
 
 import org.example.server.LobbyController;
 import org.example.server.LobbyReadyListener;
 import org.example.server.ServerController;
-import org.example.server.model.enums.OfferEffect;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
