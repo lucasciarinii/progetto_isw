@@ -21,7 +21,7 @@ public class RMIServerNetworkAdapter implements ServerNetworkAdapter {
     public void start(int port) throws Exception {
         System.setProperty("java.rmi.server.hostname", "localhost");
 
-        rmiServer = new RMIGameServerImpl();
+        rmiServer = new RMIGameServerImpl(this);
 
         try {
             LocateRegistry.createRegistry(port);
