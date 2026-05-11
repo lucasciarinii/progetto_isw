@@ -6,6 +6,8 @@ import org.example.network.rmi.RMIServerNetworkAdapter;
 import org.example.network.socket.SocketClientNetworkAdapter;
 import org.example.network.socket.SocketServerNetworkAdapter;
 
+import java.rmi.RemoteException;
+
 public class NetworkAdapterFactory {
 
     // Create the adapter for the client
@@ -25,7 +27,13 @@ public class NetworkAdapterFactory {
     ) {
 
         return switch (protocol) {
-            case RMI -> new RMIServerNetworkAdapter();
+            case RMI -> {
+                try {
+                    yield new RMIServerNetworkAdapter();
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             case SOCKET ->  new SocketServerNetworkAdapter();
         };
     }
