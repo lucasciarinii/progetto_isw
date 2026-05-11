@@ -71,17 +71,9 @@ public class App {
 
     private static void startClient(String host, String mode, CommunicationProtocol protocol, int port) {
         switch (mode) {
-            case "tui" -> startClientTui(host, protocol, port);
-            case "gui" -> startClientGui(host, protocol, port);
+            case "tui" -> TUILauncher.launchTuiClient(host, protocol, port);
+            case "gui" -> GUILauncher.launchGuiClient(host, protocol, port);
             default -> System.out.println("Client mode not recognized: " + mode + ". Use 'tui' or 'gui'.");
         }
-    }
-
-    private static void startClientTui(String host, CommunicationProtocol protocol, int port) {
-        TUILauncher.launchTuiClient(host, protocol, port);
-    }
-
-    private static void startClientGui(String host, CommunicationProtocol protocol, int port) {
-        GUILauncher.launchGuiClient(host, protocol, port);
     }
 }
