@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -19,7 +20,6 @@ public class ClientSocketHandler implements Runnable {
     private BufferedReader in;
     private String nickname;
     private final ObjectMapper mapper = new ObjectMapper();
-    private SocketClientConnection clientConnection;
 
 
     public ClientSocketHandler(Socket socket, SocketServerNetworkAdapter server,
@@ -70,13 +70,14 @@ public class ClientSocketHandler implements Runnable {
                 case "register":
                     String nickname = (String) cmd.get("nickname");
                     int numPlayers = (int) cmd.get("numPlayers");
+
+                    if (server.isNicknameTaken(nickname)) {
+                        sendLobbyError("Nickname already used: " + nickname);
+                        break;
+                    }
                     this.nickname = nickname;
                     connectedClients.put(nickname, this);
-
-                    if (clientConnection == null) {
-                        clientConnection = new SocketClientConnection(out);
-                    }
-                    server.registerPlayer(nickname, numPlayers, clientConnection);
+                    server.registerPlayer(nickname, numPlayers);
                     System.out.println("[SERVER] Player " + nickname + " registered");
                     break;
 
@@ -98,6 +99,18 @@ public class ClientSocketHandler implements Runnable {
             System.err.println("[Server] Error processing command: " + e.getMessage());
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void sendLobbyError(String message) {
+        try {
+            Map<String, Object> msg = new HashMap<>();
+            msg.put("event", "ERROR");
+            msg.put("message", message);
+            msg.put("phase", "LOBBY");
+            out.println(mapper.writeValueAsString(msg));
+        } catch (IOException e) {
+            System.err.println("[Server] Failed to send lobby error: " + e.getMessage());
         }
     }
 }

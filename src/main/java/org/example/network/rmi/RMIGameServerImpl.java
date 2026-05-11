@@ -7,22 +7,27 @@ import org.example.server.ClientConnection;
 import org.example.server.LobbyController;
 import org.example.server.LobbyReadyListener;
 import org.example.server.ServerController;
+import org.example.server.ServerNotifier;
+import org.example.server.model.enums.GamePhase;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashMap;
+import java.util.Map;
 
 /*? Concrete Implementation of the GameServer interface -> server actually implements the "contract" of what it can do for clients.
     Receives RMI calls from clients and delegates them to the ServerController, which contains the actual game logic. */
-public class RMIGameServerImpl extends UnicastRemoteObject implements RMIGameServer, LobbyReadyListener {
+public class RMIGameServerImpl extends UnicastRemoteObject implements RMIGameServer, LobbyReadyListener, ServerNotifier {
 
     private final LobbyController lobby;
     private ServerController serverController; // null finché la lobby non è piena
+    private final Map<String, ClientConnection> connections = new HashMap<>();
 
     public RMIGameServerImpl() throws RemoteException {
         super();
-        this.lobby = new LobbyController(this);
+        this.lobby = new LobbyController(this, this);
     }
 
     // Called by LobbyController when the lobby is full and the game can start
@@ -34,12 +39,18 @@ public class RMIGameServerImpl extends UnicastRemoteObject implements RMIGameSer
 
     @Override
     public void register(String nickname, int numPlayers, RMIClientCallback callback)
-            throws RemoteException {
+            throws Exception {
+        RMIClientConnection connection = new RMIClientConnection(callback);
+        if (lobby.isNicknameTaken(nickname)) {
+            connection.sendError("Nickname already used: " + nickname, GamePhase.LOBBY);
+            return;
+        }
+        connections.put(nickname, connection);
         try {
-            RMIClientConnection connection = new RMIClientConnection(callback);
-            lobby.registerPlayer(nickname, numPlayers, connection);
+            lobby.registerPlayer(nickname, numPlayers);
         } catch (Exception e) {
-            throw new RemoteException("Registration Error: " + e.getMessage());
+            connections.remove(nickname);
+            connection.sendError("Registration Error: " + e.getMessage(), GamePhase.LOBBY);
         }
     }
 
@@ -69,56 +80,52 @@ public class RMIGameServerImpl extends UnicastRemoteObject implements RMIGameSer
 
     //! CLIENT CONNECTION: this methods sends messages to client
 
-    public void sendLobbyUpdateToClient(String nickname, LobbyUpdateMessage update) throws RemoteException {
-        ClientConnection connection = lobby.getConnectionByNickname(nickname);
+    @Override
+    public void sendLobbyUpdate(String nickname, LobbyUpdateMessage update) throws Exception {
+        ClientConnection connection = connections.get(nickname);
         if (connection == null) {
             throw new RemoteException("Client not found: " + nickname);
         }
-        try {
-            connection.sendLobbyUpdate(update);
-        } catch (Exception e) {
-            throw new RemoteException("Failed to send lobby update: " + e.getMessage());
-        }
+        connection.sendLobbyUpdate(update);
     }
 
-    public void sendGameStateUpdateToClient(String nickname, GameStateUpdateMessage update) throws RemoteException {
+    @Override
+    public void sendGameStateUpdate(String nickname, GameStateUpdateMessage update) throws Exception {
         checkGameStarted();
-        ClientConnection connection = serverController.getClientConnectionByNickname(nickname);
-        try {
-            connection.sendGameStateUpdate(update);
-        } catch (Exception e) {
-            throw new RemoteException("Failed to send game state: " + e.getMessage());
+        ClientConnection connection = connections.get(nickname);
+        if (connection == null) {
+            throw new RemoteException("Client not found: " + nickname);
         }
+        connection.sendGameStateUpdate(update);
     }
 
-    public void sendErrorToClient(String nickname, String errorMessage) throws RemoteException {
-        checkGameStarted();
-        ClientConnection connection = serverController.getClientConnectionByNickname(nickname);
-        try {
-            connection.sendError(errorMessage, serverController.getCurrentPhase());
-        } catch (Exception e) {
-            throw new RemoteException("Failed to send error: " + e.getMessage());
+    @Override
+    public void sendError(String nickname, String errorMessage, GamePhase phase) throws Exception {
+        ClientConnection connection = connections.get(nickname);
+        if (connection == null) {
+            throw new RemoteException("Client not found: " + nickname);
         }
+        connection.sendError(errorMessage, phase);
     }
 
-    public void sendRankingUpdateToClient(String nickname, RankingUpdateMessage update) throws RemoteException {
+    @Override
+    public void sendRankingUpdate(String nickname, RankingUpdateMessage update) throws Exception {
         checkGameStarted();
-        ClientConnection connection = serverController.getClientConnectionByNickname(nickname);
-        try {
-            connection.sendRankingUpdate(update);
-        } catch (Exception e) {
-            throw new RemoteException("Failed to send ranking update: " + e.getMessage());
+        ClientConnection connection = connections.get(nickname);
+        if (connection == null) {
+            throw new RemoteException("Client not found: " + nickname);
         }
+        connection.sendRankingUpdate(update);
     }
 
-    public void sendShutdownToClient(String nickname) throws RemoteException {
+    @Override
+    public void sendShutdown(String nickname) throws Exception {
         checkGameStarted();
-        ClientConnection connection = serverController.getClientConnectionByNickname(nickname);
-        try {
-            connection.sendShutdown();
-        } catch (Exception e) {
-            throw new RemoteException("Failed to send shutdown: " + e.getMessage());
+        ClientConnection connection = connections.get(nickname);
+        if (connection == null) {
+            throw new RemoteException("Client not found: " + nickname);
         }
+        connection.sendShutdown();
     }
 
     //! SERVER STARTUP: Start RMI Registry and registers the server ---------------------------------------------------------------------------

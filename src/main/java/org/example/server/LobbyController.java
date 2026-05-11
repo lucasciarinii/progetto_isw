@@ -5,28 +5,27 @@ package org.example.server;
     - When the number is reached, creates Match and ServerController.
 */
 
-import org.example.server.ClientConnection;
-import org.example.server.model.enums.GamePhase;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
 import org.example.network.messages.LobbyUpdateMessage;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 
 public class LobbyController implements GameOverListener {
     private int requiredPlayers = -1;  // -1 = not decided yet
 
-    // Keeps the order of connection: nickname, callback
-    private final Map<String, ClientConnection> waitingClients = new LinkedHashMap<>();
+    // Keeps the order of connection: nicknames
+    private final LinkedHashSet<String> waitingClients = new LinkedHashSet<>();
 
     // Callback called by GameServerImpl when the lobby is full
     private final LobbyReadyListener onReady;
+    private final ServerNotifier notifier;
 
-    public LobbyController(LobbyReadyListener onReady) {
+    public LobbyController(LobbyReadyListener onReady, ServerNotifier notifier) {
         this.onReady = onReady;
+        this.notifier = notifier;
     }
 
     /* Registers a new player in the lobby
@@ -34,25 +33,23 @@ public class LobbyController implements GameOverListener {
         - @param numPlayers     desired number of players (used only by the first one)
         - @param callback       RMI callback to communicate with this client
     */
-    public synchronized void registerPlayer(String nickname, int numPlayers, ClientConnection connection) throws Exception {
+    public synchronized void registerPlayer(String nickname, int numPlayers) throws Exception {
 
         // Check if the nickname is already taken
-        if (waitingClients.containsKey(nickname)) {
-            connection.sendError("Nickname already used: " + nickname, GamePhase.LOBBY);
-            return;
+        if (waitingClients.contains(nickname)) {
+            throw new IllegalArgumentException("Nickname already used: " + nickname);
         }
 
         // First player decides how many players will be in the game (2-5)
         if (waitingClients.isEmpty()) {
             if (numPlayers < 2 || numPlayers > 5) {
-                connection.sendError("Invalid number of players. Choose between 2 and 5.", GamePhase.LOBBY);
-                return;
+                throw new IllegalArgumentException("Invalid number of players. Choose between 2 and 5.");
             }
             requiredPlayers = numPlayers;
         }
 
         // Add the player to the lobby
-        waitingClients.put(nickname, connection);
+        waitingClients.add(nickname);
         System.out.println("[LOBBY] " + nickname + " is connected. (" + waitingClients.size() + "/" + requiredPlayers + ")");
 
         // Notifies all clients in waiting
@@ -70,21 +67,14 @@ public class LobbyController implements GameOverListener {
 
         // Creates the list of Player from the model
         List<Player> players = new ArrayList<>();
-        for (String nick : waitingClients.keySet()) {
+        for (String nick : waitingClients) {
             players.add(new Player(nick));
         }
 
         // Creates the Match and ServerController
         Match match = new Match(players);
-        ServerController serverController = new ServerController(match);
+        ServerController serverController = new ServerController(match, notifier);
         serverController.setGameOverListener(this);
-
-        // Registers each client in the ServerController
-        for (Map.Entry<String, ClientConnection> entry : waitingClients.entrySet()) {
-            String nick = entry.getKey();
-            ClientConnection connection = entry.getValue();
-            serverController.registerClient(connection, nick);
-        }
 
         // Send first snapshot to all clients
         serverController.sendInitialState();
@@ -97,20 +87,20 @@ public class LobbyController implements GameOverListener {
         LobbyUpdateMessage update = new LobbyUpdateMessage(
                 waitingClients.size(),
                 requiredPlayers,
-                new ArrayList<>(waitingClients.keySet()),
+                new ArrayList<>(waitingClients),
                 gameStarting
         );
-        for (ClientConnection connection : waitingClients.values()) {
+        for (String nickname : waitingClients) {
             try {
-                connection.sendLobbyUpdate(update);
+                notifier.sendLobbyUpdate(nickname, update);
             } catch (Exception e) {
                 System.err.println("[LOBBY] Errore notifica client: " + e.getMessage());
             }
         }
     }
 
-    public ClientConnection getConnectionByNickname(String nickname) {
-        return waitingClients.get(nickname);
+    public boolean isNicknameTaken(String nickname) {
+        return waitingClients.contains(nickname);
     }
 
     @Override

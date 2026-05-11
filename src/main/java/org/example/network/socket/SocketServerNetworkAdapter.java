@@ -5,10 +5,10 @@ import org.example.network.ServerNetworkAdapter;
 import org.example.network.messages.GameStateUpdateMessage;
 import org.example.network.messages.LobbyUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
-import org.example.server.ClientConnection;
 import org.example.server.LobbyController;
 import org.example.server.LobbyReadyListener;
 import org.example.server.ServerController;
+import org.example.server.model.enums.GamePhase;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -27,7 +27,7 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
     private boolean running = false;
 
     public SocketServerNetworkAdapter() {
-        this.lobby = new LobbyController(this);
+        this.lobby = new LobbyController(this, this);
     }
 
 
@@ -82,13 +82,14 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
     }
 
     @Override
-    public void sendError(String nickname, String errorMessage) throws Exception {
+    public void sendError(String nickname, String errorMessage, GamePhase phase) throws Exception {
         ClientSocketHandler handler = connectedClients.get(nickname);
 
         if (handler != null) {
             Map<String, Object> msg = new HashMap<>();
             msg.put("event", "ERROR");
             msg.put("message", errorMessage);
+            msg.put("phase", phase != null ? phase.name() : null);
             handler.send(mapper.writeValueAsString(msg));
         }
     }
@@ -115,8 +116,20 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
         }
     }
 
-    public void registerPlayer(String nickname, int numPlayers, ClientConnection connection) throws Exception {
-        lobby.registerPlayer(nickname, numPlayers, connection);
+    public void registerPlayer(String nickname, int numPlayers) {
+        try {
+            lobby.registerPlayer(nickname, numPlayers);
+        } catch (Exception e) {
+            try {
+                sendError(nickname, e.getMessage(), GamePhase.LOBBY);
+            } catch (Exception ex) {
+                System.err.println("[SERVER] Failed to send lobby error: " + ex.getMessage());
+            }
+        }
+    }
+
+    public boolean isNicknameTaken(String nickname) {
+        return lobby.isNicknameTaken(nickname);
     }
 
     public void placeTotemOnOfferTile(String nickname, int tilePosition) {

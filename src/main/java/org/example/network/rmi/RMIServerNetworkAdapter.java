@@ -4,6 +4,7 @@ import org.example.network.ServerNetworkAdapter;
 import org.example.network.messages.GameStateUpdateMessage;
 import org.example.network.messages.LobbyUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
+import org.example.server.model.enums.GamePhase;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.ExportException;
@@ -42,7 +43,7 @@ public class RMIServerNetworkAdapter implements ServerNetworkAdapter {
         if (rmiServer == null) {
             throw new IllegalStateException("RMI server not started");
         }
-        rmiServer.sendLobbyUpdateToClient(nickname, update);
+        rmiServer.sendLobbyUpdate(nickname, update);
     }
 
     @Override
@@ -50,15 +51,15 @@ public class RMIServerNetworkAdapter implements ServerNetworkAdapter {
         if (rmiServer == null) {
             throw new IllegalStateException("RMI server not started");
         }
-        rmiServer.sendGameStateUpdateToClient(nickname, update);
+        rmiServer.sendGameStateUpdate(nickname, update);
     }
 
     @Override
-    public void sendError(String nickname, String errorMessage) throws Exception {
+    public void sendError(String nickname, String errorMessage, GamePhase phase) throws Exception {
         if (rmiServer == null) {
             throw new IllegalStateException("RMI server not started");
         }
-        rmiServer.sendErrorToClient(nickname, errorMessage);
+        rmiServer.sendError(nickname, errorMessage, phase);
     }
 
     @Override
@@ -66,7 +67,7 @@ public class RMIServerNetworkAdapter implements ServerNetworkAdapter {
         if (rmiServer == null) {
             throw new IllegalStateException("RMI server not started");
         }
-        rmiServer.sendRankingUpdateToClient(nickname, update);
+        rmiServer.sendRankingUpdate(nickname, update);
     }
 
     @Override
@@ -74,6 +75,6 @@ public class RMIServerNetworkAdapter implements ServerNetworkAdapter {
         if (rmiServer == null) {
             throw new IllegalStateException("RMI server not started");
         }
-        rmiServer.sendShutdownToClient(nickname);
+        rmiServer.sendShutdown(nickname);
     }
 }
