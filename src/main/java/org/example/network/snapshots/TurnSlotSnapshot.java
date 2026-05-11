@@ -1,5 +1,9 @@
 package org.example.network.snapshots;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -12,7 +16,12 @@ public class TurnSlotSnapshot implements Serializable {
     private final int pointsBonus;
     private final String occupantNickname;
 
-    public TurnSlotSnapshot(int position, int foodBonus, int pointsBonus, String occupantNickname) {
+    @JsonCreator
+    public TurnSlotSnapshot(
+            @JsonProperty("position") int position,
+            @JsonProperty("foodBonus") int foodBonus,
+            @JsonProperty("pointsBonus") int pointsBonus,
+            @JsonProperty("occupantNickname") String occupantNickname) {
         this.position = position;
         this.foodBonus = foodBonus;
         this.pointsBonus = pointsBonus;
@@ -23,6 +32,7 @@ public class TurnSlotSnapshot implements Serializable {
     public int getFoodBonus()           { return foodBonus; }
     public int getPointsBonus()         { return pointsBonus; }
     public String getOccupantNickname() { return occupantNickname; }
+    @JsonIgnore
     public boolean isFree()             { return occupantNickname == null; }
 
     @Override

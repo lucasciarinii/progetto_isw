@@ -1,5 +1,8 @@
 package org.example.network.messages;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -12,7 +15,12 @@ public class LobbyUpdateMessage implements Serializable {
     private final List<String> playerNicknames;
     private final boolean gameStarting;  // true = the game is about to start, false = still waiting for players
 
-    public LobbyUpdateMessage(int connectedPlayers, int requiredPlayers, List<String> playerNicknames, boolean gameStarting) {
+    @JsonCreator
+    public LobbyUpdateMessage(
+            @JsonProperty("connectedPlayers") int connectedPlayers,
+            @JsonProperty("requiredPlayers") int requiredPlayers,
+            @JsonProperty("playerNicknames") List<String> playerNicknames,
+            @JsonProperty("gameStarting") boolean gameStarting) {
         this.connectedPlayers = connectedPlayers;
         this.requiredPlayers = requiredPlayers;
         this.playerNicknames = List.copyOf(playerNicknames);

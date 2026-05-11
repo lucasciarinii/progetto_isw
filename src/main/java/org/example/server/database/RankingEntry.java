@@ -1,5 +1,8 @@
 package org.example.server.database;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
 
 // DTO used in RankingUpdateMessage: must be Serializable to be sent over RMI
@@ -9,7 +12,11 @@ public class RankingEntry implements Serializable {
     private final int wins;
     private final double avgScore;
 
-    public RankingEntry(String nickname, int wins, double avgScore) {
+    @JsonCreator
+    public RankingEntry(
+            @JsonProperty("nickname") String nickname,
+            @JsonProperty("wins") int wins,
+            @JsonProperty("avgScore") double avgScore) {
         this.nickname = nickname;
         this.wins = wins;
         this.avgScore = avgScore;
