@@ -3,6 +3,7 @@ package org.example;
 import org.example.client.view.GUI.GUILauncher;
 import org.example.client.view.TUI.TUILauncher;
 import org.example.network.CommunicationProtocol;
+import org.example.network.HybridServerNetworkAdapter;
 import org.example.network.NetworkAdapterFactory;
 import org.example.network.ServerNetworkAdapter;
 
@@ -22,16 +23,13 @@ public class App {
 
         switch (args[0]) {
             case "server" -> {
-                CommunicationProtocol protocol = parseProtocol(args.length > 1 ? args[1] : "rmi");
-                int port = args.length > 2 ? Integer.parseInt(args[2]) : defaultPort(protocol);
-
-                startServer(protocol, port);
+                startServer();
             }
             case "client" -> {
                 String mode = args.length > 1 ? args[1] : "tui";
                 CommunicationProtocol protocol = parseProtocol(args.length > 2 ? args[2] : "rmi");
                 int port = args.length > 3 ? Integer.parseInt(args[3]) : defaultPort(protocol);
-                String host = args.length > 4 ? args[4] : "localhost";
+                String host = args.length > 4 ? args[4] : "127.0.0.1";
 
                 startClient(host, mode, protocol, port);
             }
@@ -43,11 +41,10 @@ public class App {
     // SERVER
     // =========================================================================
 
-    private static void startServer(CommunicationProtocol protocol, int port) throws Exception {
-        ServerNetworkAdapter adapter = NetworkAdapterFactory.createServerAdapter(protocol);
-        adapter.start(port);
-        System.out.println("Server Started. Press ENTER to shut down.");
-
+    private static void startServer() throws Exception {
+        HybridServerNetworkAdapter adapter = new HybridServerNetworkAdapter();
+        adapter.start();
+        System.out.println("Server started. Press ENTER to shut down.");
         new Scanner(System.in).nextLine();
         adapter.stop();
         System.out.println("Server OFF.");

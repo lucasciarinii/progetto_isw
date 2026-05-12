@@ -10,32 +10,22 @@ import java.rmi.RemoteException;
 
 public class NetworkAdapterFactory {
 
-    // Create the adapter for the client
+    // Client adapter
     public static ClientNetworkAdapter createClientAdapter(
             CommunicationProtocol protocol,
             ClientController controller) {
-
-        return switch(protocol) {
-            case RMI -> new RMIClientNetworkAdapter(controller);
-            case SOCKET ->  new SocketClientNetworkAdapter(controller);
-        };
-    }
-
-    // Create the adapter for the server
-    public static ServerNetworkAdapter createServerAdapter(
-            CommunicationProtocol protocol
-    ) {
-
         return switch (protocol) {
-            case RMI -> {
-                try {
-                    yield new RMIServerNetworkAdapter();
-                } catch (RemoteException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            case SOCKET ->  new SocketServerNetworkAdapter();
+            case RMI -> new RMIClientNetworkAdapter(controller);
+            case SOCKET -> new SocketClientNetworkAdapter(controller);
         };
     }
 
+    // Server adapter
+    public static ServerNetworkAdapter createServerAdapter() {
+        try {
+            return new HybridServerNetworkAdapter();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create hybrid server: " + e.getMessage(), e);
+        }
+    }
 }

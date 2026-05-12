@@ -19,10 +19,14 @@ public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
 
     @Override
     public void connect(String host, int port, String nickname, int numPlayers) throws Exception {
-        System.setProperty("java.rmi.server.hostname", "localhost");
+        System.setProperty("java.rmi.server.hostname", "127.0.0.1");
         this.nickname = nickname;
 
-        server = (RMIGameServer) Naming.lookup("rmi://" + host + ":" + port + "/GameServer");
+        String resolvedHost = host.equalsIgnoreCase("localhost") ? "127.0.0.1" : host;
+        String url = "rmi://" + resolvedHost + ":" + port + "/GameServer";
+
+        server = (RMIGameServer) Naming.lookup(url);
+
         RMIClientCallbackImpl callback = new RMIClientCallbackImpl(controller);
         server.register(nickname, numPlayers, callback);
     }

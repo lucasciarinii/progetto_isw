@@ -1,6 +1,7 @@
 package org.example.network.socket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.network.HybridServerNetworkAdapter;
 import org.example.network.ServerNetworkAdapter;
 import org.example.network.messages.GameStateUpdateMessage;
 import org.example.network.messages.LobbyUpdateMessage;
@@ -18,6 +19,8 @@ import java.util.Map;
 
 public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyReadyListener {
 
+    public static final int DEFAULT_PORT = 9999;
+
     private final LobbyController lobby;
     private ServerSocket serverSocket;
     private final Map<String, ClientSocketHandler> connectedClients = new HashMap<>();
@@ -25,19 +28,25 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
 
     private ServerController serverController;
     private boolean running = false;
+    private HybridServerNetworkAdapter hybrid = null;
 
-    public SocketServerNetworkAdapter() {
-        this.lobby = new LobbyController(this, this);
+
+    // Hybrid constructor (RMI + Socket)
+    public SocketServerNetworkAdapter(LobbyController sharedLobby) {
+        this.lobby = sharedLobby;
     }
 
+    public void setHybrid(HybridServerNetworkAdapter hybrid) {
+        this.hybrid = hybrid;
+    }
 
     // Start the server
     @Override
-    public void start(int port) throws Exception {
-        serverSocket = new ServerSocket(port);
+    public void start() throws Exception {
+        serverSocket = new ServerSocket(DEFAULT_PORT);
         running = true;
 
-        System.out.println("[SERVER] Socket server started on port " + port + ". Waiting for clients...");
+        System.out.println("[SERVER] Socket server started on port " + DEFAULT_PORT + ". Waiting for clients...");
 
         // Thread to accept connections
         new Thread(this::acceptConnections).start();
@@ -117,6 +126,9 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
     }
 
     public void registerPlayer(String nickname, int numPlayers) {
+        if (hybrid != null)
+            hybrid.registerRoute(nickname, this);
+
         try {
             lobby.registerPlayer(nickname, numPlayers);
         } catch (Exception e) {

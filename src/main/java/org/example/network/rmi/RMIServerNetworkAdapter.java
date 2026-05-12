@@ -1,5 +1,6 @@
 package org.example.network.rmi;
 
+import org.example.network.HybridServerNetworkAdapter;
 import org.example.network.ServerNetworkAdapter;
 import org.example.network.messages.GameStateUpdateMessage;
 import org.example.network.messages.LobbyUpdateMessage;
@@ -19,28 +20,36 @@ import java.util.Map;
 
 public class RMIServerNetworkAdapter extends UnicastRemoteObject implements ServerNetworkAdapter, RMIGameServer, LobbyReadyListener {
 
+    public static final int DEFAULT_PORT = 1099;
     private final LobbyController lobby;
     private ServerController serverController;
     private final Map<String, ClientConnection> connections = new HashMap<>();
+    private HybridServerNetworkAdapter hybrid = null;
 
-    public RMIServerNetworkAdapter() throws RemoteException {
+
+    // Hybrid constructor (RMI + Socket)
+    public RMIServerNetworkAdapter(LobbyController sharedLobby) throws RemoteException {
         super();
-        this.lobby = new LobbyController(this, this);
+        this.lobby = sharedLobby;
+    }
+
+    public void setHybrid(HybridServerNetworkAdapter hybrid) {
+        this.hybrid = hybrid;
     }
 
 
     @Override
-    public void start(int port) throws Exception {
-        System.setProperty("java.rmi.server.hostname", "localhost");
+    public void start() throws Exception {
+        System.setProperty("java.rmi.server.hostname", "127.0.0.1");
 
         try {
-            LocateRegistry.createRegistry(port);
+            LocateRegistry.createRegistry(DEFAULT_PORT);
         } catch (ExportException e) {
             System.out.println("[SERVER] RMI registry already exists.");
         }
 
-        java.rmi.Naming.rebind("//localhost:" + port + "/GameServer", this);
-        System.out.println("[SERVER] RMI ready on port " + port + ". Waiting for players...");
+        java.rmi.Naming.rebind("//127.0.0.1:" + DEFAULT_PORT + "/GameServer", this);
+        System.out.println("[SERVER] RMI ready on port " + DEFAULT_PORT + ". Waiting for players...");
     }
 
     @Override
@@ -59,7 +68,6 @@ public class RMIServerNetworkAdapter extends UnicastRemoteObject implements Serv
 
     @Override
     public void sendGameStateUpdate(String nickname, GameStateUpdateMessage update) throws Exception {
-        checkGameStarted();
         ClientConnection connection = connections.get(nickname);
         if (connection == null) {
             throw new RemoteException("Client not found: " + nickname);
@@ -78,7 +86,6 @@ public class RMIServerNetworkAdapter extends UnicastRemoteObject implements Serv
 
     @Override
     public void sendRankingUpdate(String nickname, RankingUpdateMessage update) throws Exception {
-        checkGameStarted();
         ClientConnection connection = connections.get(nickname);
         if (connection == null) {
             throw new RemoteException("Client not found: " + nickname);
@@ -88,7 +95,6 @@ public class RMIServerNetworkAdapter extends UnicastRemoteObject implements Serv
 
     @Override
     public void sendShutdown(String nickname) throws Exception {
-        checkGameStarted();
         ClientConnection connection = connections.get(nickname);
         if (connection == null) {
             throw new RemoteException("Client not found: " + nickname);
@@ -108,6 +114,9 @@ public class RMIServerNetworkAdapter extends UnicastRemoteObject implements Serv
             return;
         }
         connections.put(nickname, connection);
+        if (hybrid != null)
+            hybrid.registerRoute(nickname, this);
+
         try {
             lobby.registerPlayer(nickname, numPlayers);
         } catch (Exception e) {
