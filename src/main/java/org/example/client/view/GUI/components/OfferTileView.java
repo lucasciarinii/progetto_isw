@@ -10,7 +10,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.example.client.view.GUI.registry.PlayerColorRegistry;
-import org.example.network.Snapshots.OfferTileSnapshot;
+import org.example.network.snapshots.OfferTileSnapshot;
 import org.example.server.model.enums.OfferEffect;
 
 import java.io.InputStream;

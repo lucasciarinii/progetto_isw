@@ -1,5 +1,8 @@
-package org.example.network.Snapshots;
+package org.example.network.snapshots;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.server.model.enums.OfferEffect;
 
 import java.io.Serial;
@@ -12,13 +15,17 @@ public class OfferTileSnapshot implements Serializable {
     private final OfferEffect offerEffect;
     private final String occupantNickname;
 
-    public OfferTileSnapshot(OfferEffect offerEffect, String occupantNickname) {
+    @JsonCreator
+    public OfferTileSnapshot(
+            @JsonProperty("offerEffect") OfferEffect offerEffect,
+            @JsonProperty("occupantNickname") String occupantNickname) {
         this.offerEffect = offerEffect;
         this.occupantNickname = occupantNickname;
     }
 
     public OfferEffect getOfferEffect()   { return offerEffect; }
     public String getOccupantNickname()   { return occupantNickname; }
+    @JsonIgnore
     public boolean isFree()               { return occupantNickname == null; }
 
     @Override

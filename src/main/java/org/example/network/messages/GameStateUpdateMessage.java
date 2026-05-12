@@ -1,8 +1,10 @@
-package org.example.network;
+package org.example.network.messages;
 
-import org.example.network.Snapshots.OfferTileSnapshot;
-import org.example.network.Snapshots.PlayerSnapshot;
-import org.example.network.Snapshots.TurnSlotSnapshot;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.example.network.snapshots.OfferTileSnapshot;
+import org.example.network.snapshots.PlayerSnapshot;
+import org.example.network.snapshots.TurnSlotSnapshot;
 import org.example.server.model.cards.Card;
 import org.example.server.model.enums.Era;
 import org.example.server.model.enums.GamePhase;
@@ -37,18 +39,19 @@ public class GameStateUpdateMessage implements Serializable {
     // Game over
     private final List<String> winners; // nicknames of winners (empty if game not over)
 
+    @JsonCreator
     public GameStateUpdateMessage(
-            int currentRound,
-            Era currentEra,
-            GamePhase currentPhase,
-            String currentPlayerNickname,
-            List<String> turnOrder,
-            List<Card> topRow,
-            List<Card> bottomRow,
-            List<OfferTileSnapshot> offerTrack,
-            List<TurnSlotSnapshot> turnOrderSlots,
-            List<PlayerSnapshot> players,
-            List<String> winners) {
+            @JsonProperty("currentRound") int currentRound,
+            @JsonProperty("currentEra") Era currentEra,
+            @JsonProperty("currentPhase") GamePhase currentPhase,
+            @JsonProperty("currentPlayerNickname") String currentPlayerNickname,
+            @JsonProperty("turnOrder") List<String> turnOrder,
+            @JsonProperty("topRow") List<Card> topRow,
+            @JsonProperty("bottomRow") List<Card> bottomRow,
+            @JsonProperty("offerTrack") List<OfferTileSnapshot> offerTrack,
+            @JsonProperty("turnOrderSlots") List<TurnSlotSnapshot> turnOrderSlots,
+            @JsonProperty("players") List<PlayerSnapshot> players,
+            @JsonProperty("winners") List<String> winners) {
 
         this.currentRound = currentRound;
         this.currentEra = currentEra;

@@ -1,21 +1,20 @@
 package org.example.client;
 
-import org.example.client.rmi.RMIClientCallbackImpl;
 import org.example.client.rmi.GameEventListener;
 import org.example.client.view.UIHandler;
-import org.example.network.RankingUpdateMessage;
-import org.example.network.Snapshots.OfferTileSnapshot;
-import org.example.network.Snapshots.PlayerSnapshot;
+import org.example.network.ClientNetworkAdapter;
+import org.example.network.CommunicationProtocol;
+import org.example.network.NetworkAdapterFactory;
+import org.example.network.messages.RankingUpdateMessage;
+import org.example.network.snapshots.OfferTileSnapshot;
+import org.example.network.snapshots.PlayerSnapshot;
 import org.example.server.model.cards.Card;
 import org.example.server.model.cards.buildingCards.BuildingCard;
 import org.example.server.model.enums.GamePhase;
-import org.example.network.GameStateUpdateMessage;
-import org.example.network.LobbyUpdateMessage;
+import org.example.network.messages.GameStateUpdateMessage;
+import org.example.network.messages.LobbyUpdateMessage;
 import org.example.server.model.enums.OfferEffect;
-import org.example.server.rmi.RMIGameServer;
 
-import java.rmi.Naming;
-import java.rmi.RemoteException;
 import java.util.List;
 
 /*? Client-Side Controller:
@@ -25,8 +24,8 @@ import java.util.List;
  */
 public class ClientController implements GameEventListener {
     private final String nickname;
-    private RMIGameServer server; // server stub RMI
-    private UIHandler ui;
+    private ClientNetworkAdapter networkAdapter;
+    private final UIHandler ui;
 
     public ClientController(String nickname, UIHandler ui) {
         this.nickname = nickname;
@@ -37,18 +36,9 @@ public class ClientController implements GameEventListener {
 
 
     //! CONNECTION TO SERVER -----------------------------------------------
-    public void connect(String host, int numPlayers) throws Exception {
-        // Forces RMI to use localhost instead of network board IP
-        System.setProperty("java.rmi.server.hostname", "localhost");
-
-        // 1. Retrieve the server stub from the registry
-        server = (RMIGameServer) Naming.lookup("rmi://" + host + "/GameServer");
-
-        // 2. Create the callback (remote object on client side)
-        RMIClientCallbackImpl callback = new RMIClientCallbackImpl(this);
-
-        // 3. It registers on the server
-        server.register(nickname, numPlayers, callback);
+    public void connect(String host, int port, int numPlayers, CommunicationProtocol protocol) throws Exception {
+        networkAdapter = NetworkAdapterFactory.createClientAdapter(protocol, this);
+        networkAdapter.connect(host, port, nickname, numPlayers);
     }
 
     @Override
@@ -58,11 +48,11 @@ public class ClientController implements GameEventListener {
 
     //! COMMANDS TO SERVER -----------------------------------------------
     public void placeTotemOnOfferTile(int tilePosition) throws Exception {
-        server.placeTotemOnOfferTile(nickname, tilePosition);
+        networkAdapter.placeTotemOnOfferTile(tilePosition);
     }
 
     public void offerTileAction(String cards) throws Exception {
-        server.offerTileAction(nickname, cards);
+        networkAdapter.offerTileAction(cards);
     }
 
     //! RECEIVING UPDATES FROM SERVER (called by ClientCallbackImpl) -----------------------------------------------
@@ -83,8 +73,8 @@ public class ClientController implements GameEventListener {
                     // to respond — which it cannot, since the callback thread is still occupied.
                     new Thread(() -> {
                         try {
-                            server.skipTurn(nickname);
-                        } catch (RemoteException e) {
+                            networkAdapter.skipTurn();
+                        } catch (Exception e) {
                             ui.onError(e.getMessage(), update.getCurrentPhase());
                         }
                     }).start();

@@ -2,11 +2,11 @@ package org.example.client.view.TUI;
 
 import org.example.client.ClientController;
 import org.example.client.view.UIHandler;
-import org.example.network.GameStateUpdateMessage;
-import org.example.network.LobbyUpdateMessage;
-import org.example.network.RankingUpdateMessage;
-import org.example.network.Snapshots.OfferTileSnapshot;
-import org.example.network.Snapshots.PlayerSnapshot;
+import org.example.network.messages.GameStateUpdateMessage;
+import org.example.network.messages.LobbyUpdateMessage;
+import org.example.network.messages.RankingUpdateMessage;
+import org.example.network.snapshots.OfferTileSnapshot;
+import org.example.network.snapshots.PlayerSnapshot;
 import org.example.server.database.RankingEntry;
 import org.example.server.model.cards.Card;
 import org.example.server.model.cards.buildingCards.BuildingCard;

@@ -3,7 +3,7 @@ package org.example.client.view.GUI.GUIController;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import org.example.network.LobbyUpdateMessage;
+import org.example.network.messages.LobbyUpdateMessage;
 
 public class GUILobbyController {
 

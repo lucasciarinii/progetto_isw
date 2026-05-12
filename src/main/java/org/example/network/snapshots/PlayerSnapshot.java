@@ -1,5 +1,7 @@
-package org.example.network.Snapshots;
+package org.example.network.snapshots;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.server.model.cards.buildingCards.BuildingCard;
 import org.example.server.model.cards.characters.*;
 
@@ -21,7 +23,19 @@ public class PlayerSnapshot implements Serializable {
     private final List<BuildingCard> ownedBuildings; // List of building cards owned by the player (can be empty)
 
 
-    public PlayerSnapshot(String nickname, int food, int points, int discountOnBuilding, List<Hunter> hunters, List<Gatherer> gatherers, List<Builder> builders, List<Shaman> shamans, List<Artist> artists, List<Inventor> inventors, List<BuildingCard> ownedBuildings) {
+    @JsonCreator
+    public PlayerSnapshot(
+            @JsonProperty("nickname") String nickname,
+            @JsonProperty("food") int food,
+            @JsonProperty("points") int points,
+            @JsonProperty("discountOnBuilding") int discountOnBuilding,
+            @JsonProperty("ownedHunters") List<Hunter> hunters,
+            @JsonProperty("ownedGatherers") List<Gatherer> gatherers,
+            @JsonProperty("ownedBuilders") List<Builder> builders,
+            @JsonProperty("ownedShamans") List<Shaman> shamans,
+            @JsonProperty("ownedArtists") List<Artist> artists,
+            @JsonProperty("ownedInventors") List<Inventor> inventors,
+            @JsonProperty("ownedBuildings") List<BuildingCard> ownedBuildings) {
         this.nickname = nickname;
         this.food = food;
         this.points = points;

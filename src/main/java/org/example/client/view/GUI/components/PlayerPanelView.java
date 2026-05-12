@@ -5,10 +5,9 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.example.client.view.GUI.registry.PlayerColorRegistry;
-import org.example.network.Snapshots.PlayerSnapshot;
+import org.example.network.snapshots.PlayerSnapshot;
 import org.example.server.model.cards.Card;
 
 import java.util.List;
@@ -18,7 +17,6 @@ public class PlayerPanelView extends VBox {
     private final PlayerSnapshot snapshot;
 
     private final Label foodLabel;
-    private final Label pointsLabel;
     private final Label discountLabel;
     private final Label totalPointsLabel;
 
@@ -58,18 +56,16 @@ public class PlayerPanelView extends VBox {
 
         // --- STATISTICHE (Cibo, Punti, Sconti con sfondi trasparenti) ---
         foodLabel = new Label("🍖 " + snapshot.getFood());
-        pointsLabel = new Label("⭐ " + snapshot.getPoints());
         discountLabel = new Label("Sconto Edifici: -" + snapshot.getDiscountOnBuilding());
         totalPointsLabel = new Label("🏆 "  + snapshot.getPoints());
 
         String statStyle = "-fx-text-fill: #d0c8a0; -fx-font-size: " + (isMini ? "10px" : "13px") + "; -fx-background-color: transparent;";
         foodLabel.setStyle(statStyle);
-        pointsLabel.setStyle(statStyle);
         discountLabel.setStyle(statStyle);
         totalPointsLabel.setStyle(statStyle);
         discountLabel.setVisible(snapshot.getDiscountOnBuilding() > 0);
 
-        HBox stats = new HBox(15, foodLabel, pointsLabel, totalPointsLabel);
+        HBox stats = new HBox(15, foodLabel, totalPointsLabel);
         stats.setAlignment(Pos.CENTER_LEFT);
 
         // --- CARTE ---
@@ -123,10 +119,9 @@ public class PlayerPanelView extends VBox {
 
     public void update(PlayerSnapshot newSnapshot) {
         foodLabel.setText("🍖 " + newSnapshot.getFood());
-        pointsLabel.setText("⭐ " + newSnapshot.getPoints());
         discountLabel.setText("Sconto Edifici: -" + newSnapshot.getDiscountOnBuilding());
         discountLabel.setVisible(newSnapshot.getDiscountOnBuilding() > 0);
-        totalPointsLabel.setText("🏆 " + newSnapshot.getPoints());
+        totalPointsLabel.setText("🎯 " + newSnapshot.getPoints());
 
         stacksContainer.getChildren().clear();
         renderCards(newSnapshot);

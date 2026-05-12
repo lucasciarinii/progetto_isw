@@ -8,7 +8,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.example.client.view.GUI.registry.PlayerColorRegistry;
-import org.example.network.Snapshots.TurnSlotSnapshot;
+import org.example.network.snapshots.TurnSlotSnapshot;
 
 import java.io.InputStream;
 import java.util.List;
