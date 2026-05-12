@@ -50,7 +50,7 @@ public class LobbyController implements GameOverListener {
 
         // Add the player to the lobby
         waitingClients.add(nickname);
-        System.out.println("[LOBBY] " + nickname + " is connected. (" + waitingClients.size() + "/" + requiredPlayers + ")");
+        ServerLogger.lobby(nickname + " joined the lobby. (" + waitingClients.size() + "/" + requiredPlayers + ")");
 
         // Notifies all clients in waiting
         notifyAllWaiting(false);
@@ -81,6 +81,7 @@ public class LobbyController implements GameOverListener {
 
         // Alerts GameServerImpl that the controller is ready
         onReady.onLobbyReady(serverController);
+        ServerLogger.game("Game started with mixed connections.");
     }
 
     private void notifyAllWaiting(boolean gameStarting) {
@@ -94,7 +95,7 @@ public class LobbyController implements GameOverListener {
             try {
                 notifier.sendLobbyUpdate(nickname, update);
             } catch (Exception e) {
-                System.err.println("[LOBBY] Errore notifica client: " + e.getMessage());
+                ServerLogger.lobby("Failed to notify " + nickname + ": " + e.getMessage());
             }
         }
     }
@@ -108,6 +109,6 @@ public class LobbyController implements GameOverListener {
         // Reset lobby state for a new match
         waitingClients.clear();
         requiredPlayers = -1;
-        System.out.println("[LOBBY] Ready for a new game.");
+        ServerLogger.lobby("Game over. Lobby ready for new game.");
     }
 }

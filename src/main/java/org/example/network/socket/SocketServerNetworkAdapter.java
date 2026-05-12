@@ -9,6 +9,7 @@ import org.example.network.messages.RankingUpdateMessage;
 import org.example.server.LobbyController;
 import org.example.server.LobbyReadyListener;
 import org.example.server.ServerController;
+import org.example.server.ServerLogger;
 import org.example.server.model.enums.GamePhase;
 
 import java.io.IOException;
@@ -46,7 +47,7 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
         serverSocket = new ServerSocket(DEFAULT_PORT);
         running = true;
 
-        System.out.println("[SERVER] Socket server started on port " + DEFAULT_PORT + ". Waiting for clients...");
+        ServerLogger.server("Socket server started on port " + DEFAULT_PORT + ". Waiting for clients...");
 
         // Thread to accept connections
         new Thread(this::acceptConnections).start();
@@ -135,7 +136,7 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
             try {
                 sendError(nickname, e.getMessage(), GamePhase.LOBBY);
             } catch (Exception ex) {
-                System.err.println("[SERVER] Failed to send lobby error: " + ex.getMessage());
+                ServerLogger.error("Failed to send lobby error: " + ex.getMessage());
             }
         }
     }
@@ -146,7 +147,7 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
 
     public void placeTotemOnOfferTile(String nickname, int tilePosition) {
         if (serverController == null) {
-            System.err.println("[SERVER] Game not started yet.");
+            ServerLogger.server("Game not started yet. Cannot place totem.");
             return;
         }
         serverController.placeTotemOnOfferTile(nickname, tilePosition);
@@ -154,7 +155,7 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
 
     public void offerTileAction(String nickname, String cards) {
         if (serverController == null) {
-            System.err.println("[SERVER] Game not started yet.");
+            ServerLogger.server("Game not started yet. Cannot perform offer tile action.");
             return;
         }
         serverController.offerTileAction(nickname, cards);
@@ -162,7 +163,7 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
 
     public void skipTurn(String nickname) {
         if (serverController == null) {
-            System.err.println("[SERVER] Game not started yet.");
+            ServerLogger.server("Game not started yet. Cannot skip turn.");
             return;
         }
         serverController.skipTurn(nickname);
@@ -184,7 +185,7 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
             try {
 
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("[SERVER] Accepted connection from " + clientSocket.getInetAddress());
+                ServerLogger.server("New client connected: " + clientSocket.getInetAddress());
 
                 // Client handler
                 ClientSocketHandler handler = new ClientSocketHandler(
@@ -197,7 +198,7 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
 
             } catch (IOException e) {
                 if (running) {
-                    System.err.println("[SERVER] Error accepting connection: " + e.getMessage());
+                    ServerLogger.error("Error accepting connection: " + e.getMessage());
                 }
             }
         }

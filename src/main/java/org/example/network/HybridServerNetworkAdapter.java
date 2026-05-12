@@ -33,9 +33,9 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
         new Thread(() -> {
             try {
                 socketAdapter.start();
-                System.out.println("[HYBRID] Socket started on port " + SocketServerNetworkAdapter.DEFAULT_PORT);
+                ServerLogger.server("Socket ready on port " + SocketServerNetworkAdapter.DEFAULT_PORT);
             } catch (Exception e) {
-                System.err.println("[HYBRID] Socket start FAILED: " + e.getMessage());
+                ServerLogger.error("Socket start FAILED: " + e.getMessage());
             } finally {
                 latch.countDown();
             }
@@ -44,17 +44,17 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
         new Thread(() -> {
             try {
                 rmiAdapter.start();
-                System.out.println("[HYBRID] RMI started on port " + RMIServerNetworkAdapter.DEFAULT_PORT);
+                ServerLogger.server("RMI ready on port " + RMIServerNetworkAdapter.DEFAULT_PORT);
             } catch (Exception e) {
-                System.err.println("[HYBRID] RMI start FAILED: " + e.getMessage());
+                ServerLogger.error("RMI start FAILED: " + e.getMessage());
                 e.printStackTrace();
             } finally {
                 latch.countDown();
             }
         }).start();
 
-        latch.await(); // blocca finché entrambi non sono pronti
-        System.out.println("[HYBRID] Both adapters ready.");
+        latch.await(); // blocks until both are ready
+        ServerLogger.server("Hybrid server network adapter started successfully (RMI + Socket).");
     }
 
     @Override
@@ -67,7 +67,6 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
     public void onLobbyReady(ServerController serverController) {
         socketAdapter.onLobbyReady(serverController);
         rmiAdapter.onLobbyReady(serverController);
-        System.out.println("[HYBRID] Game started with mixed connections.");
     }
 
     public void registerRoute(String nickname, ServerNetworkAdapter adapter) {

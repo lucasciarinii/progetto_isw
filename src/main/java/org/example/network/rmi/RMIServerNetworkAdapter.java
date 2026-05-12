@@ -5,10 +5,7 @@ import org.example.network.ServerNetworkAdapter;
 import org.example.network.messages.GameStateUpdateMessage;
 import org.example.network.messages.LobbyUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
-import org.example.server.ClientConnection;
-import org.example.server.LobbyController;
-import org.example.server.LobbyReadyListener;
-import org.example.server.ServerController;
+import org.example.server.*;
 import org.example.server.model.enums.GamePhase;
 
 import java.rmi.RemoteException;
@@ -45,11 +42,11 @@ public class RMIServerNetworkAdapter extends UnicastRemoteObject implements Serv
         try {
             LocateRegistry.createRegistry(DEFAULT_PORT);
         } catch (ExportException e) {
-            System.out.println("[SERVER] RMI registry already exists.");
+            ServerLogger.error("Failed to create RMI registry or it already exists: " + e.getMessage());
         }
 
         java.rmi.Naming.rebind("//127.0.0.1:" + DEFAULT_PORT + "/GameServer", this);
-        System.out.println("[SERVER] RMI ready on port " + DEFAULT_PORT + ". Waiting for players...");
+        ServerLogger.server("RMI ready on port " + DEFAULT_PORT + ". Waiting for players...");
     }
 
     @Override
@@ -147,7 +144,7 @@ public class RMIServerNetworkAdapter extends UnicastRemoteObject implements Serv
     @Override
     public void onLobbyReady(ServerController serverController) {
         this.serverController = serverController;
-        System.out.println("[SERVER] Lobby full, game started!");
+        ServerLogger.server("Lobby full, game started!");
     }
 
 

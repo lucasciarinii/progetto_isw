@@ -40,7 +40,7 @@ public class ServerController {
 
     // Close the connection
     private void shutdown() {
-        System.out.println("[SERVER] Game match session closed.");
+        ServerLogger.server("Game match session closed.");
         if (onGameOver != null) {
             onGameOver.onGameOver(this);
         }
@@ -49,7 +49,7 @@ public class ServerController {
     //! GAME ACTIONS ---------------------------------------------------------------------------
     public void placeTotemOnOfferTile(String nickname, int tilePosition) {
         if (!isKnownPlayer(nickname)) {
-            System.err.println("[SERVER] Player not found for: " + nickname);
+            ServerLogger.server("Player not found for: " + nickname);
             return;
         }
 
@@ -73,7 +73,7 @@ public class ServerController {
 
     public void offerTileAction(String nickname, String cards) {
         if (!isKnownPlayer(nickname)) {
-            System.err.println("[SERVER] Player not found for: " + nickname);
+            ServerLogger.server("Player not found for: " + nickname);
             return;
         }
 
@@ -114,7 +114,7 @@ public class ServerController {
 
     public void skipTurn(String nickname) {
         if (!isKnownPlayer(nickname)) {
-            System.err.println("[SERVER] SkipTurn failed: player not found for: " + nickname);
+            ServerLogger.server("SkipTurn failed: player not found for: " + nickname);
             return;
         }
 
@@ -162,7 +162,7 @@ public class ServerController {
             try {
                 notifier.sendGameStateUpdate(player.getNickname(), update);
             } catch (Exception e) {
-                System.out.print("[SERVER] Failed to send update to " + player.getNickname() + ": " + e.getMessage());
+                ServerLogger.server("Failed to send update to " + player.getNickname() + ": " + e.getMessage());
             }
         }
     }
@@ -172,7 +172,7 @@ public class ServerController {
         try {
             notifier.sendError(nickname, message, match.getGameState().getCurrentPhase());
         } catch (Exception e) {
-            System.err.println("[SERVER] Failed to send error to " + nickname + ": " + e.getMessage());
+            ServerLogger.server("Failed to send error to " + nickname + ": " + e.getMessage());
         }
     }
 
@@ -352,7 +352,7 @@ public class ServerController {
                 try {
                     dao.saveGame(match.getPlayers().size(), results, placements);
                 } catch (SQLException e) {
-                    System.err.println("[DB ERROR] Failed to save game: " + e.getMessage());
+                    ServerLogger.db_error("Failed to save game: " + e.getMessage());
                 }
 
                 // 3) Execute query and get results
@@ -364,11 +364,11 @@ public class ServerController {
                         try {
                             notifier.sendRankingUpdate(p.getNickname(), msg);
                         } catch (Exception e) {
-                            System.err.println("[ERROR] Failed to send ranking to " + p.getNickname() + ": " + e.getMessage());
+                            ServerLogger.db_error("Failed to send ranking to " + p.getNickname() + ": " + e.getMessage());
                         }
                     }
                 } catch (SQLException e) {
-                    System.err.println("[DB ERROR] Failed to retrieve ranking: " + e.getMessage());
+                    ServerLogger.db_error("Failed to retrieve ranking: " + e.getMessage());
                 }
 
                 // 4) Now we can send shutdown to all clients (of this match)
@@ -376,7 +376,7 @@ public class ServerController {
                     try {
                         notifier.sendShutdown(player.getNickname());
                     } catch (Exception e) {
-                        System.err.println("[ERROR] Failed to send shutdown to " + player.getNickname() + ": " + e.getMessage());
+                        ServerLogger.error("Failed to send shutdown to " + player.getNickname() + ": " + e.getMessage());
                     }
                 }
 
