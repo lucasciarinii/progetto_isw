@@ -23,7 +23,8 @@ public class BuildingDeck extends Deck<BuildingCard> {
         ObjectMapper mapper = new ObjectMapper();
         try {
             // 1. Read all objects from the JSON file into a List<Card>
-            Path p = Path.of("src/main/java/org/example/server/model/decks/decks_json/buildingCards.json");
+            //Path p = Path.of("src/main/java/org/example/server/model/decks/decks_json/buildingCards.json");
+            Path p = Path.of(getClass().getClassLoader().getResource("json/buildingCards.json").toURI());
             List<BuildingCard> allCards = mapper.readValue(
                     p.toFile(),
                     new TypeReference<List<BuildingCard>>(){}

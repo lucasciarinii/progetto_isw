@@ -1,7 +1,7 @@
 package org.example.server.model.cards.eventCards;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.example.client.view.ConsoleColors;
+import org.example.client.view.TUI.ConsoleColors;
 import org.example.server.model.cards.buildingCards.BuildingCard;
 import org.example.server.model.enums.BuildingCardType;
 import org.example.server.model.enums.Era;

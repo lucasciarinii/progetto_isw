@@ -1,0 +1,355 @@
+[
+  {
+    "id": 0,
+    "era": "I",
+    "CharacterType": "Hunter",
+    "obtainFood": true,
+    "image": "characters_img/hunters/hunter_food.jpg"
+  },
+  {
+    "id": 1,
+    "era": "I",
+    "CharacterType": "Hunter",
+    "obtainFood": true,
+    "image": "characters_img/hunters/hunter_food.jpg"
+  },
+  {
+    "id": 2,
+    "era": "I",
+    "CharacterType": "Hunter",
+    "obtainFood": false,
+    "image": "characters_img/hunters/hunter_nofood.jpg"
+  },
+  {
+    "id": 3,
+    "era": "I",
+    "CharacterType": "Builder",
+    "discountBuilding": -1,
+    "endPoints": 3,
+    "image": "characters_img/builders/builder_1_3.jpg"
+  },
+  {
+    "id": 4,
+    "era": "I",
+    "CharacterType": "Builder",
+    "discountBuilding": -2,
+    "endPoints": 0,
+    "image": "characters_img/builders/builder_2_0.jpg"
+  },
+  {
+    "id": 5,
+    "era": "I",
+    "CharacterType": "Builder",
+    "discountBuilding": -1,
+    "endPoints": 2,
+    "image": "characters_img/builders/builder_1_2.jpg"
+  },
+  {
+    "id": 6,
+    "era": "I",
+    "CharacterType": "Gatherer",
+    "image": "characters_img/gatherers/gatherer.jpg"
+  },
+  {
+    "id": 7,
+    "era": "I",
+    "CharacterType": "Gatherer",
+    "image": "characters_img/gatherers/gatherer.jpg"
+  },
+  {
+    "id": 8,
+    "era": "I",
+    "CharacterType": "Artist",
+    "image": "characters_img/artists/artist.jpg"
+  },
+  {
+    "id": 9,
+    "era": "I",
+    "CharacterType": "Artist",
+    "image": "characters_img/artists/artist.jpg"
+  },
+  {
+    "id": 10,
+    "era": "I",
+    "CharacterType": "Artist",
+    "image": "characters_img/artists/artist.jpg"
+  },
+  {
+    "id": 11,
+    "era": "I",
+    "CharacterType": "Inventor",
+    "invention": "LEATHER",
+    "image": "characters_img/inventors/inventor_LEATHER.jpg"
+  },
+  {
+    "id": 12,
+    "era": "I",
+    "CharacterType": "Inventor",
+    "invention": "BOAT",
+    "image": "characters_img/inventors/inventor_BOAT.jpg"
+  },
+  {
+    "id": 13,
+    "era": "I",
+    "CharacterType": "Inventor",
+    "invention": "ARROW",
+    "image": "characters_img/inventors/inventor_ARROW.jpg"
+  },
+  {
+    "id": 14,
+    "era": "I",
+    "CharacterType": "Inventor",
+    "invention": "BREAD",
+    "image": "characters_img/inventors/inventor_BREAD.jpg"
+  },
+  {
+    "id": 15,
+    "era": "I",
+    "CharacterType": "Shaman",
+    "numStars": 2,
+    "image": "characters_img/shamans/shaman_1.jpg"
+  },
+  {
+    "id": 16,
+    "era": "I",
+    "CharacterType": "Shaman",
+    "numStars": 1,
+    "image": "characters_img/shamans/shaman_1.jpg"
+  },
+  {
+    "id": 17,
+    "era": "II",
+    "CharacterType": "Hunter",
+    "obtainFood": false,
+    "image": "characters_img/hunters/hunter_nofood.jpg"
+  },
+  {
+    "id": 18,
+    "era": "II",
+    "CharacterType": "Hunter",
+    "obtainFood": false,
+    "image": "characters_img/hunters/hunter_nofood.jpg"
+  },
+  {
+    "id": 19,
+    "era": "II",
+    "CharacterType": "Hunter",
+    "obtainFood": true,
+    "image": "characters_img/hunters/hunter_food.jpg"
+  },
+  {
+    "id": 20,
+    "era": "II",
+    "CharacterType": "Builder",
+    "discountBuilding": -1,
+    "endPoints": 4,
+    "image": "characters_img/builders/builder_1_4.jpg"
+  },
+  {
+    "id": 21,
+    "era": "II",
+    "CharacterType": "Builder",
+    "discountBuilding": -2,
+    "endPoints": 1,
+    "image": "characters_img/builders/builder_2_1.jpg"
+  },
+  {
+    "id": 22,
+    "era": "II",
+    "CharacterType": "Builder",
+    "discountBuilding": -2,
+    "endPoints": 3,
+    "image": "characters_img/builders/builder_2_3.jpg"
+  },
+  {
+    "id": 23,
+    "era": "II",
+    "CharacterType": "Gatherer",
+    "image": "characters_img/gatherers/gatherer.jpg"
+  },
+  {
+    "id": 24,
+    "era": "II",
+    "CharacterType": "Artist",
+    "image": "characters_img/artists/artist.jpg"
+  },
+  {
+    "id": 25,
+    "era": "II",
+    "CharacterType": "Artist",
+    "image": "characters_img/artists/artist.jpg"
+  },
+  {
+    "id": 26,
+    "era": "II",
+    "CharacterType": "Artist",
+    "image": "characters_img/artists/artist.jpg"
+  },
+  {
+    "id": 27,
+    "era": "II",
+    "CharacterType": "Inventor",
+    "invention": "LEATHER",
+    "image": "characters_img/inventors/inventor_LEATHER.jpg"
+  },
+  {
+    "id": 28,
+    "era": "II",
+    "CharacterType": "Inventor",
+    "invention": "BOWL",
+    "image": "characters_img/inventors/inventor_BOWL.jpg"
+  },
+  {
+    "id": 29,
+    "era": "II",
+    "CharacterType": "Inventor",
+    "invention": "STICK",
+    "image": "characters_img/inventors/inventor_STICK.jpg"
+  },
+  {
+    "id": 30,
+    "era": "II",
+    "CharacterType": "Inventor",
+    "invention": "TOTEM",
+    "image": "characters_img/inventors/inventor_TOTEM.jpg"
+  },
+  {
+    "id": 31,
+    "era": "II",
+    "CharacterType": "Inventor",
+    "invention": "ROPE",
+    "image": "characters_img/inventors/inventor_ROPE.jpg"
+  },
+  {
+    "id": 32,
+    "era": "II",
+    "CharacterType": "Shaman",
+    "numStars": 2,
+    "image": "characters_img/shamans/shaman_2.jpg"
+  },
+  {
+    "id": 33,
+    "era": "II",
+    "CharacterType": "Shaman",
+    "numStars": 2,
+    "image": "characters_img/shamans/shaman_2.jpg"
+  },
+  {
+    "id": 34,
+    "era": "III",
+    "CharacterType": "Hunter",
+    "obtainFood": false,
+    "image": "characters_img/hunters/hunter_nofood.jpg"
+  },
+  {
+    "id": 35,
+    "era": "III",
+    "CharacterType": "Hunter",
+    "obtainFood": false,
+    "image": "characters_img/hunters/hunter_nofood.jpg"
+  },
+  {
+    "id": 36,
+    "era": "III",
+    "CharacterType": "Hunter",
+    "obtainFood": true,
+    "image": "characters_img/hunters/hunter_food.jpg"
+  },
+  {
+    "id": 37,
+    "era": "III",
+    "CharacterType": "Builder",
+    "discountBuilding": -1,
+    "endPoints": 5,
+    "image": "characters_img/builders/builder_1_15.jpg"
+  },
+  {
+    "id": 38,
+    "era": "III",
+    "CharacterType": "Builder",
+    "discountBuilding": -2,
+    "endPoints": 3,
+    "image": "characters_img/builders/builder_2_3.jpg"
+  },
+  {
+    "id": 39,
+    "era": "III",
+    "CharacterType": "Builder",
+    "discountBuilding": -2,
+    "endPoints": 2,
+    "image": "characters_img/builders/builder_2_2.jpg"
+  },
+  {
+    "id": 40,
+    "era": "III",
+    "CharacterType": "Gatherer",
+    "image": "characters_img/gatherers/gatherer.jpg"
+  },
+  {
+    "id": 41,
+    "era": "III",
+    "CharacterType": "Artist",
+    "image": "characters_img/artists/artist.jpg"
+  },
+  {
+    "id": 42,
+    "era": "III",
+    "CharacterType": "Artist",
+    "image": "characters_img/artists/artist.jpg"
+  },
+  {
+    "id": 43,
+    "era": "III",
+    "CharacterType": "Artist",
+    "image": "characters_img/artists/artist.jpg"
+  },
+  {
+    "id": 44,
+    "era": "III",
+    "CharacterType": "Inventor",
+    "invention": "TOTEM",
+    "image": "characters_img/inventors/inventor_TOTEM.jpg"
+  },
+  {
+    "id": 45,
+    "era": "III",
+    "CharacterType": "Inventor",
+    "invention": "HOOK",
+    "image": "characters_img/inventors/inventor_HOOK.jpg"
+  },
+  {
+    "id": 46,
+    "era": "III",
+    "CharacterType": "Inventor",
+    "invention": "JEWELS",
+    "image": "characters_img/inventors/inventor_JEWELS.jpg"
+  },
+  {
+    "id": 47,
+    "era": "III",
+    "CharacterType": "Inventor",
+    "invention": "BREAD",
+    "image": "characters_img/inventors/inventor_BREAD.jpg"
+  },
+  {
+    "id": 48,
+    "era": "III",
+    "CharacterType": "Shaman",
+    "numStars": 2,
+    "image": "characters_img/shamans/shaman_2.jpg"
+  },
+  {
+    "id": 49,
+    "era": "III",
+    "CharacterType": "Shaman",
+    "numStars": 3,
+    "image": "characters_img/shamans/shaman_3.jpg"
+  },
+  {
+    "id": 50,
+    "era": "III",
+    "CharacterType": "Shaman",
+    "numStars": 3,
+    "image": "characters_img/shamans/shaman_3.jpg"
+  }
+]

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+
+<BorderPane
+        xmlns="http://javafx.com/javafx"
+        xmlns:fx="http://javafx.com/fxml"
+        fx:controller="org.example.client.view.GUI.GUIController.GUILobbyController"
+        prefWidth="520" prefHeight="420"
+        style="-fx-background-color: #12120c;">
+
+    <center>
+        <VBox alignment="CENTER" spacing="20"
+              style="-fx-padding: 50 60 50 60;">
+
+            <Label text="MESOS"
+                   style="-fx-text-fill: #ffcc00;
+                          -fx-font-size: 38px;
+                          -fx-font-weight: bold;"/>
+
+            <!-- Counter Players -->
+            <Label fx:id="playersCountLabel"
+                   text="0/0 players connected"
+                   style="-fx-text-fill: #f0e0b0;
+                          -fx-font-size: 14px;"/>
+
+            <Label text="──────────────────────────────"
+                   style="-fx-text-fill: #2a2a18; -fx-font-size: 11px;"/>
+
+            <!-- Player list -->
+            <VBox spacing="6" style="-fx-fill-width: true;">
+                <Label text="PLAYERS IN LOBBY"
+                       style="-fx-text-fill: #888866;
+                              -fx-font-size: 10px;
+                              -fx-font-weight: bold;"/>
+                <ListView fx:id="playersList"
+                          prefHeight="130"
+                          style="-fx-background-color: #1a1a10;
+                                 -fx-border-color: #3a3a22;
+                                 -fx-border-width: 1;
+                                 -fx-border-radius: 6;
+                                 -fx-background-radius: 6;
+                                 -fx-control-inner-background: #1a1a10;"/>
+            </VBox>
+
+            <!-- Lobby status -->
+            <Label fx:id="statusLabel"
+                   text="Waiting for players..."
+                   style="-fx-text-fill: #888866;
+                          -fx-font-size: 12px;
+                          -fx-font-style: italic;"/>
+
+        </VBox>
+    </center>
+
+</BorderPane>

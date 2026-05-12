@@ -1,0 +1,206 @@
+[
+  {
+    "class_type": "SetCollectionFoodBC",
+    "id": 100,
+    "era": "I",
+    "foodCost": 4,
+    "endPoints": 3,
+    "isEndGame": false,
+    "image": "buildings_img/SetCollectionFoodBC.jpg"
+  },
+  {
+    "class_type": "SustenanceDiscountBC",
+    "id": 101,
+    "era": "I",
+    "foodCost": 4,
+    "endPoints": 4,
+    "characterEffect": "GATHERER",
+    "isEndGame": false,
+    "image": "buildings_img/SustenanceDiscountBC_gatherer.jpg"
+  },
+  {
+    "class_type": "SustenanceDiscountBC",
+    "id": 102,
+    "era": "I",
+    "foodCost": 5,
+    "endPoints": 3,
+    "characterEffect": "ARTIST",
+    "isEndGame": false,
+    "image": "buildings_img/SustenanceDiscountBC_artist.jpg"
+  },
+  {
+    "class_type": "ShamanicNoMalusBC",
+    "id": 103,
+    "era": "I",
+    "foodCost": 5,
+    "endPoints": 2,
+    "isEndGame": false,
+    "image": "buildings_img/ShamanicNoMalusBC.jpg"
+  },
+  {
+    "class_type": "RoundFlowTotemBC",
+    "id": 104,
+    "era": "I",
+    "foodCost": 3,
+    "endPoints": 3,
+    "isEndGame": false,
+    "image": "buildings_img/RoundFlowTotemBC.jpg"
+  },
+  {
+    "class_type": "InventorPairsBC",
+    "id": 105,
+    "era": "I",
+    "foodCost": 3,
+    "endPoints": 4,
+    "isEndGame": false,
+    "image": "buildings_img/InventorComboBC.jpg"
+  },
+  {
+    "class_type": "ShamanicDoublePointsBC",
+    "id": 106,
+    "era": "II",
+    "foodCost": 7,
+    "endPoints": 0,
+    "isEndGame": false,
+    "image": "buildings_img/ShamanicDoublePointsBC.jpg"
+  },
+  {
+    "class_type": "ShamanicStarsBC",
+    "id": 107,
+    "era": "II",
+    "foodCost": 6,
+    "endPoints": 4,
+    "isEndGame": false,
+    "image": "buildings_img/ShamanicStarsBC.jpg"
+  },
+  {
+    "class_type": "SustenanceDiscountBC",
+    "id": 108,
+    "era": "II",
+    "foodCost": 7,
+    "endPoints": 4,
+    "characterEffect": "INVENTOR",
+    "isEndGame": false,
+    "image": "buildings_img/SustenanceDiscountBC_inventor.jpg"
+  },
+  {
+    "class_type": "HuntEventBoostBC",
+    "id": 109,
+    "era": "II",
+    "foodCost": 7,
+    "endPoints": 2,
+    "isEndGame": false,
+    "image": "buildings_img/HuntEventBoostBC.jpg"
+  },
+  {
+    "class_type": "EndGameBonusBC",
+    "id": 110,
+    "era": "II",
+    "foodCost": 6,
+    "endPoints": 4,
+    "isEndGame": true,
+    "image": "buildings_img/EndGameBonusBC.jpg"
+  },
+  {
+    "class_type": "CavePaintingEventBoostBC",
+    "id": 111,
+    "era": "II",
+    "foodCost": 5,
+    "endPoints": 6,
+    "isEndGame": false,
+    "image": "buildings_img/CavePaintingEventBoostBC.jpg"
+  },
+  {
+    "class_type": "SetCollectionEndPointsBC",
+    "id": 112,
+    "era": "II",
+    "foodCost": 5,
+    "endPoints": 6,
+    "isEndGame": true,
+    "image": "buildings_img/SetCollectionEndPointsBC.jpg"
+  },
+  {
+    "class_type": "CharacterEndPointsBC",
+    "id": 113,
+    "era": "III",
+    "foodCost": 8,
+    "endPoints": 8,
+    "pointsEffect": 3,
+    "characterEffect": "HUNTER",
+    "isEndGame": true,
+    "image": "buildings_img/CharacterEndPointsBC_hunter.jpg"
+  },
+  {
+    "class_type": "CharacterEndPointsBC",
+    "id": 114,
+    "era": "III",
+    "foodCost": 7,
+    "endPoints": 6,
+    "pointsEffect": 4,
+    "characterEffect": "GATHERER",
+    "isEndGame": true,
+    "image": "buildings_img/CharacterEndPointsBC_gatherer.jpg"
+  },
+  {
+    "class_type": "CharacterEndPointsBC",
+    "id": 115,
+    "era": "III",
+    "foodCost": 7,
+    "endPoints": 4,
+    "pointsEffect": 4,
+    "characterEffect": "SHAMAN",
+    "isEndGame": true,
+    "image": "buildings_img/CharacterEndPointsBC_shaman.jpg"
+  },
+  {
+    "class_type": "CharacterEndPointsBC",
+    "id": 116,
+    "era": "III",
+    "foodCost": 6,
+    "endPoints": 3,
+    "pointsEffect": 4,
+    "characterEffect": "BUILDER",
+    "isEndGame": true,
+    "image": "buildings_img/CharacterEndPointsBC_builder.jpg"
+  },
+  {
+    "class_type": "CharacterEndPointsBC",
+    "id": 117,
+    "era": "III",
+    "foodCost": 7,
+    "endPoints": 4,
+    "pointsEffect": 4,
+    "characterEffect": "ARTIST",
+    "isEndGame": true,
+    "image": "buildings_img/CharacterEndPointsBC_artist.jpg"
+  },
+  {
+    "class_type": "CharacterEndPointsBC",
+    "id": 118,
+    "era": "III",
+    "foodCost": 6,
+    "endPoints": 6,
+    "pointsEffect": 2,
+    "characterEffect": "INVENTOR",
+    "isEndGame": true,
+    "image": "buildings_img/CharacterEndPointsBC_inventor.jpg"
+  },
+  {
+    "class_type": "RoundFlowBC",
+    "id": 119,
+    "era": "III",
+    "foodCost": 9,
+    "endPoints": 3,
+    "isEndGame": false,
+    "image": "buildings_img/RoundFlowBC.jpg"
+  },
+  {
+    "class_type": "EndGameBonus25BC",
+    "id": 120,
+    "era": "III",
+    "foodCost": 10,
+    "endPoints": 25,
+    "isEndGame": true,
+    "image": "buildings_img/EndGameBonus25BC.jpg"
+  }
+]

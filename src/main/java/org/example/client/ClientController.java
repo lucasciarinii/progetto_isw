@@ -1,22 +1,20 @@
 package org.example.client;
 
-import org.example.client.rmi.RMIClientCallbackImpl;
 import org.example.client.rmi.GameEventListener;
-import org.example.client.view.CLIInputHandler;
-import org.example.client.view.View;
-import org.example.network.RankingUpdateMessage;
-import org.example.network.Snapshots.OfferTileSnapshot;
-import org.example.network.Snapshots.PlayerSnapshot;
+import org.example.client.view.UIHandler;
+import org.example.network.ClientNetworkAdapter;
+import org.example.network.CommunicationProtocol;
+import org.example.network.NetworkAdapterFactory;
+import org.example.network.messages.RankingUpdateMessage;
+import org.example.network.snapshots.OfferTileSnapshot;
+import org.example.network.snapshots.PlayerSnapshot;
 import org.example.server.model.cards.Card;
 import org.example.server.model.cards.buildingCards.BuildingCard;
 import org.example.server.model.enums.GamePhase;
-import org.example.network.GameStateUpdateMessage;
-import org.example.network.LobbyUpdateMessage;
+import org.example.network.messages.GameStateUpdateMessage;
+import org.example.network.messages.LobbyUpdateMessage;
 import org.example.server.model.enums.OfferEffect;
-import org.example.server.rmi.RMIGameServer;
 
-import java.rmi.Naming;
-import java.rmi.RemoteException;
 import java.util.List;
 
 /*? Client-Side Controller:
@@ -26,61 +24,40 @@ import java.util.List;
  */
 public class ClientController implements GameEventListener {
     private final String nickname;
-    private RMIGameServer server;       // server stub RMI
-    private final View view;
-    private final CLIInputHandler inputHandler;
+    private ClientNetworkAdapter networkAdapter;
+    private final UIHandler ui;
 
-    public ClientController(String nickname) {
+    public ClientController(String nickname, UIHandler ui) {
         this.nickname = nickname;
-        this.view = new View();
-        this.inputHandler = new CLIInputHandler(this);
+        this.ui = ui;
     }
 
     public String getNickname() { return nickname; }
 
-    public View getView() {
-        return view;
-    }
 
     //! CONNECTION TO SERVER -----------------------------------------------
-    public void connect(String host, int numPlayers) throws Exception {
-        // Forces RMI to use localhost instead of network board IP
-        System.setProperty("java.rmi.server.hostname", "localhost");
-
-        // 1. Retrieve the server stub from the registry
-        server = (RMIGameServer) Naming.lookup("rmi://" + host + "/GameServer");
-
-        // 2. Create the callback (remote object on client side)
-        RMIClientCallbackImpl callback = new RMIClientCallbackImpl(this);
-
-        // 3. It registers on the server
-        server.register(nickname, numPlayers, callback);
+    public void connect(String host, int port, int numPlayers, CommunicationProtocol protocol) throws Exception {
+        networkAdapter = NetworkAdapterFactory.createClientAdapter(protocol, this);
+        networkAdapter.connect(host, port, nickname, numPlayers);
     }
 
     @Override
     public void onLobbyUpdate(LobbyUpdateMessage update) {
-        if (update.isGameStarting()) {
-            System.out.println("Match is starting!");
-        } else {
-            System.out.println("In lobby: " + update.getConnectedPlayers() + "/" + update.getRequiredPlayers() + " players");
-            System.out.println("Connected: " + update.getPlayerNicknames());
-        }
+        ui.onLobbyUpdate(update);
     }
 
     //! COMMANDS TO SERVER -----------------------------------------------
     public void placeTotemOnOfferTile(int tilePosition) throws Exception {
-        server.placeTotemOnOfferTile(nickname, tilePosition);
+        networkAdapter.placeTotemOnOfferTile(tilePosition);
     }
 
     public void offerTileAction(String cards) throws Exception {
-        server.offerTileAction(nickname, cards);
+        networkAdapter.offerTileAction(cards);
     }
 
     //! RECEIVING UPDATES FROM SERVER (called by ClientCallbackImpl) -----------------------------------------------
     @Override
     public void onUpdate(GameStateUpdateMessage update) {
-        view.update(update);
-
         if (isMyTurn(update)) {
             if (update.getCurrentPhase() == GamePhase.PLAYER_TURN) {
                 OfferEffect effect = update.getOfferTrack().stream()
@@ -88,38 +65,45 @@ public class ClientController implements GameEventListener {
                         .map(OfferTileSnapshot::getOfferEffect)
                         .findFirst()
                         .orElse(null);
-
-                if (!hasPickableCards(effect, update)) { // Client-Side check
-                    view.displayNoCardsPickable();
-                    // Warn server to go on
-                    try {
-                        server.skipTurn(nickname);
-                    } catch (RemoteException e) {
-                        view.displayError("Communication error: " + e.getMessage());
-                    }
+                if (!hasPickableCards(effect, update)) {
+                    ui.displayNoCardsPickable();
+                    // skipTurn() must be called on a separate thread to avoid a deadlock:
+                    // onUpdate() runs on the RMI callback thread, and calling server.skipTurn()
+                    // synchronously from it would block that thread while waiting for the server
+                    // to respond — which it cannot, since the callback thread is still occupied.
+                    new Thread(() -> {
+                        try {
+                            networkAdapter.skipTurn();
+                        } catch (Exception e) {
+                            ui.onError(e.getMessage(), update.getCurrentPhase());
+                        }
+                    }).start();
                     return;
                 }
             }
-            inputHandler.promptForAction(update.getCurrentPhase());
-        } else if ( !isMyTurn(update) && isInteractivePhase(update.getCurrentPhase()) ) {
-            view.displayWaiting(update.getCurrentPlayerNickname());
+            ui.onGameStateUpdate(update);
+            ui.promptForAction(update.getCurrentPhase());
+        } else {
+            ui.onGameStateUpdate(update);
+            if (isInteractivePhase(update.getCurrentPhase())) {
+                ui.displayWaiting(update.getCurrentPlayerNickname());
+            }
         }
     }
 
     @Override
-    public void onError(String errorMessage) {
-        view.displayError(errorMessage);
-        inputHandler.promptForAction(view.getCurrentPhase()); // in handleOfferTileAction (promptForAction) there is a while loop that will keep asking for input until the server accepts a valid command, so we can just rely on that and do not need to re-prompt here
+    public void onError(String errorMessage, GamePhase phase) {
+        ui.onError(errorMessage, phase);
     }
 
     @Override
     public void onRankingUpdate(RankingUpdateMessage rankingMessage) {
-        view.displayRankingUpdate(rankingMessage.getRanking(), rankingMessage.getPlayerRankPosition());
+        ui.onRankingUpdate(rankingMessage);
     }
 
     @Override
     public void onShutdown() {
-        inputHandler.warnExit();
+        ui.onShutdown();
     }
 
     //! UTILITY METHODS -----------------------------------------------

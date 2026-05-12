@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+
+<BorderPane
+        xmlns="http://javafx.com/javafx"
+        xmlns:fx="http://javafx.com/fxml"
+        fx:controller="org.example.client.view.GUI.GUIController.GUILoginController"
+        prefWidth="520" prefHeight="520"
+        style="-fx-background-color: #12120c;">
+
+    <center>
+        <VBox alignment="CENTER" spacing="20"
+              style="-fx-padding: 50 60 50 60;">
+
+            <Label text="MESOS"
+                   style="-fx-text-fill: #ffcc00;
+                          -fx-font-size: 38px;
+                          -fx-font-weight: bold;"/>
+
+            <Label text="Enter the Mesolithic world"
+                   style="-fx-text-fill: #888866;
+                          -fx-font-size: 12px;"/>
+
+            <Label text="──────────────────────────────"
+                   style="-fx-text-fill: #2a2a18; -fx-font-size: 11px;"/>
+
+            <!-- Nickname -->
+            <VBox spacing="5" style="-fx-fill-width: true;">
+                <Label text="NICKNAME"
+                       style="-fx-text-fill: #888866;
+                              -fx-font-size: 10px;
+                              -fx-font-weight: bold;"/>
+                <TextField fx:id="nicknameField"
+                           promptText="Enter your nickname"
+                           style="-fx-background-color: #1a1a10;
+                                  -fx-border-color: #3a3a22;
+                                  -fx-border-width: 1;
+                                  -fx-border-radius: 6;
+                                  -fx-background-radius: 6;
+                                  -fx-text-fill: #f0e0b0;
+                                  -fx-prompt-text-fill: #555544;
+                                  -fx-font-size: 13px;
+                                  -fx-padding: 10 14 10 14;"/>
+            </VBox>
+
+            <!-- Number of Players -->
+            <VBox spacing="5" style="-fx-fill-width: true;">
+                <Label text="NUMBER OF PLAYERS  (2–5)"
+                       style="-fx-text-fill: #888866;
+                              -fx-font-size: 10px;
+                              -fx-font-weight: bold;"/>
+                <TextField fx:id="numPlayersField"
+                           promptText="2 · 3 · 4 · 5"
+                           style="-fx-background-color: #1a1a10;
+                                  -fx-border-color: #3a3a22;
+                                  -fx-border-width: 1;
+                                  -fx-border-radius: 6;
+                                  -fx-background-radius: 6;
+                                  -fx-text-fill: #f0e0b0;
+                                  -fx-prompt-text-fill: #555544;
+                                  -fx-font-size: 13px;
+                                  -fx-padding: 10 14 10 14;"/>
+            </VBox>
+
+            <!-- JOIN -->
+            <Button text="JOIN THE TRIBE"
+                    onAction="#onConnect"
+                    prefWidth="200"
+                    style="-fx-background-color: #ffcc00;
+                           -fx-text-fill: #12120c;
+                           -fx-font-weight: bold;
+                           -fx-font-size: 13px;
+                           -fx-background-radius: 6;
+                           -fx-border-radius: 6;
+                           -fx-padding: 10 0 10 0;
+                           -fx-cursor: hand;"/>
+
+            <!-- Error -->
+            <Label fx:id="errorLabel"
+                   text=""
+                   visible="false"
+                   minHeight="16"
+                   style="-fx-text-fill: #cc4444;
+              -fx-font-size: 11px;"/>
+
+        </VBox>
+    </center>
+
+</BorderPane>

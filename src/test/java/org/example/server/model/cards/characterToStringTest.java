@@ -1,6 +1,6 @@
 package org.example.server.model.cards; // Ensure this matches your test package path
 
-import org.example.client.view.ConsoleColors;
+import org.example.client.view.TUI.ConsoleColors;
 import org.example.server.model.cards.characters.*;
 import org.example.server.model.enums.CharacterType;
 import org.example.server.model.enums.Era;
