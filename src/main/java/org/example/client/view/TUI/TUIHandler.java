@@ -57,8 +57,7 @@ public class TUIHandler implements UIHandler {
 
     @Override
     public void onRoundFlowCardRequest() {
-        //TODO
-        handleRoundFlowCardRequest();
+        new Thread (this::handleRoundFlowCardRequest).start();
     }
 
     @Override
@@ -78,6 +77,8 @@ public class TUIHandler implements UIHandler {
         }).start();
     }
 
+
+
     @Override
     public void displayNoCardsPickable() {
         System.out.println("\n[INFO] No cards pickable, turn skipped. Press ENTER to continue...\n");
@@ -86,7 +87,12 @@ public class TUIHandler implements UIHandler {
 
     @Override
     public void displayWaiting(String currentPlayerNickname) {
-        System.out.println("[WAIT] It's " + currentPlayerNickname + "'s turn...");
+        System.out.println("[WAIT] " + currentPlayerNickname + "'s turn...");
+    }
+
+    @Override
+    public void displayRoundFlowWaiting(String currentPlayerNickname) {
+        System.out.println("[WAIT] " + currentPlayerNickname + " is picking an extra card (RoundFlow building)...");
     }
 
     private void handlePlaceTotem() {
@@ -158,7 +164,7 @@ public class TUIHandler implements UIHandler {
 
 
     private void handleRoundFlowCardRequest() {
-
+        System.out.println("[INFO] RoundFlow active: pick an extra card from the top row.");
         PlayerSnapshot player = lastUpdate.getPlayers().stream()
                 .filter(p -> p.getNickname().equals(controller.getNickname()))
                 .findFirst()
