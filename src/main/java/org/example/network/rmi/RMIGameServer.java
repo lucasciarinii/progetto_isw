@@ -1,5 +1,7 @@
 package org.example.network.rmi;
 
+import org.example.client.rmi.RMIClientCallback;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 

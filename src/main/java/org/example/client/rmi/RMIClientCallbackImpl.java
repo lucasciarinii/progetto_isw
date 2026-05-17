@@ -4,7 +4,6 @@ import org.example.network.messages.GameStateUpdateMessage;
 import org.example.network.messages.LobbyUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
 import org.example.server.model.enums.GamePhase;
-import org.example.network.rmi.RMIClientCallback;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
