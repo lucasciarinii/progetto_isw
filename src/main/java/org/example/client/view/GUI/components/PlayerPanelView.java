@@ -55,9 +55,9 @@ public class PlayerPanelView extends VBox {
         header.getChildren().addAll(dot, nicknameLabel);
 
         // --- STATISTICHE (Cibo, Punti, Sconti con sfondi trasparenti) ---
-        foodLabel = new Label("🍖 " + snapshot.getFood());
-        discountLabel = new Label("Sconto Edifici: -" + snapshot.getDiscountOnBuilding());
-        totalPointsLabel = new Label("🏆 "  + snapshot.getPoints());
+        foodLabel = new Label("Food: " + snapshot.getFood());
+        discountLabel = new Label("Discount on Buildings: -" + snapshot.getDiscountOnBuilding());
+        totalPointsLabel = new Label("Points: "  + snapshot.getPoints());
 
         String statStyle = "-fx-text-fill: #d0c8a0; -fx-font-size: " + (isMini ? "10px" : "13px") + "; -fx-background-color: transparent;";
         foodLabel.setStyle(statStyle);
@@ -118,10 +118,10 @@ public class PlayerPanelView extends VBox {
     }
 
     public void update(PlayerSnapshot newSnapshot) {
-        foodLabel.setText("🍖 " + newSnapshot.getFood());
-        discountLabel.setText("Sconto Edifici: -" + newSnapshot.getDiscountOnBuilding());
+        foodLabel.setText("Food: " + newSnapshot.getFood());
+        discountLabel.setText("Discount on Buildings: -" + newSnapshot.getDiscountOnBuilding());
         discountLabel.setVisible(newSnapshot.getDiscountOnBuilding() > 0);
-        totalPointsLabel.setText("🎯 " + newSnapshot.getPoints());
+        totalPointsLabel.setText("Points: " + newSnapshot.getPoints());
 
         stacksContainer.getChildren().clear();
         renderCards(newSnapshot);
