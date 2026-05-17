@@ -102,7 +102,7 @@ public class ClientController implements GameEventListener {
 
     @Override
     public void onRoundFlowCardRequest() {
-
+        ui.onRoundFlowCardRequest();
     }
 
     @Override
