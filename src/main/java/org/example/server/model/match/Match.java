@@ -12,6 +12,7 @@ import org.example.server.model.board.PlayerSlot;
 import org.example.server.model.board.turnOrderTileActions.OfferActionRegistry;
 import org.example.server.model.cards.Card;
 import org.example.server.model.cards.buildingCards.BuildingCard;
+import org.example.server.model.cards.buildingCards.RoundFlowTotemBC;
 import org.example.server.model.cards.characters.Builder;
 import org.example.server.model.cards.characters.Character;
 import org.example.server.model.cards.characters.Inventor;
@@ -116,6 +117,8 @@ public class Match {
 
     // Invocated at the end of each round, after all players have resolved their actions and before starting a new round
     public void endRoundOperations() {
+        // TODO: controllare se ci sono player con RoundFlowBC, ed eventualmente applicare l'effetto (fargli pescare una carta da sopra)
+
         // 1. Resolve events of bottomRow (with priority as in the rules)
         // resolveBottomEvents(); this is a separate PHASE
 
@@ -143,6 +146,7 @@ public class Match {
                 newEraOperations();
             }
         }
+
     }
 
     public void resolveBottomEvents() {
@@ -196,8 +200,23 @@ public class Match {
                         () -> {throw new IllegalStateException("No slot available"); }
                 );
 
-        selectedTile.removePlayer();
 
+        // Check if a player has the RoundFlowTotemBC to eventually apply the bonus effect
+        getBoard().getTurnOrderTile().getSlots().stream()
+                .filter(slot -> slot.getPlayer() != null && slot.getFood() > 0)
+                .filter(slot -> slot.getPlayer().getOwnedBuildings().stream().anyMatch(b -> b instanceof RoundFlowTotemBC))
+                .findFirst()
+                .ifPresent(slot -> {
+                    // Now we are sure that the slot exists and has the card, we can safely get it
+                    RoundFlowTotemBC totem = (RoundFlowTotemBC) slot.getPlayer().getOwnedBuildings().stream()
+                            .filter(b -> b instanceof RoundFlowTotemBC)
+                            .findFirst()
+                            .orElseThrow(); // Secure thanks to the previous filter
+
+                    totem.applyEffect(slot.getPlayer(), this);
+                });
+
+        selectedTile.removePlayer();
     }
 
     private List<Integer> extractIntegers(String inputString) {

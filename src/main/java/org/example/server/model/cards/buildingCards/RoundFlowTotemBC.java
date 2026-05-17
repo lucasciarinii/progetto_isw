@@ -29,7 +29,6 @@ public class RoundFlowTotemBC extends BuildingCard {
     }
 
     public void applyEffect(Player owner, Match match) {
-        // This method will be called when the "checkers" are returned to the TurnOrderTile
         owner.addFood(FOOD_BONUS);
     }
 

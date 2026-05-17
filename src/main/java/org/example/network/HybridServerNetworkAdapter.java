@@ -34,10 +34,9 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
             try {
                 socketAdapter.start();
                 ServerLogger.server("Socket ready on port " + SocketServerNetworkAdapter.DEFAULT_PORT);
+                latch.countDown();
             } catch (Exception e) {
                 ServerLogger.error("Socket start FAILED: " + e.getMessage());
-            } finally {
-                latch.countDown();
             }
         }).start();
 
@@ -45,11 +44,9 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
             try {
                 rmiAdapter.start();
                 ServerLogger.server("RMI ready on port " + RMIServerNetworkAdapter.DEFAULT_PORT);
+                latch.countDown();
             } catch (Exception e) {
                 ServerLogger.error("RMI start FAILED: " + e.getMessage());
-                e.printStackTrace();
-            } finally {
-                latch.countDown();
             }
         }).start();
 
