@@ -30,9 +30,9 @@ public class LobbyController implements GameOverListener {
     }
 
     /* Registers a new player in the lobby
-        - @param nickname       player's nickname
-        - @param numPlayers     desired number of players (used only by the first one)
-        - @param callback       RMI callback to communicate with this client
+        * @param nickname       player's nickname
+        * @param numPlayers     desired number of players (used only by the first one)
+        * @param callback       RMI callback to communicate with this client
     */
     public synchronized void registerPlayer(String nickname, int numPlayers) throws Exception {
 
