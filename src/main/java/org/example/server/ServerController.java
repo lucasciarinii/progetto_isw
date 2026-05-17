@@ -27,6 +27,8 @@ public class ServerController {
     private final Match match;
     private final ServerNotifier notifier;
     private GameOverListener onGameOver;
+    private boolean waitingForRoundFlow = false;
+    private String roundFlowPlayerNick  = null;
 
 
     //! CONSTRUCTOR ---------------------------------------------------------------------------
@@ -113,40 +115,56 @@ public class ServerController {
 
     }
 
-
     public void roundFlowCardRequest(String nickname, String cards) {
-        if (!isKnownPlayer(nickname)) {
-            ServerLogger.server("Player not found for: " + nickname);
+        if (!waitingForRoundFlow) {
+            try {
+                notifier.sendError(nickname, "No RoundFlow action expected now.",
+                        match.getGameState().getCurrentPhase());
+            } catch (Exception e) {
+                ServerLogger.error("Failed to send error: " + e.getMessage());
+            }
             return;
         }
 
-        try {
-            Player player = getPlayerByNickname(nickname);
-            GamePhase phaseBefore = match.getGameState().getCurrentPhase();
-            match.offerTileAction(player, cards);
-            match.getGameState().advanceToNextPlayer();
-            handlePhaseTransition(phaseBefore);
-        } catch (NoDrawableCardException e) {
-            // We must still move the player to the TurnOrderTile
-            OfferTile selectedTile = match.getBoard().getOfferTrack().stream()
-                    .filter(tile -> tile.getPlayer() != null )
-                    .filter(tile -> tile.getPlayer().getNickname().equals(nickname))
-                    .findFirst()
-                    .orElseThrow( () -> new IllegalStateException( "player not found on offerTrack") );
-            selectedTile.removePlayer();
+        if (!nickname.equals(roundFlowPlayerNick)) {
+            try {
+                notifier.sendError(nickname, "It's not your RoundFlow turn.",
+                        match.getGameState().getCurrentPhase());
+            } catch (Exception e) {
+                ServerLogger.error("Failed to send error: " + e.getMessage());
+            }
+            return;
+        }
 
-            // Warn about the NoDrawableCard and skip his turn
-            sendError(nickname, e.getMessage());
-            GamePhase phaseBefore = match.getGameState().getCurrentPhase();
-            match.getGameState().advanceToNextPlayer();
-            handlePhaseTransition(phaseBefore);
+        Player player = getPlayerByNickname(nickname);
+        try {
+            match.roundFlowCardRequest(player, cards);
         }
         catch (InvalidCardException e) {
             sendError(nickname, "Invalid move: " + e.getMessage());
+            try {
+                notifier.sendRoundFlowCardRequest(nickname);
+            } catch (Exception ex) {
+                ServerLogger.error("Failed to resend RoundFlow request: " + ex.getMessage());
+            }
+            return;
         }
         catch (Exception e) {
             sendError(nickname, "Generic Exception: " + e.getMessage());
+            try {
+                notifier.sendRoundFlowCardRequest(nickname);
+            } catch (Exception ex) {
+                ServerLogger.error("Failed to resend RoundFlow request: " + ex.getMessage());
+            }
+            return;
         }
+
+        waitingForRoundFlow = false;
+        roundFlowPlayerNick = null;
+
+        // notifica tutti dello stato aggiornato e poi prosegui
+        notifyAll(buildSnapshot());
+        proceedEndRound();
 
     }
 
@@ -341,37 +359,28 @@ public class ServerController {
             }
 
             case END_ROUND -> {
-                // EVENTS_RESOLVE → END_ROUND: automatic
-
                 Player roundFlowPlayer = match.getPlayers().stream()
                         .filter(p -> p.getOwnedBuildings().stream()
                                 .anyMatch(c -> c instanceof RoundFlowBC))
                         .findFirst()
                         .orElse(null);
 
-                if (roundFlowPlayer != null ) {
-
+                if (roundFlowPlayer != null) {
+                    waitingForRoundFlow = true;
+                    roundFlowPlayerNick = roundFlowPlayer.getNickname();
+                    // Ensure clients see who must answer the RoundFlow request.
+                    match.getGameState().setCurrentPlayer(roundFlowPlayer);
+                    notifyAll(buildSnapshot());
                     try {
-                        notifier.sendRoundFlowCardRequest(roundFlowPlayer.getNickname());
+                        notifier.sendRoundFlowCardRequest(roundFlowPlayerNick);
                     } catch (Exception e) {
-                        ServerLogger.error("Round flow error");
+                        ServerLogger.error("Failed to send RoundFlow request: " + e.getMessage());
                     }
-                }
-
-
-                if(match.getGameState().getCurrentRound() == 10) {
-                    // If it's the end of round 10, we go directly to END_GAME
-                    match.getGameState().advancePhase();
-                    handleNewPhase(match.getGameState().getCurrentPhase());
+                    // stop — resume in roundFlowCardRequest()
                     return;
                 }
-                match.endRoundOperations();
 
-                // END_ROUND.next(state) handle internally:
-                //   - round < 10  → advanceRound() + PLACE_TOTEMS
-                //   - round == 10 → END_GAME
-                match.getGameState().advancePhase();
-                handleNewPhase(match.getGameState().getCurrentPhase());
+                proceedEndRound();
             }
 
             case END_GAME -> {
@@ -442,6 +451,18 @@ public class ServerController {
              default -> throw new IllegalStateException("Unexpected phase: " + phase);
         }
     }
+
+    private void proceedEndRound() {
+        if (match.getGameState().getCurrentRound() == 10) {
+            match.getGameState().advancePhase();
+            handleNewPhase(match.getGameState().getCurrentPhase());
+            return;
+        }
+        match.endRoundOperations();
+        match.getGameState().advancePhase();
+        handleNewPhase(match.getGameState().getCurrentPhase());
+    }
+
 
 
 }

@@ -11,6 +11,7 @@ import org.example.network.snapshots.OfferTileSnapshot;
 import org.example.network.snapshots.PlayerSnapshot;
 import org.example.server.model.cards.Card;
 import org.example.server.model.cards.buildingCards.BuildingCard;
+import org.example.server.model.cards.buildingCards.RoundFlowBC;
 import org.example.server.model.enums.GamePhase;
 import org.example.server.model.enums.OfferEffect;
 
@@ -25,6 +26,7 @@ public class ClientController implements GameEventListener {
     private final String nickname;
     private ClientNetworkAdapter networkAdapter;
     private final UIHandler ui;
+    GameStateUpdateMessage lastGameStateUpdate;
 
     public ClientController(String nickname, UIHandler ui) {
         this.nickname = nickname;
@@ -86,9 +88,15 @@ public class ClientController implements GameEventListener {
             }
             ui.onGameStateUpdate(update);
             ui.promptForAction(update.getCurrentPhase());
+            lastGameStateUpdate = update;
         } else {
             ui.onGameStateUpdate(update);
-            if (isInteractivePhase(update.getCurrentPhase())) {
+            lastGameStateUpdate = update;
+            if (isRoundFlowPending(update)) {
+                if (!update.getCurrentPlayerNickname().equals(nickname)) {
+                    ui.displayRoundFlowWaiting(update.getCurrentPlayerNickname());
+                }
+            } else if (isInteractivePhase(update.getCurrentPhase())) {
                 ui.displayWaiting(update.getCurrentPlayerNickname());
             }
         }
@@ -106,8 +114,30 @@ public class ClientController implements GameEventListener {
 
     @Override
     public void onRoundFlowCardRequest() {
+        if (lastGameStateUpdate == null) {
+            ui.onRoundFlowCardRequest();
+            return;
+        }
+
+        if (!hasPickableCards(OfferEffect.U, lastGameStateUpdate)) {
+            ui.displayNoCardsPickable();
+            // skipTurn() must be called on a separate thread to avoid a deadlock:
+            // onUpdate() runs on the RMI callback thread, and calling server.skipTurn()
+            // synchronously from it would block that thread while waiting for the server
+            // to respond — which it cannot, since the callback thread is still occupied.
+            new Thread(() -> {
+                try {
+                    networkAdapter.skipTurn();
+                } catch (Exception e) {
+                    ui.onError(e.getMessage(), lastGameStateUpdate.getCurrentPhase());
+                }
+            }).start();
+            return;
+        }
+
         ui.onRoundFlowCardRequest();
     }
+
 
     @Override
     public void onShutdown() {
@@ -121,6 +151,17 @@ public class ClientController implements GameEventListener {
 
     private boolean isInteractivePhase(GamePhase phase) {
         return phase == GamePhase.PLACE_TOTEMS || phase == GamePhase.PLAYER_TURN;
+    }
+
+    private boolean isRoundFlowPending(GameStateUpdateMessage update) {
+        if (update.getCurrentPhase() != GamePhase.END_ROUND) {
+            return false;
+        }
+        return update.getPlayers().stream()
+                .filter(p -> p.getNickname().equals(update.getCurrentPlayerNickname()))
+                .findFirst()
+                .map(p -> p.getOwnedBuildings().stream().anyMatch(b -> b instanceof RoundFlowBC))
+                .orElse(false);
     }
 
     private long countPickable(List<Card> row, PlayerSnapshot player) {

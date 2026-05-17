@@ -7,14 +7,15 @@ import org.example.server.model.enums.GamePhase;
 
 public interface UIHandler {
 
-    public void onLobbyUpdate(LobbyUpdateMessage update);
-    public void onGameStateUpdate(GameStateUpdateMessage update);
-    public void onError(String errorMessage, GamePhase currentPhase);
-    public void onRankingUpdate(RankingUpdateMessage rankingMessage);
-    public void onRoundFlowCardRequest();
-    public void onShutdown();
-    public void promptForAction(GamePhase phase);
-    public void displayNoCardsPickable();
-    public void displayWaiting(String currentPlayerNickname);
+    void onLobbyUpdate(LobbyUpdateMessage update);
+    void onGameStateUpdate(GameStateUpdateMessage update);
+    void onError(String errorMessage, GamePhase currentPhase);
+    void onRankingUpdate(RankingUpdateMessage rankingMessage);
+    void onRoundFlowCardRequest();
+    void onShutdown();
+    void promptForAction(GamePhase phase);
+    void displayNoCardsPickable();
+    void displayWaiting(String currentPlayerNickname);
+    void displayRoundFlowWaiting(String currentPlayerNickname);
 
 }

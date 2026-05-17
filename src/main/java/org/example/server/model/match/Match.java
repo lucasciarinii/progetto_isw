@@ -12,11 +12,14 @@ import org.example.server.model.board.PlayerSlot;
 import org.example.server.model.board.turnOrderTileActions.OfferActionRegistry;
 import org.example.server.model.cards.Card;
 import org.example.server.model.cards.buildingCards.BuildingCard;
+import org.example.server.model.cards.buildingCards.RoundFlowBC;
 import org.example.server.model.cards.buildingCards.RoundFlowTotemBC;
 import org.example.server.model.cards.characters.Builder;
 import org.example.server.model.cards.characters.Inventor;
 import org.example.server.model.cards.eventCards.EventCard;
 import org.example.server.model.cards.eventCards.Sustenance;
+import org.example.server.model.enums.BuildingCardType;
+import org.example.server.model.enums.Era;
 import org.example.server.model.enums.OfferEffect;
 import org.example.server.model.exceptions.InvalidCardException;
 import org.example.server.model.exceptions.NoDrawableCardException;
@@ -90,6 +93,13 @@ public class Match {
 
         // Initialize GameState (with random order already done)
         gameState = new GameState(players);
+
+        // TODO TEST: force RoundFlowBC on the first player at game start
+        if (!players.isEmpty()) {
+            Player testPlayer = players.get(0);
+            RoundFlowBC testCard = new RoundFlowBC(119, Era.III, 9, 3, BuildingCardType.RoundFlowBC, false);
+            testPlayer.addBuilding(testCard);
+        }
     }
 
     //! METHODS TO MANAGE THE MATCH

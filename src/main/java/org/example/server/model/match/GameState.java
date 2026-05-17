@@ -64,6 +64,15 @@ public class GameState {
 
     public Player getCurrentPlayer(){return turnOrder.get(currentPlayerIndex);}
 
+    public void setCurrentPlayer(Player player) {
+        Objects.requireNonNull(player, "player cannot be null");
+        int idx = turnOrder.indexOf(player);
+        if (idx < 0) {
+            throw new IllegalArgumentException("Player not found in turn order: " + player.getNickname());
+        }
+        currentPlayerIndex = idx;
+    }
+
     public void advanceToNextPlayer() {
         if (currentPlayerIndex==turnOrder.size()-1) {
             currentPlayerIndex=0;
