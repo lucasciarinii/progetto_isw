@@ -11,6 +11,8 @@ public interface ClientNetworkAdapter {
     // Client action
     void offerTileAction(String cards) throws Exception;
 
+    void roundFlowCardRequest(String cards) throws Exception;
+
     // Client executes an action on a tile
     void skipTurn() throws Exception;
 

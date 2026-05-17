@@ -14,7 +14,7 @@ import java.util.Map;
 public class ClientSocketHandler implements Runnable {
 
     private final Socket socket;
-    private final SocketServerNetworkAdapter server;
+    private final SocketServerNetworkAdapter socketServerNetworkAdapter;
     private final Map<String, ClientSocketHandler> connectedClients;
     private PrintWriter out;
     private BufferedReader in;
@@ -22,10 +22,10 @@ public class ClientSocketHandler implements Runnable {
     private final ObjectMapper mapper = new ObjectMapper();
 
 
-    public ClientSocketHandler(Socket socket, SocketServerNetworkAdapter server,
+    public ClientSocketHandler(Socket socket, SocketServerNetworkAdapter socketServerNetworkAdapter,
                                Map<String, ClientSocketHandler> connectedClients) {
         this.socket = socket;
-        this.server = server;
+        this.socketServerNetworkAdapter = socketServerNetworkAdapter;
         this.connectedClients = connectedClients;
     }
 
@@ -65,34 +65,40 @@ public class ClientSocketHandler implements Runnable {
         try {
             Map<String, Object> cmd = mapper.readValue(command, Map.class);
             String action = (String) cmd.get("action");
+            String cards;
 
             switch (action) {
                 case "register":
                     String nickname = (String) cmd.get("nickname");
                     int numPlayers = (int) cmd.get("numPlayers");
 
-                    if (server.isNicknameTaken(nickname)) {
+                    if (socketServerNetworkAdapter.isNicknameTaken(nickname)) {
                         sendLobbyError("Nickname already used: " + nickname);
                         break;
                     }
                     this.nickname = nickname;
                     connectedClients.put(nickname, this);
-                    server.registerPlayer(nickname, numPlayers);
+                    socketServerNetworkAdapter.registerPlayer(nickname, numPlayers);
                     System.out.println("[SERVER] Player " + nickname + " registered");
                     break;
 
                 case "placeTotem":
                     int tilePosition = (int) cmd.get("tilePosition");
-                    server.placeTotemOnOfferTile(this.nickname, tilePosition);
+                    socketServerNetworkAdapter.placeTotemOnOfferTile(this.nickname, tilePosition);
                     break;
 
                 case "offerTileAction":
-                    String cards = (String) cmd.get("cards");
-                    server.offerTileAction(this.nickname, cards);
+                    cards = (String) cmd.get("cards");
+                    socketServerNetworkAdapter.offerTileAction(this.nickname, cards);
+                    break;
+
+                case "roundFlowCardRequest":
+                    cards = (String) cmd.get("cards");
+                    socketServerNetworkAdapter.roundFlowCardRequest(this.nickname, cards);
                     break;
 
                 case "skipTurn":
-                    server.skipTurn(this.nickname);
+                    socketServerNetworkAdapter.skipTurn(this.nickname);
                     break;
             }
         } catch (IOException e) {

@@ -113,6 +113,43 @@ public class ServerController {
 
     }
 
+
+    public void roundFlowCardRequest(String nickname, String cards) {
+        if (!isKnownPlayer(nickname)) {
+            ServerLogger.server("Player not found for: " + nickname);
+            return;
+        }
+
+        try {
+            Player player = getPlayerByNickname(nickname);
+            GamePhase phaseBefore = match.getGameState().getCurrentPhase();
+            match.offerTileAction(player, cards);
+            match.getGameState().advanceToNextPlayer();
+            handlePhaseTransition(phaseBefore);
+        } catch (NoDrawableCardException e) {
+            // We must still move the player to the TurnOrderTile
+            OfferTile selectedTile = match.getBoard().getOfferTrack().stream()
+                    .filter(tile -> tile.getPlayer() != null )
+                    .filter(tile -> tile.getPlayer().getNickname().equals(nickname))
+                    .findFirst()
+                    .orElseThrow( () -> new IllegalStateException( "player not found on offerTrack") );
+            selectedTile.removePlayer();
+
+            // Warn about the NoDrawableCard and skip his turn
+            sendError(nickname, e.getMessage());
+            GamePhase phaseBefore = match.getGameState().getCurrentPhase();
+            match.getGameState().advanceToNextPlayer();
+            handlePhaseTransition(phaseBefore);
+        }
+        catch (InvalidCardException e) {
+            sendError(nickname, "Invalid move: " + e.getMessage());
+        }
+        catch (Exception e) {
+            sendError(nickname, "Generic Exception: " + e.getMessage());
+        }
+
+    }
+
     public void skipTurn(String nickname) {
         if (!isKnownPlayer(nickname)) {
             ServerLogger.server("SkipTurn failed: player not found for: " + nickname);
@@ -314,6 +351,11 @@ public class ServerController {
 
                 if (roundFlowPlayer != null ) {
 
+                    try {
+                        notifier.sendRoundFlowCardRequest(roundFlowPlayer.getNickname());
+                    } catch (Exception e) {
+                        ServerLogger.error("Round flow error");
+                    }
                 }
 
 

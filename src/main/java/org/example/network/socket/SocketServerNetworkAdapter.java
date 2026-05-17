@@ -172,6 +172,14 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
         serverController.offerTileAction(nickname, cards);
     }
 
+    public void roundFlowCardRequest(String nickname, String cards) {
+        if (serverController == null) {
+            ServerLogger.server("Game not started yet. Cannot perform round flow card request action.");
+            return;
+        }
+        serverController.roundFlowCardRequest(nickname, cards);
+    }
+
     public void skipTurn(String nickname) {
         if (serverController == null) {
             ServerLogger.server("Game not started yet. Cannot skip turn.");

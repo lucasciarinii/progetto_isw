@@ -56,6 +56,12 @@ public class TUIHandler implements UIHandler {
     }
 
     @Override
+    public void onRoundFlowCardRequest() {
+        //TODO
+        handleRoundFlowCardRequest();
+    }
+
+    @Override
     public void onShutdown() {
         System.out.println("GAME ENDED, THANKS FOR PLAYING...");
         System.exit(0);
@@ -145,6 +151,29 @@ public class TUIHandler implements UIHandler {
         String payload = ids.stream().map(String::valueOf).collect(Collectors.joining(","));
         try {
             controller.offerTileAction(payload);
+        } catch (Exception e) {
+            System.out.println("[ERROR] " + e.getMessage());
+        }
+    }
+
+
+    private void handleRoundFlowCardRequest() {
+
+        PlayerSnapshot player = lastUpdate.getPlayers().stream()
+                .filter(p -> p.getNickname().equals(controller.getNickname()))
+                .findFirst()
+                .orElseThrow();
+
+
+        int fromTop = (int) Math.min(1, countPickable(lastUpdate.getTopRow(), player));
+
+        List<Integer> ids = new ArrayList<>();
+
+        ids.addAll(askIds("top row", fromTop));
+
+        String payload = ids.stream().map(String::valueOf).collect(Collectors.joining(","));
+        try {
+            controller.roundFlowCardRequest(payload);
         } catch (Exception e) {
             System.out.println("[ERROR] " + e.getMessage());
         }

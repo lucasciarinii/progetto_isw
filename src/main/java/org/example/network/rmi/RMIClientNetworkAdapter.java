@@ -42,6 +42,11 @@ public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
     }
 
     @Override
+    public void roundFlowCardRequest(String cards) throws Exception {
+        server.roundFlowCardRequest(nickname, cards);
+    }
+
+    @Override
     public void skipTurn() throws Exception {
         server.skipTurn(nickname);
     }

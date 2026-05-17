@@ -115,6 +115,12 @@ public class GUIHandler implements UIHandler {
         });
     }
 
+
+    @Override
+    public void onRoundFlowCardRequest() {
+        
+    }
+
     @Override
     public void onShutdown() {
         Platform.runLater(() -> {

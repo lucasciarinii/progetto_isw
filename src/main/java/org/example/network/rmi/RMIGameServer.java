@@ -20,5 +20,7 @@ public interface RMIGameServer extends Remote {
     // Player resolves action from the offerTile he is currently on. nickname -> who is resolving the offer tile, cards -> string with IDs selected
     void offerTileAction(String nickname, String cards) throws RemoteException;
 
+    void roundFlowCardRequest(String nickname, String cards) throws RemoteException;
+
     void skipTurn(String nickname) throws RemoteException;
 }

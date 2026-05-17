@@ -54,6 +54,10 @@ public class ClientController implements GameEventListener {
         networkAdapter.offerTileAction(cards);
     }
 
+    public void roundFlowCardRequest(String cards) throws Exception {
+        networkAdapter.roundFlowCardRequest(cards);
+    }
+
     //! RECEIVING UPDATES FROM SERVER (called by ClientCallbackImpl) -----------------------------------------------
     @Override
     public void onUpdate(GameStateUpdateMessage update) {

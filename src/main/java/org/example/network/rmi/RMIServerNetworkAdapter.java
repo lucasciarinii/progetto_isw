@@ -147,6 +147,13 @@ public class RMIServerNetworkAdapter extends UnicastRemoteObject implements Serv
         serverController.offerTileAction(nickname, cards);
     }
 
+
+    @Override
+    public void roundFlowCardRequest(String nickname, String cards) throws RemoteException {
+        checkGameStarted();
+        serverController.roundFlowCardRequest(nickname, cards);
+    }
+
     @Override
     public void skipTurn(String nickname) throws RemoteException {
         checkGameStarted();
@@ -168,3 +175,4 @@ public class RMIServerNetworkAdapter extends UnicastRemoteObject implements Serv
         }
     }
 }
+

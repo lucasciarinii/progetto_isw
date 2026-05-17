@@ -218,6 +218,11 @@ public class Match {
         selectedTile.removePlayer();
     }
 
+    public void roundFlowCardRequest(Player player, String cards) throws NoDrawableCardException, InvalidCardException {
+        List<Integer> ids = new ArrayList<>(extractIntegers(cards));
+        offerActionRegistry.getActionByEffect(OfferEffect.U).execute(this, player, ids);
+    }
+
     private List<Integer> extractIntegers(String inputString) {
         List<Integer> numbers = new ArrayList<>();
 
