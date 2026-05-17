@@ -6,9 +6,9 @@ package org.example.server;
 */
 
 import org.example.network.ServerNotifier;
+import org.example.network.messages.LobbyUpdateMessage;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
-import org.example.network.messages.LobbyUpdateMessage;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;

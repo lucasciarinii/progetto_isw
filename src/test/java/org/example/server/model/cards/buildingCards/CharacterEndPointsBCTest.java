@@ -1,13 +1,7 @@
 package org.example.server.model.cards.buildingCards;
 
-import org.example.server.model.cards.buildingCards.CharacterEndPointsBC;
-import org.example.server.model.cards.characters.Artist;
-import org.example.server.model.cards.characters.Builder;
+import org.example.server.model.cards.characters.*;
 import org.example.server.model.cards.characters.Character;
-import org.example.server.model.cards.characters.Gatherer;
-import org.example.server.model.cards.characters.Hunter;
-import org.example.server.model.cards.characters.Inventor;
-import org.example.server.model.cards.characters.Shaman;
 import org.example.server.model.enums.BuildingCardType;
 import org.example.server.model.enums.CharacterType;
 import org.example.server.model.enums.Era;

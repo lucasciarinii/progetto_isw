@@ -1,17 +1,11 @@
 package org.example.server.model.match;
 
 import org.example.server.model.cards.buildingCards.SetCollectionFoodBC;
-import org.example.server.model.cards.characters.Artist;
-import org.example.server.model.cards.characters.Builder;
-import org.example.server.model.cards.characters.Gatherer;
-import org.example.server.model.cards.characters.Hunter;
-import org.example.server.model.cards.characters.Inventor;
-import org.example.server.model.cards.characters.Shaman;
+import org.example.server.model.cards.characters.*;
 import org.example.server.model.enums.BuildingCardType;
 import org.example.server.model.enums.CharacterType;
 import org.example.server.model.enums.Era;
 import org.example.server.model.enums.InventionType;
-import org.example.server.model.match.Player;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

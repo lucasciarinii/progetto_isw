@@ -1,6 +1,5 @@
 package org.example.server.model.cards.buildingCards;
 
-import org.example.server.model.cards.buildingCards.ShamanicNoMalusBC;
 import org.example.server.model.enums.BuildingCardType;
 import org.example.server.model.enums.Era;
 import org.example.server.model.match.Player;

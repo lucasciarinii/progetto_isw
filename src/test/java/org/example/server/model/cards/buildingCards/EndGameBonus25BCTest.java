@@ -1,6 +1,5 @@
 package org.example.server.model.cards.buildingCards;
 
-import org.example.server.model.cards.buildingCards.EndGameBonus25BC;
 import org.example.server.model.enums.BuildingCardType;
 import org.example.server.model.enums.Era;
 import org.example.server.model.match.Match;
@@ -10,7 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EndGameBonus25BCTest {
     @Test

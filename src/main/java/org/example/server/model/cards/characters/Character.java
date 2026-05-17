@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.example.server.model.cards.Card;
 import org.example.server.model.enums.CharacterType;
 import org.example.server.model.enums.Era;
-import org.example.server.model.interfaces.Visitor;
 import org.example.server.model.interfaces.Visitable;
+import org.example.server.model.interfaces.Visitor;
 
 // Indicates to Jackson to use the "class_type" field to decide the subclass
 @JsonTypeInfo(

@@ -8,8 +8,6 @@ import org.example.server.model.exceptions.NoDrawableCardException;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
 
-import java.util.List;
-
 public class UPick {
     public Card execute(Match match, Player player, int id) throws NoDrawableCardException, InvalidCardException {
 

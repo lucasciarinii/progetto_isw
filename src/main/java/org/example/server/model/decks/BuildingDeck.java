@@ -1,10 +1,10 @@
 package org.example.server.model.decks;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.example.server.model.cards.buildingCards.BuildingCard;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.server.model.enums.Era;
 import org.example.server.model.board.Board;
+import org.example.server.model.cards.buildingCards.BuildingCard;
+import org.example.server.model.enums.Era;
 
 import java.nio.file.Path;
 import java.util.ArrayList;

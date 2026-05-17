@@ -1,7 +1,5 @@
 package org.example.network;
 
-import java.rmi.RemoteException;
-
 public interface ClientNetworkAdapter {
 
     // Client connects to the server

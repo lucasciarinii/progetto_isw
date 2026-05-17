@@ -1,8 +1,7 @@
 package org.example.server.model.cards.eventCards;
 
-import org.example.server.model.cards.characters.Hunter;
 import org.example.server.model.cards.buildingCards.HuntEventBoostBC;
-import org.example.server.model.cards.eventCards.HuntEvent;
+import org.example.server.model.cards.characters.Hunter;
 import org.example.server.model.enums.BuildingCardType;
 import org.example.server.model.enums.CharacterType;
 import org.example.server.model.enums.Era;

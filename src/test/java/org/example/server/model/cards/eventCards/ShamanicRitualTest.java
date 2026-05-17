@@ -3,7 +3,6 @@ package org.example.server.model.cards.eventCards;
 import org.example.server.model.cards.buildingCards.ShamanicDoublePointsBC;
 import org.example.server.model.cards.buildingCards.ShamanicNoMalusBC;
 import org.example.server.model.cards.buildingCards.ShamanicStarsBC;
-import org.example.server.model.cards.eventCards.ShamanicRitual;
 import org.example.server.model.enums.BuildingCardType;
 import org.example.server.model.enums.Era;
 import org.example.server.model.enums.EventEffect;

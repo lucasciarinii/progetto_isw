@@ -1,6 +1,5 @@
 package org.example.server.model.cards.buildingCards;
 
-import org.example.server.model.cards.buildingCards.EndGameBonusBC;
 import org.example.server.model.cards.characters.Builder;
 import org.example.server.model.enums.BuildingCardType;
 import org.example.server.model.enums.CharacterType;
@@ -12,7 +11,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EndGameBonusBCTest {
 

@@ -4,8 +4,6 @@ import org.example.client.view.GUI.GUILauncher;
 import org.example.client.view.TUI.TUILauncher;
 import org.example.network.CommunicationProtocol;
 import org.example.network.HybridServerNetworkAdapter;
-import org.example.network.NetworkAdapterFactory;
-import org.example.network.ServerNetworkAdapter;
 
 import java.util.Scanner;
 

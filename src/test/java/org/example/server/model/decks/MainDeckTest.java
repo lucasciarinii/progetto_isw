@@ -1,19 +1,16 @@
 package org.example.server.model.decks;
 
+import org.example.server.model.cards.Card;
+import org.example.server.model.enums.Era;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.example.server.model.cards.Card;
-import org.example.server.model.decks.MainDeck;
-import org.example.server.model.enums.Era;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 class MainDeckTest {
 

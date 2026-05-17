@@ -4,14 +4,14 @@ import org.example.client.view.UIHandler;
 import org.example.network.ClientNetworkAdapter;
 import org.example.network.CommunicationProtocol;
 import org.example.network.NetworkAdapterFactory;
+import org.example.network.messages.GameStateUpdateMessage;
+import org.example.network.messages.LobbyUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
 import org.example.network.snapshots.OfferTileSnapshot;
 import org.example.network.snapshots.PlayerSnapshot;
 import org.example.server.model.cards.Card;
 import org.example.server.model.cards.buildingCards.BuildingCard;
 import org.example.server.model.enums.GamePhase;
-import org.example.network.messages.GameStateUpdateMessage;
-import org.example.network.messages.LobbyUpdateMessage;
 import org.example.server.model.enums.OfferEffect;
 
 import java.util.List;

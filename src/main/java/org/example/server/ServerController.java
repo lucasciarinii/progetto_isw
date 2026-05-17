@@ -1,5 +1,6 @@
 package org.example.server;
 
+import org.example.network.ServerNotifier;
 import org.example.network.messages.GameStateUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
 import org.example.network.snapshots.OfferTileSnapshot;
@@ -7,7 +8,6 @@ import org.example.network.snapshots.PlayerSnapshot;
 import org.example.network.snapshots.TurnSlotSnapshot;
 import org.example.server.database.GameDAO;
 import org.example.server.database.RankingEntry;
-import org.example.network.ServerNotifier;
 import org.example.server.model.board.Board;
 import org.example.server.model.board.OfferTile;
 import org.example.server.model.board.PlayerSlot;

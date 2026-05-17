@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.example.server.model.cards.Card;
 import org.example.server.model.enums.BuildingCardType;
 import org.example.server.model.enums.Era;
-import org.example.server.model.interfaces.Visitor;
 import org.example.server.model.interfaces.Visitable;
+import org.example.server.model.interfaces.Visitor;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
 
