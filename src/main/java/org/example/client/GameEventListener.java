@@ -1,4 +1,4 @@
-package org.example.client.rmi;
+package org.example.client;
 
 import org.example.network.messages.GameStateUpdateMessage;
 import org.example.network.messages.LobbyUpdateMessage;
@@ -15,6 +15,8 @@ public interface GameEventListener {
     void onLobbyUpdate(LobbyUpdateMessage update);
 
     void onRankingUpdate(RankingUpdateMessage rankingUpdate);
+
+    void onRoundFlowCardRequest();
 
     void onShutdown();
 }

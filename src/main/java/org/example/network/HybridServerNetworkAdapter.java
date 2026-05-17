@@ -91,6 +91,11 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
     }
 
     @Override
+    public void sendRoundFlowCardRequest(String nickname) throws Exception {
+
+    }
+
+    @Override
     public void sendShutdown(String nickname) throws Exception {
         route(nickname).sendShutdown(nickname);
     }

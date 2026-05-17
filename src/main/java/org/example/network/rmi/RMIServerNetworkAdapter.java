@@ -21,7 +21,7 @@ public class RMIServerNetworkAdapter extends UnicastRemoteObject implements Serv
     public static final int DEFAULT_PORT = 1099;
     private final LobbyController lobby;
     private ServerController serverController;
-    private final Map<String, ClientConnection> connections = new HashMap<>();
+    private final Map<String, ServerNotifier> connections = new HashMap<>();
     private HybridServerNetworkAdapter hybrid = null;
 
 
@@ -57,47 +57,55 @@ public class RMIServerNetworkAdapter extends UnicastRemoteObject implements Serv
 
     @Override
     public void sendLobbyUpdate(String nickname, LobbyUpdateMessage update) throws Exception {
-        ClientConnection connection = connections.get(nickname);
+        ServerNotifier connection = connections.get(nickname);
         if (connection == null) {
             throw new RemoteException("Client not found: " + nickname);
         }
-        connection.sendLobbyUpdate(update);
+        connection.sendLobbyUpdate(nickname, update);
     }
 
     @Override
     public void sendGameStateUpdate(String nickname, GameStateUpdateMessage update) throws Exception {
-        ClientConnection connection = connections.get(nickname);
+        ServerNotifier connection = connections.get(nickname);
         if (connection == null) {
             throw new RemoteException("Client not found: " + nickname);
         }
-        connection.sendGameStateUpdate(update);
+        connection.sendGameStateUpdate(nickname, update);
     }
 
     @Override
     public void sendError(String nickname, String errorMessage, GamePhase phase) throws Exception {
-        ClientConnection connection = connections.get(nickname);
+        ServerNotifier connection = connections.get(nickname);
         if (connection == null) {
             throw new RemoteException("Client not found: " + nickname);
         }
-        connection.sendError(errorMessage, phase);
+        connection.sendError(nickname, errorMessage, phase);
     }
 
     @Override
     public void sendRankingUpdate(String nickname, RankingUpdateMessage update) throws Exception {
-        ClientConnection connection = connections.get(nickname);
+        ServerNotifier connection = connections.get(nickname);
         if (connection == null) {
             throw new RemoteException("Client not found: " + nickname);
         }
-        connection.sendRankingUpdate(update);
+        connection.sendRankingUpdate(nickname, update);
+    }
+
+    @Override
+    public void sendRoundFlowCardRequest(String nickname) throws Exception {
+        ServerNotifier connection = connections.get(nickname);
+        if (connection == null) {
+            throw new RemoteException("Client not found: " + nickname);
+        }
     }
 
     @Override
     public void sendShutdown(String nickname) throws Exception {
-        ClientConnection connection = connections.get(nickname);
+        ServerNotifier connection = connections.get(nickname);
         if (connection == null) {
             throw new RemoteException("Client not found: " + nickname);
         }
-        connection.sendShutdown();
+        connection.sendShutdown(nickname);
     }
 
 
@@ -108,7 +116,7 @@ public class RMIServerNetworkAdapter extends UnicastRemoteObject implements Serv
     public void register(String nickname, int numPlayers, RMIClientCallback callback) throws Exception {
         RMIClientConnection connection = new RMIClientConnection(callback);
         if (lobby.isNicknameTaken(nickname)) {
-            connection.sendError("Nickname already used: " + nickname, GamePhase.LOBBY);
+            connection.sendError(nickname, "Nickname already used: " + nickname, GamePhase.LOBBY);
             return;
         }
         connections.put(nickname, connection);
@@ -119,7 +127,7 @@ public class RMIServerNetworkAdapter extends UnicastRemoteObject implements Serv
             lobby.registerPlayer(nickname, numPlayers);
         } catch (Exception e) {
             connections.remove(nickname);
-            connection.sendError("Registration Error: " + e.getMessage(), GamePhase.LOBBY);
+            connection.sendError(nickname, "Registration Error: " + e.getMessage(), GamePhase.LOBBY);
         }
     }
 

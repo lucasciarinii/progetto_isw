@@ -1,5 +1,6 @@
 package org.example.client.rmi;
 
+import org.example.client.GameEventListener;
 import org.example.network.messages.GameStateUpdateMessage;
 import org.example.network.messages.LobbyUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
@@ -42,6 +43,11 @@ public class RMIClientCallbackImpl extends UnicastRemoteObject implements RMICli
     @Override
     public void receiveRankingUpdate(RankingUpdateMessage rankingUpdate) throws RemoteException {
         listener.onRankingUpdate(rankingUpdate);
+    }
+
+    @Override
+    public void receiveRoundFlowCardRequest() {
+        listener.onRoundFlowCardRequest();
     }
 
     @Override

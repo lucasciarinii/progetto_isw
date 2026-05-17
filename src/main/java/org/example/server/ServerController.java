@@ -11,6 +11,7 @@ import org.example.server.ServerNotifier;
 import org.example.server.model.board.Board;
 import org.example.server.model.board.OfferTile;
 import org.example.server.model.board.PlayerSlot;
+import org.example.server.model.cards.buildingCards.RoundFlowBC;
 import org.example.server.model.enums.GamePhase;
 import org.example.server.model.exceptions.InvalidCardException;
 import org.example.server.model.exceptions.NoDrawableCardException;
@@ -304,6 +305,18 @@ public class ServerController {
 
             case END_ROUND -> {
                 // EVENTS_RESOLVE → END_ROUND: automatic
+
+                Player roundFlowPlayer = match.getPlayers().stream()
+                        .filter(p -> p.getOwnedBuildings().stream()
+                                .anyMatch(c -> c instanceof RoundFlowBC))
+                        .findFirst()
+                        .orElse(null);
+
+                if (roundFlowPlayer != null ) {
+
+                }
+
+
                 if(match.getGameState().getCurrentRound() == 10) {
                     // If it's the end of round 10, we go directly to END_GAME
                     match.getGameState().advancePhase();

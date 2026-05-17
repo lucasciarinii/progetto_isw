@@ -1,6 +1,5 @@
 package org.example.client;
 
-import org.example.client.rmi.GameEventListener;
 import org.example.client.view.UIHandler;
 import org.example.network.ClientNetworkAdapter;
 import org.example.network.CommunicationProtocol;
@@ -99,6 +98,11 @@ public class ClientController implements GameEventListener {
     @Override
     public void onRankingUpdate(RankingUpdateMessage rankingMessage) {
         ui.onRankingUpdate(rankingMessage);
+    }
+
+    @Override
+    public void onRoundFlowCardRequest() {
+
     }
 
     @Override

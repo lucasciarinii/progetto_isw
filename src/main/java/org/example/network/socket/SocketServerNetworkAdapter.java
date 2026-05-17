@@ -117,6 +117,17 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
     }
 
     @Override
+    public void sendRoundFlowCardRequest(String nickname) throws Exception {
+        ClientSocketHandler handler = connectedClients.get(nickname);
+
+        if(handler != null) {
+            Map<String, Object> msg = new HashMap<>();
+            msg.put("event", "ROUND_FLOW_CARD_REQUEST");
+            handler.send(mapper.writeValueAsString(msg));
+        }
+    }
+
+    @Override
     public void sendShutdown(String nickname) throws Exception {
         ClientSocketHandler handler = connectedClients.get(nickname);
         if (handler != null) {

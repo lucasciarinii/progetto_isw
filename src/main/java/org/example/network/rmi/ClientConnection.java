@@ -1,4 +1,4 @@
-package org.example.server;
+package org.example.network.rmi;
 
 // This interface is used by the ServerController to talk with a client. It's technology-agnostic
 // We can have different implementations:

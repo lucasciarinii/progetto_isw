@@ -14,6 +14,8 @@ public interface ServerNotifier {
 
     void sendRankingUpdate(String nickname, RankingUpdateMessage update) throws Exception;
 
+    void sendRoundFlowCardRequest(String nickname) throws Exception;
+
     void sendShutdown(String nickname) throws Exception;
 }
 

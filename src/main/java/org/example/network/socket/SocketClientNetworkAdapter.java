@@ -137,6 +137,10 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
                     clientController.onRankingUpdate(rankingUpdate);
                     break;
 
+                case "ROUND_FLOW_CARD_REQUEST":
+                    clientController.onRoundFlowCardRequest();
+                    break;
+
                 case "SHUTDOWN":
                     clientController.onShutdown();
                     break;
