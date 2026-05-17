@@ -118,7 +118,11 @@ public class GUIHandler implements UIHandler {
 
     @Override
     public void onRoundFlowCardRequest() {
-        
+//        Platform.runLater(() -> {
+//            if (GUIGameController != null) {
+//                GUIGameController.promptRoundFlowPick();
+//            }
+//        });
     }
 
     @Override
@@ -153,6 +157,15 @@ public class GUIHandler implements UIHandler {
         Platform.runLater(() -> {
             if (GUIGameController != null) {
                 GUIGameController.showWaiting(currentPlayerNickname);
+            }
+        });
+    }
+
+    @Override
+    public void displayRoundFlowWaiting(String currentPlayerNickname) {
+        Platform.runLater(() -> {
+            if (GUIGameController != null) {
+                GUIGameController.showRoundFlowWaiting(currentPlayerNickname);
             }
         });
     }

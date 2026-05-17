@@ -19,6 +19,7 @@ import org.example.network.snapshots.OfferTileSnapshot;
 import org.example.network.snapshots.PlayerSnapshot;
 import org.example.server.model.cards.Card;
 import org.example.server.model.cards.buildingCards.BuildingCard;
+import org.example.server.model.cards.buildingCards.RoundFlowBC;
 import org.example.server.model.enums.Era;
 import org.example.server.model.enums.GamePhase;
 import org.example.server.model.enums.OfferEffect;
@@ -55,6 +56,7 @@ public class GUIGameController {
 
     // Cards selected by the player
     private final List<CardView> selectedCards = new ArrayList<>();
+    private boolean roundFlowMode = false;
 
     // Player panels — Objects kept in memory to update them without recreating them
     private final List<PlayerPanelView> playerPanels = new ArrayList<>();
@@ -89,10 +91,15 @@ public class GUIGameController {
         // Reset the state at each interaction for each update
         confirmButton.setVisible(false);
         selectedCards.clear();
+        roundFlowMode = false;
 
         // Check game over
         if (!update.getWinners().isEmpty()) {
             showGameOver(update.getWinners());
+        }
+
+        if (isRoundFlowPhase() && update.getCurrentPlayerNickname().equals(localNickname)) {
+            promptRoundFlowPick();
         }
     }
 
@@ -108,6 +115,20 @@ public class GUIGameController {
         }
     }
 
+    public void promptRoundFlowPick() {
+        if (lastUpdate == null) return;
+
+        PlayerSnapshot localPlayer = lastUpdate.getPlayers().stream()
+                .filter(p -> p.getNickname().equals(localNickname))
+                .findFirst()
+                .orElseThrow();
+
+        roundFlowMode = true;
+        confirmButton.setVisible(false);
+        selectedCards.clear();
+        enableRoundFlowSelection(localPlayer);
+    }
+
     /**
      * Show an error message in the action bar.
      */
@@ -118,7 +139,11 @@ public class GUIGameController {
         // Re-enable the interaction using the phase of the last update
         if (lastUpdate != null && lastUpdate.getCurrentPlayerNickname().equals(localNickname)) {
             selectedCards.clear();
-            promptForAction(lastUpdate.getCurrentPhase());
+            if (isRoundFlowPhase()) {
+                promptRoundFlowPick();
+            } else {
+                promptForAction(lastUpdate.getCurrentPhase());
+            }
         }
     }
 
@@ -139,7 +164,14 @@ public class GUIGameController {
         confirmButton.setVisible(false);
         selectedCards.clear();
         statusLabel.setTextFill(Color.web("#a0a080"));
-        statusLabel.setText("Turno di " + currentPlayerNickname + "...");
+        statusLabel.setText(currentPlayerNickname + "'s turn...");
+    }
+
+    public void showRoundFlowWaiting(String currentPlayerNickname) {
+        confirmButton.setVisible(false);
+        selectedCards.clear();
+        statusLabel.setTextFill(Color.web("#a0a080"));
+        statusLabel.setText(currentPlayerNickname + " is picking an extra card (RoundFlow)...");
     }
 
     // ── Aggiornamento barra info ───────────────────────────────────────────────
@@ -164,7 +196,7 @@ public class GUIGameController {
             statusLabel.setText("It's your turn!");
         } else {
             statusLabel.setTextFill(Color.web("#a0a080"));
-            statusLabel.setText(update.getCurrentPlayerNickname() + " turn...");
+            statusLabel.setText(update.getCurrentPlayerNickname() + "'s turn...");
         }
     }
 
@@ -355,7 +387,7 @@ public class GUIGameController {
     private void enableCardSelection(int fromBottom, int fromTop,
                                      int totalToSelect, PlayerSnapshot localPlayer) {
         statusLabel.setTextFill(Color.web("#ffcc00"));
-        statusLabel.setText("Select " + totalToSelect + " card/s.");
+        statusLabel.setText("Select " + totalToSelect + " card(s).");
 
         // Enable top row cards
         if (fromTop > 0) {
@@ -393,6 +425,28 @@ public class GUIGameController {
         }
     }
 
+    private void enableRoundFlowSelection(PlayerSnapshot localPlayer) {
+        int totalToSelect = 1;
+        statusLabel.setTextFill(Color.web("#ffcc00"));
+        statusLabel.setText("Pick 1 extra card from the top row (RoundFlow).");
+
+        // Enable top row cards
+        for (var node : topRowBox.getChildren()) {
+            if (node instanceof CardView cv) {
+                if (isPickable(cv.getCard(), localPlayer)) {
+                    cv.setSelectable(true, () -> onCardClicked(cv, totalToSelect));
+                } else {
+                    cv.setState(CardView.State.DISABLED);
+                }
+            }
+        }
+
+        // Disable bottom row cards
+        bottomRowBox.getChildren().forEach(n -> {
+            if (n instanceof CardView cv) cv.setState(CardView.State.DISABLED);
+        });
+    }
+
     /**
      * Handles the click on a selectable card.
      */
@@ -413,11 +467,19 @@ public class GUIGameController {
         int remaining = totalToSelect - selectedCards.size();
         if (remaining > 0) {
             statusLabel.setTextFill(Color.web("#ffcc00"));
-            statusLabel.setText("Select  " + remaining + " other cart/s.");
+            if (roundFlowMode) {
+                statusLabel.setText("Select the extra card from the top row.");
+            } else {
+                statusLabel.setText("Select " + remaining + " other card(s).");
+            }
             confirmButton.setVisible(false);
         } else {
             statusLabel.setTextFill(Color.web("#00cc66"));
-            statusLabel.setText("Ready! Confirm the selection.");
+            if (roundFlowMode) {
+                statusLabel.setText("Ready! Confirm the extra card.");
+            } else {
+                statusLabel.setText("Ready! Confirm the selection.");
+            }
             confirmButton.setVisible(true);
         }
     }
@@ -435,8 +497,16 @@ public class GUIGameController {
         selectedCards.clear();
 
         try {
-            controller.offerTileAction(payload);
+            if (roundFlowMode) {
+                controller.roundFlowCardRequest(payload);
+                roundFlowMode = false;
+            } else {
+                controller.offerTileAction(payload);
+            }
         } catch (Exception e) {
+            if (roundFlowMode) {
+                roundFlowMode = true;
+            }
             showError(e.getMessage());
         }
     }
@@ -462,5 +532,16 @@ public class GUIGameController {
                 (card.isBuilding() &&
                         ((BuildingCard) card).getFoodCost() <=
                                 player.getFood() + player.getDiscountOnBuilding());
+    }
+
+    private boolean isRoundFlowPhase() {
+        if (lastUpdate == null || lastUpdate.getCurrentPhase() != GamePhase.END_ROUND) {
+            return false;
+        }
+        return lastUpdate.getPlayers().stream()
+                .filter(p -> p.getNickname().equals(localNickname))
+                .findFirst()
+                .map(p -> p.getOwnedBuildings().stream().anyMatch(b -> b instanceof RoundFlowBC))
+                .orElse(false);
     }
 }
