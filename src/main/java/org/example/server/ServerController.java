@@ -7,7 +7,7 @@ import org.example.network.snapshots.PlayerSnapshot;
 import org.example.network.snapshots.TurnSlotSnapshot;
 import org.example.server.database.GameDAO;
 import org.example.server.database.RankingEntry;
-import org.example.server.ServerNotifier;
+import org.example.network.ServerNotifier;
 import org.example.server.model.board.Board;
 import org.example.server.model.board.OfferTile;
 import org.example.server.model.board.PlayerSlot;

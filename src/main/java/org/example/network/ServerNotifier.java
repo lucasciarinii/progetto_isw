@@ -1,4 +1,4 @@
-package org.example.server;
+package org.example.network;
 
 import org.example.network.messages.GameStateUpdateMessage;
 import org.example.network.messages.LobbyUpdateMessage;
