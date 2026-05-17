@@ -42,7 +42,6 @@ public class RMIServerNetworkAdapter extends UnicastRemoteObject implements Serv
 
     @Override
     public void start() throws Exception {
-        System.setProperty("java.rmi.server.hostname", "127.0.0.1");
 
         try {
             LocateRegistry.createRegistry(DEFAULT_PORT);

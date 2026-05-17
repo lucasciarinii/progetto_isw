@@ -22,6 +22,7 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
     private final Map<String, ServerNetworkAdapter> routingTable = new ConcurrentHashMap<>();
 
     public HybridServerNetworkAdapter() throws Exception {
+        System.setProperty("java.rmi.server.hostname", "127.0.0.1");
         LobbyController sharedLobby = new LobbyController(this, this);
 
         this.socketAdapter = new SocketServerNetworkAdapter(sharedLobby);
