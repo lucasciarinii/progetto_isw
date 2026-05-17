@@ -67,7 +67,7 @@
     "bonusPoints": 2,
     "malusPoints": -2,
     "interval": 2,
-    "image": "events_img/shamanic_ritual/cp_2.jpg"
+    "image": "events_img/cave_painting/cp_2.jpg"
   },
   {
     "id": 59,
@@ -85,7 +85,7 @@
     "bonusPoints": 3,
     "malusPoints": -2,
     "interval": 3,
-    "image": "events_img/shamanic_ritual/cp_3.jpg"
+    "image": "events_img/cave_painting/cp_3.jpg"
   },
   {
     "id": 61,
