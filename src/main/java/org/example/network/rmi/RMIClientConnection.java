@@ -1,5 +1,6 @@
 package org.example.network.rmi;
 
+import org.example.client.rmi.RMIClientCallback;
 import org.example.network.messages.RankingUpdateMessage;
 import org.example.server.ClientConnection;
 import org.example.network.messages.GameStateUpdateMessage;
