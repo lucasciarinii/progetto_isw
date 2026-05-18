@@ -3,7 +3,11 @@ package org.example.server.model.enums;
 import org.example.server.model.interfaces.GamePhaseInterface;
 import org.example.server.model.match.GameState;
 
+/**
+ * Phases of the game lifecycle with transition logic.
+ */
 public enum GamePhase implements GamePhaseInterface {
+    /** Waiting for players to join and setup. */
     LOBBY {
         @Override
         public GamePhase next(GameState state) {
@@ -11,6 +15,7 @@ public enum GamePhase implements GamePhaseInterface {
         }
     },
 
+    /** Players place totems on the board. */
     PLACE_TOTEMS {
         @Override
         public GamePhase next(GameState state) {
@@ -18,6 +23,7 @@ public enum GamePhase implements GamePhaseInterface {
         }
     },
 
+    /** Main player turn actions. */
     PLAYER_TURN {
         @Override
         public GamePhase next(GameState state) {
@@ -25,6 +31,7 @@ public enum GamePhase implements GamePhaseInterface {
         }
     },
 
+    /** Resolve any pending events. */
     EVENTS_RESOLVE {
         @Override
         public GamePhase next(GameState state) {
@@ -32,6 +39,7 @@ public enum GamePhase implements GamePhaseInterface {
         }
     },
 
+    /** End-of-round cleanup and round advancement. */
     END_ROUND {
         @Override
         public GamePhase next(GameState state) {
@@ -44,6 +52,7 @@ public enum GamePhase implements GamePhaseInterface {
         }
     },
 
+    /** Final scoring preparation. */
     END_GAME {
         @Override
         public GamePhase next(GameState state) {
@@ -51,6 +60,7 @@ public enum GamePhase implements GamePhaseInterface {
         }
     },
 
+    /** Terminal state after the game ends. */
     GAME_OVER {
         @Override
         public GamePhase next(GameState state) {
