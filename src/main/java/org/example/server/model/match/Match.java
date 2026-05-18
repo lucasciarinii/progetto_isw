@@ -99,15 +99,10 @@ public class Match {
 
     // Invocated at the end of each round, after all players have resolved their actions and before starting a new round
     public void endRoundOperations() {
-        // TODO: controllare se ci sono player con RoundFlowBC, ed eventualmente applicare l'effetto (fargli pescare una carta da sopra)
-
-        // 1. Resolve events of bottomRow (with priority as in the rules)
-        // resolveBottomEvents(); this is a separate PHASE
-
-        // 2. Discard all Characters and EventCards in the bottom row (BuildingCards stay)
+        // 1. Discard all Characters and EventCards in the bottom row (BuildingCards stay)
         board.getBottomRow().removeIf(card -> card.isCharacter() || card.isEventCard());
 
-        // 3. Move all remaining Character and event cards from the top row to the bottom row (at the left of the BuildingCards) (BuildingCards stay in the top row)
+        // 2. Move all remaining Character and event cards from the top row to the bottom row (at the left of the BuildingCards) (BuildingCards stay in the top row)
         List<Card> cardsToMove = new ArrayList<>();
         board.getTopRow().removeIf(card -> {
             if (card.isCharacter() || card.isEventCard()) {
@@ -119,7 +114,7 @@ public class Match {
 
         board.getBottomRow().addAll(0, cardsToMove);
 
-        // 4. Restore the topRow to the number of cards equal to players.size() + 4 (at the left of the BuildingCards)
+        // 3. Restore the topRow to the number of cards equal to players.size() + 4 (at the left of the BuildingCards)
         for (int i = 0; i < this.getPlayers().size() + 4; i++) {
             Card drawnCard = board.getMainDeck().draw();
             board.getTopRow().addFirst(drawnCard); // add new card to the left of the top row
