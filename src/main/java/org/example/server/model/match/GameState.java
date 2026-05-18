@@ -1,9 +1,3 @@
-/*
-- GameState rappresenta il flusso di gioco: sa in ogni momento in che punto della partita siamo.
-- Tiene traccia di round, fasi, turno correnti, ordine di gioco e vincitore.
-- Avanza correttamente tra fasi e round
-- LA LOGICA DI GIOCO VA NEL CONTROLLER, ma GameState fornisce i metodi per avanzare tra fasi e round.
-*/
 package org.example.server.model.match;
 
 import org.example.server.model.enums.Era;
@@ -14,6 +8,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Tracks the match flow and exposes transition helpers for rounds, phases, and turn order.
+ * Game rules are enforced by the controller; this class only advances state.
+ */
 public class GameState {
     private int currentRound;
     private Era currentEra;
@@ -49,6 +47,9 @@ public class GameState {
 
     public GamePhase getCurrentPhase(){return currentPhase;}
 
+    /**
+     * Advances the game to the next phase using the phase transition rules.
+     */
     public void advancePhase(){
         currentPhase = currentPhase.next(this);
     }
@@ -57,6 +58,9 @@ public class GameState {
         return Collections.unmodifiableList(turnOrder);
     }
 
+    /**
+     * Replaces the turn order and resets the current player index.
+     */
     public void updateTurnOrder(List<Player> newOrder) {
         this.turnOrder = new ArrayList<>(newOrder);
         this.currentPlayerIndex = 0;
@@ -64,6 +68,9 @@ public class GameState {
 
     public Player getCurrentPlayer(){return turnOrder.get(currentPlayerIndex);}
 
+    /**
+     * Sets the current player to the given one, if present in the turn order.
+     */
     public void setCurrentPlayer(Player player) {
         Objects.requireNonNull(player, "player cannot be null");
         int idx = turnOrder.indexOf(player);
@@ -73,6 +80,9 @@ public class GameState {
         currentPlayerIndex = idx;
     }
 
+    /**
+     * Advances to the next player; when the order ends, resets and advances the phase.
+     */
     public void advanceToNextPlayer() {
         if (currentPlayerIndex==turnOrder.size()-1) {
             currentPlayerIndex=0;

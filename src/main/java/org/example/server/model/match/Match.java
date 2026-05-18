@@ -1,9 +1,3 @@
-/*
-Match rappresenta la classe di una singola partita. Tra i suoi compiti dovrebbe:
-- Tenere traccia dei giocatori, del tabellone e dello stato di gioco (players, board, gameState)
-- Avviare la partita con un metodo init() che segue i passaggi descritti nella traccia, come la creazione del tracciato, la distribuzione delle carte, l'assegnazione dei totem e dei cibi iniziali.
-- Essere il punto di accesso unico per il controller
-*/
 package org.example.server.model.match;
 
 import org.example.server.model.board.Board;
@@ -27,6 +21,10 @@ import org.example.server.model.exceptions.NoDrawableCardException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Represents a single match and acts as the main model entry point for the controller.
+ * It owns the players, board, and game state, and applies the rules for each phase.
+ */
 public class Match {
 
     private final List<Player> players;
@@ -46,14 +44,14 @@ public class Match {
 
     public GameState getGameState(){return gameState;}
 
-    private void init() { // should initialize the board and gameState according to the steps
-        // Passo 9-10: randomizes players order
+    private void init() { // initialize board and gameState following the setup steps
+        // Steps 9-10: randomize player order.
         Collections.shuffle(players);
 
-        // Steps 1-8: delegate everything to Board (but first I must have the players already shuffled, because Board logic uses the already randomized player list
+        // Steps 1-8: delegate setup to Board (it relies on the randomized player list).
         board = new Board(players);
 
-        // Passo 11: distribute food based on player order
+        // Step 11: distribute starting food based on player order.
         for (int i = 0; i < players.size(); i++) {
             int food = switch (i) {
                 case 0 -> 2;
@@ -64,7 +62,7 @@ public class Match {
             players.get(i).addFood(food);
         }
 
-        // Initialize GameState (with random order already done)
+        // Initialize GameState (order is already randomized).
         gameState = new GameState(players);
 
         // TEST: force RoundFlowBC on the first player at game start
@@ -77,12 +75,14 @@ public class Match {
 
     //! METHODS TO MANAGE THE MATCH
 
-    // Invocated at the beginning of each new Era
+    /**
+     * Executes setup steps when a new era begins.
+     */
     public void newEraOperations() {
-        // 1. discard any building cards present in the bottom row
+        // 1. Discard any building cards present in the bottom row.
         board.getBottomRow().removeIf(Card::isBuilding);
 
-        // 2. Move any building card present in the top row to the bottom row, and place them to the right of the Tribe cards
+        // 2. Move building cards from the top row to the bottom row, to the right of Tribe cards.
         List<Card> buildingCardsInTopRow = new ArrayList<>();
         board.getTopRow().removeIf(card -> {
             if (card.isBuilding()) {
@@ -93,41 +93,46 @@ public class Match {
         });
         board.getBottomRow().addAll(buildingCardsInTopRow);
 
-        // 3. Place the Building card from the just-started Era in the top row to the right of the Tribe cards, face up
-        board.getBuildingDeck().addCardToTopRow(board, this.getGameState().getCurrentEra()); // the getCurrentEra() should be already updated
+        // 3. Place the new-era building card in the top row, to the right of Tribe cards.
+        board.getBuildingDeck().addCardToTopRow(board, this.getGameState().getCurrentEra());
     }
 
-    // Invocated at the end of each round, after all players have resolved their actions and before starting a new round
+    /**
+     * Executes end-of-round cleanup and draws new cards for the next round.
+     */
     public void endRoundOperations() {
-        // 1. Discard all Characters and EventCards in the bottom row (BuildingCards stay)
+        // 1. Discard all Characters and EventCards in the bottom row (BuildingCards stay).
         board.getBottomRow().removeIf(card -> card.isCharacter() || card.isEventCard());
 
-        // 2. Move all remaining Character and event cards from the top row to the bottom row (at the left of the BuildingCards) (BuildingCards stay in the top row)
+        // 2. Move remaining Character and Event cards from the top row to the bottom row (left of BuildingCards).
         List<Card> cardsToMove = new ArrayList<>();
         board.getTopRow().removeIf(card -> {
             if (card.isCharacter() || card.isEventCard()) {
                 cardsToMove.add(card);
-                return true; // Rimuove dalla topRow
+                return true; // remove from top row
             }
             return false;
         });
 
         board.getBottomRow().addAll(0, cardsToMove);
 
-        // 3. Restore the topRow to the number of cards equal to players.size() + 4 (at the left of the BuildingCards)
+        // 3. Restore the top row to players.size() + 4 cards (to the left of BuildingCards).
         for (int i = 0; i < this.getPlayers().size() + 4; i++) {
             Card drawnCard = board.getMainDeck().draw();
             board.getTopRow().addFirst(drawnCard); // add new card to the left of the top row
-            if (drawnCard.getEra() != this.getGameState().getCurrentEra()) { // true means that we have drawn a card of a new era, so we need to update the current era in the GameState
-                this.getGameState().advanceCurrentEra(); // update the current era in the GameState
+            if (drawnCard.getEra() != this.getGameState().getCurrentEra()) {
+                this.getGameState().advanceCurrentEra();
                 newEraOperations();
             }
         }
 
     }
 
+    /**
+     * Resolves all bottom-row event cards following rule priority.
+     */
     public void resolveBottomEvents() {
-        // Resolve events of bottomRow (with priority as in the rules)
+        // Resolve bottom-row events (priority as in the rules).
         List<Sustenance> sustenanceCards = new ArrayList<>();
         for (Card card : board.getBottomRow()) {
             if (card.isEventCard() && !card.isSustenance()) {
@@ -142,11 +147,14 @@ public class Match {
         }
     }
 
+    /**
+     * Places a player's totem on the chosen offer tile and removes it from turn order.
+     */
     public void placeTotemOnOfferTile(Player player, int tile) {
-        // 1. Place the player's totem on the selected offer tile
+        // 1. Place the player's totem on the selected offer tile.
         board.getOfferTrack().get(tile-1).placePlayer(player);
 
-        // 2. Remove the player's totem from the turn order tile
+        // 2. Remove the player's totem from the turn order tile.
         for(PlayerSlot slot : board.getTurnOrderTile().getSlots()) {
             if( slot.getPlayer() != null && slot.getPlayer().equals(player)) {
                 slot.removeTotem();
@@ -155,7 +163,10 @@ public class Match {
         }
     }
 
-    //the cards the user selects are all in one string "ID1, ID2, ID3"
+    /**
+     * Applies the action of the selected offer tile using the given card IDs.
+     * The cards are provided as a comma-separated string: "ID1, ID2".
+     */
     public void offerTileAction(Player player, String cards) throws NoDrawableCardException, InvalidCardException {
         List<Integer> ids = new ArrayList<>(extractIntegers(cards));
 
@@ -178,17 +189,17 @@ public class Match {
                 );
 
 
-        // Check if a player has the RoundFlowTotemBC to eventually apply the bonus effect
+        // Check if a player has the RoundFlowTotemBC to apply the bonus effect.
         getBoard().getTurnOrderTile().getSlots().stream()
                 .filter(slot -> slot.getPlayer() != null && slot.getFood() > 0)
                 .filter(slot -> slot.getPlayer().getOwnedBuildings().stream().anyMatch(b -> b instanceof RoundFlowTotemBC))
                 .findFirst()
                 .ifPresent(slot -> {
-                    // Now we are sure that the slot exists and has the card, we can safely get it
+                    // At this point the slot exists and has the card.
                     RoundFlowTotemBC totem = (RoundFlowTotemBC) slot.getPlayer().getOwnedBuildings().stream()
                             .filter(b -> b instanceof RoundFlowTotemBC)
                             .findFirst()
-                            .orElseThrow(); // Secure thanks to the previous filter
+                            .orElseThrow();
 
                     totem.applyEffect(slot.getPlayer(), this);
                 });
@@ -196,6 +207,9 @@ public class Match {
         selectedTile.removePlayer();
     }
 
+    /**
+     * Executes the RoundFlow extra draw from the top row using the given card IDs.
+     */
     public void roundFlowCardRequest(Player player, String cards) throws NoDrawableCardException, InvalidCardException {
         List<Integer> ids = new ArrayList<>(extractIntegers(cards));
         offerActionRegistry.getActionByEffect(OfferEffect.U).execute(this, player, ids);
@@ -206,15 +220,15 @@ public class Match {
 
         inputString = inputString.trim();
 
-        // Check if null string or empty string
+        // Check for empty input.
         if ( inputString.isEmpty() ) {
             return numbers;
         }
 
-        // split the string
+        // Split the string.
         String[] IDs = inputString.split(",");
 
-        // convert string into array of integers
+        // Convert to integers.
         for (String ID : IDs) {
             try {
                 numbers.add(Integer.parseInt(ID.trim()));
@@ -236,8 +250,11 @@ public class Match {
     }
 
 
+    /**
+     * Resolves end-game events, computes final points, and sets winners.
+     */
     public void endOfGame() {
-        // 1. Solve all the visible events (top and bottom row)
+        // 1. Resolve all visible events (top and bottom row).
         List<Sustenance> sustenanceCards = new ArrayList<>();
         for (Card card : board.getBottomRow()) {
             if (card.isEventCard() && !card.isSustenance()) {
@@ -260,15 +277,15 @@ public class Match {
         }
 
 
-        // 2. add up Prestige points gained during the game
+        // 2. Sum up Prestige points gained during the game.
         for (Player p : players) {
 
-            // add Builders points
+            // Add Builders points.
             for (Builder build : p.getBuilders()) {
                 p.addPoints(build.getEndPoints());
             }
 
-            // add Inventors points
+            // Add Inventors points.
             int numInventors = p.getInventors().size();
             int numInventions = (int) p.getInventors().stream()
                     .map(Inventor::getInvention)
@@ -276,15 +293,15 @@ public class Match {
                     .count();
             p.addPoints(numInventions * numInventors);
 
-            // add Artists points
+            // Add Artists points.
             int numArtistsPoints = (p.getArtists().size() / 2) * 10;
             p.addPoints( numArtistsPoints);
 
-            // add Building Cards points
+            // Add Building cards points and end-game effects.
             for ( BuildingCard building : p.getOwnedBuildings() ) {
                 p.addPoints( building.getEndPoints() );
 
-                // apply end game building events
+                // Apply end-game building effects.
                 if ( building.isEndGameBuilding() ) {
                     building.applyEffect(p, this);
                 }
@@ -292,7 +309,7 @@ public class Match {
 
         }
 
-        // 3. find the winner(s)
+        // 3. Find the winner(s).
         Comparator<Player> ranking = Comparator
                 .comparingInt(Player::getPoints)
                 .thenComparingInt(Player::getFood);
