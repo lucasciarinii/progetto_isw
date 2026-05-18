@@ -10,17 +10,32 @@ import org.example.server.model.match.Player;
 import java.util.Map;
 import java.util.function.Function;
 
-// Col1 Row2
+// Column 1, Row 2
+/**
+ * Building that grants a sustenance discount based on a character type.
+ */
 public class SustenanceDiscountBC extends BuildingCard {
 
-    // Maps each supported character type to the function that computes the corresponding sustenance discount for the player.
+    /** Maps supported character types to their sustenance discount logic. */
     private static final Map<CharacterType, Function<Player, Integer>> DISCOUNT_LOGIC = Map.of(
             CharacterType.INVENTOR, p -> p.getInventors().size(),
             CharacterType.GATHERER, p -> p.getGatherers().size(),
             CharacterType.ARTIST, p -> p.getArtists().size()
     );
+    /** Character type that determines the discount. */
     private final CharacterType characterEffect;
 
+    /**
+     * Creates the building card from JSON data.
+     *
+     * @param id card id
+     * @param era card era
+     * @param foodCost food cost
+     * @param endPoints end points
+     * @param buildingCardType building type
+     * @param characterEffect character type for the discount
+     * @param isEndGame true if it scores at end game
+     */
     public SustenanceDiscountBC(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,
@@ -39,8 +54,14 @@ public class SustenanceDiscountBC extends BuildingCard {
         return "%s\tEffect: during sustenance get a -1 food discount for each %s in your tribe\n".formatted(super.toString(), characterEffect);
     }
 
+    /**
+     * Adds the sustenance discount to the owner.
+     *
+     * @param owner building owner
+     * @param match current match
+     */
     public void applyEffect(Player owner, Match match) {
-        // goes in the DICTOUN_LOGIC map to get the appropriate discount based on the characterEffect, defaulting to 0 if the character type is not supported. in order to pass to the map the owner we do apply(owner)
+        // Lookup the discount by character type, defaulting to 0 if unsupported.
         int discount = DISCOUNT_LOGIC.getOrDefault(characterEffect, p -> 0).apply(owner);
         owner.addDiscountOnSustenance(discount);
     }

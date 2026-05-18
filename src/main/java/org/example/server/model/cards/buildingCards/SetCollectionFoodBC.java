@@ -6,18 +6,31 @@ import org.example.server.model.enums.Era;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
 
-// Col1 Row1
+// Column 1, Row 1
+/**
+ * Building that grants food when completing new character sets.
+ */
 public class SetCollectionFoodBC extends BuildingCard {
 
-    //Amount of food gained for each new complete set
+    /** Amount of food gained for each new complete set. */
     private static final int FOOD_PER_SET = 5;
 
-    //Number of complete sets already registered after obtaining this building
+    /** Number of complete sets already registered. */
     private int registeredSets;
 
-    //Used to understand if the building effect has already been initialized
+    /** True once the building has initialized its baseline state. */
     private boolean initialized;
 
+    /**
+     * Creates the building card from JSON data.
+     *
+     * @param id card id
+     * @param era card era
+     * @param foodCost food cost
+     * @param endPoints end points
+     * @param buildingCardType building type
+     * @param isEndGame true if it scores at end game
+     */
     public SetCollectionFoodBC(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,
@@ -37,6 +50,12 @@ public class SetCollectionFoodBC extends BuildingCard {
 
     }
 
+    /**
+     * Grants food for newly completed character sets.
+     *
+     * @param owner building owner
+     * @param match current match
+     */
     @Override
     public void applyEffect(Player owner, Match match) {
 
@@ -63,6 +82,12 @@ public class SetCollectionFoodBC extends BuildingCard {
         }
     }
 
+    /**
+     * Counts the number of complete character sets owned by the player.
+     *
+     * @param owner building owner
+     * @return number of complete sets
+     */
     private int countCompletedSets(Player owner) {
 
         //A complete set contains one character of each type,

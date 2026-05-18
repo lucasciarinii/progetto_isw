@@ -6,11 +6,25 @@ import org.example.server.model.enums.Era;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
 
-// Col1 Row4
+// Column 1, Row 4
+/**
+ * Building that grants food when returning to a bonus tile.
+ */
 public class RoundFlowTotemBC extends BuildingCard {
 
-    private final static int FOOD_BONUS = 1;
+    /** Food bonus when the effect triggers. */
+    private static final int FOOD_BONUS = 1;
 
+    /**
+     * Creates the building card from JSON data.
+     *
+     * @param id card id
+     * @param era card era
+     * @param foodCost food cost
+     * @param endPoints end points
+     * @param buildingCardType building type
+     * @param isEndGame true if it scores at end game
+     */
     public RoundFlowTotemBC(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,
@@ -28,6 +42,12 @@ public class RoundFlowTotemBC extends BuildingCard {
 
     }
 
+    /**
+     * Grants the bonus food to the owner.
+     *
+     * @param owner building owner
+     * @param match current match
+     */
     public void applyEffect(Player owner, Match match) {
         owner.addFood(FOOD_BONUS);
     }

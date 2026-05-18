@@ -10,6 +10,9 @@ import org.example.server.model.interfaces.Visitor;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
 
+/**
+ * Base class for building cards with persistent effects.
+ */
 // Indicates to Jackson to use the "class_type" field to decide the subclass
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -36,11 +39,25 @@ import org.example.server.model.match.Player;
 
 public abstract class BuildingCard extends Card implements Visitable {
 
+    /** Food cost to acquire the building. */
     private final int foodCost;
+    /** End-game points provided by the building. */
     private final int endPoints;
+    /** Building type identifier used in JSON. */
     private final BuildingCardType class_type;
+    /** Whether the effect is evaluated at end game. */
     private final boolean isEndGame;
 
+    /**
+     * Creates a building card with its properties.
+     *
+     * @param id card id
+     * @param era card era
+     * @param foodCost food cost
+     * @param endPoints end points
+     * @param class_type building type
+     * @param isEndGame true if it scores at end game
+     */
     public BuildingCard(int id, Era era, int foodCost, int endPoints, BuildingCardType class_type, boolean isEndGame) {
         super(id, era);
         this.foodCost = foodCost;
@@ -54,29 +71,55 @@ public abstract class BuildingCard extends Card implements Visitable {
         return "%s [id: %d] {ERA %s}\n\tfood cost: %d, end points: %d\n".formatted(class_type, getId(), getEra(), foodCost, endPoints);
     }
 
+    /**
+     * Accepts a visitor for double dispatch.
+     *
+     * @param visitor visitor instance
+     */
     @Override
     public void accept(Visitor visitor)  {
         visitor.visit(this);
     }
 
+    /**
+     * @return true because this is a building card
+     */
     @Override
     public boolean isBuilding() { return true; }
 
 
+    /**
+     * @return food cost to acquire the building
+     */
     public int getFoodCost() {
         return foodCost;
     }
 
+    /**
+     * @return end-game points of the building
+     */
     public int getEndPoints() {
         return endPoints;
     }
 
+    /**
+     * @return true if this building is scored at end game
+     */
     public boolean isEndGameBuilding() { return isEndGame; }
 
+    /**
+     * @return building type identifier
+     */
     public BuildingCardType getClassType() {
         return class_type;
     }
 
+    /**
+     * Applies the building effect to the owner in the given match.
+     *
+     * @param owner building owner
+     * @param match current match
+     */
     public abstract void applyEffect(Player owner, Match match);
 
 }

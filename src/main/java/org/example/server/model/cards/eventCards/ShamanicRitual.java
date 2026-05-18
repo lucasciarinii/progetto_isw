@@ -12,11 +12,26 @@ import org.example.server.model.match.Player;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Shamanic Ritual event that awards and penalizes points by star counts.
+ */
 public class ShamanicRitual extends EventCard {
 
+    /** Points awarded to the player with the most stars. */
     private final int bonusPoints;
+    /** Points applied to the player with the fewest stars. */
     private final int malusPoints;
 
+    /**
+     * Creates the event card from JSON data.
+     *
+     * @param id card id
+     * @param era card era
+     * @param isEraFinal true if it ends the era
+     * @param effect event effect type
+     * @param bonusPoints bonus points for top stars
+     * @param malusPoints malus points for lowest stars
+     */
     public ShamanicRitual(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,
@@ -35,6 +50,11 @@ public class ShamanicRitual extends EventCard {
         return "%s\tplayer with the most stars: %d points\n\tplayer with least stars: %d points%s\n".formatted(super.toString(), bonusPoints, malusPoints, ConsoleColors.RESET);
     }
 
+    /**
+     * Applies shamanic ritual scoring and related building effects.
+     *
+     * @param match current match
+     */
     @Override
     public void applyEvent(Match match) {
 
@@ -80,6 +100,10 @@ public class ShamanicRitual extends EventCard {
         }
     }
 
+    /**
+     * @param player player to check
+     * @return true if the player owns the double-points building
+     */
     private boolean hasShamanicDoublePointsBC(Player player) {
         for (BuildingCard building : player.getOwnedBuildings()) {
             if (building.getClassType() == BuildingCardType.ShamanicDoublePointsBC) {
@@ -90,6 +114,10 @@ public class ShamanicRitual extends EventCard {
         return false;
     }
 
+    /**
+     * @param player player to check
+     * @return true if the player owns the no-malus building
+     */
     private boolean hasShamanicNoMalusBC(Player player) {
         for (BuildingCard building : player.getOwnedBuildings()) {
             if (building.getClassType() == BuildingCardType.ShamanicNoMalusBC) {
@@ -100,7 +128,13 @@ public class ShamanicRitual extends EventCard {
         return false;
     }
 
-    //Check if the player is the only one with the maximum number of stars
+    /**
+     * Checks if the player is the only one with the maximum number of stars.
+     *
+     * @param owner player to verify
+     * @param players all players in the match
+     * @return true if the player is uniquely at the maximum
+     */
     private boolean isUnique(Player owner, List<Player> players) {
         for (Player player : players) {
             if (!player.equals(owner) && player.getShamanStars() == owner.getShamanStars()) {

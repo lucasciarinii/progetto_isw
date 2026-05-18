@@ -8,11 +8,25 @@ import org.example.server.model.interfaces.Visitor;
 
 import java.util.Objects;
 
+/**
+ * Builder character card.
+ */
 public class Builder extends Character {
 
+    /** Discount applied when buying buildings. */
     private final int discountBuilding;
+    /** End-game points associated with the card. */
     private final int endPoints;
 
+    /**
+     * Creates a builder character card.
+     *
+     * @param id card id
+     * @param era card era
+     * @param characterType character type from JSON
+     * @param discountBuilding building discount value
+     * @param endPoints end points
+     */
     public Builder(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("CharacterType") CharacterType characterType, @JsonProperty("discountBuilding") int discountBuilding, @JsonProperty("endPoints") int endPoints) {
         super(id, era, CharacterType.BUILDER);
         this.discountBuilding = discountBuilding;
@@ -20,7 +34,11 @@ public class Builder extends Character {
     }
 
 
-    // Double dispatch: delegates Character specific logic to the visitor.
+    /**
+     * Accepts a visitor for double dispatch.
+     *
+     * @param visitor visitor instance
+     */
     @Override
     public void accept(Visitor visitor) {
 
@@ -30,10 +48,16 @@ public class Builder extends Character {
     }
 
 
+    /**
+     * @return building discount value
+     */
     public int getDiscountBuilding() {
         return discountBuilding;
     }
 
+    /**
+     * @return end-game points from this card
+     */
     public int getEndPoints() {
         return endPoints;
     }

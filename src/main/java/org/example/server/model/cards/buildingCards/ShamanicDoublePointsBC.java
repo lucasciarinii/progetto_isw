@@ -6,9 +6,22 @@ import org.example.server.model.enums.Era;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
 
-// Col2 Row1
+// Column 2, Row 1
+/**
+ * Building that doubles shamanic ritual points for the top player.
+ */
 public class ShamanicDoublePointsBC extends BuildingCard {
 
+    /**
+     * Creates the building card from JSON data.
+     *
+     * @param id card id
+     * @param era card era
+     * @param foodCost food cost
+     * @param endPoints end points
+     * @param buildingCardType building type
+     * @param isEndGame true if it scores at end game
+     */
     public ShamanicDoublePointsBC(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,
@@ -25,6 +38,12 @@ public class ShamanicDoublePointsBC extends BuildingCard {
         return "%s\tEffect: during shamanic ritual if you have the most stars get X2 of indicated points\n".formatted(super.toString());
     }
 
+    /**
+     * Effect is applied directly during the shamanic ritual event.
+     *
+     * @param owner building owner
+     * @param match current match
+     */
     @Override
     public void applyEffect(Player owner, Match match) {
         //This building is checked directly during Shamanic Ritual event

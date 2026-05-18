@@ -10,19 +10,36 @@ import org.example.server.model.interfaces.Visitor;
 import java.util.Objects;
 
 
+/**
+ * Inventor character card.
+ */
 public class Inventor extends Character {
 
+    /** Invention associated with the inventor. */
     private final InventionType invention;
+    /** Whether the inventor was present in the previous turn. */
     private boolean wasPresentLastTurn = false;
 
 
+    /**
+     * Creates an inventor character card.
+     *
+     * @param id card id
+     * @param era card era
+     * @param characterType character type from JSON
+     * @param invention invention type
+     */
     public Inventor(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("CharacterType") CharacterType characterType, @JsonProperty("invention") InventionType invention) {
         super(id, era, CharacterType.INVENTOR);
         this.invention = invention;
     }
 
 
-    // Double dispatch: delegates Character specific logic to the visitor.
+    /**
+     * Accepts a visitor for double dispatch.
+     *
+     * @param visitor visitor instance
+     */
     @Override
     public void accept(Visitor visitor) {
 
@@ -32,15 +49,26 @@ public class Inventor extends Character {
     }
 
 
+    /**
+     * @return invention type
+     */
     public InventionType getInvention() {
         return invention;
     }
 
 
+    /**
+     * @return true if present in the previous turn
+     */
     public boolean isWasPresentLastTurn() {
         return wasPresentLastTurn;
     }
 
+    /**
+     * Sets whether the inventor was present in the previous turn.
+     *
+     * @param wasPresentLastTurn presence flag
+     */
     public void setWasPresentLastTurn(boolean wasPresentLastTurn) {
         this.wasPresentLastTurn = wasPresentLastTurn;
     }
