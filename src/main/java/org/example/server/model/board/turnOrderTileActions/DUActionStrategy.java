@@ -8,11 +8,23 @@ import org.example.server.model.match.Player;
 
 import java.util.List;
 
+/**
+ * Offer action that draws one card from bottom and one from top if available.
+ */
 public class DUActionStrategy implements OfferActionStrategy {
 
+    /** Picker for bottom-row cards. */
     private final DPick singleD = new DPick();
+    /** Picker for top-row cards. */
     private final UPick singleU = new UPick();
 
+    /**
+     * Executes the DU action.
+     *
+     * @param match current match
+     * @param player acting player
+     * @param ids selected card ids
+     */
     @Override
     public void execute(Match match, Player player, List ids) throws NoDrawableCardException, InvalidCardException {
         List bottomRow = match.getBoard().getBottomRow();

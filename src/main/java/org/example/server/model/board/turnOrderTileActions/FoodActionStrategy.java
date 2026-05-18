@@ -5,10 +5,21 @@ import org.example.server.model.match.Player;
 
 import java.util.List;
 
+/**
+ * Offer action that grants a flat food bonus.
+ */
 public class FoodActionStrategy implements OfferActionStrategy {
 
+    /** Food bonus granted by the tile. */
     private static final int FOOD_BONUS = 3;
 
+    /**
+     * Executes the FOOD action.
+     *
+     * @param match current match
+     * @param player acting player
+     * @param ids selected card ids (must be empty)
+     */
     // When the player chooses the tile with the food bonus, they receive the bonus.
     @Override
     public void execute(Match match, Player player, List<Integer> ids) {

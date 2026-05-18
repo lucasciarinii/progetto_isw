@@ -8,10 +8,21 @@ import org.example.server.model.match.Player;
 
 import java.util.List;
 
+/**
+ * Offer action that draws up to two cards from the top row.
+ */
 public class UUActionStrategy implements OfferActionStrategy {
 
+    /** Picker for top-row cards. */
     private final UPick singleU = new UPick();
 
+    /**
+     * Executes the UU action.
+     *
+     * @param match current match
+     * @param player acting player
+     * @param ids selected card ids
+     */
     @Override
     public void execute(Match match, Player player, List ids) throws NoDrawableCardException, InvalidCardException {
         // Count how many drawable cards are currently available in the top row.

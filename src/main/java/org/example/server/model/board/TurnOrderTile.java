@@ -4,9 +4,18 @@ import org.example.server.model.match.Player;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Turn order tile containing slots with their food/points effects.
+ */
 public class TurnOrderTile {
+    /** Ordered list of player slots. */
     private final List<PlayerSlot> slots;
 
+    /**
+     * Creates the turn order tile based on the number of players.
+     *
+     * @param players list of players in the match
+     */
     public TurnOrderTile(List<Player> players) {
         Objects.requireNonNull(players, "Players list cannot be null");
         // Random order is already set in Match.init() so we can use progressively the players in the list to assign them to the slots
@@ -21,5 +30,8 @@ public class TurnOrderTile {
         }
     }
 
+    /**
+     * @return the list of player slots
+     */
     public List<PlayerSlot> getSlots(){return slots;}
 }

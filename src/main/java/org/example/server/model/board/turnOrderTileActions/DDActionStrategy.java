@@ -8,10 +8,21 @@ import org.example.server.model.match.Player;
 
 import java.util.List;
 
+/**
+ * Offer action that draws up to two cards from the bottom row.
+ */
 public class DDActionStrategy implements OfferActionStrategy {
 
+    /** Picker for bottom-row cards. */
     private final DPick singleD = new DPick();
 
+    /**
+     * Executes the DD action.
+     *
+     * @param match current match
+     * @param player acting player
+     * @param ids selected card ids
+     */
     @Override
     public void execute(Match match, Player player, List ids) throws NoDrawableCardException, InvalidCardException {
         // Count how many drawable cards are currently available in the bottom row.

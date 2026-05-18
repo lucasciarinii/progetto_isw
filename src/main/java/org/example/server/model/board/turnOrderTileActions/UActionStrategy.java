@@ -8,10 +8,21 @@ import org.example.server.model.match.Player;
 
 import java.util.List;
 
+/**
+ * Offer action that draws one card from the top row.
+ */
 public class UActionStrategy implements OfferActionStrategy {
 
+    /** Picker for top-row cards. */
     private final UPick singleU = new UPick();
 
+    /**
+     * Executes the U action.
+     *
+     * @param match current match
+     * @param player acting player
+     * @param ids selected card ids
+     */
     @Override
     public void execute(Match match, Player player, List<Integer> ids) throws NoDrawableCardException, InvalidCardException {
         // 1) Check if row has drawable cards
