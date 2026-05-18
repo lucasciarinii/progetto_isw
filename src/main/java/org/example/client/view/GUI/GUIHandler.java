@@ -33,7 +33,6 @@ public class GUIHandler implements UIHandler {
 
     public void setController(ClientController controller) {
         this.controller = controller;
-        init();
     }
 
     public void setPrimaryStage(Stage primaryStage) {
@@ -46,9 +45,6 @@ public class GUIHandler implements UIHandler {
 
 
     // -----------------------------------------------------------------------------------------------------------------
-
-    private void init() {
-    }
 
     @Override
     public void onLobbyUpdate(LobbyUpdateMessage update) {
@@ -118,11 +114,7 @@ public class GUIHandler implements UIHandler {
 
     @Override
     public void onRoundFlowCardRequest() {
-//        Platform.runLater(() -> {
-//            if (GUIGameController != null) {
-//                GUIGameController.promptRoundFlowPick();
-//            }
-//        });
+        // This method is intentionally left empty, as the card picking logic is now handled in the GUIGameController when the GameStateUpdateMessage is received.
     }
 
     @Override

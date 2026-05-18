@@ -10,9 +10,9 @@ import org.example.network.CommunicationProtocol;
 
 public class GUIApp extends Application {
 
-    private static String host =  "localhost";
-    private static CommunicationProtocol protocol = CommunicationProtocol.RMI;
-    private static int port = 1099;
+    private static String host;
+    private static CommunicationProtocol protocol;
+    private static int port;
 
     public static void setHost(String host) {
         GUIApp.host = host;
@@ -25,7 +25,6 @@ public class GUIApp extends Application {
     public static void setPort(int port) {
         GUIApp.port = port;
     }
-
 
     @Override
     public void start(Stage stage) throws Exception {

@@ -32,7 +32,7 @@ public class PlayerColorRegistry {
     );
 
     // nickname → Color JavaFX
-    private final Map<String, Color>  colorMap    = new HashMap<>();
+    private final Map<String, Color> colorMap = new HashMap<>();
     // nickname → hex string CSS (per -fx-background-color ecc.)
     private final Map<String, String> colorHexMap = new HashMap<>();
 

@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class TUIHandler implements UIHandler {
     private ClientController controller;
     private final Scanner scanner = new Scanner(System.in);
-    private GameStateUpdateMessage lastUpdate;
+    private GameStateUpdateMessage lastGameUpdate;
 
     public void setController(ClientController controller) {
         this.controller = controller;
@@ -40,7 +40,7 @@ public class TUIHandler implements UIHandler {
 
     @Override
     public void onGameStateUpdate(GameStateUpdateMessage update) {
-        this.lastUpdate = update;
+        this.lastGameUpdate = update;
         display(update);
     }
 
@@ -97,10 +97,10 @@ public class TUIHandler implements UIHandler {
 
     private void handlePlaceTotem() {
         while (true) {
-            System.out.print(">>> Choose offer tile (1-" + lastUpdate.getOfferTrack().size() + "): ");
+            System.out.print(">>> Choose offer tile (1-" + lastGameUpdate.getOfferTrack().size() + "): ");
             try {
                 int pos = Integer.parseInt(scanner.nextLine().trim());
-                if (pos < 1 || pos > lastUpdate.getOfferTrack().size()) {
+                if (pos < 1 || pos > lastGameUpdate.getOfferTrack().size()) {
                     System.out.println("[!] Invalid position.");
                     continue;
                 }
@@ -116,13 +116,13 @@ public class TUIHandler implements UIHandler {
     }
 
     private void handleOfferTileAction() {
-        OfferEffect effect = lastUpdate.getOfferTrack().stream()
+        OfferEffect effect = lastGameUpdate.getOfferTrack().stream()
                 .filter(tile -> controller.getNickname().equals(tile.getOccupantNickname()))
                 .map(OfferTileSnapshot::getOfferEffect)
                 .findFirst()
                 .orElse(null);
 
-        PlayerSnapshot player = lastUpdate.getPlayers().stream()
+        PlayerSnapshot player = lastGameUpdate.getPlayers().stream()
                 .filter(p -> p.getNickname().equals(controller.getNickname()))
                 .findFirst()
                 .orElseThrow();
@@ -131,17 +131,17 @@ public class TUIHandler implements UIHandler {
         int fromTop    = 0;
 
         switch (effect) {
-            case D   -> fromBottom = (int) Math.min(1, countPickable(lastUpdate.getBottomRow(), player));
-            case DD  -> fromBottom = (int) Math.min(2, countPickable(lastUpdate.getBottomRow(), player));
-            case U   -> fromTop    = (int) Math.min(1, countPickable(lastUpdate.getTopRow(), player));
-            case UU  -> fromTop    = (int) Math.min(2, countPickable(lastUpdate.getTopRow(), player));
+            case D   -> fromBottom = (int) Math.min(1, countPickable(lastGameUpdate.getBottomRow(), player));
+            case DD  -> fromBottom = (int) Math.min(2, countPickable(lastGameUpdate.getBottomRow(), player));
+            case U   -> fromTop    = (int) Math.min(1, countPickable(lastGameUpdate.getTopRow(), player));
+            case UU  -> fromTop    = (int) Math.min(2, countPickable(lastGameUpdate.getTopRow(), player));
             case DU  -> {
-                fromBottom = (int) Math.min(1, countPickable(lastUpdate.getBottomRow(), player));
-                fromTop    = (int) Math.min(1, countPickable(lastUpdate.getTopRow(), player));
+                fromBottom = (int) Math.min(1, countPickable(lastGameUpdate.getBottomRow(), player));
+                fromTop    = (int) Math.min(1, countPickable(lastGameUpdate.getTopRow(), player));
             }
             case DUU -> {
-                fromBottom = (int) Math.min(1, countPickable(lastUpdate.getBottomRow(), player));
-                fromTop    = (int) Math.min(2, countPickable(lastUpdate.getTopRow(), player));
+                fromBottom = (int) Math.min(1, countPickable(lastGameUpdate.getBottomRow(), player));
+                fromTop    = (int) Math.min(2, countPickable(lastGameUpdate.getTopRow(), player));
             }
             case FOOD -> {
                 try { controller.offerTileAction(""); } catch (Exception e) { System.out.println("[ERROR] " + e.getMessage()); }
@@ -165,13 +165,13 @@ public class TUIHandler implements UIHandler {
 
     private void handleRoundFlowCardRequest() {
         System.out.println("[INFO] RoundFlow active: pick an extra card from the top row.");
-        PlayerSnapshot player = lastUpdate.getPlayers().stream()
+        PlayerSnapshot player = lastGameUpdate.getPlayers().stream()
                 .filter(p -> p.getNickname().equals(controller.getNickname()))
                 .findFirst()
                 .orElseThrow();
 
 
-        int fromTop = (int) Math.min(1, countPickable(lastUpdate.getTopRow(), player));
+        int fromTop = (int) Math.min(1, countPickable(lastGameUpdate.getTopRow(), player));
 
         List<Integer> ids = new ArrayList<>();
 
