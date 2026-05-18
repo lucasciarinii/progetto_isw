@@ -12,13 +12,27 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * Deck containing character and event cards grouped by era.
+ */
 public class MainDeck extends Deck<Card> {
 
+    /**
+     * Builds and initializes the main deck based on player count.
+     *
+     * @param numPlayers number of players (2-5)
+     */
     public MainDeck(int numPlayers) {
         super();
         initializeDeck(numPlayers);
     }
 
+    /**
+     * Draws the next available card, ordered by eras.
+     *
+     * @return the next card in order of eras
+     * @throws NoSuchElementException when all eras are empty
+     */
     public Card draw() {
         if (!era_I_cards.isEmpty()) {
             return era_I_cards.removeFirst();
@@ -33,6 +47,11 @@ public class MainDeck extends Deck<Card> {
         throw new NoSuchElementException("No cards left in deck");
     }
 
+    /**
+     * Initializes the deck by loading cards from JSON and shuffling them.
+     *
+     * @param numPlayers number of players (2-5)
+     */
     private void initializeDeck(int numPlayers) {
         if (numPlayers < 2 || numPlayers > 5) {
             throw new IllegalArgumentException("Number of players must be between 2 and 5");
@@ -43,6 +62,12 @@ public class MainDeck extends Deck<Card> {
     }
 
 
+    /**
+     * Loads character and event cards from JSON resources and splits them by era.
+     *
+     * @param mapper object mapper used to parse JSON
+     * @param numPlayers number of players (2-5)
+     */
     private void loadCardsFromJson(ObjectMapper mapper, int numPlayers) {
         // Let's decide the json file beforehand
         Path p;
