@@ -20,7 +20,11 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements ServerNetworkAdapter, RMIGameServer, LobbyReadyListener {
+/**
+ * RMI-based server adapter that exposes RMIGameServer and dispatches actions
+ * to the ServerController while using callbacks to notify clients.
+ */
+public class RMIServerNetworkAdapter extends UnicastRemoteObject implements ServerNetworkAdapter, RMIGameServer, LobbyReadyListener {
 
     public static final int DEFAULT_PORT = 1099;
     private final LobbyController lobby;
@@ -29,17 +33,30 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
     private HybridServerNetworkAdapter hybrid = null;
 
 
-    // Hybrid constructor (RMI + Socket)
+    /**
+     * Creates an RMI adapter with a shared lobby.
+     *
+     * @param sharedLobby the shared lobby controller
+     * @throws RemoteException if the remote object cannot be exported
+     */
     public RMIServerNetworkAdapter(LobbyController sharedLobby) throws RemoteException {
         super();
         this.lobby = sharedLobby;
     }
 
+    /**
+     * Registers the hybrid adapter used for routing notifications.
+     *
+     * @param hybrid the hybrid adapter
+     */
     public void setHybrid(HybridServerNetworkAdapter hybrid) {
         this.hybrid = hybrid;
     }
 
 
+    /**
+     * Starts the RMI registry and binds the RMIGameServer stub.
+     */
     @Override
     public void start() throws Exception {
 
@@ -53,11 +70,17 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
         ServerLogger.server("RMI ready on port " + DEFAULT_PORT + ". Waiting for players...");
     }
 
+    /**
+     * RMI does not require an explicit stop in this implementation.
+     */
     @Override
     public void stop() throws Exception {
         // RMI doesn't explicitly require a stop
     }
 
+    /**
+     * Sends a lobby update through the client callback.
+     */
     @Override
     public void sendLobbyUpdate(String nickname, LobbyUpdateMessage update) throws Exception {
         ServerNotifier connection = connections.get(nickname);
@@ -67,6 +90,9 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
         connection.sendLobbyUpdate(nickname, update);
     }
 
+    /**
+     * Sends a game state update through the client callback.
+     */
     @Override
     public void sendGameStateUpdate(String nickname, GameStateUpdateMessage update) throws Exception {
         ServerNotifier connection = connections.get(nickname);
@@ -76,6 +102,9 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
         connection.sendGameStateUpdate(nickname, update);
     }
 
+    /**
+     * Sends an error through the client callback.
+     */
     @Override
     public void sendError(String nickname, String errorMessage, GamePhase phase) throws Exception {
         ServerNotifier connection = connections.get(nickname);
@@ -85,6 +114,9 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
         connection.sendError(nickname, errorMessage, phase);
     }
 
+    /**
+     * Sends a ranking update through the client callback.
+     */
     @Override
     public void sendRankingUpdate(String nickname, RankingUpdateMessage update) throws Exception {
         ServerNotifier connection = connections.get(nickname);
@@ -94,6 +126,9 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
         connection.sendRankingUpdate(nickname, update);
     }
 
+    /**
+     * Sends a RoundFlow request through the client callback.
+     */
     @Override
     public void sendRoundFlowCardRequest(String nickname) throws Exception {
         ServerNotifier connection = connections.get(nickname);
@@ -102,6 +137,9 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
         }
     }
 
+    /**
+     * Sends a shutdown signal through the client callback.
+     */
     @Override
     public void sendShutdown(String nickname) throws Exception {
         ServerNotifier connection = connections.get(nickname);
@@ -115,6 +153,9 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
     // RMIGameServer methods
 
 
+    /**
+     * Registers a client callback and forwards the player to the lobby.
+     */
     @Override
     public void register(String nickname, int numPlayers, RMIClientCallback callback) throws Exception {
         RMIClientConnection connection = new RMIClientConnection(callback);
@@ -134,12 +175,18 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
         }
     }
 
+    /**
+     * Forwards a totem placement to the server controller.
+     */
     @Override
     public void placeTotemOnOfferTile(String nickname, int tilePosition) throws RemoteException {
         checkGameStarted();
         serverController.placeTotemOnOfferTile(nickname, tilePosition);
     }
 
+    /**
+     * Forwards an offer tile action to the server controller.
+     */
     @Override
     public void offerTileAction(String nickname, String cards) throws RemoteException {
         checkGameStarted();
@@ -147,12 +194,18 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
     }
 
 
+    /**
+     * Forwards a RoundFlow request to the server controller.
+     */
     @Override
     public void roundFlowCardRequest(String nickname, String cards) throws RemoteException {
         checkGameStarted();
         serverController.roundFlowCardRequest(nickname, cards);
     }
 
+    /**
+     * Forwards a skip turn request to the server controller.
+     */
     @Override
     public void skipTurn(String nickname) throws RemoteException {
         checkGameStarted();
@@ -160,6 +213,9 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
     }
 
     // LOBBY methods
+    /**
+     * Receives the controller instance when the lobby is full.
+     */
     @Override
     public void onLobbyReady(ServerController serverController) {
         this.serverController = serverController;
@@ -167,7 +223,7 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
     }
 
 
-    //UTILITY METHODS
+    // Utility methods
     private void checkGameStarted() throws RemoteException {
         if (serverController == null) {
             throw new RemoteException("Match is not started yet.");

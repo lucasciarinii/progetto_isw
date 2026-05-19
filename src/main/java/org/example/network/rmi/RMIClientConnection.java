@@ -7,40 +7,65 @@ import org.example.network.messages.LobbyUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
 import org.example.server.model.enums.GamePhase;
 
-//? The "adapter": it let RMI talk with ServerController
-//? RMI Implementation of ClientConnection interface. This is the object that the server will use to send updates and errors to the client, by calling the methods of the ClientCallback interface implemented by the client.
+/**
+ * Adapter that bridges ServerNotifier calls to the client's RMI callback.
+ * The server uses this connection to send updates and errors to the client.
+ */
 public class RMIClientConnection implements ServerNotifier {
     private final RMIClientCallback callback;
 
+    /**
+     * Creates a connection bound to the client callback stub.
+     *
+     * @param callback the remote callback implemented by the client
+     */
     public RMIClientConnection(RMIClientCallback callback) {
         this.callback = callback;
     }
 
+    /**
+     * Forwards a game state update to the client callback.
+     */
     @Override
     public void sendGameStateUpdate(String nickname, GameStateUpdateMessage update) throws Exception {
         callback.receiveUpdate(update);
     }
 
+    /**
+     * Forwards an error to the client callback.
+     */
     @Override
     public void sendError(String nickname, String errorMessage, GamePhase phase) throws Exception {
         callback.receiveError(errorMessage, phase);
     }
 
+    /**
+     * Forwards a ranking update to the client callback.
+     */
     @Override
     public void sendRankingUpdate(String nickname, RankingUpdateMessage rankingUpdate) throws Exception {
         callback.receiveRankingUpdate(rankingUpdate);
     }
 
+    /**
+     * Forwards a RoundFlow request to the client callback.
+     */
     @Override
     public void sendRoundFlowCardRequest(String nickname) throws Exception {
         callback.receiveRoundFlowCardRequest();
     }
 
+    /**
+     * Forwards a shutdown notification to the client callback.
+     */
     @Override
     public void sendShutdown(String nickname) throws Exception {
         callback.receiveShutdown();
     }
 
+    /**
+     * Forwards a lobby update to the client callback.
+     */
     @Override
     public void sendLobbyUpdate(String nickname, LobbyUpdateMessage update) throws Exception {
         callback.receiveLobbyUpdate(update);

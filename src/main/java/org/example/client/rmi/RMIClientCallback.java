@@ -8,25 +8,57 @@ import org.example.server.model.enums.GamePhase;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-//? Remote interface CLIENT-side -> The "contract" of what the client must implement for the server to be able to send updates and errors.
-//? Client implements this interface and exposes a remote object to the server, so that the server can use to send updated or errors
+/**
+ * Remote client-side interface exposed to the server for callbacks.
+ * The server invokes these methods to push updates and errors to the client.
+ */
 public interface RMIClientCallback extends Remote {
 
-    // Server sends snapshot updated of the game state. The client will receive it and use this to update its view.
+    /**
+     * Receives a game state snapshot update.
+     *
+     * @param update the game state update
+     * @throws RemoteException if the callback fails
+     */
     void receiveUpdate(GameStateUpdateMessage update) throws RemoteException;
 
-    // Server sends an error message to the client, for example if the client made an invalid move. The client will receive it and use this.
+    /**
+     * Receives an error message from the server.
+     *
+     * @param errorMessage the error description
+     * @param phase        the related game phase
+     * @throws RemoteException if the callback fails
+     */
     void receiveError(String errorMessage, GamePhase phase) throws RemoteException;
 
-    // Server sends snapshot updated of the lobby state. The client will receive it.
+    /**
+     * Receives an updated lobby snapshot.
+     *
+     * @param update the lobby update
+     * @throws RemoteException if the callback fails
+     */
     void receiveLobbyUpdate(LobbyUpdateMessage update) throws RemoteException;
 
-    // Server sends results of queries to the client.
+    /**
+     * Receives a ranking update.
+     *
+     * @param rankingUpdate the ranking update
+     * @throws RemoteException if the callback fails
+     */
     void receiveRankingUpdate(RankingUpdateMessage rankingUpdate) throws RemoteException;
 
+    /**
+     * Receives a RoundFlow card request.
+     *
+     * @throws RemoteException if the callback fails
+     */
     void receiveRoundFlowCardRequest() throws RemoteException;
 
-    // Server sends a shutdown message to the clients in order to handle first sending ranking update
+    /**
+     * Receives a shutdown notification from the server.
+     *
+     * @throws RemoteException if the callback fails
+     */
     void receiveShutdown() throws RemoteException;
 
 }
