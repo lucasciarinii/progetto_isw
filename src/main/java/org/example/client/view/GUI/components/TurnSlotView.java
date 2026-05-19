@@ -37,8 +37,8 @@ public class TurnSlotView extends StackPane {
     private static final double TOTEM_X = 38;
 
     // Dimensions of the totem box — adapted to the rectangles in the image
-    private static final double TOTEM_W = 60;
-    private static final double TOTEM_H = 38;
+    private static final double TOTEM_W = 45;
+    private static final double TOTEM_H = 26;
 
     private final List<TurnSlotSnapshot> slots;
 
@@ -54,14 +54,15 @@ public class TurnSlotView extends StackPane {
         int numPlayers = slots.size();
 
         this.FIRST_SLOT_Y = switch (numPlayers) {
-            case 2 -> 50;
+            case 2 -> 40;
             case 3 -> 40;
             case 4 -> 27;
             case 5 -> 11;
             default -> 22;
         };
         this.SLOT_SPACING = switch (numPlayers) {
-            case 2, 3 -> 40;
+            case 2 -> 33;
+            case 3 -> 56;
             case 4, 5 -> 41;
             default -> 40;
         };
