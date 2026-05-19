@@ -46,8 +46,11 @@ public class CardView extends StackPane {
     // Border colors per state
     private static final String BORDER_NORMAL = "-fx-border-color: #555544; -fx-border-width: 1.5;";
     private static final String BORDER_SELECTABLE = "-fx-border-color: #ffcc00; -fx-border-width: 2.5;";
-    private static final String BORDER_SELECTED = "-fx-border-color: #00cc66; -fx-border-width: 3;";
+    private static final String BORDER_SELECTED = "-fx-border-color: #00cc66; -fx-border-width: 3.5; -fx-border-style: solid; -fx-border-insets: -0.5;";
     private static final String BORDER_DISABLED = "-fx-border-color: #333322; -fx-border-width: 1;";
+
+    private static final double HOVER_OVERLAY_OPACITY = 0.28;
+    private static final double SELECTED_OVERLAY_OPACITY = 0.38;
 
     public CardView(Card card, double width, double height) {
         this.card = card;
@@ -98,6 +101,8 @@ public class CardView extends StackPane {
         // Gray overlay (DISABLED)
         disabledOverlay = new VBox();
         disabledOverlay.setPrefSize(width, height);
+        disabledOverlay.setMinSize(width, height);
+        disabledOverlay.setMaxSize(width, height);
         disabledOverlay.setStyle("-fx-background-color: rgba(0,0,0,0.52); -fx-background-radius: 6;");
         disabledOverlay.setVisible(false);
         disabledOverlay.setMouseTransparent(true); // does not block clicks (they are blocked by state)
@@ -105,7 +110,10 @@ public class CardView extends StackPane {
         // Green overlay (SELECTABLE hover)
         hoverOverlay = new VBox();
         hoverOverlay.setPrefSize(width, height);
-        hoverOverlay.setStyle("-fx-background-color: rgba(0, 204, 102, 0.28); -fx-background-radius: 6;");
+        hoverOverlay.setMinSize(width, height);
+        hoverOverlay.setMaxSize(width, height);
+        hoverOverlay.setStyle("-fx-background-color: rgba(0, 204, 102, 1); -fx-background-radius: 6;");
+        hoverOverlay.setOpacity(HOVER_OVERLAY_OPACITY);
         hoverOverlay.setVisible(false);
         hoverOverlay.setMouseTransparent(true);
 
@@ -139,6 +147,7 @@ public class CardView extends StackPane {
                 setStyle(getBaseStyle() + BORDER_SELECTABLE);
                 setCursor(javafx.scene.Cursor.HAND);
                 setOnMouseEntered(e -> {
+                    hoverOverlay.setOpacity(HOVER_OVERLAY_OPACITY);
                     hoverOverlay.setVisible(true);
                     imageView.setEffect(brighten(0.15));
                     playHoverAnimation(1.04);
@@ -152,7 +161,9 @@ public class CardView extends StackPane {
             case SELECTED -> {
                 setStyle(getBaseStyle() + BORDER_SELECTED);
                 setCursor(javafx.scene.Cursor.HAND);
-                imageView.setEffect(brighten(0.08));
+                hoverOverlay.setOpacity(SELECTED_OVERLAY_OPACITY);
+                hoverOverlay.setVisible(true);
+                imageView.setEffect(brighten(0.15));
             }
             case DISABLED -> {
                 setStyle(getBaseStyle() + BORDER_DISABLED);
