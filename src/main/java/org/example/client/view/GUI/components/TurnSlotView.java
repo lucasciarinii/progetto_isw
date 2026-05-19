@@ -60,13 +60,7 @@ public class TurnSlotView extends StackPane {
             case 5 -> 11;
             default -> 22;
         };
-        this.SLOT_SPACING = switch (numPlayers) {
-            case 2 -> 33;
-            case 3 -> 33;
-            case 4 -> 33;
-            case 5 -> 33;
-            default -> 40;
-        };
+        this.SLOT_SPACING = 33;
 
         setPrefSize(TILE_WIDTH, TILE_HEIGHT);
         setMaxSize(TILE_WIDTH, TILE_HEIGHT);
