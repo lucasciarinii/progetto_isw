@@ -4,6 +4,7 @@ import org.example.client.view.GUI.GUILauncher;
 import org.example.client.view.TUI.TUILauncher;
 import org.example.network.CommunicationProtocol;
 import org.example.network.HybridServerNetworkAdapter;
+import org.example.server.database.DatabaseInitializer;
 
 import java.util.Scanner;
 
@@ -40,6 +41,7 @@ public class App {
     // =========================================================================
 
     private static void startServer() throws Exception {
+        DatabaseInitializer.ensureDatabase();
         HybridServerNetworkAdapter adapter = new HybridServerNetworkAdapter();
         adapter.start();
         System.out.println("Server started. Press ENTER to shut down.");
