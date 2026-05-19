@@ -5,10 +5,20 @@ import org.example.network.CommunicationProtocol;
 
 import java.util.Scanner;
 
+/**
+ * Entry point helper for starting the TUI client.
+ */
 public final class TUILauncher {
 
     private TUILauncher() {}
 
+    /**
+     * Prompts for connection info and starts a TUI client session.
+     *
+     * @param host     the server host
+     * @param protocol the communication protocol
+     * @param port     the server port
+     */
     public static void launchTuiClient(String host, CommunicationProtocol protocol, int port) {
         Scanner scanner = new Scanner(System.in);
 

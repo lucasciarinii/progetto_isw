@@ -5,7 +5,10 @@ import org.example.network.messages.LobbyUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
 import org.example.server.model.enums.GamePhase;
 
-//? This interfaces decouples the ClientCallbackImpl from the ClientController. Whoever wants to receive updates or errors from server implements this interface.
+/**
+ * Listener for server-driven events, used to handle network callbacks
+ * from the client controller.
+ */
 public interface GameEventListener {
 
     void onUpdate(GameStateUpdateMessage update);

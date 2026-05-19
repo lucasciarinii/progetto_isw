@@ -17,10 +17,9 @@ import org.example.server.model.enums.OfferEffect;
 
 import java.util.List;
 
-/*? Client-Side Controller:
-    - It connects to the RMI server
-    - Send commands to the server (placeTotem, offerTileAction)
-    - Receive updates/errors through ClientCallbackImpl and updates the view
+/**
+ * Client-side controller that connects to the server, sends player actions,
+ * and forwards server updates to the UI handler.
  */
 public class ClientController implements GameEventListener {
     private final String nickname;
@@ -28,39 +27,70 @@ public class ClientController implements GameEventListener {
     private final UIHandler ui;
     GameStateUpdateMessage lastGameStateUpdate;
 
+    /**
+     * Creates a client controller for a specific player.
+     *
+     * @param nickname the player's nickname
+     * @param ui       the UI handler for rendering updates
+     */
     public ClientController(String nickname, UIHandler ui) {
         this.nickname = nickname;
         this.ui = ui;
     }
 
+    /**
+     * Returns the player's nickname.
+     *
+     * @return the nickname
+     */
     public String getNickname() { return nickname; }
 
-
-    //! CONNECTION TO SERVER -----------------------------------------------
+    /**
+     * Connects to the server using the selected protocol.
+     *
+     * @param host       the server host
+     * @param port       the server port
+     * @param numPlayers desired total number of players
+     * @param protocol   the communication protocol
+     * @throws Exception if the connection fails
+     */
     public void connect(String host, int port, int numPlayers, CommunicationProtocol protocol) throws Exception {
         networkAdapter = NetworkAdapterFactory.createClientAdapter(protocol, this);
         networkAdapter.connect(host, port, nickname, numPlayers);
     }
 
+    /**
+     * Sends a totem placement request to the server.
+     */
+    public void placeTotemOnOfferTile(int tilePosition) throws Exception {
+        networkAdapter.placeTotemOnOfferTile(tilePosition);
+    }
+
+    /**
+     * Sends the selected cards for the offer tile action.
+     */
+    public void offerTileAction(String cards) throws Exception {
+        networkAdapter.offerTileAction(cards);
+    }
+
+    /**
+     * Sends the selected cards for the RoundFlow request.
+     */
+    public void roundFlowCardRequest(String cards) throws Exception {
+        networkAdapter.roundFlowCardRequest(cards);
+    }
+
+    /**
+     * Receives a lobby update update from the server and drives the UI flow.
+     */
     @Override
     public void onLobbyUpdate(LobbyUpdateMessage update) {
         ui.onLobbyUpdate(update);
     }
 
-    //! COMMANDS TO SERVER -----------------------------------------------
-    public void placeTotemOnOfferTile(int tilePosition) throws Exception {
-        networkAdapter.placeTotemOnOfferTile(tilePosition);
-    }
-
-    public void offerTileAction(String cards) throws Exception {
-        networkAdapter.offerTileAction(cards);
-    }
-
-    public void roundFlowCardRequest(String cards) throws Exception {
-        networkAdapter.roundFlowCardRequest(cards);
-    }
-
-    //! RECEIVING UPDATES FROM SERVER (called by ClientCallbackImpl) -----------------------------------------------
+    /**
+     * Receives a game state update from the server and drives the UI flow.
+     */
     @Override
     public void onUpdate(GameStateUpdateMessage update) {
         if (isMyTurn(update)) {
@@ -121,10 +151,11 @@ public class ClientController implements GameEventListener {
 
         if (!hasPickableCards(OfferEffect.U, lastGameStateUpdate)) {
             ui.displayNoCardsPickable();
-            // skipTurn() must be called on a separate thread to avoid a deadlock:
-            // onUpdate() runs on the RMI callback thread, and calling server.skipTurn()
-            // synchronously from it would block that thread while waiting for the server
-            // to respond — which it cannot, since the callback thread is still occupied.
+            /*
+             skipTurn() must be called on a separate thread to avoid a deadlock:
+             onUpdate() runs on the RMI callback thread, and calling server.skipTurn()
+             synchronously from it would block that thread while waiting for the server
+             to respond — which it cannot, since the callback thread is still occupied. */
             new Thread(() -> {
                 try {
                     networkAdapter.skipTurn();
@@ -144,7 +175,7 @@ public class ClientController implements GameEventListener {
         ui.onShutdown();
     }
 
-    //! UTILITY METHODS -----------------------------------------------
+    // Utility methods
     private boolean isMyTurn(GameStateUpdateMessage update) {
         return update.getCurrentPlayerNickname().equals(nickname) && isInteractivePhase(update.getCurrentPhase());
     }

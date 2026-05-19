@@ -18,16 +18,27 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
+/**
+ * Text-based UI handler for TUI VIEW that renders updates and collects player input.
+ * It forwards player choices to ClientController actions.
+ */
 public class TUIHandler implements UIHandler {
     private ClientController controller;
     private final Scanner scanner = new Scanner(System.in);
     private GameStateUpdateMessage lastGameUpdate;
 
+    /**
+     * Binds the client controller used to send player actions.
+     *
+     * @param controller the client controller
+     */
     public void setController(ClientController controller) {
         this.controller = controller;
     }
 
-    //! TUI EVENTS -----------------------------------------------
+    /**
+     * Renders lobby updates.
+     */
     @Override
     public void onLobbyUpdate(LobbyUpdateMessage update) {
         if (update.isGameStarting()) {
@@ -38,34 +49,52 @@ public class TUIHandler implements UIHandler {
         }
     }
 
+    /**
+     * Renders the game state and caches the latest update.
+     */
     @Override
     public void onGameStateUpdate(GameStateUpdateMessage update) {
         this.lastGameUpdate = update;
         display(update);
     }
 
+    /**
+     * Displays an error and re-prompts if needed.
+     */
     @Override
     public void onError(String errorMessage, GamePhase currentPhase) {
         System.out.println("\n[ERROR] " + errorMessage + "\n");
         promptForAction(currentPhase);
     }
 
+    /**
+     * Displays the ranking results.
+     */
     @Override
     public void onRankingUpdate(RankingUpdateMessage rankingUpdate) {
         displayRanking(rankingUpdate.getRanking(), rankingUpdate.getPlayerRankPosition());
     }
 
+    /**
+     * Asks the user to resolve the RoundFlow card request.
+     */
     @Override
     public void onRoundFlowCardRequest() {
         new Thread (this::handleRoundFlowCardRequest).start();
     }
 
+    /**
+     * Displays the shutdown notice.
+     */
     @Override
     public void onShutdown() {
         System.out.println("GAME ENDED, THANKS FOR PLAYING...");
         System.exit(0);
     }
 
+    /**
+     * Prompts the user for an action based on the current phase.
+     */
     @Override
     public void promptForAction(GamePhase phase) {
         new Thread(() -> {
@@ -79,22 +108,34 @@ public class TUIHandler implements UIHandler {
 
 
 
+    /**
+     * Informs the user that no cards are pickable and the turn was skipped.
+     */
     @Override
     public void displayNoCardsPickable() {
         System.out.println("\n[INFO] No cards pickable, turn skipped. Press ENTER to continue...\n");
         scanner.nextLine();
     }
 
+    /**
+     * Displays that the client is waiting for the current player.
+     */
     @Override
     public void displayWaiting(String currentPlayerNickname) {
         System.out.println("[WAIT] " + currentPlayerNickname + "'s turn...");
     }
 
+    /**
+     * Displays that another player is resolving RoundFlow.
+     */
     @Override
     public void displayRoundFlowWaiting(String currentPlayerNickname) {
         System.out.println("[WAIT] " + currentPlayerNickname + " is picking an extra card (RoundFlow building)...");
     }
 
+    /**
+     * Reads the target offer tile and calls ClientController.placeTotemOnOfferTile.
+     */
     private void handlePlaceTotem() {
         while (true) {
             System.out.print(">>> Choose offer tile (1-" + lastGameUpdate.getOfferTrack().size() + "): ");
@@ -115,6 +156,9 @@ public class TUIHandler implements UIHandler {
         }
     }
 
+    /**
+     * Builds the card selection payload and calls ClientController.offerTileAction.
+     */
     private void handleOfferTileAction() {
         OfferEffect effect = lastGameUpdate.getOfferTrack().stream()
                 .filter(tile -> controller.getNickname().equals(tile.getOccupantNickname()))
@@ -163,6 +207,9 @@ public class TUIHandler implements UIHandler {
     }
 
 
+    /**
+     * Builds the RoundFlow payload and calls ClientController.roundFlowCardRequest.
+     */
     private void handleRoundFlowCardRequest() {
         System.out.println("[INFO] RoundFlow active: pick an extra card from the top row.");
         PlayerSnapshot player = lastGameUpdate.getPlayers().stream()
@@ -185,6 +232,9 @@ public class TUIHandler implements UIHandler {
         }
     }
 
+    /**
+     * Prompts for card IDs from a specific row.
+     */
     private List<Integer> askIds(String rowName, int count) {
         List<Integer> ids = new ArrayList<>();
         for (int i = 0; i < count; i++) {
@@ -201,6 +251,9 @@ public class TUIHandler implements UIHandler {
         return ids;
     }
 
+    /**
+     * Counts the cards a player can pick from a row.
+     */
     private long countPickable(List<Card> row, PlayerSnapshot player) {
         return row.stream()
                 .filter(c -> c.isCharacter() ||
@@ -210,6 +263,9 @@ public class TUIHandler implements UIHandler {
                 .count();
     }
 
+    /**
+     * Prints the full game state to the console.
+     */
     private void display(GameStateUpdateMessage update) {
         clearScreen();
         String logo = """
@@ -250,6 +306,9 @@ public class TUIHandler implements UIHandler {
         System.out.println("========================================\n");
     }
 
+    /**
+     * Prints the ranking table to the console.
+     */
     private void displayRanking(List<RankingEntry> ranking, int playerRankPosition) {
         System.out.println("\n========================================");
         System.out.println("         GLOBAL RANKING");
@@ -273,6 +332,9 @@ public class TUIHandler implements UIHandler {
         }
         System.out.println("========================================\n");    }
 
+    /**
+     * Clears the console output
+     */
     public static void clearScreen() {
         System.out.println("\n".repeat(50));
     }
