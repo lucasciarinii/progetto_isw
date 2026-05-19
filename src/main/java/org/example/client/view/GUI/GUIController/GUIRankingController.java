@@ -12,6 +12,9 @@ import org.example.server.database.RankingEntry;
 
 import java.util.List;
 
+/**
+ * Controller for the ranking/results screen.
+ */
 public class GUIRankingController {
 
     @FXML private HBox matchResultsBox;
@@ -20,7 +23,7 @@ public class GUIRankingController {
     @FXML private Label closingLabel;
 
 
-    // ── Public methods
+    // Public methods
 
     /**
      * Called by GUIHandler.onRankingUpdate().
@@ -39,7 +42,7 @@ public class GUIRankingController {
         closingLabel.setManaged(true);
     }
 
-    // ── Private methods
+    // Private methods
 
     /**
      * Build cards with the results of the just finished match, ordered by points descending.

@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Singleton registry: assign a JavaFX color to each player
+ * Singleton registry that assigns a JavaFX color to each player.
  */
 public class PlayerColorRegistry {
 
     private static final PlayerColorRegistry INSTANCE = new PlayerColorRegistry();
 
-    // Fixed palette: 5 players max
+    // Fixed palette: 5 players max.
     private static final List<Color> PALETTE = List.of(
             Color.web("#e05740"),  // 1 player: Red
             Color.web("#f9c837"),  // 2 player: Yellow
@@ -22,7 +22,7 @@ public class PlayerColorRegistry {
             Color.web("#7b2d8b")   // 5 player: Purple
     );
 
-    // CSS Version (JavaFX inline)
+    // CSS palette (JavaFX inline).
     private static final List<String> PALETTE_HEX = List.of(
             "#e05740",
             "#f9c837",
@@ -31,9 +31,9 @@ public class PlayerColorRegistry {
             "#7b2d8b"
     );
 
-    // nickname → Color JavaFX
+    // nickname -> JavaFX Color
     private final Map<String, Color> colorMap = new HashMap<>();
-    // nickname → hex string CSS (per -fx-background-color ecc.)
+    // nickname -> hex string for CSS styles
     private final Map<String, String> colorHexMap = new HashMap<>();
 
     private PlayerColorRegistry() {}
@@ -43,8 +43,8 @@ public class PlayerColorRegistry {
     }
 
     /**
-     * Assign colors to players in the order of the list.
-     * Must be called once in GUIHandler.switchToGame() passing update.getPlayers() mapped on nicknames.
+     * Assigns colors to players in the order of the list.
+     * Call this once in GUIHandler.switchToGame() using the player nicknames.
      */
     public void init(List<String> nicknames) {
         colorMap.clear();
@@ -58,8 +58,8 @@ public class PlayerColorRegistry {
     }
 
     /**
-     * Return the JavaFX Color of the player with the given nickname.
-     * If the nickname is not registered (should not happen), it returns gray as a fallback.
+     * Returns the JavaFX color for the given nickname.
+     * If the nickname is not registered, returns gray as a fallback.
      */
     public Color getColor(String nickname) {
         return colorMap.getOrDefault(nickname, Color.GRAY);

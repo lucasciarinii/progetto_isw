@@ -9,6 +9,9 @@ import org.example.client.ClientController;
 import org.example.client.view.GUI.GUIHandler;
 import org.example.network.CommunicationProtocol;
 
+/**
+ * Controller for the login screen; validates input and starts the client.
+ */
 public class GUILoginController {
 
     @FXML private TextField nicknameField;
@@ -36,12 +39,15 @@ public class GUILoginController {
         this.stage = stage;
     }
 
+    /**
+     * Handles the connect button action.
+     */
     @FXML
     public void onConnect() {
         String nickname = nicknameField.getText().trim();
         String numPlayersText = numPlayersField.getText().trim();
 
-        // 1) Check inputs
+        // 1) Validate inputs.
         if (nickname.isEmpty()) {
             showError("Nickname cannot be empty");
             return;
@@ -60,7 +66,7 @@ public class GUILoginController {
             return;
         }
 
-        // 2) GUIHandler and ClientController creation
+        // 3) Build GUI handler and client controller.
         GUIHandler gui = new GUIHandler();
         gui.setPrimaryStage(stage);
 
@@ -68,9 +74,9 @@ public class GUILoginController {
         gui.setController(controller);
 
 
-        // 3) Connection to server
+        // 3) Connect to server.
         try {
-            errorLabel.setVisible(false);  // nascondi eventuali errori precedenti
+            errorLabel.setVisible(false);  // hide previous errors
             errorLabel.setText("Connecting...");
             errorLabel.setStyle("-fx-text-fill: #888866; -fx-font-size: 11px;");
             errorLabel.setVisible(true);

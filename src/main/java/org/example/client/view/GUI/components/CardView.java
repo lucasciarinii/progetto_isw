@@ -14,7 +14,6 @@ import org.example.server.model.cards.buildingCards.BuildingCard;
 /**
  * JavaFX component that visually represents a card on the board.
 
- * Stati possibili:
  * Possible states:
  *  NORMAL → card visible, not interactable
  *  SELECTABLE → card highlighted, clickable
@@ -35,15 +34,15 @@ public class CardView extends StackPane {
 
     // ── JavaFX elements ───────────────────────────────────────────────────────────
     @FXML private final ImageView imageView;
-    @FXML private final Label     costLabel;   // mostrato solo per BuildingCard
-    @FXML private final Label     eraLabel;    // era della carta (I, II, III)
-    @FXML private final VBox      overlay;     // overlay scuro per stato DISABLED
+    @FXML private final Label costLabel;   // mostrato solo per BuildingCard
+    @FXML private final Label eraLabel;    // era della carta (I, II, III)
+    @FXML private final VBox overlay;     // overlay scuro per stato DISABLED
 
-    // ── Bord colors for state ─────────────────────────────────────────────────
-    private static final String BORDER_NORMAL    = "-fx-border-color: #555544; -fx-border-width: 1.5;";
-    private static final String BORDER_SELECTABLE= "-fx-border-color: #ffcc00; -fx-border-width: 2.5;";
-    private static final String BORDER_SELECTED  = "-fx-border-color: #00cc66; -fx-border-width: 3;";
-    private static final String BORDER_DISABLED  = "-fx-border-color: #333322; -fx-border-width: 1;";
+    // Border colors per state
+    private static final String BORDER_NORMAL = "-fx-border-color: #555544; -fx-border-width: 1.5;";
+    private static final String BORDER_SELECTABLE = "-fx-border-color: #ffcc00; -fx-border-width: 2.5;";
+    private static final String BORDER_SELECTED = "-fx-border-color: #00cc66; -fx-border-width: 3;";
+    private static final String BORDER_DISABLED = "-fx-border-color: #333322; -fx-border-width: 1;";
 
     public CardView(Card card, double width, double height) {
         this.card = card;
@@ -63,7 +62,7 @@ public class CardView extends StackPane {
         // Load the image from the registry using the card's ID
         imageView.setImage(CardImageRegistry.getInstance().getImage(card.getId()));
 
-        // Label era (top-left corner
+        // Era label (top-left corner)
         eraLabel = new Label(card.getEra().toString());
         eraLabel.setStyle(
                 "-fx-background-color: rgba(0,0,0,0.55); " +
@@ -98,13 +97,13 @@ public class CardView extends StackPane {
         overlay.setVisible(false);
         overlay.setMouseTransparent(true); // does not block clicks (they are blocked by state)
 
-        // StackPane assembly (image, overlay, labels))
+        // StackPane assembly (image, overlay, labels)
         getChildren().addAll(imageView, overlay, eraLabel, costLabel);
     }
 
-    //! EXTERNAL methods ───────────────────────────────────────────────────────────
-
-    // Set the visual state of the card. Handle border, gray overlay and cursor.
+    /**
+     * Sets the visual state of the card, including border, overlay, and cursor.
+     */
     public void setState(State state) {
         this.selected = (state == State.SELECTED);
 
@@ -113,7 +112,6 @@ public class CardView extends StackPane {
         overlay.setVisible(false);
         setOnMouseClicked(null);
         setStyle(getBaseStyle());
-//! EXTERNAL methods ─────────────────────────────────────────────────────────
         switch (state) {
             case NORMAL -> {
                 setStyle(getBaseStyle() + BORDER_NORMAL);
@@ -134,7 +132,7 @@ public class CardView extends StackPane {
             case DISABLED -> {
                 setStyle(getBaseStyle() + BORDER_DISABLED);
                 setCursor(javafx.scene.Cursor.DEFAULT);
-                overlay.setVisible(true); // sovrappone il velo scuro
+                overlay.setVisible(true); // show dark overlay
                 // de-saturate image
                 ColorAdjust ca = new ColorAdjust();
                 ca.setSaturation(-0.7);
@@ -144,7 +142,9 @@ public class CardView extends StackPane {
         }
     }
 
-    // Makes the card selectable and registers the click callback [like setState(SELECTABLE)]
+    /**
+     * Makes the card selectable and registers a click callback.
+     */
     public void setSelectable(boolean selectable, Runnable onClick) {
         if (selectable) {
             setState(State.SELECTABLE);
@@ -158,8 +158,10 @@ public class CardView extends StackPane {
         }
     }
 
-    /* Invert the selected/non-selected state of the card.
-    Called by GUIGameController when the user clicks a selectable card. */
+    /**
+     * Toggles the selected state of the card.
+     * Called by GUIGameController when the user clicks a selectable card.
+     */
     public void toggleSelected() {
         selected = !selected;
         setState(selected ? State.SELECTED : State.SELECTABLE);
@@ -177,7 +179,6 @@ public class CardView extends StackPane {
         return card;
     }
 
-    //! UTILITY methods ────────────────────────────────────────────────────────
 
     private String getBaseStyle() {
         return "-fx-background-color: #2a2a1e; -fx-border-radius: 6; -fx-background-radius: 6; ";

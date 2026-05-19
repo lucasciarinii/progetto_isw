@@ -29,12 +29,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Controller for the main game screen; renders updates and handles input.
+ */
 public class GUIGameController {
 
     private static final double BOARD_TILE_WIDTH = 120;
     private static final double BOARD_TILE_HEIGHT = 180;
 
-    // ── FXML ──────────────────────────────────────────────────────────────────
+    // FXML bindings
     @FXML private Label     roundLabel;
     @FXML private Label     eraLabel;
     @FXML private Label     phaseLabel;
@@ -49,7 +52,7 @@ public class GUIGameController {
     @FXML private VBox      opponentsBox;
     @FXML private HBox      localPlayerBox;
 
-    // ── Internal State ─────────────────────────────────────────────────────────
+    // Internal state
     private ClientController controller;
     private String localNickname;
     private GameStateUpdateMessage lastUpdate;
@@ -58,10 +61,10 @@ public class GUIGameController {
     private final List<CardView> selectedCards = new ArrayList<>();
     private boolean roundFlowMode = false;
 
-    // Player panels — Objects kept in memory to update them without recreating them
+    // Player panels kept in memory to update them without recreating.
     private final List<PlayerPanelView> playerPanels = new ArrayList<>();
 
-    // ── Setters called from GUIHandler ────────────────────────────────────────
+    // Setters called from GUIHandler
 
     public void setController(ClientController controller) {
         this.controller = controller;
@@ -71,7 +74,7 @@ public class GUIGameController {
         this.localNickname = nickname;
     }
 
-    // ── public methods (called from GUIHandler) ───────────────────────────────
+    // Public methods (called from GUIHandler)
 
     /**
      * Update whole screen with new state of the game.
@@ -148,7 +151,7 @@ public class GUIGameController {
     }
 
     /**
-     * Mostra un messaggio informativo quando il giocatore non può selezionare alcuna carta.
+     * Shows an info message when the player cannot select any card.
      */
     public void showNoCardsPickable() {
         confirmButton.setVisible(false);
@@ -158,7 +161,7 @@ public class GUIGameController {
     }
 
     /**
-     * Mostra che è il turno di un altro giocatore.
+     * Shows that another player's turn is in progress.
      */
     public void showWaiting(String currentPlayerNickname) {
         confirmButton.setVisible(false);
@@ -167,6 +170,9 @@ public class GUIGameController {
         statusLabel.setText(currentPlayerNickname + "'s turn...");
     }
 
+    /**
+     * Shows that another player is picking the extra card for RoundFlow.
+    */
     public void showRoundFlowWaiting(String currentPlayerNickname) {
         confirmButton.setVisible(false);
         selectedCards.clear();
@@ -174,7 +180,7 @@ public class GUIGameController {
         statusLabel.setText(currentPlayerNickname + " is picking an extra card (RoundFlow)...");
     }
 
-    // ── Aggiornamento barra info ───────────────────────────────────────────────
+    // Info bar update
 
     private void updateInfoBar(GameStateUpdateMessage update) {
         roundLabel.setText(String.valueOf(update.getCurrentRound()));
@@ -182,7 +188,7 @@ public class GUIGameController {
         phaseLabel.setText(update.getCurrentPhase().toString());
         currentPlayerLabel.setText(update.getCurrentPlayerNickname());
 
-        // Colora il nome del giocatore corrente con il suo colore totem
+        // Color the current player's name with their totem color.
         String hex = PlayerColorRegistry.getInstance()
                 .getHex(update.getCurrentPlayerNickname());
         currentPlayerLabel.setStyle(
@@ -190,7 +196,7 @@ public class GUIGameController {
                         "-fx-font-size: 12px; -fx-font-weight: bold;"
         );
 
-        // Messaggio stato
+        // Status message
         if (update.getCurrentPlayerNickname().equals(localNickname)) {
             statusLabel.setTextFill(Color.web("#00cc66"));
             statusLabel.setText("It's your turn!");
@@ -200,7 +206,7 @@ public class GUIGameController {
         }
     }
 
-    // ── Aggiornamento retro mazzo ─────────────────────────────────────────────
+    // Deck back update
 
     private void updateDeckBack(Era era) {
         String filename = switch (era) {
@@ -212,11 +218,11 @@ public class GUIGameController {
         try (InputStream is = getClass().getResourceAsStream(path)) {
             if (is != null) deckBackView.setImage(new Image(is));
         } catch (Exception e) {
-            System.err.println("[GUIGameController] Retro mazzo non trovato: " + path);
+            System.err.println("[GUIGameController] Deck back not found: " + path);
         }
     }
 
-    // ── Aggiornamento righe carte ─────────────────────────────────────────────
+    // Card rows update
 
     private void updateTopRow(List<Card> cards) {
         topRowBox.getChildren().clear();
@@ -236,7 +242,7 @@ public class GUIGameController {
         }
     }
 
-    // ── Aggiornamento offer track ─────────────────────────────────────────────
+    // Offer track update
 
     private void updateOfferTrack(List<OfferTileSnapshot> tiles) {
         offerTrackBox.getChildren().clear();
@@ -246,7 +252,7 @@ public class GUIGameController {
         }
     }
 
-    // ── Aggiornamento turn slot ────────────────────────────────────────────────
+    // Turn order tile update
 
     private void updateTurnSlot(GameStateUpdateMessage update) {
         turnSlotBox.getChildren().clear();
@@ -254,33 +260,33 @@ public class GUIGameController {
         turnSlotBox.getChildren().add(tsv);
     }
 
-    // ── Aggiornamento pannelli giocatori ──────────────────────────────────────
+    // Player panels update
 
     private void updatePlayerPanels(List<PlayerSnapshot> players) {
         if (playerPanels.isEmpty()) {
-            // Prima volta: crea i pannelli e li divide tra Destra e Basso
+            // First time: create panels and split them between right and bottom.
             for (PlayerSnapshot p : players) {
                 boolean isLocal = p.getNickname().equals(localNickname);
 
-                // Creiamo il pannello: se NON è il locale, sarà "mini" (true)
+                // Non-local players use a smaller panel.
                 PlayerPanelView panel = new PlayerPanelView(p, isLocal, !isLocal);
                 playerPanels.add(panel);
 
                 if (isLocal) {
-                    localPlayerBox.getChildren().add(panel); // Tu vai in basso
+                    localPlayerBox.getChildren().add(panel); // Local player at bottom
                 } else {
-                    opponentsBox.getChildren().add(panel);   // Loro vanno a destra
+                    opponentsBox.getChildren().add(panel);   // Opponents on the right
                 }
             }
         } else {
-            // Aggiornamenti successivi: aggiorna i dati nei pannelli esistenti
+            // Subsequent updates: refresh existing panels.
             for (int i = 0; i < playerPanels.size(); i++) {
                 playerPanels.get(i).update(players.get(i));
             }
         }
     }
 
-    // ── PLACE_TOTEMS Interaction ───────────────────────────────────────────────
+    // PLACE_TOTEMS interaction
 
     /**
      * Makes the available tiles on the offer track clickable.
@@ -308,7 +314,7 @@ public class GUIGameController {
         }
     }
 
-    // ── PLAYER_TURN Interaction ───────────────────────────────────────────────
+    // PLAYER_TURN interaction
 
     /**
      * Enable the selection of the card based on the effect of the tile
@@ -316,7 +322,7 @@ public class GUIGameController {
      * It replicates the logic of TUIHandler.handleOfferTileAction
      */
     private void enablePlayerTurn() {
-        // Trova l'effetto della tessera occupata dal giocatore locale
+        // Find the effect of the tile occupied by the local player.
         OfferEffect effect = lastUpdate.getOfferTrack().stream()
                 .filter(t -> localNickname.equals(t.getOccupantNickname()))
                 .map(OfferTileSnapshot::getOfferEffect)
@@ -325,7 +331,7 @@ public class GUIGameController {
 
         if (effect == null) return;
 
-        // Caso FOOD: nessuna interazione, azione automatica
+        // FOOD tile: no interaction, automatic action.
         if (effect == OfferEffect.FOOD) {
             statusLabel.setTextFill(Color.web("#a0a080"));
             statusLabel.setText("Food Tile — automatic turn.");
@@ -337,13 +343,13 @@ public class GUIGameController {
             return;
         }
 
-        // Find the local player snapshot
+        // Find the local player snapshot.
         PlayerSnapshot localPlayer = lastUpdate.getPlayers().stream()
                 .filter(p -> p.getNickname().equals(localNickname))
                 .findFirst()
                 .orElseThrow();
 
-        // Calculate how many cards can be drawn from each row
+        // Calculate how many cards can be drawn from each row.
         int fromBottom = 0;
         int fromTop    = 0;
 
@@ -365,31 +371,19 @@ public class GUIGameController {
 
         int totalToSelect = fromBottom + fromTop;
 
-//        if (totalToSelect == 0) {
-//            // Nessuna carta selezionabile
-//            statusLabel.setTextFill(Color.web("#a0a080"));
-//            statusLabel.setText("Nessuna carta disponibile — turno saltato.");
-//            try {
-//                controller.offerTileAction("");
-//            } catch (Exception e) {
-//                showError(e.getMessage());
-//            }
-//            return;
-//        }
-
-        // Enable card selection on the right rows
+        // Enable card selection on the appropriate rows.
         enableCardSelection(fromBottom, fromTop, totalToSelect, localPlayer);
     }
 
     /**
-     * Rende selezionabili le carte nelle righe in base ai conteggi calcolati.
+     * Enables card selection on rows based on the computed counts.
      */
     private void enableCardSelection(int fromBottom, int fromTop,
                                      int totalToSelect, PlayerSnapshot localPlayer) {
         statusLabel.setTextFill(Color.web("#ffcc00"));
         statusLabel.setText("Select " + totalToSelect + " card(s).");
 
-        // Enable top row cards
+        // Enable top row cards.
         if (fromTop > 0) {
             for (var node : topRowBox.getChildren()) {
                 if (node instanceof CardView cv) {
@@ -401,13 +395,13 @@ public class GUIGameController {
                 }
             }
         } else {
-            // Row not usable: disable everything
+            // Row not usable: disable everything.
             topRowBox.getChildren().forEach(n -> {
                 if (n instanceof CardView cv) cv.setState(CardView.State.DISABLED);
             });
         }
 
-        // Enable bottom row cards
+        // Enable bottom row cards.
         if (fromBottom > 0) {
             for (var node : bottomRowBox.getChildren()) {
                 if (node instanceof CardView cv) {
@@ -425,6 +419,9 @@ public class GUIGameController {
         }
     }
 
+    /**
+     * Enables card selection on rows based on the computed counts just for top row (for RoundFlowBC).
+     */
     private void enableRoundFlowSelection(PlayerSnapshot localPlayer) {
         int totalToSelect = 1;
         statusLabel.setTextFill(Color.web("#ffcc00"));
@@ -441,14 +438,14 @@ public class GUIGameController {
             }
         }
 
-        // Disable bottom row cards
+        // Disable bottom row cards.
         bottomRowBox.getChildren().forEach(n -> {
             if (n instanceof CardView cv) cv.setState(CardView.State.DISABLED);
         });
     }
 
     /**
-     * Handles the click on a selectable card.
+     * Handles a click on a selectable card.
      */
     private void onCardClicked(CardView cv, int totalToSelect) {
         if (cv.isSelected()) {
@@ -463,7 +460,7 @@ public class GUIGameController {
             }
         }
 
-        // Update message
+        // Update message.
         int remaining = totalToSelect - selectedCards.size();
         if (remaining > 0) {
             statusLabel.setTextFill(Color.web("#ffcc00"));
@@ -485,7 +482,7 @@ public class GUIGameController {
     }
 
     /**
-     * Chiamato dal pulsante Conferma in game.fxml.
+     * Called by the confirm button in game.fxml.
      */
     @FXML
     private void onConfirm() {
@@ -504,14 +501,11 @@ public class GUIGameController {
                 controller.offerTileAction(payload);
             }
         } catch (Exception e) {
-            if (roundFlowMode) {
-                roundFlowMode = true;
-            }
             showError(e.getMessage());
         }
     }
 
-    // ── Game over ─────────────────────────────────────────────────────────────
+    // Game over
 
     private void showGameOver(List<String> winners) {
         statusLabel.setTextFill(Color.web("#ffcc00"));
@@ -519,7 +513,7 @@ public class GUIGameController {
         confirmButton.setVisible(false);
     }
 
-    // ── Utility ───────────────────────────────────────────────────────────────
+    // Utility
 
     private long countPickable(List<Card> row, PlayerSnapshot player) {
         return row.stream()

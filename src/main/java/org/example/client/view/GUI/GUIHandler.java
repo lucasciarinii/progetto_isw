@@ -20,6 +20,9 @@ import org.example.server.model.enums.GamePhase;
 
 import java.util.List;
 
+/**
+ * JavaFX UI handler for GUI VIEW that switches scenes and forwards updates to GUI controllers.
+ */
 public class GUIHandler implements UIHandler {
     private ClientController controller;
     private Stage stage;
@@ -27,9 +30,7 @@ public class GUIHandler implements UIHandler {
     private GUILobbyController GUILobbyController;
     private GUIGameController GUIGameController;
     private GUIRankingController GUIRankingController;
-    private GameStateUpdateMessage lastGameUpdate; // ← aggiunge questo campo
-
-    // SETTERS ---------------------------------------------------------------------------------------------------------
+    private GameStateUpdateMessage lastGameUpdate;
 
     public void setController(ClientController controller) {
         this.controller = controller;
@@ -43,8 +44,6 @@ public class GUIHandler implements UIHandler {
         });
     }
 
-
-    // -----------------------------------------------------------------------------------------------------------------
 
     @Override
     public void onLobbyUpdate(LobbyUpdateMessage update) {
@@ -163,8 +162,6 @@ public class GUIHandler implements UIHandler {
     }
 
 
-    // -----------------------------------------------------------------------------------------------------------------
-
     private void switchToLobby(LobbyUpdateMessage update) {
         try {
             FXMLLoader loader = new FXMLLoader(
@@ -189,13 +186,13 @@ public class GUIHandler implements UIHandler {
 
 
     private void switchToGame(GameStateUpdateMessage update) {
-        // 1. Assign colors to players
+        // Assign colors to players.
         List<String> nicknames = update.getPlayers().stream()
                 .map(PlayerSnapshot::getNickname)
                 .collect(java.util.stream.Collectors.toList());
         PlayerColorRegistry.getInstance().init(nicknames);
 
-        // 2. Initialize CardImageRegistry with the number of players (to load correct card images)
+        // Initialize card images for the current player count.
         int numPlayers = update.getPlayers().size();
         CardImageRegistry.getInstance().init(numPlayers);
 

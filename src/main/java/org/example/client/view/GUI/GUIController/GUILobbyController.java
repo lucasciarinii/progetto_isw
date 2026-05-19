@@ -5,20 +5,28 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import org.example.network.messages.LobbyUpdateMessage;
 
+/**
+ * Controller for the lobby screen.
+ */
 public class GUILobbyController {
 
     @FXML private Label playersCountLabel;
     @FXML private ListView<String> playersList;
     @FXML private Label statusLabel;
 
+    /**
+     * Updates the lobby view with the latest status.
+     *
+     * @param update the lobby update message
+     */
     public void update(LobbyUpdateMessage update) {
-        // Update the number of players in lobby
+        // Update the number of players in the lobby.
         playersCountLabel.setText(update.getConnectedPlayers() + "/" + update.getRequiredPlayers() + " players connected");
 
-        // display the name of the players in lobby
+        // Display the connected players.
         playersList.getItems().setAll(update.getPlayerNicknames());
 
-        // display lobby status
+        // Display lobby status.
         if ( update.isGameStarting() ) {
             statusLabel.setText("Game is starting...");
         } else {

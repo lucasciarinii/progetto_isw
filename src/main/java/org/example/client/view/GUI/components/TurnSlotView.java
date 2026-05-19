@@ -28,7 +28,7 @@ public class TurnSlotView extends StackPane {
 
     private static final String IMAGE_BASE_PATH = "/images/turnOrderTile/";
 
-    // TODO: tutte le dimensioni dobbiamo sistemarle ad occhio ----------------------------
+    // TODO: these dimensions are tuned by eye.
     // Tile dimensions — same proportion as the image
     public static final double TILE_WIDTH = 120;
     public static final double TILE_HEIGHT = 180;
@@ -92,10 +92,10 @@ public class TurnSlotView extends StackPane {
 
     // Rendering
 
-    /*
-    Redraws the totems based on the current state of the slots.
-    Should be called every time a new GameStateUpdateMessage arrives.
-    */
+    /**
+     * Redraws the totems based on the current state of the slots.
+     * Should be called every time a new GameStateUpdateMessage arrives.
+     */
     public void render() {
         totemLayer.getChildren().clear();
 
@@ -114,7 +114,6 @@ public class TurnSlotView extends StackPane {
         }
     }
 
-    //! UTILITY private ────────────────────────────────────────────────────────
 
     // Builds the colored box of the totem with the player's initials.
     private VBox buildTotemBox(String nickname) {

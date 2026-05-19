@@ -8,24 +8,33 @@ import javafx.stage.Stage;
 import org.example.client.view.GUI.GUIController.GUILoginController;
 import org.example.network.CommunicationProtocol;
 
+/**
+ * JavaFX application for the GUI client.
+ */
 public class GUIApp extends Application {
 
     private static String host;
     private static CommunicationProtocol protocol;
     private static int port;
 
+    /** @param host the server host */
     public static void setHost(String host) {
         GUIApp.host = host;
     }
 
+    /** @param protocol the communication protocol */
     public static void setProtocol(CommunicationProtocol protocol) {
         GUIApp.protocol = protocol;
     }
 
+    /** @param port the server port */
     public static void setPort(int port) {
         GUIApp.port = port;
     }
 
+    /**
+     * Loads the login scene and configures the GUI controller.
+     */
     @Override
     public void start(Stage stage) throws Exception {
 

@@ -9,10 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Singleton registry: maps card ID → JavaFX Image.
-
- *  1. Every card in JSON has "image": "nomeFile.jpg"
- *  2. Call CardImageRegistry.getInstance().init(numPlayers) switchToGame() after numPlayer is decided
+ * Singleton registry that maps card IDs to JavaFX images.
+ *
+ * <p>Each card in JSON provides an "image" filename. Call
+ * {@code CardImageRegistry.getInstance().init(numPlayers)} when the player
+ * count is known to preload the images.</p>
  */
 public class CardImageRegistry {
 
@@ -37,7 +38,7 @@ public class CardImageRegistry {
         return INSTANCE;
     }
 
-    //Load all card images based on the JSON files
+    // Load all card images based on the JSON files.
     public void init(int numPlayers) {
         if (initialized) return; // avoid re-initialization
 
@@ -76,12 +77,11 @@ public class CardImageRegistry {
         return placeholderImage;
     }
 
-    //! UTILITY methods ──────────────────────────────────────────────────────
-
     /**
      * Read a JSON file and populate the imageMap.
      * @return int array where [0] = loaded, [1] = missing
      */
+    // TODO: controllare che ogni configurazione carichi tutte le immagini correttamente
     private int[] loadJsonFile(ObjectMapper mapper, String jsonPath) {
         int loaded = 0, missing = 0;
         try (InputStream is = getClass().getResourceAsStream(jsonPath)) {
@@ -98,7 +98,7 @@ public class CardImageRegistry {
                     imageMap.put(id, img != null ? img : placeholderImage);
                     if (img != null) loaded++; else missing++;
                 } else {
-                    // "image" field not added yet: uses placeholder
+                    // If no image is specified, use the placeholder.
                     imageMap.put(id, placeholderImage);
                     missing++;
                 }

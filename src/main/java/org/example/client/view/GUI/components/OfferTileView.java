@@ -94,10 +94,10 @@ public class OfferTileView extends StackPane {
         render();
     }
 
-    //! EXTERNAL methods ───────────────────────────────────────────────────────────
-
-    /* Makes the tile clickable during the PLACE_TOTEMS phase.
-       Only has an effect if the tile is free. */
+    /**
+     * Makes the tile clickable during the PLACE_TOTEMS phase.
+     * Only has an effect if the tile is free.
+     */
     public void setSelectable(boolean selectable, Runnable onClick) {
         if (selectable && snapshot.isFree()) {
             this.onClickCallback = onClick;
@@ -145,9 +145,9 @@ public class OfferTileView extends StackPane {
         }
     }
 
-    //! UTILITY methods ────────────────────────────────────────────────────────
-
-    // Load the tile image based on the OfferEffect. Images are stored in resources/images/offerTrack/ and named like D.jpeg, FOOD.jpeg, etc.
+    /**
+     * Loads the tile image based on the offer effect.
+     */
     private Image loadTileImage(OfferEffect effect) {
         String path = IMAGE_BASE_PATH + effect.name() + ".jpg";
         try (InputStream is = getClass().getResourceAsStream(path)) {
@@ -157,7 +157,7 @@ public class OfferTileView extends StackPane {
             }
             return new Image(is);
         } catch (Exception e) {
-            System.err.println("[OfferTileView] Error durin loading: " + path);
+            System.err.println("[OfferTileView] Error during loading: " + path);
             return null;
         }
     }

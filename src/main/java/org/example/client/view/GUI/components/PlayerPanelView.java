@@ -12,6 +12,9 @@ import org.example.server.model.cards.Card;
 
 import java.util.List;
 
+/**
+ * Player panel component showing stats and owned cards.
+ */
 public class PlayerPanelView extends VBox {
 
     private final PlayerSnapshot snapshot;
@@ -20,10 +23,10 @@ public class PlayerPanelView extends VBox {
     private final Label discountLabel;
     private final Label totalPointsLabel;
 
-    // Il contenitore dove impileremo i mazzetti di carte
+    // Container where card stacks are placed.
     private final HBox stacksContainer;
 
-    // Variabili per gestire le grandezze in base a "isMini"
+    // Size settings based on the "isMini" flag.
     private final double cardW;
     private final double cardH;
     private final double stackOverlap;
@@ -31,7 +34,7 @@ public class PlayerPanelView extends VBox {
     public PlayerPanelView(PlayerSnapshot snapshot, boolean isLocalPlayer, boolean isMini) {
         this.snapshot = snapshot;
 
-        // Impostiamo le grandezze: piccole per gli avversari, grandi per te
+        // Use smaller sizes for opponents and larger for the local player.
         this.cardW = isMini ? 45 : 100;
         this.cardH = isMini ? 65 : 140;
         this.stackOverlap = isMini ? -45 : -80;
@@ -39,12 +42,12 @@ public class PlayerPanelView extends VBox {
         String hex = PlayerColorRegistry.getInstance().getHex(snapshot.getNickname());
         setPadding(new Insets(8));
 
-        // Stile del bordo (più spesso per il giocatore locale)
+        // Border style (thicker for the local player).
         String borderWidth = isLocalPlayer ? "3" : "1.5";
         setStyle("-fx-background-color: #1a1a10; -fx-border-color: " + hex +
                 "; -fx-border-width: " + borderWidth + "; -fx-border-radius: 8; -fx-background-radius: 8;");
 
-        // --- INTESTAZIONE (Nome + Pallino colorato) ---
+        // Header (name + colored dot)
         HBox header = new HBox(6);
         header.setAlignment(Pos.CENTER_LEFT);
         VBox dot = new VBox();
@@ -54,7 +57,7 @@ public class PlayerPanelView extends VBox {
         nicknameLabel.setStyle("-fx-text-fill: " + hex + "; -fx-font-size: " + (isMini ? "11px" : "16px") + "; -fx-font-weight: bold; -fx-background-color: transparent;");
         header.getChildren().addAll(dot, nicknameLabel);
 
-        // --- STATISTICHE (Cibo, Punti, Sconti con sfondi trasparenti) ---
+        // Stats (food, points, discounts)
         foodLabel = new Label("Food: " + snapshot.getFood());
         discountLabel = new Label("Discount on Buildings: -" + snapshot.getDiscountOnBuilding());
         totalPointsLabel = new Label("Points: "  + snapshot.getPoints());
@@ -68,7 +71,7 @@ public class PlayerPanelView extends VBox {
         HBox stats = new HBox(15, foodLabel, totalPointsLabel);
         stats.setAlignment(Pos.CENTER_LEFT);
 
-        // --- CARTE ---
+        // Cards
         stacksContainer = new HBox(12);
         stacksContainer.setAlignment(Pos.TOP_LEFT);
         stacksContainer.setStyle("-fx-background-color: transparent;"); // Evita sfondi di fallback
@@ -77,14 +80,14 @@ public class PlayerPanelView extends VBox {
         ScrollPane scrollPane = new ScrollPane(stacksContainer);
         scrollPane.setFitToHeight(true);
 
-        // Rimuove lo sfondo bianco e il bordo nativo dello ScrollPane direttamente inline
+        // Remove native ScrollPane background and border.
         scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;");
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
-        // --- ASSEMBLAGGIO FLUIDO ---
+        // Layout assembly
         if (isMini) {
-            // Layout Orizzontale Avversari
+            // Horizontal layout for opponents
             setMaxWidth(Double.MAX_VALUE);
             scrollPane.setPrefHeight(90);
 
@@ -101,11 +104,11 @@ public class PlayerPanelView extends VBox {
 
             getChildren().add(miniLayout);
         } else {
-            // Layout Verticale Locale
+            // Vertical layout for local player
             setMaxWidth(Double.MAX_VALUE);
             HBox.setHgrow(this, javafx.scene.layout.Priority.ALWAYS);
 
-            // Fissiamo l'altezza per evitare sfasamenti all'aggiunta di carte
+            // Fix height to avoid layout shifts when cards are added.
             scrollPane.setPrefHeight(180);
             scrollPane.setMinHeight(180);
             scrollPane.setMaxHeight(180);
@@ -137,19 +140,19 @@ public class PlayerPanelView extends VBox {
         addCardStackIfNotEmpty(s.getOwnedBuildings());
     }
 
-    // Usa il wildcard "? extends Card" per accettare ogni tipo di carta
+    // Use wildcard to accept any card type.
     private void addCardStackIfNotEmpty(List<? extends Card> cards) {
         if (cards == null || cards.isEmpty()) return;
 
         VBox stack = new VBox();
-        stack.setSpacing(stackOverlap); // Spaziatura negativa dinamica!
+        stack.setSpacing(stackOverlap); // Dynamic negative spacing.
         stack.setAlignment(Pos.TOP_CENTER);
         stack.setPadding(new Insets(0, 0, 10, 0));
 
         for (Card card : cards) {
             CardView mini = new CardView(card, cardW, cardH);
             mini.setState(CardView.State.NORMAL);
-            // Leggera ombra per distinguere le carte sovrapposte
+            // Subtle shadow to separate overlapping cards.
             mini.setStyle(mini.getStyle() + "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 4, 0, 0, 2);");
             stack.getChildren().add(mini);
         }
