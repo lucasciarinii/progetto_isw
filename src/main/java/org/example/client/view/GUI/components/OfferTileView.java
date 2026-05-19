@@ -72,9 +72,9 @@ public class OfferTileView extends StackPane {
 
         // Totem box
         totemBox = new VBox();
-        totemBox.setPrefSize(64, 42);
-        totemBox.setMaxSize(64, 42);
-        totemBox.setMinSize(64, 42);
+        totemBox.setPrefSize(45, 26);
+        totemBox.setMaxSize(45, 26);
+        totemBox.setMinSize(45, 26);
         totemBox.setAlignment(Pos.CENTER);
 
         totemLabel = new Label();
@@ -85,7 +85,7 @@ public class OfferTileView extends StackPane {
         );
         totemBox.getChildren().add(totemLabel);
         StackPane.setAlignment(totemBox, Pos.TOP_CENTER);
-        StackPane.setMargin(totemBox, new Insets(42, 0, 0, 0));
+        StackPane.setMargin(totemBox, new Insets(32, 0, 0, 0));
 
         // Assembly
         getChildren().addAll(imageView, posLabel, totemBox);

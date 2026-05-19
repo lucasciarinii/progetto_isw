@@ -55,15 +55,16 @@ public class TurnSlotView extends StackPane {
 
         this.FIRST_SLOT_Y = switch (numPlayers) {
             case 2 -> 40;
-            case 3 -> 40;
-            case 4 -> 27;
+            case 3 -> 31;
+            case 4 -> 24;
             case 5 -> 11;
             default -> 22;
         };
         this.SLOT_SPACING = switch (numPlayers) {
             case 2 -> 33;
-            case 3 -> 56;
-            case 4, 5 -> 41;
+            case 3 -> 33;
+            case 4 -> 33;
+            case 5 -> 33;
             default -> 40;
         };
 

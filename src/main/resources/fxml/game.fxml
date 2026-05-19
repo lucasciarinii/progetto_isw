@@ -61,9 +61,9 @@
     </right>
 
     <bottom>
-        <VBox style="-fx-border-color: #333322; -fx-border-width: 1 0 0 0; -fx-background-color: #1a1a10; -fx-padding: 0 0 20 0;">
+        <VBox style="-fx-border-color: #333322; -fx-border-width: 1 0 0 0; -fx-background-color: #1a1a10; -fx-padding: 0 0 8 0;">
             <Label style="-fx-text-fill: #888866; -fx-padding: 5;" text="IL TUO VILLAGGIO" />
-            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="322.0" prefWidth="1280.0"
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="240.0" prefWidth="1280.0"
                         style="-fx-background: #1a1a10; -fx-background-color: #1a1a10; -fx-control-inner-background: #1a1a10; -fx-background-insets: 0; -fx-border-color: #1a1a10; -fx-border-width: 0;">
                 <VBox spacing="10" style="-fx-padding: 10; -fx-background: #1a1a10; -fx-background-color: #1a1a10;">
                     <HBox fx:id="localPlayerBox" spacing="10" style="-fx-background-color: #1a1a10;" />
