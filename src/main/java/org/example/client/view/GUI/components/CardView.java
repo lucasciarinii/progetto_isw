@@ -10,6 +10,8 @@ import javafx.scene.layout.VBox;
 import org.example.client.view.GUI.registry.CardImageRegistry;
 import org.example.server.model.cards.Card;
 import org.example.server.model.cards.buildingCards.BuildingCard;
+import javafx.animation.ScaleTransition;
+import javafx.util.Duration;
 
 /**
  * JavaFX component that visually represents a card on the board.
@@ -34,9 +36,12 @@ public class CardView extends StackPane {
 
     // ── JavaFX elements ───────────────────────────────────────────────────────────
     @FXML private final ImageView imageView;
-    @FXML private final Label costLabel;   // mostrato solo per BuildingCard
-    @FXML private final Label eraLabel;    // era della carta (I, II, III)
-    @FXML private final VBox overlay;     // overlay scuro per stato DISABLED
+    @FXML private final Label costLabel; // only for BuildingCard
+    @FXML private final Label eraLabel;
+    @FXML private final VBox disabledOverlay; // gray overlay for DISABLED state
+    @FXML private final VBox hoverOverlay; // green overlay for SELECTABLE state
+
+    private ScaleTransition hoverTransition;
 
     // Border colors per state
     private static final String BORDER_NORMAL = "-fx-border-color: #555544; -fx-border-width: 1.5;";
@@ -91,14 +96,21 @@ public class CardView extends StackPane {
         StackPane.setAlignment(costLabel, Pos.BOTTOM_LEFT);
 
         // Gray overlay (DISABLED)
-        overlay = new VBox();
-        overlay.setPrefSize(width, height);
-        overlay.setStyle("-fx-background-color: rgba(0,0,0,0.52); -fx-background-radius: 6;");
-        overlay.setVisible(false);
-        overlay.setMouseTransparent(true); // does not block clicks (they are blocked by state)
+        disabledOverlay = new VBox();
+        disabledOverlay.setPrefSize(width, height);
+        disabledOverlay.setStyle("-fx-background-color: rgba(0,0,0,0.52); -fx-background-radius: 6;");
+        disabledOverlay.setVisible(false);
+        disabledOverlay.setMouseTransparent(true); // does not block clicks (they are blocked by state)
+
+        // Green overlay (SELECTABLE hover)
+        hoverOverlay = new VBox();
+        hoverOverlay.setPrefSize(width, height);
+        hoverOverlay.setStyle("-fx-background-color: rgba(0, 204, 102, 0.28); -fx-background-radius: 6;");
+        hoverOverlay.setVisible(false);
+        hoverOverlay.setMouseTransparent(true);
 
         // StackPane assembly (image, overlay, labels)
-        getChildren().addAll(imageView, overlay, eraLabel, costLabel);
+        getChildren().addAll(imageView, disabledOverlay, hoverOverlay, eraLabel, costLabel);
     }
 
     /**
@@ -109,8 +121,14 @@ public class CardView extends StackPane {
 
         // Reset effects before handling new state
         imageView.setEffect(null);
-        overlay.setVisible(false);
+        disabledOverlay.setVisible(false);
+        hoverOverlay.setVisible(false);
         setOnMouseClicked(null);
+        setOnMouseEntered(null);
+        setOnMouseExited(null);
+        stopHoverAnimation();
+        setScaleX(1.0);
+        setScaleY(1.0);
         setStyle(getBaseStyle());
         switch (state) {
             case NORMAL -> {
@@ -120,9 +138,16 @@ public class CardView extends StackPane {
             case SELECTABLE -> {
                 setStyle(getBaseStyle() + BORDER_SELECTABLE);
                 setCursor(javafx.scene.Cursor.HAND);
-                // brighten to hover
-                setOnMouseEntered(e -> imageView.setEffect(brighten(0.15)));
-                setOnMouseExited(e  -> imageView.setEffect(null));
+                setOnMouseEntered(e -> {
+                    hoverOverlay.setVisible(true);
+                    imageView.setEffect(brighten(0.15));
+                    playHoverAnimation(1.04);
+                });
+                setOnMouseExited(e  -> {
+                    hoverOverlay.setVisible(false);
+                    imageView.setEffect(null);
+                    playHoverAnimation(1.0);
+                });
             }
             case SELECTED -> {
                 setStyle(getBaseStyle() + BORDER_SELECTED);
@@ -132,7 +157,7 @@ public class CardView extends StackPane {
             case DISABLED -> {
                 setStyle(getBaseStyle() + BORDER_DISABLED);
                 setCursor(javafx.scene.Cursor.DEFAULT);
-                overlay.setVisible(true); // show dark overlay
+                disabledOverlay.setVisible(true); // show dark overlay
                 // de-saturate image
                 ColorAdjust ca = new ColorAdjust();
                 ca.setSaturation(-0.7);
@@ -188,5 +213,20 @@ public class CardView extends StackPane {
         ColorAdjust ca = new ColorAdjust();
         ca.setBrightness(amount);
         return ca;
+    }
+
+    private void playHoverAnimation(double targetScale) {
+        stopHoverAnimation();
+        hoverTransition = new ScaleTransition(Duration.millis(120), this);
+        hoverTransition.setToX(targetScale);
+        hoverTransition.setToY(targetScale);
+        hoverTransition.play();
+    }
+
+    private void stopHoverAnimation() {
+        if (hoverTransition != null) {
+            hoverTransition.stop();
+            hoverTransition = null;
+        }
     }
 }
