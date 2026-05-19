@@ -11,6 +11,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+/**
+ * Handles a single socket client connection on the server side.
+ * It parses incoming JSON commands and routes them to SocketServerNetworkAdapter.
+ */
 public class ClientSocketHandler implements Runnable {
 
     private final Socket socket;
@@ -22,6 +26,13 @@ public class ClientSocketHandler implements Runnable {
     private final ObjectMapper mapper = new ObjectMapper();
 
 
+    /**
+     * Creates a handler bound to a socket connection.
+     *
+     * @param socket                      the client socket
+     * @param socketServerNetworkAdapter  the server adapter to forward actions to
+     * @param connectedClients            shared registry of connected clients
+     */
     public ClientSocketHandler(Socket socket, SocketServerNetworkAdapter socketServerNetworkAdapter,
                                Map<String, ClientSocketHandler> connectedClients) {
         this.socket = socket;
@@ -29,6 +40,9 @@ public class ClientSocketHandler implements Runnable {
         this.connectedClients = connectedClients;
     }
 
+    /**
+     * Reads client commands and dispatches them until the connection closes.
+     */
     @Override
     public void run() {
 
@@ -49,18 +63,33 @@ public class ClientSocketHandler implements Runnable {
     }
 
 
+    /**
+     * Closes the handler and removes the client from the registry.
+     */
     public void close() {
         if (nickname != null) {
             connectedClients.remove(nickname);
         }
     }
 
+    /**
+     * Sends a raw JSON message to the client.
+     *
+     * @param msg the serialized message
+     */
     public void send(String msg) {
         out.println(msg);
     }
 
 
 
+    /**
+     * Parses a client command and routes it to the server adapter.
+     * Actions supported: register, placeTotem, offerTileAction,
+     * roundFlowCardRequest, skipTurn.
+     *
+     * @param command the raw JSON command string
+     */
     private void processClientCommand(String command) {
         try {
             Map<String, Object> cmd = mapper.readValue(command, Map.class);
@@ -108,6 +137,11 @@ public class ClientSocketHandler implements Runnable {
         }
     }
 
+    /**
+     * Sends a lobby error back to the client.
+     *
+     * @param message the error description
+     */
     private void sendLobbyError(String message) {
         try {
             Map<String, Object> msg = new HashMap<>();

@@ -16,6 +16,9 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Socket-based client adapter that sends JSON commands and processes server events.
+ */
 public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
 
     private final ClientController clientController;
@@ -26,21 +29,29 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
 
     private String nickname;
 
+    /**
+     * Creates a client adapter bound to a controller.
+     *
+     * @param controller the client controller to notify on events
+     */
     public SocketClientNetworkAdapter(ClientController controller) {
         this.clientController = controller;
     }
 
+    /**
+     * Connects to the socket server and sends the initial "register" command.
+     */
     @Override
     public void connect(String host, int port, String nickname, int numPlayers) throws Exception {
         this.nickname = nickname;
 
-        // Create socket to connect to server
+        // Create socket to connect to server.
         socket = new Socket(host, port);
 
         out = new PrintWriter(socket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-        // Send registration command to server
+        // Send registration command to server (handled by ClientSocketHandler).
         Map<String, Object> registrationCmd = new HashMap<>();
         registrationCmd.put("action", "register");
         registrationCmd.put("nickname", nickname);
@@ -48,11 +59,14 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
 
         out.println(mapper.writeValueAsString(registrationCmd));
 
-        // Start a thread to receive messages from server
+        // Start a thread to receive messages from server.
         startListeningThread();
 
     }
 
+    /**
+     * Sends a "placeTotem" command to the server.
+     */
     @Override
     public void placeTotemOnOfferTile(int tilePosition) throws Exception {
         Map<String, Object> cmd = new HashMap<>();
@@ -61,6 +75,9 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
         out.println(mapper.writeValueAsString(cmd));
     }
 
+    /**
+     * Sends an "offerTileAction" command to the server.
+     */
     @Override
     public void offerTileAction(String cards) throws Exception {
         Map<String, Object> cmd = new HashMap<>();
@@ -69,6 +86,9 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
         out.println(mapper.writeValueAsString(cmd));
     }
 
+    /**
+     * Sends a "roundFlowCardRequest" command to the server.
+     */
     @Override
     public void roundFlowCardRequest(String cards) throws Exception {
         Map<String, Object> cmd = new HashMap<>();
@@ -77,6 +97,9 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
         out.println(mapper.writeValueAsString(cmd));
     }
 
+    /**
+     * Sends a "skipTurn" command to the server.
+     */
     @Override
     public void skipTurn() throws Exception {
         Map<String, Object> cmd = new HashMap<>();
@@ -85,6 +108,9 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
         out.println(mapper.writeValueAsString(cmd));
     }
 
+    /**
+     * Disconnects the socket from the server.
+     */
     @Override
     public void disconnect() throws Exception {
         if ( socket != null && !socket.isClosed() ) {
@@ -93,7 +119,9 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
     }
 
 
-    // this method listen the messages from the server
+    /**
+     * Listens for server events and dispatches them to the client controller.
+     */
     private void startListeningThread() {
 
         new Thread(() -> {
@@ -117,6 +145,13 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
         }).start();
     }
 
+    /**
+     * Processes a server event message and routes it to the client controller as an "onSomething()" call.
+     * Events supported: GAME_STATE_UPDATE, LOBBY_UPDATE, ERROR,
+     * RANKING_UPDATE, ROUND_FLOW_CARD_REQUEST, SHUTDOWN.
+     *
+     * @param message the raw JSON event message
+     */
     private void processServerMessage(String message) {
         try {
             Map<String, Object> msg = mapper.readValue(message, Map.class);
