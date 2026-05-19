@@ -9,6 +9,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Serializable snapshot of a player's public state.
+ */
 public class PlayerSnapshot implements Serializable {
     private final String nickname;
     private final int food;
@@ -20,7 +23,7 @@ public class PlayerSnapshot implements Serializable {
     private final List<Shaman> ownedShamans;
     private final List<Artist> ownedArtists;
     private final List<Inventor> ownedInventors;
-    private final List<BuildingCard> ownedBuildings; // List of building cards owned by the player (can be empty)
+    private final List<BuildingCard> ownedBuildings;
 
 
     @JsonCreator
@@ -50,28 +53,42 @@ public class PlayerSnapshot implements Serializable {
     }
 
 
+    /** @return the player's nickname */
     public String getNickname() {
         return nickname;
     }
 
+    /** @return the player's food count */
     public int getFood() {
         return food;
     }
 
+    /** @return the player's points */
     public int getPoints() {
         return points;
     }
 
+    /** @return the player's building discount */
     public int getDiscountOnBuilding() { return discountOnBuilding; }
 
+    /** @return the owned hunters */
     public List<Hunter>       getOwnedHunters()   { return ownedHunters; }
+    /** @return the owned gatherers */
     public List<Gatherer>     getOwnedGatherers() { return ownedGatherers; }
+    /** @return the owned builders */
     public List<Builder>      getOwnedBuilders()  { return ownedBuilders; }
+    /** @return the owned shamans */
     public List<Shaman>       getOwnedShamans()   { return ownedShamans; }
+    /** @return the owned artists */
     public List<Artist>       getOwnedArtists()   { return ownedArtists; }
+    /** @return the owned inventors */
     public List<Inventor>     getOwnedInventors() { return ownedInventors; }
+    /** @return the owned building cards */
     public List<BuildingCard> getOwnedBuildings() { return ownedBuildings; }
 
+    /**
+     * Prints all owned cards to standard output.
+     */
     public void printAllCards() {
         ownedHunters.forEach(System.out::println);
         ownedGatherers.forEach(System.out::println);

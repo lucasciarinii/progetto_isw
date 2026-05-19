@@ -13,31 +13,27 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
-// This is the DTO (Data Transfer Object): a serializable object containing everything the view needs to update the game.
-// It's useless send all the Match class since it contains a lot of logic and references to other objects. Instead, we create a simple DTO with only the necessary data for the view.
-
+/**
+ * DTO carrying a full snapshot of the match state for client views.
+ */
 public class GameStateUpdateMessage implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    // Game flow
     private final int currentRound;
     private final Era currentEra;
     private final GamePhase currentPhase;
     private final String currentPlayerNickname;
-    private final List<String> turnOrder; // nicknames in turn order
+    private final List<String> turnOrder;
 
-    // Board
     private final List<Card> topRow;
     private final List<Card> bottomRow;
     private final List<OfferTileSnapshot> offerTrack;
     private final List<TurnSlotSnapshot> turnOrderSlots;
 
-    // Players (public snapshot of each player)
     private final List<PlayerSnapshot> players;
 
-    // Game over
-    private final List<String> winners; // nicknames of winners (empty if game not over)
+    private final List<String> winners;
 
     @JsonCreator
     public GameStateUpdateMessage(
@@ -66,16 +62,27 @@ public class GameStateUpdateMessage implements Serializable {
         this.winners = List.copyOf(winners);
     }
 
+    /** @return the current round number */
     public int getCurrentRound()                      { return currentRound; }
+    /** @return the current era */
     public Era getCurrentEra()                        { return currentEra; }
+    /** @return the current game phase */
     public GamePhase getCurrentPhase()                { return currentPhase; }
+    /** @return the nickname of the current player */
     public String getCurrentPlayerNickname()          { return currentPlayerNickname; }
+    /** @return the ordered nicknames for the turn sequence */
     public List<String> getTurnOrder()                { return turnOrder; }
+    /** @return the cards in the top row */
     public List<Card> getTopRow()                     { return topRow; }
+    /** @return the cards in the bottom row */
     public List<Card> getBottomRow()                  { return bottomRow; }
+    /** @return the offer track snapshot */
     public List<OfferTileSnapshot> getOfferTrack()    { return offerTrack; }
+    /** @return the turn order tile snapshot */
     public List<TurnSlotSnapshot> getTurnOrderSlots() { return turnOrderSlots; }
+    /** @return the list of player snapshots */
     public List<PlayerSnapshot> getPlayers()          { return players; }
+    /** @return the winners' nicknames, empty if the game is not over */
     public List<String> getWinners()                  { return winners; }
 
 }

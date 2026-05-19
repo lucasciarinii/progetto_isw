@@ -7,6 +7,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serial;
 import java.io.Serializable;
 
+/**
+ * Serializable snapshot of a turn order slot.
+ */
 public class TurnSlotSnapshot implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -28,11 +31,16 @@ public class TurnSlotSnapshot implements Serializable {
         this.occupantNickname = occupantNickname;
     }
 
+    /** @return the slot position index */
     public int getPosition()            { return position; }
+    /** @return the food bonus for the slot */
     public int getFoodBonus()           { return foodBonus; }
+    /** @return the points bonus for the slot */
     public int getPointsBonus()         { return pointsBonus; }
+    /** @return the nickname of the occupying player, or null */
     public String getOccupantNickname() { return occupantNickname; }
     @JsonIgnore
+    /** @return true if the slot has no occupant */
     public boolean isFree()             { return occupantNickname == null; }
 
     @Override

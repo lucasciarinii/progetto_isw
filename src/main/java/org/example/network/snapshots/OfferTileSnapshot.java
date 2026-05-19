@@ -8,6 +8,9 @@ import org.example.server.model.enums.OfferEffect;
 import java.io.Serial;
 import java.io.Serializable;
 
+/**
+ * Serializable snapshot of an offer tile and its occupant.
+ */
 public class OfferTileSnapshot implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -23,9 +26,12 @@ public class OfferTileSnapshot implements Serializable {
         this.occupantNickname = occupantNickname;
     }
 
+    /** @return the offer effect of the tile */
     public OfferEffect getOfferEffect()   { return offerEffect; }
+    /** @return the nickname of the occupying player, or null */
     public String getOccupantNickname()   { return occupantNickname; }
     @JsonIgnore
+    /** @return true if the tile has no occupant */
     public boolean isFree()               { return occupantNickname == null; }
 
     @Override

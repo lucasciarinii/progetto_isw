@@ -6,14 +6,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.List;
 
-//? Message sent to all clients in waiting lobby -> It updates them about how many player are connected, and how many more are needed to start the game
+/**
+ * DTO sent to lobby clients with the current waiting room status.
+ */
 public class LobbyUpdateMessage implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final int connectedPlayers;
     private final int requiredPlayers;
     private final List<String> playerNicknames;
-    private final boolean gameStarting;  // true = the game is about to start, false = still waiting for players
+    private final boolean gameStarting;
 
     @JsonCreator
     public LobbyUpdateMessage(
@@ -27,8 +29,31 @@ public class LobbyUpdateMessage implements Serializable {
         this.gameStarting = gameStarting;
     }
 
+    /**
+     * Returns the number of connected players.
+     *
+     * @return the connected players count
+     */
     public int getConnectedPlayers()      { return connectedPlayers; }
+
+    /**
+     * Returns the required number of players to start the match.
+     *
+     * @return the required players count
+     */
     public int getRequiredPlayers()       { return requiredPlayers; }
+
+    /**
+     * Returns the ordered list of nicknames in the lobby.
+     *
+     * @return the player nicknames
+     */
     public List<String> getPlayerNicknames() { return playerNicknames; }
+
+    /**
+     * Indicates whether the game is starting.
+     *
+     * @return true if the game is starting
+     */
     public boolean isGameStarting()       { return gameStarting; }
 }
