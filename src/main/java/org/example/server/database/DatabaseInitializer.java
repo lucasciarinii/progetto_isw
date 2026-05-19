@@ -14,8 +14,6 @@ import java.sql.Statement;
  */
 public final class DatabaseInitializer {
 
-    private static final String DB_URL_PREFIX = "jdbc:mysql://";
-
     private DatabaseInitializer() {
     }
 
@@ -46,6 +44,15 @@ public final class DatabaseInitializer {
         }
     }
 
+    /**
+     * Checks whether the target database exists on the DBMS.
+     *
+     * @param parts parsed URL components (server URL and database name)
+     * @param user database user
+     * @param password database password
+     * @return true if the database already exists
+     * @throws SQLException when the check fails
+     */
     private static boolean databaseExists(DbUrlParts parts, String user, String password) throws SQLException {
         String query = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?";
         try (Connection connection = DriverManager.getConnection(parts.serverUrl(), user, password);
@@ -57,6 +64,11 @@ public final class DatabaseInitializer {
         }
     }
 
+    /**
+     * Loads the MySQL JDBC driver to ensure DriverManager can resolve connections.
+     *
+     * @throws SQLException when the driver is not available
+     */
     private static void loadDriver() throws SQLException {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -65,6 +77,13 @@ public final class DatabaseInitializer {
         }
     }
 
+    /**
+     * Splits a JDBC URL into server URL and database name components.
+     *
+     * @param url the JDBC URL configured for the server
+     * @return parsed URL parts
+     * @throws SQLException when the URL does not match the expected MySQL format
+     */
     private static DbUrlParts parseUrl(String url) throws SQLException {
         String prefix = "jdbc:mysql://";
         if (!url.startsWith(prefix)) {
@@ -96,6 +115,14 @@ public final class DatabaseInitializer {
         return new DbUrlParts(serverUrl, dbName);
     }
 
+    /**
+     * Creates the database if it does not already exist.
+     *
+     * @param parts parsed URL components (server URL and database name)
+     * @param user database user
+     * @param password database password
+     * @throws SQLException when database creation fails
+     */
     private static void createDatabaseIfMissing(DbUrlParts parts, String user, String password) throws SQLException {
         try (Connection connection = DriverManager.getConnection(parts.serverUrl(), user, password);
              Statement statement = connection.createStatement()) {
@@ -103,6 +130,14 @@ public final class DatabaseInitializer {
         }
     }
 
+    /**
+     * Creates the required tables and view if they do not already exist.
+     *
+     * @param url JDBC URL that includes the target database name
+     * @param user database user
+     * @param password database password
+     * @throws SQLException when schema creation fails
+     */
     private static void createSchemaIfMissing(String url, String user, String password) throws SQLException {
         try (Connection connection = DriverManager.getConnection(url, user, password);
              Statement statement = connection.createStatement()) {
@@ -146,6 +181,13 @@ public final class DatabaseInitializer {
         }
     }
 
+    /**
+     * Java record -> Nested type: light immutable class with 2 fields
+     * It serves for CONTAINING the parsed server URL and database name.
+     *
+     * @param serverUrl JDBC URL without the database name
+     * @param dbName target database name
+     */
     private record DbUrlParts(String serverUrl, String dbName) {
     }
 }
