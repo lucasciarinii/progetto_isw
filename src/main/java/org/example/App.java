@@ -41,7 +41,9 @@ public class App {
     // =========================================================================
 
     private static void startServer() throws Exception {
+        // If the database doesn't exist, create it with the right schema
         DatabaseInitializer.ensureDatabase();
+
         HybridServerNetworkAdapter adapter = new HybridServerNetworkAdapter();
         adapter.start();
         System.out.println("Server started. Press ENTER to shut down.");

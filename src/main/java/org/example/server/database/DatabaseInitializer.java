@@ -1,19 +1,20 @@
 package org.example.server.database;
 
+import org.example.server.ServerLogger;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Ensures the game database and schema exist at server startup.
  */
 public final class DatabaseInitializer {
 
-    private static final Pattern DB_URL_PATTERN =
-            Pattern.compile("^jdbc:mysql://([^/]+)/([^?]+)(\\?.*)?$");
+    private static final String DB_URL_PREFIX = "jdbc:mysql://";
 
     private DatabaseInitializer() {
     }
@@ -30,8 +31,30 @@ public final class DatabaseInitializer {
         String password = DatabaseConnection.getPassword();
 
         DbUrlParts parts = parseUrl(url);
+        boolean dbExists = databaseExists(parts, user, password);
+        if (dbExists) {
+            ServerLogger.server("Database already exists. Using existing database.");
+        } else {
+            ServerLogger.server("Database not found. Creating empty database...");
+        }
+
         createDatabaseIfMissing(parts, user, password);
         createSchemaIfMissing(url, user, password);
+
+        if (!dbExists) {
+            ServerLogger.server("Database created successfully.");
+        }
+    }
+
+    private static boolean databaseExists(DbUrlParts parts, String user, String password) throws SQLException {
+        String query = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?";
+        try (Connection connection = DriverManager.getConnection(parts.serverUrl(), user, password);
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setString(1, parts.dbName());
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
     }
 
     private static void loadDriver() throws SQLException {
@@ -43,13 +66,32 @@ public final class DatabaseInitializer {
     }
 
     private static DbUrlParts parseUrl(String url) throws SQLException {
-        Matcher matcher = DB_URL_PATTERN.matcher(url);
-        if (!matcher.matches()) {
+        String prefix = "jdbc:mysql://";
+        if (!url.startsWith(prefix)) {
             throw new SQLException("Unsupported DB_URL format: " + url);
         }
-        String hostPort = matcher.group(1);
-        String dbName = matcher.group(2);
-        String params = matcher.group(3) == null ? "" : matcher.group(3);
+
+        int hostStart = prefix.length();
+        int slashIndex = url.indexOf('/', hostStart);
+        if (slashIndex < 0) {
+            throw new SQLException("Unsupported DB_URL format: " + url);
+        }
+
+        String hostPort = url.substring(hostStart, slashIndex);
+        String dbAndParams = url.substring(slashIndex + 1);
+
+        String dbName = dbAndParams;
+        String params = "";
+        int questionIndex = dbAndParams.indexOf('?');
+        if (questionIndex >= 0) {
+            dbName = dbAndParams.substring(0, questionIndex);
+            params = dbAndParams.substring(questionIndex);
+        }
+
+        if (dbName.isBlank()) {
+            throw new SQLException("Unsupported DB_URL format: " + url);
+        }
+
         String serverUrl = "jdbc:mysql://" + hostPort + params;
         return new DbUrlParts(serverUrl, dbName);
     }
