@@ -1,9 +1,10 @@
 package org.example.server;
 
-/*? Handle waiting phase before the game starts.
-    - First player decides how many players will be in the game (2-5)
-    - When the number is reached, creates Match and ServerController.
-*/
+/**
+ * Controller that manages the lobby before the game starts.
+ * The first player selects the total number of players (2-5), and once
+ * the lobby is full a match and its controller are created.
+ */
 
 import org.example.network.ServerNotifier;
 import org.example.network.messages.LobbyUpdateMessage;
@@ -20,7 +21,7 @@ public class LobbyController implements GameOverListener {
     // Keeps the order of connection: nicknames
     private final LinkedHashSet<String> waitingClients = new LinkedHashSet<>();
 
-    // Callback called by GameServerImpl when the lobby is full
+    // Callback invoked when the lobby is full.
     private final LobbyReadyListener onReady;
     private final ServerNotifier notifier;
 
@@ -29,11 +30,14 @@ public class LobbyController implements GameOverListener {
         this.notifier = notifier;
     }
 
-    /* Registers a new player in the lobby
-        * @param nickname       player's nickname
-        * @param numPlayers     desired number of players (used only by the first one)
-        * @param callback       RMI callback to communicate with this client
-    */
+    /**
+     * Registers a player in the lobby.
+     * The first player sets the desired total number of players.
+     *
+     * @param nickname   the player's nickname
+     * @param numPlayers desired number of players (used only by the first one)
+     * @throws Exception if the nickname is already taken or the lobby is invalid
+     */
     public synchronized void registerPlayer(String nickname, int numPlayers) throws Exception {
 
         // Check if the nickname is already taken
@@ -62,6 +66,12 @@ public class LobbyController implements GameOverListener {
         }
     }
 
+    /**
+     * Initializes the match and notifies clients that the game is starting.
+     * - Creates the list of Players from the waiting clients connected to the lobby
+     * - Creates the Match (model) and ServerController (controller)
+     * - Sends the first snapshot to all clients
+     */
     private void startGame() throws Exception {
         // Notify all clients that the game is starting (gameStarting = true)
         notifyAllWaiting(true);
@@ -85,6 +95,11 @@ public class LobbyController implements GameOverListener {
         ServerLogger.game("Game started with mixed connections.");
     }
 
+    /**
+     * Sends the current lobby status to all waiting clients.
+     *
+     * @param gameStarting whether the game is starting now
+     */
     private void notifyAllWaiting(boolean gameStarting) {
         LobbyUpdateMessage update = new LobbyUpdateMessage(
                 waitingClients.size(),
@@ -101,10 +116,21 @@ public class LobbyController implements GameOverListener {
         }
     }
 
+    /**
+     * Checks whether a nickname is already present in the lobby.
+     *
+     * @param nickname the nickname to verify
+     * @return true if the nickname is already taken
+     */
     public boolean isNicknameTaken(String nickname) {
         return waitingClients.contains(nickname);
     }
 
+    /**
+     * Resets the lobby state when a match ends.
+     *
+     * @param controller the controller that finished the match
+     */
     @Override
     public void onGameOver(ServerController controller) {
         // Reset lobby state for a new match

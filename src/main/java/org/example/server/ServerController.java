@@ -23,6 +23,10 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Server-side controller that validates player actions, updates the match state,
+ * and broadcasts snapshots to connected clients.
+ */
 public class ServerController {
     private final Match match;
     private final ServerNotifier notifier;
@@ -37,11 +41,18 @@ public class ServerController {
         this.notifier = notifier;
     }
 
+    /**
+     * Registers a listener to be called when the game ends.
+     *
+     * @param listener callback invoked after the game-over phase is processed
+     */
     public void setGameOverListener(GameOverListener listener) {
         this.onGameOver = listener;
     }
 
-    // Close the connection
+    /**
+     * Finalizes the session and notifies the game-over listener, if any.
+     */
     private void shutdown() {
         ServerLogger.server("Game match session closed.");
         if (onGameOver != null) {
@@ -49,7 +60,12 @@ public class ServerController {
         }
     }
 
-    //! GAME ACTIONS ---------------------------------------------------------------------------
+    /**
+     * Places a player's totem on the selected offer tile.
+     *
+     * @param nickname     the player nickname
+     * @param tilePosition the offer tile index
+     */
     public void placeTotemOnOfferTile(String nickname, int tilePosition) {
         if (!isKnownPlayer(nickname)) {
             ServerLogger.server("Player not found for: " + nickname);
@@ -74,6 +90,12 @@ public class ServerController {
 
     }
 
+    /**
+     * Executes the action for the offer tile selected by the current player.
+     *
+     * @param nickname the player nickname
+     * @param cards    the serialized card selection
+     */
     public void offerTileAction(String nickname, String cards) {
         if (!isKnownPlayer(nickname)) {
             ServerLogger.server("Player not found for: " + nickname);
@@ -115,8 +137,14 @@ public class ServerController {
 
     }
 
+    /**
+     * Handles the RoundFlow building request when a player must choose the extra top card.
+     *
+     * @param nickname the player nickname
+     * @param cards    the card ID
+     */
     public void roundFlowCardRequest(String nickname, String cards) {
-        if (!waitingForRoundFlow) {
+        if (!waitingForRoundFlow) { // waitingForRoundFlow is set to true only if we are in END_ROUND and a player has RoundFlowBC, so we expect this request only in that case
             try {
                 notifier.sendError(nickname, "No RoundFlow action expected now.",
                         match.getGameState().getCurrentPhase());
@@ -162,12 +190,17 @@ public class ServerController {
         waitingForRoundFlow = false;
         roundFlowPlayerNick = null;
 
-        // notifica tutti dello stato aggiornato e poi prosegui
+        // Notify all players with the updated state, then continue.
         notifyAll(buildSnapshot());
         proceedEndRound();
 
     }
 
+    /**
+     * Skips the current player's turn and advances the phase if needed. (called when there are no drawable cards for the player on his turn)
+     *
+     * @param nickname the player nickname
+     */
     public void skipTurn(String nickname) {
         if (!isKnownPlayer(nickname)) {
             ServerLogger.server("SkipTurn failed: player not found for: " + nickname);
@@ -191,7 +224,6 @@ public class ServerController {
         handlePhaseTransition(phaseBefore);
     }
 
-    //! UTILITY METHODS ---------------------------------------------------------------------------
     private boolean isWrongPlayer(String nick) {
         return !match.getGameState().getCurrentPlayer().getNickname().equals(nick);
     }
@@ -211,8 +243,11 @@ public class ServerController {
                 .orElseThrow(() -> new IllegalArgumentException("Player not found: " + nick));
     }
 
-    //! NOTIFICATION METHODS ---------------------------------------------------------------------------
-    // Notifies all clients with the DTO (GameStateUpdateMessage) built from the current Match state with buildSnapshot() method.
+    /**
+     * Sends a game-state update to all connected players.
+     *
+     * @param update the snapshot DTO to broadcast
+     */
     private void notifyAll(GameStateUpdateMessage update) {
         for (Player player : match.getPlayers()) {
             try {
@@ -223,7 +258,12 @@ public class ServerController {
         }
     }
 
-    // Notifies the sender client with an error message (e.g., invalid move, wrong turn, etc.). If sending fails (e.g., client disconnected), we unregister the client.
+    /**
+     * Sends an error message to the specified player.
+     *
+     * @param nickname the target player nickname
+     * @param message  the error description
+     */
     private void sendError(String nickname, String message) {
         try {
             notifier.sendError(nickname, message, match.getGameState().getCurrentPhase());
@@ -232,13 +272,18 @@ public class ServerController {
         }
     }
 
-    // Sends the initial snapshot to all clients when the game exactly starts. Called by LobbyController after registering all clients.
+    /**
+     * Sends the initial snapshot to all clients when the game starts.
+     */
     public void sendInitialState() {
         notifyAll(buildSnapshot());
     }
 
-    //! BUILD SNAPSHOT METHOD ---------------------------------------------------------------------------
-    // Method used to read 'Match' and builds the corresponding DTO (GameStateUpdateMessage) to send to the clients.
+    /**
+     * Builds a DTO snapshot of the current match state.
+     *
+     * @return the game-state update message
+     */
     private GameStateUpdateMessage buildSnapshot() {
         // builds DTO from current Match state
         GameState gs = match.getGameState();
@@ -307,7 +352,11 @@ public class ServerController {
         );
     }
 
-    //! HANDLE PHASE TRANSITIONS
+    /**
+     * Handles phase transitions after a player action.
+     *
+     * @param phaseBefore the phase before the action
+     */
     private void handlePhaseTransition(GamePhase phaseBefore) {
         GamePhase phaseAfter = match.getGameState().getCurrentPhase();
 
@@ -321,6 +370,11 @@ public class ServerController {
         handleNewPhase(phaseAfter);
     }
 
+    /**
+     * Executes the logic associated with entering a new phase.
+     *
+     * @param phase the new game phase
+     */
     private void handleNewPhase(GamePhase phase) {
         switch (phase) {
 
@@ -387,7 +441,7 @@ public class ServerController {
                 // END_ROUND → END_GAME: round 10 completed
                 match.endOfGame();
 
-                // Avanza a GAME_OVER
+                // Move to GAME_OVER.
                 match.getGameState().advancePhase();
                 handleNewPhase(GamePhase.GAME_OVER);
             }
@@ -449,20 +503,24 @@ public class ServerController {
             }
 
              default -> throw new IllegalStateException("Unexpected phase: " + phase);
-        }
-    }
+         }
+     }
 
-    private void proceedEndRound() {
-        if (match.getGameState().getCurrentRound() == 10) {
-            match.getGameState().advancePhase();
-            handleNewPhase(match.getGameState().getCurrentPhase());
-            return;
-        }
-        match.endRoundOperations();
-        match.getGameState().advancePhase();
-        handleNewPhase(match.getGameState().getCurrentPhase());
-    }
+    /**
+     * Finalizes the end-of-round flow, including end-game transition.
+     */
+     private void proceedEndRound() {
+         if (match.getGameState().getCurrentRound() == 10) {
+             match.getGameState().advancePhase();
+             handleNewPhase(match.getGameState().getCurrentPhase());
+             return;
+         }
+         match.endRoundOperations();
+         match.getGameState().advancePhase();
+         handleNewPhase(match.getGameState().getCurrentPhase());
+     }
 
 
 
-}
+ }
+
