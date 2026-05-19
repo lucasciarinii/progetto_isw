@@ -1,21 +1,56 @@
 package org.example.network;
 
+/**
+ * Client-side adapter that sends player actions to the server.
+ */
 public interface ClientNetworkAdapter {
 
-    // Client connects to the server
+    /**
+     * Connects a client to the server lobby.
+     *
+     * @param host       the server host
+     * @param port       the server port
+     * @param nickname   the chosen player nickname
+     * @param numPlayers desired total number of players
+     * @throws Exception if the connection fails
+     */
     void connect(String host, int port, String nickname, int numPlayers) throws Exception;
 
-    // Client place a totem on a tile
+    /**
+     * Requests to place a totem on a specific offer tile.
+     *
+     * @param tilePosition the offer tile index
+     * @throws Exception if the request fails
+     */
     void placeTotemOnOfferTile(int tilePosition) throws Exception;
 
-    // Client action
+    /**
+     * Sends the chosen cards for the current offer tile action.
+     *
+     * @param cards the serialized card selection
+     * @throws Exception if the request fails
+     */
     void offerTileAction(String cards) throws Exception;
 
+    /**
+     * Sends the chosen cards for the RoundFlow request.
+     *
+     * @param cards the serialized card selection
+     * @throws Exception if the request fails
+     */
     void roundFlowCardRequest(String cards) throws Exception;
 
-    // Client executes an action on a tile
+    /**
+     * Requests to skip the current turn. (used after a client-side check on the number of pickable cards)
+     *
+     * @throws Exception if the request fails
+     */
     void skipTurn() throws Exception;
 
-    // Client disconnects
+    /**
+     * Disconnects the client from the server.
+     *
+     * @throws Exception if the disconnection fails
+     */
     void disconnect() throws Exception;
 }

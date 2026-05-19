@@ -15,12 +15,21 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * Hybrid server adapter that runs both Socket and RMI servers in parallel and
+ * routes outbound notifications to the correct protocol based on the player.
+ */
 public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyReadyListener {
 
     private final SocketServerNetworkAdapter socketAdapter;
     private final RMIServerNetworkAdapter rmiAdapter;
     private final Map<String, ServerNetworkAdapter> routingTable = new ConcurrentHashMap<>();
 
+    /**
+     * Creates a hybrid adapter with a shared lobby for both protocols.
+     *
+     * @throws Exception if the adapters cannot be initialized
+     */
     public HybridServerNetworkAdapter() throws Exception {
         System.setProperty("java.rmi.server.hostname", "127.0.0.1");
         LobbyController sharedLobby = new LobbyController(this, this);
@@ -32,6 +41,11 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
         rmiAdapter.setHybrid(this);
     }
 
+    /**
+     * Starts both Socket and RMI adapters on separate threads.
+     *
+     * @throws Exception if the adapters fail to start
+     */
     @Override
     public void start() throws Exception {
         CountDownLatch latch = new CountDownLatch(2);
@@ -56,22 +70,38 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
             }
         }).start();
 
-        latch.await(); // blocks until both are ready
+        latch.await(); // Blocks until both are ready.
         ServerLogger.server("Hybrid server network adapter started successfully (RMI + Socket).");
     }
 
+    /**
+     * Stops both Socket and RMI adapters.
+     *
+     * @throws Exception if any adapter fails to stop
+     */
     @Override
     public void stop() throws Exception {
         socketAdapter.stop();
         rmiAdapter.stop();
     }
 
+    /**
+     * Propagates the ready controller to both protocol adapters.
+     *
+     * @param serverController the controller for the started match
+     */
     @Override
     public void onLobbyReady(ServerController serverController) {
         socketAdapter.onLobbyReady(serverController);
         rmiAdapter.onLobbyReady(serverController);
     }
 
+    /**
+     * Registers the protocol adapter used by a specific player.
+     *
+     * @param nickname the player nickname
+     * @param adapter  the adapter handling that player's connection (RMI or Socket)
+     */
     public void registerRoute(String nickname, ServerNetworkAdapter adapter) {
         routingTable.put(nickname, adapter);
     }
@@ -106,6 +136,12 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
         route(nickname).sendShutdown(nickname);
     }
 
+    /**
+     * Resolves the protocol adapter associated with the given player.
+     *
+     * @param nickname the player nickname
+     * @return the corresponding adapter
+     */
     private ServerNetworkAdapter route(String nickname) {
         ServerNetworkAdapter adapter = routingTable.get(nickname);
         if (adapter == null) throw new IllegalStateException("No route for: " + nickname);
