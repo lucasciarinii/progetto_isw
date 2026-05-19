@@ -29,6 +29,27 @@ public class DatabaseConnection {
     private DatabaseConnection() {}
 
     /**
+     * Returns the JDBC URL used by the server.
+     */
+    public static String getUrl() {
+        return URL;
+    }
+
+    /**
+     * Returns the database user.
+     */
+    public static String getUser() {
+        return USER;
+    }
+
+    /**
+     * Returns the database password.
+     */
+    public static String getPassword() {
+        return PASSWORD;
+    }
+
+    /**
      * Returns a live JDBC connection, creating it if needed.
      *
      * @return JDBC connection
