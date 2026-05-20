@@ -5,10 +5,7 @@ import org.example.network.messages.LobbyUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
 import org.example.network.rmi.RMIServerNetworkAdapter;
 import org.example.network.socket.SocketServerNetworkAdapter;
-import org.example.server.LobbyController;
-import org.example.server.LobbyReadyListener;
-import org.example.server.ServerController;
-import org.example.server.ServerLogger;
+import org.example.server.*;
 import org.example.server.model.enums.GamePhase;
 
 import java.util.Map;
@@ -17,23 +14,26 @@ import java.util.concurrent.CountDownLatch;
 
 public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyReadyListener {
 
-    private final SocketServerNetworkAdapter socketAdapter;
-    private final RMIServerNetworkAdapter rmiAdapter;
+    private SocketServerNetworkAdapter socketAdapter;
+    private RMIServerNetworkAdapter rmiAdapter;
+
     private final Map<String, ServerNetworkAdapter> routingTable = new ConcurrentHashMap<>();
+    private final Map<String, String> playerToGameID = new ConcurrentHashMap<>();
+    private final Map<String, ServerController> gameControllers = new ConcurrentHashMap<>();
 
     public HybridServerNetworkAdapter() throws Exception {
         System.setProperty("java.rmi.server.hostname", "127.0.0.1");
-        LobbyController sharedLobby = new LobbyController(this, this);
-
-        this.socketAdapter = new SocketServerNetworkAdapter(sharedLobby);
-        this.rmiAdapter = new RMIServerNetworkAdapter(sharedLobby);
-
-        socketAdapter.setHybrid(this);
-        rmiAdapter.setHybrid(this);
+        //LobbyController sharedLobby = new LobbyController(this, this);
     }
 
     @Override
     public void start() throws Exception {
+
+        MatchManager matchManager = new MatchManager(this, this, this);
+
+        socketAdapter = new SocketServerNetworkAdapter(matchManager, this);
+        rmiAdapter = new RMIServerNetworkAdapter(matchManager, this);
+
         CountDownLatch latch = new CountDownLatch(2);
 
         new Thread(() -> {
@@ -67,9 +67,8 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
     }
 
     @Override
-    public void onLobbyReady(ServerController serverController) {
-        socketAdapter.onLobbyReady(serverController);
-        rmiAdapter.onLobbyReady(serverController);
+    public void onLobbyReady(ServerController serverController, String gameID) {
+        gameControllers.put(gameID, serverController);
     }
 
     public void registerRoute(String nickname, ServerNetworkAdapter adapter) {
@@ -104,6 +103,24 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
     @Override
     public void sendShutdown(String nickname) throws Exception {
         route(nickname).sendShutdown(nickname);
+    }
+
+
+    //! UTILITY METHODS
+    public void registerPlayerGameID(String nickname, String gameID) {
+        String cleanID = gameID.trim().toUpperCase();
+        playerToGameID.put(cleanID, nickname);
+    }
+
+    public ServerController resolveServerController(String gameID) {
+        String cleanID = gameID.trim().toUpperCase();
+
+        ServerController serverController = gameControllers.get(cleanID);
+        if ( serverController == null ) {
+            throw new IllegalStateException("No game for: " + cleanID);
+        }
+
+        return serverController;
     }
 
     private ServerNetworkAdapter route(String nickname) {

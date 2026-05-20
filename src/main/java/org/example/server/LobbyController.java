@@ -15,7 +15,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 public class LobbyController implements GameOverListener {
-    private int requiredPlayers = -1;  // -1 = not decided yet
+
 
     // Keeps the order of connection: nicknames
     private final LinkedHashSet<String> waitingClients = new LinkedHashSet<>();
@@ -23,10 +23,14 @@ public class LobbyController implements GameOverListener {
     // Callback called by GameServerImpl when the lobby is full
     private final LobbyReadyListener onReady;
     private final ServerNotifier notifier;
+    private final String gameID;
+    private final int numPlayers;
 
-    public LobbyController(LobbyReadyListener onReady, ServerNotifier notifier) {
+    public LobbyController(LobbyReadyListener onReady, ServerNotifier notifier, String gameID, int numPlayers) {
         this.onReady = onReady;
         this.notifier = notifier;
+        this.gameID = gameID;
+        this.numPlayers = numPlayers;
     }
 
     /* Registers a new player in the lobby
@@ -34,30 +38,22 @@ public class LobbyController implements GameOverListener {
         * @param numPlayers     desired number of players (used only by the first one)
         * @param callback       RMI callback to communicate with this client
     */
-    public synchronized void registerPlayer(String nickname, int numPlayers) throws Exception {
+    public synchronized void registerPlayer(String nickname) throws Exception {
 
         // Check if the nickname is already taken
         if (waitingClients.contains(nickname)) {
             throw new IllegalArgumentException("Nickname already used: " + nickname);
         }
 
-        // First player decides how many players will be in the game (2-5)
-        if (waitingClients.isEmpty()) {
-            if (numPlayers < 2 || numPlayers > 5) {
-                throw new IllegalArgumentException("Invalid number of players. Choose between 2 and 5.");
-            }
-            requiredPlayers = numPlayers;
-        }
-
         // Add the player to the lobby
         waitingClients.add(nickname);
-        ServerLogger.lobby(nickname + " joined the lobby. (" + waitingClients.size() + "/" + requiredPlayers + ")");
+        ServerLogger.lobby(nickname + " joined the lobby. (" + waitingClients.size() + "/" + numPlayers + ")");
 
         // Notifies all clients in waiting
         notifyAllWaiting(false);
 
         // Check if lobby is full
-        if (waitingClients.size() == requiredPlayers) {
+        if (waitingClients.size() == numPlayers) {
             startGame();
         }
     }
@@ -81,14 +77,14 @@ public class LobbyController implements GameOverListener {
         serverController.sendInitialState();
 
         // Alerts GameServerImpl that the controller is ready
-        onReady.onLobbyReady(serverController);
+        onReady.onLobbyReady(serverController, gameID);
         ServerLogger.game("Game started with mixed connections.");
     }
 
     private void notifyAllWaiting(boolean gameStarting) {
         LobbyUpdateMessage update = new LobbyUpdateMessage(
                 waitingClients.size(),
-                requiredPlayers,
+                numPlayers,
                 new ArrayList<>(waitingClients),
                 gameStarting
         );
@@ -109,7 +105,6 @@ public class LobbyController implements GameOverListener {
     public void onGameOver(ServerController controller) {
         // Reset lobby state for a new match
         waitingClients.clear();
-        requiredPlayers = -1;
         ServerLogger.lobby("Game over. Lobby ready for new game.");
     }
 }

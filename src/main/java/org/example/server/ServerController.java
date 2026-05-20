@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ServerController {
+public class ServerController implements Runnable {
     private final Match match;
     private final ServerNotifier notifier;
     private GameOverListener onGameOver;
@@ -35,6 +35,12 @@ public class ServerController {
     public ServerController(Match match, ServerNotifier notifier) {
         this.match = match;
         this.notifier = notifier;
+    }
+
+    @Override
+    public void run() {
+        ServerLogger.server("New server controller started");
+        sendInitialState();
     }
 
     public void setGameOverListener(GameOverListener listener) {
