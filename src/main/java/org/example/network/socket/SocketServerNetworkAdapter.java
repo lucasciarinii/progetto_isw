@@ -6,10 +6,7 @@ import org.example.network.ServerNetworkAdapter;
 import org.example.network.messages.GameStateUpdateMessage;
 import org.example.network.messages.LobbyUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
-import org.example.server.LobbyController;
-import org.example.server.LobbyReadyListener;
-import org.example.server.ServerController;
-import org.example.server.ServerLogger;
+import org.example.server.*;
 import org.example.server.model.enums.GamePhase;
 
 import java.io.IOException;
@@ -21,23 +18,19 @@ import java.util.Map;
 public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyReadyListener {
 
     public static final int DEFAULT_PORT = 9999;
-
-    private final LobbyController lobby;
-    private ServerSocket serverSocket;
-    private final Map<String, ClientSocketHandler> connectedClients = new HashMap<>();
     private final ObjectMapper mapper = new ObjectMapper();
-
-    private ServerController serverController;
     private boolean running = false;
-    private HybridServerNetworkAdapter hybrid = null;
+
+    private final Map<String, ClientSocketHandler> connectedClients = new HashMap<>();
+    private ServerController serverController;
+    private final HybridServerNetworkAdapter hybrid;
+    private ServerSocket serverSocket;
+    private final MatchManager matchManager;
 
 
     // Hybrid constructor (RMI + Socket)
-    public SocketServerNetworkAdapter(LobbyController sharedLobby) {
-        this.lobby = sharedLobby;
-    }
-
-    public void setHybrid(HybridServerNetworkAdapter hybrid) {
+    public SocketServerNetworkAdapter(MatchManager matchManager, HybridServerNetworkAdapter hybrid) {
+        this.matchManager = matchManager;
         this.hybrid = hybrid;
     }
 
@@ -137,23 +130,24 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
         }
     }
 
-    public void registerPlayer(String nickname, int numPlayers) {
-        if (hybrid != null)
-            hybrid.registerRoute(nickname, this);
-
-        try {
-            lobby.registerPlayer(nickname, numPlayers);
-        } catch (Exception e) {
-            try {
-                sendError(nickname, e.getMessage(), GamePhase.LOBBY);
-            } catch (Exception ex) {
-                ServerLogger.error("Failed to send lobby error: " + ex.getMessage());
-            }
-        }
+    @Override
+    public void onLobbyReady(ServerController serverController, String gameID) {
+        this.serverController = serverController;
     }
 
-    public boolean isNicknameTaken(String nickname) {
-        return lobby.isNicknameTaken(nickname);
+
+    public String createGame(String nickname, int numPlayers) throws Exception {
+        if (hybrid != null) {
+            hybrid.registerRoute(nickname, this);
+        }
+        return matchManager.createLobby(nickname, numPlayers);
+    }
+
+    public void joinGame(String nickname, String gameID) throws Exception {
+        if (hybrid != null) {
+            hybrid.registerRoute(nickname, this);
+        }
+        matchManager.joinLobby(nickname, gameID);
     }
 
     public void placeTotemOnOfferTile(String nickname, int tilePosition) {
@@ -188,10 +182,6 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
         serverController.skipTurn(nickname);
     }
 
-    @Override
-    public void onLobbyReady(ServerController serverController) {
-        this.serverController = serverController;
-    }
 
     public ServerController getServerController() {
         return serverController;

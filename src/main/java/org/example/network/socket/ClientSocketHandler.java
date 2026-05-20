@@ -19,6 +19,7 @@ public class ClientSocketHandler implements Runnable {
     private PrintWriter out;
     private BufferedReader in;
     private String nickname;
+    private String gameID;
     private final ObjectMapper mapper = new ObjectMapper();
 
 
@@ -65,22 +66,26 @@ public class ClientSocketHandler implements Runnable {
         try {
             Map<String, Object> cmd = mapper.readValue(command, Map.class);
             String action = (String) cmd.get("action");
+
             String cards;
 
             switch (action) {
-                case "register":
-                    String nickname = (String) cmd.get("nickname");
+                case "create_lobby":
+                    this.nickname = (String) cmd.get("nickname");
                     int numPlayers = (int) cmd.get("numPlayers");
 
-                    if (socketServerNetworkAdapter.isNicknameTaken(nickname)) {
-                        sendLobbyError("Nickname already used: " + nickname);
-                        break;
-                    }
-                    this.nickname = nickname;
                     connectedClients.put(nickname, this);
-                    socketServerNetworkAdapter.registerPlayer(nickname, numPlayers);
-                    System.out.println("[SERVER] Player " + nickname + " registered");
+
+                    this.gameID = socketServerNetworkAdapter.createGame(nickname, numPlayers);
+                    sendGameID();
+                    System.out.println("[SERVER] Lobby with ID" + gameID + "created by " + nickname);
                     break;
+
+                case "join_lobby":
+                    this.nickname = (String) cmd.get("nickname");
+                    this.gameID = (String) cmd.get("gameID");
+
+                    socketServerNetworkAdapter.joinGame(nickname, gameID);
 
                 case "placeTotem":
                     int tilePosition = (int) cmd.get("tilePosition");
@@ -117,6 +122,17 @@ public class ClientSocketHandler implements Runnable {
             out.println(mapper.writeValueAsString(msg));
         } catch (IOException e) {
             System.err.println("[Server] Failed to send lobby error: " + e.getMessage());
+        }
+    }
+
+    private void sendGameID() {
+        try {
+            Map<String, Object> msg = new HashMap<>();
+            msg.put("event", "GAME_ID");
+            msg.put("gameID", gameID);
+            out.println(mapper.writeValueAsString(msg));
+        } catch (IOException e) {
+            System.err.println("[Server] Failed to send gameID: " + e.getMessage());
         }
     }
 }

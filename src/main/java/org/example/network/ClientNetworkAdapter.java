@@ -3,7 +3,11 @@ package org.example.network;
 public interface ClientNetworkAdapter {
 
     // Client connects to the server
-    void connect(String host, int port, String nickname, int numPlayers) throws Exception;
+    void connect(String host, int port) throws Exception;
+
+    void createLobby(String nickname, int numPlayers) throws Exception;
+
+    void joinLobby(String nickname, String gameID) throws Exception;
 
     // Client place a totem on a tile
     void placeTotemOnOfferTile(int tilePosition) throws Exception;

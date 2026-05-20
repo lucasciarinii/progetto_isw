@@ -5,7 +5,6 @@ import org.example.network.ServerNotifier;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static java.util.concurrent.ThreadLocalRandom.current;
 
@@ -52,13 +51,17 @@ public class MatchManager {
         String cleanID = gameID.trim().toUpperCase();
 
         // Retrieve lobby controller from map
-        LobbyController lobby = lobbies.get(cleanID);
-        if ( lobby == null ) {
+        LobbyController lobbyController = lobbies.get(cleanID);
+        if ( lobbyController == null ) {
             throw new IllegalStateException("Lobby not found");
         }
 
+        if ( lobbyController.isNicknameTaken(nickname) ) {
+            throw new IllegalArgumentException("Nickname already taken");
+        }
+
         // Register the player in the lobby
-        lobby.registerPlayer(nickname);
+        lobbyController.registerPlayer(nickname);
         hybrid.registerPlayerGameID(nickname, cleanID);
     }
 
