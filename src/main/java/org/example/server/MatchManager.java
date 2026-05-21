@@ -36,12 +36,19 @@ public class MatchManager {
         // Create a unique key
         String gameID = generateUniqueID();
 
+        // Reserve the nickname
+        reserveNickname(nickname);
+
         // Create a lobby
         LobbyController newLobby = new LobbyController(onReady, notifier, gameID, numPlayers);
 
-        // Add the player to the lobby
-        newLobby.registerPlayer(nickname);
-        reserveNickname(nickname);
+        try {
+            // Add the player to the lobby
+            newLobby.registerPlayer(nickname);
+        } catch (Exception e) {
+            globalNicknames.remove(nickname);
+            throw e;
+        }
 
         // Add the lobby to the hashmap
         lobbies.put(gameID, newLobby);
@@ -63,9 +70,15 @@ public class MatchManager {
             throw new IllegalArgumentException("Nickname already taken");
         }
 
-        // Register the player in the lobby
-        lobbyController.registerPlayer(nickname);
         reserveNickname(nickname);
+
+        try {
+            // Register the player in the lobby
+            lobbyController.registerPlayer(nickname);
+        } catch (Exception e) {
+            globalNicknames.remove(nickname);
+            throw e;
+        }
         hybrid.registerPlayerGameID(nickname, cleanID);
     }
 
@@ -91,7 +104,9 @@ public class MatchManager {
         String cleanID = gameID.trim().toUpperCase();
 
         ServerController serverController = games.get(cleanID);
-        serverController.getPlayers().forEach(p -> globalNicknames.remove(p.getNickname()));
+        if (serverController != null) {
+            serverController.getPlayers().forEach(p -> globalNicknames.remove(p.getNickname()));
+        }
 
         games.remove(cleanID);
         gameThreads.remove(cleanID);

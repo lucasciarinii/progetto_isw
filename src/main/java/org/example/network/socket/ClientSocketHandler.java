@@ -76,16 +76,27 @@ public class ClientSocketHandler implements Runnable {
 
                     connectedClients.put(nickname, this);
 
-                    this.gameID = socketServerNetworkAdapter.createGame(nickname, numPlayers);
-                    sendGameID();
-                    System.out.println("[SERVER] Lobby with ID" + gameID + "created by " + nickname);
+                    try {
+                        this.gameID = socketServerNetworkAdapter.createGame(nickname, numPlayers);
+                        sendGameID();
+                        System.out.println("[SERVER] Lobby with ID" + gameID + "created by " + nickname);
+                    } catch (Exception e) {
+                        sendLobbyError(e.getMessage());
+                    }
                     break;
 
                 case "join_lobby":
                     this.nickname = (String) cmd.get("nickname");
                     this.gameID = (String) cmd.get("gameID");
 
-                    socketServerNetworkAdapter.joinGame(nickname, gameID);
+                    connectedClients.put(nickname, this);
+
+                    try {
+                        socketServerNetworkAdapter.joinGame(nickname, gameID);
+                    } catch (Exception e) {
+                        sendLobbyError(e.getMessage());
+                    }
+                    break;
 
                 case "placeTotem":
                     int tilePosition = (int) cmd.get("tilePosition");

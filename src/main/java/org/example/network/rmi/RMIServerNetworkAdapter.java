@@ -7,12 +7,10 @@ import org.example.network.ServerNotifier;
 import org.example.network.messages.GameStateUpdateMessage;
 import org.example.network.messages.LobbyUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
-import org.example.server.LobbyController;
-import org.example.server.LobbyReadyListener;
-import org.example.server.ServerController;
-import org.example.server.ServerLogger;
+import org.example.server.*;
 import org.example.server.model.enums.GamePhase;
 
+import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.ExportException;
@@ -20,22 +18,21 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements ServerNetworkAdapter, RMIGameServer, LobbyReadyListener {
+public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements ServerNetworkAdapter, RMIGameServer {
 
     public static final int DEFAULT_PORT = 1099;
-    private final LobbyController lobby;
-    private ServerController serverController;
     private final Map<String, ServerNotifier> connections = new HashMap<>();
-    private HybridServerNetworkAdapter hybrid = null;
+
+    private final HybridServerNetworkAdapter hybrid;
+    private final MatchManager matchManager;
+
+
 
 
     // Hybrid constructor (RMI + Socket)
-    public RMIServerNetworkAdapter(LobbyController sharedLobby) throws RemoteException {
+    public RMIServerNetworkAdapter(MatchManager matchManager, HybridServerNetworkAdapter hybrid) throws RemoteException {
         super();
-        this.lobby = sharedLobby;
-    }
-
-    public void setHybrid(HybridServerNetworkAdapter hybrid) {
+        this.matchManager = matchManager;
         this.hybrid = hybrid;
     }
 
@@ -49,7 +46,7 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
             ServerLogger.error("Failed to create RMI registry or it already exists: " + e.getMessage());
         }
 
-        java.rmi.Naming.rebind("//127.0.0.1:" + DEFAULT_PORT + "/GameServer", this);
+        Naming.rebind("//127.0.0.1:" + DEFAULT_PORT + "/GameServer", this);
         ServerLogger.server("RMI ready on port " + DEFAULT_PORT + ". Waiting for players...");
     }
 
@@ -100,6 +97,7 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
         if (connection == null) {
             throw new RemoteException("Client not found: " + nickname);
         }
+        connection.sendRoundFlowCardRequest(nickname);
     }
 
     @Override
@@ -114,64 +112,57 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
 
     // RMIGameServer methods
 
-
     @Override
-    public void register(String nickname, int numPlayers, RMIClientCallback callback) throws Exception {
+    public String createGame(String nickname, int numPlayers, RMIClientCallback callback) throws Exception {
         RMIClientConnection connection = new RMIClientConnection(callback);
-        if (lobby.isNicknameTaken(nickname)) {
-            connection.sendError(nickname, "Nickname already used: " + nickname, GamePhase.LOBBY);
-            return;
-        }
         connections.put(nickname, connection);
-        if (hybrid != null)
-            hybrid.registerRoute(nickname, this);
+        hybrid.registerRoute(nickname, this);
 
         try {
-            lobby.registerPlayer(nickname, numPlayers);
+            return matchManager.createLobby(nickname, numPlayers);
         } catch (Exception e) {
             connections.remove(nickname);
             connection.sendError(nickname, "Registration Error: " + e.getMessage(), GamePhase.LOBBY);
+            throw e;
+        }
+    }
+
+    @Override
+    public void joinGame(String nickname, String gameID, RMIClientCallback callback) throws Exception {
+        RMIClientConnection connection = new RMIClientConnection(callback);
+        connections.put(nickname, connection);
+        hybrid.registerRoute(nickname, this);
+
+        try {
+            matchManager.joinLobby(nickname, gameID);
+        } catch (Exception e) {
+            connections.remove(nickname);
+            connection.sendError(nickname, "Registration Error: " + e.getMessage(), GamePhase.LOBBY);
+            throw e;
         }
     }
 
     @Override
     public void placeTotemOnOfferTile(String nickname, int tilePosition) throws RemoteException {
-        checkGameStarted();
-        serverController.placeTotemOnOfferTile(nickname, tilePosition);
+        hybrid.resolveServerControllerByNickname(nickname)
+                .placeTotemOnOfferTile(nickname, tilePosition);
     }
 
     @Override
     public void offerTileAction(String nickname, String cards) throws RemoteException {
-        checkGameStarted();
-        serverController.offerTileAction(nickname, cards);
+        hybrid.resolveServerControllerByNickname(nickname)
+                .offerTileAction(nickname, cards);
     }
-
 
     @Override
     public void roundFlowCardRequest(String nickname, String cards) throws RemoteException {
-        checkGameStarted();
-        serverController.roundFlowCardRequest(nickname, cards);
+        hybrid.resolveServerControllerByNickname(nickname)
+                .roundFlowCardRequest(nickname, cards);
     }
 
     @Override
     public void skipTurn(String nickname) throws RemoteException {
-        checkGameStarted();
-        serverController.skipTurn(nickname);
-    }
-
-    // LOBBY methods
-    @Override
-    public void onLobbyReady(ServerController serverController) {
-        this.serverController = serverController;
-        ServerLogger.server("Lobby full, game started!");
-    }
-
-
-    //UTILITY METHODS
-    private void checkGameStarted() throws RemoteException {
-        if (serverController == null) {
-            throw new RemoteException("Match is not started yet.");
-        }
+        hybrid.resolveServerControllerByNickname(nickname)
+                .skipTurn(nickname);
     }
 }
-

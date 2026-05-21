@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-public class LobbyController implements GameOverListener {
+public class LobbyController {
 
 
     // Keeps the order of connection: nicknames
@@ -71,7 +71,6 @@ public class LobbyController implements GameOverListener {
         // Creates the Match and ServerController
         Match match = new Match(players);
         ServerController serverController = new ServerController(match, notifier);
-        serverController.setGameOverListener(this);
 
         // Send first snapshot to all clients
         serverController.sendInitialState();
@@ -99,12 +98,5 @@ public class LobbyController implements GameOverListener {
 
     public boolean isNicknameTaken(String nickname) {
         return waitingClients.contains(nickname);
-    }
-
-    @Override
-    public void onGameOver(ServerController controller) {
-        // Reset lobby state for a new match
-        waitingClients.clear();
-        ServerLogger.lobby("Game over. Lobby ready for new game.");
     }
 }

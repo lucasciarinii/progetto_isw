@@ -15,14 +15,13 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyReadyListener {
+public class SocketServerNetworkAdapter implements ServerNetworkAdapter {
 
     public static final int DEFAULT_PORT = 9999;
     private final ObjectMapper mapper = new ObjectMapper();
     private boolean running = false;
 
     private final Map<String, ClientSocketHandler> connectedClients = new HashMap<>();
-    private ServerController serverController;
     private final HybridServerNetworkAdapter hybrid;
     private ServerSocket serverSocket;
     private final MatchManager matchManager;
@@ -130,12 +129,6 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
         }
     }
 
-    @Override
-    public void onLobbyReady(ServerController serverController, String gameID) {
-        this.serverController = serverController;
-    }
-
-
     public String createGame(String nickname, int numPlayers) throws Exception {
         if (hybrid != null) {
             hybrid.registerRoute(nickname, this);
@@ -151,40 +144,23 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
     }
 
     public void placeTotemOnOfferTile(String nickname, int tilePosition) {
-        if (serverController == null) {
-            ServerLogger.server("Game not started yet. Cannot place totem.");
-            return;
-        }
-        serverController.placeTotemOnOfferTile(nickname, tilePosition);
+        hybrid.resolveServerControllerByNickname(nickname)
+                .placeTotemOnOfferTile(nickname, tilePosition);
     }
 
     public void offerTileAction(String nickname, String cards) {
-        if (serverController == null) {
-            ServerLogger.server("Game not started yet. Cannot perform offer tile action.");
-            return;
-        }
-        serverController.offerTileAction(nickname, cards);
+        hybrid.resolveServerControllerByNickname(nickname)
+                .offerTileAction(nickname, cards);
     }
 
     public void roundFlowCardRequest(String nickname, String cards) {
-        if (serverController == null) {
-            ServerLogger.server("Game not started yet. Cannot perform round flow card request action.");
-            return;
-        }
-        serverController.roundFlowCardRequest(nickname, cards);
+        hybrid.resolveServerControllerByNickname(nickname)
+                .roundFlowCardRequest(nickname, cards);
     }
 
     public void skipTurn(String nickname) {
-        if (serverController == null) {
-            ServerLogger.server("Game not started yet. Cannot skip turn.");
-            return;
-        }
-        serverController.skipTurn(nickname);
-    }
-
-
-    public ServerController getServerController() {
-        return serverController;
+        hybrid.resolveServerControllerByNickname(nickname)
+                .skipTurn(nickname);
     }
 
     // Accept client connections

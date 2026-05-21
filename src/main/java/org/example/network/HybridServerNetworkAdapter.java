@@ -9,7 +9,6 @@ import org.example.server.*;
 import org.example.server.model.enums.GamePhase;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
@@ -70,8 +69,9 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
 
     @Override
     public void onLobbyReady(ServerController serverController, String gameID) {
-        gameControllers.put(gameID, serverController);
-        matchManager.onLobbyReady(gameID, serverController);
+        String cleanID = gameID.trim().toUpperCase();
+        gameControllers.put(cleanID, serverController);
+        matchManager.onLobbyReady(cleanID, serverController);
     }
 
     public void registerRoute(String nickname, ServerNetworkAdapter adapter) {
@@ -117,8 +117,14 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
 
     public ServerController resolveServerControllerByNickname(String nickname) {
         String gameID = playerToGameID.get(nickname);
-        if (gameID == null) throw new IllegalStateException("No game for: " + nickname);
-        return gameControllers.get(gameID);
+        if (gameID == null) {
+            throw new IllegalStateException("No game for: " + nickname);
+        }
+        ServerController controller = gameControllers.get(gameID);
+        if (controller == null) {
+            throw new IllegalStateException("Game not started for: " + nickname);
+        }
+        return controller;
     }
 
     //! UTILITY METHODS
