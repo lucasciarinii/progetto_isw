@@ -4,6 +4,7 @@ import org.example.network.HybridServerNetworkAdapter;
 import org.example.network.ServerNotifier;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.concurrent.ThreadLocalRandom.current;
@@ -21,6 +22,7 @@ public class MatchManager {
     private final Map<String, LobbyController> lobbies = new ConcurrentHashMap<>();
     private final Map<String, ServerController> games = new ConcurrentHashMap<>();
     private final Map<String, Thread> gameThreads = new ConcurrentHashMap<>();
+    private final Set<String> globalNicknames = ConcurrentHashMap.newKeySet();
 
 
     public MatchManager(LobbyReadyListener onReady, ServerNotifier notifier, HybridServerNetworkAdapter hybrid) {
@@ -39,6 +41,7 @@ public class MatchManager {
 
         // Add the player to the lobby
         newLobby.registerPlayer(nickname);
+        reserveNickname(nickname);
 
         // Add the lobby to the hashmap
         lobbies.put(gameID, newLobby);
@@ -62,6 +65,7 @@ public class MatchManager {
 
         // Register the player in the lobby
         lobbyController.registerPlayer(nickname);
+        reserveNickname(nickname);
         hybrid.registerPlayerGameID(nickname, cleanID);
     }
 
@@ -85,6 +89,9 @@ public class MatchManager {
 
     public void onGameOver(String gameID) {
         String cleanID = gameID.trim().toUpperCase();
+
+        ServerController serverController = games.get(cleanID);
+        serverController.getPlayers().forEach(p -> globalNicknames.remove(p.getNickname()));
 
         games.remove(cleanID);
         gameThreads.remove(cleanID);
@@ -112,6 +119,12 @@ public class MatchManager {
         } while (lobbies.containsKey(newID) || games.containsKey(newID));
 
         return newID;
+    }
+
+    private void reserveNickname(String nickname) {
+        if (!globalNicknames.add(nickname)) {
+            throw new IllegalArgumentException("Nickname already used: " + nickname);
+        }
     }
 
 

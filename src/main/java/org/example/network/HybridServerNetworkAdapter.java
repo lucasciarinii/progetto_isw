@@ -9,6 +9,7 @@ import org.example.server.*;
 import org.example.server.model.enums.GamePhase;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
@@ -16,6 +17,7 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
 
     private SocketServerNetworkAdapter socketAdapter;
     private RMIServerNetworkAdapter rmiAdapter;
+    private MatchManager matchManager;
 
     private final Map<String, ServerNetworkAdapter> routingTable = new ConcurrentHashMap<>();
     private final Map<String, String> playerToGameID = new ConcurrentHashMap<>();
@@ -29,7 +31,7 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
     @Override
     public void start() throws Exception {
 
-        MatchManager matchManager = new MatchManager(this, this, this);
+        matchManager = new MatchManager(this, this, this);
 
         socketAdapter = new SocketServerNetworkAdapter(matchManager, this);
         rmiAdapter = new RMIServerNetworkAdapter(matchManager, this);
@@ -69,6 +71,7 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
     @Override
     public void onLobbyReady(ServerController serverController, String gameID) {
         gameControllers.put(gameID, serverController);
+        matchManager.onLobbyReady(gameID, serverController);
     }
 
     public void registerRoute(String nickname, ServerNetworkAdapter adapter) {
@@ -106,22 +109,19 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
     }
 
 
-    //! UTILITY METHODS
     public void registerPlayerGameID(String nickname, String gameID) {
         String cleanID = gameID.trim().toUpperCase();
-        playerToGameID.put(cleanID, nickname);
+        playerToGameID.put(nickname, cleanID);
     }
 
-    public ServerController resolveServerController(String gameID) {
-        String cleanID = gameID.trim().toUpperCase();
 
-        ServerController serverController = gameControllers.get(cleanID);
-        if ( serverController == null ) {
-            throw new IllegalStateException("No game for: " + cleanID);
-        }
-
-        return serverController;
+    public ServerController resolveServerControllerByNickname(String nickname) {
+        String gameID = playerToGameID.get(nickname);
+        if (gameID == null) throw new IllegalStateException("No game for: " + nickname);
+        return gameControllers.get(gameID);
     }
+
+    //! UTILITY METHODS
 
     private ServerNetworkAdapter route(String nickname) {
         ServerNetworkAdapter adapter = routingTable.get(nickname);

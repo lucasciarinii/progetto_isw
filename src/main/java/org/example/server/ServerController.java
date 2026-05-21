@@ -47,6 +47,10 @@ public class ServerController implements Runnable {
         this.onGameOver = listener;
     }
 
+    public List<Player> getPlayers() {
+        return match.getPlayers();
+    }
+
     // Close the connection
     private void shutdown() {
         ServerLogger.server("Game match session closed.");
