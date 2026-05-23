@@ -10,9 +10,9 @@ import java.rmi.RemoteException;
 public interface RMIGameServer extends Remote {
 
     /* Create or join a game with the client callback used for server updates. */
-    String createGame(String nickname, int numPlayers, RMIClientCallback callback) throws Exception;
+    String createLobby(String nickname, int numPlayers, RMIClientCallback callback) throws Exception;
 
-    void joinGame(String nickname, String gameID, RMIClientCallback callback) throws Exception;
+    void joinLobby(String nickname, String gameID, RMIClientCallback callback) throws Exception;
 
     // Player places his totem on an offer tile. nickname -> who is placing the totem, tilePosition -> which offer tile (1-based)
     void placeTotemOnOfferTile(String nickname, int tilePosition) throws RemoteException;

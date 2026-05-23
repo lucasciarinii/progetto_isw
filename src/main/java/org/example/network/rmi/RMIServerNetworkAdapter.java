@@ -113,7 +113,7 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
     // RMIGameServer methods
 
     @Override
-    public String createGame(String nickname, int numPlayers, RMIClientCallback callback) throws Exception {
+    public String createLobby(String nickname, int numPlayers, RMIClientCallback callback) throws Exception {
         RMIClientConnection connection = new RMIClientConnection(callback);
         connections.put(nickname, connection);
         hybrid.registerRoute(nickname, this);
@@ -128,7 +128,7 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
     }
 
     @Override
-    public void joinGame(String nickname, String gameID, RMIClientCallback callback) throws Exception {
+    public void joinLobby(String nickname, String gameID, RMIClientCallback callback) throws Exception {
         RMIClientConnection connection = new RMIClientConnection(callback);
         connections.put(nickname, connection);
         hybrid.registerRoute(nickname, this);

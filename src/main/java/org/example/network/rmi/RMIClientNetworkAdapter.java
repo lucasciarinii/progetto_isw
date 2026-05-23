@@ -9,12 +9,12 @@ import java.rmi.Naming;
 // Client implementation using RMI
 public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
 
-    private final ClientController controller;
+    private final ClientController clientController;
     private RMIGameServer server;
     private String nickname;
 
     public RMIClientNetworkAdapter(ClientController controller) {
-        this.controller = controller;
+        this.clientController = controller;
     }
 
     @Override
@@ -30,15 +30,16 @@ public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
     @Override
     public void createLobby(String nickname, int numPlayers) throws Exception {
         this.nickname = nickname;
-        RMIClientCallbackImpl callback = new RMIClientCallbackImpl(controller);
-        server.createGame(nickname, numPlayers, callback);
+        RMIClientCallbackImpl callback = new RMIClientCallbackImpl(clientController);
+        String gameID = server.createLobby(nickname, numPlayers, callback);
+        clientController.setGameID(gameID);
     }
 
     @Override
     public void joinLobby(String nickname, String gameID) throws Exception {
         this.nickname = nickname;
-        RMIClientCallbackImpl callback = new RMIClientCallbackImpl(controller);
-        server.joinGame(nickname, gameID, callback);
+        RMIClientCallbackImpl callback = new RMIClientCallbackImpl(clientController);
+        server.joinLobby(nickname, gameID, callback);
     }
 
     @Override
