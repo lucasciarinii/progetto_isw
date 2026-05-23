@@ -23,7 +23,6 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
     private PrintWriter out;
     private BufferedReader in;
     private final ObjectMapper mapper = new ObjectMapper();
-    private String gameID;
 
     private String nickname;
 
@@ -61,7 +60,6 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
     @Override
     public void joinLobby(String nickname, String gameID) throws Exception {
         this.nickname = nickname;
-        this.gameID = gameID;
 
         Map<String, Object> cmd = new HashMap<>();
         cmd.put("action", "join_lobby");
@@ -142,7 +140,8 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
             switch (event) {
 
                 case "GAME_ID":
-                    gameID = (String) msg.get("gameID");
+                    String gameID = (String) msg.get("gameID");
+                    clientController.setGameID(gameID);
                     break;
                 case "GAME_STATE_UPDATE":
                     GameStateUpdateMessage update = mapper.convertValue(msg.get("data"), GameStateUpdateMessage.class);

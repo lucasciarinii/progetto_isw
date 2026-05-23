@@ -24,6 +24,7 @@ import java.util.List;
  */
 public class ClientController implements GameEventListener {
     private final String nickname;
+    private String gameID;
     private ClientNetworkAdapter networkAdapter;
     private final UIHandler ui;
     GameStateUpdateMessage lastGameStateUpdate;
@@ -34,6 +35,11 @@ public class ClientController implements GameEventListener {
     }
 
     public String getNickname() { return nickname; }
+
+    public void setGameID(String gameID) {
+        this.gameID = gameID;
+        ui.setGameID(gameID);
+    }
 
 
     //! CONNECTION TO SERVER -----------------------------------------------

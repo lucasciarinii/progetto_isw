@@ -22,9 +22,15 @@ public class TUIHandler implements UIHandler {
     private ClientController controller;
     private final Scanner scanner = new Scanner(System.in);
     private GameStateUpdateMessage lastUpdate;
+    private String gameID;
 
     public void setController(ClientController controller) {
         this.controller = controller;
+    }
+
+    @Override
+    public void setGameID(String gameID) {
+        this.gameID = gameID;
     }
 
     //! TUI EVENTS -----------------------------------------------

@@ -18,4 +18,6 @@ public interface UIHandler {
     void displayWaiting(String currentPlayerNickname);
     void displayRoundFlowWaiting(String currentPlayerNickname);
 
+    void setGameID(String gameID);
+
 }

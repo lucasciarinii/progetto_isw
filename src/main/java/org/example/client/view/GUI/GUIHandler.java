@@ -27,7 +27,8 @@ public class GUIHandler implements UIHandler {
     private GUILobbyController GUILobbyController;
     private GUIGameController GUIGameController;
     private GUIRankingController GUIRankingController;
-    private GameStateUpdateMessage lastGameUpdate; // ← aggiunge questo campo
+    private GameStateUpdateMessage lastGameUpdate;
+    private String gameID;
 
     // SETTERS ---------------------------------------------------------------------------------------------------------
 
@@ -44,6 +45,10 @@ public class GUIHandler implements UIHandler {
         });
     }
 
+    @Override
+    public void setGameID(String gameID) {
+        this.gameID = gameID;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
 
