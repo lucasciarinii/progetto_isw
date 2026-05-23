@@ -85,7 +85,8 @@ public class LobbyController {
                 waitingClients.size(),
                 numPlayers,
                 new ArrayList<>(waitingClients),
-                gameStarting
+                gameStarting,
+                gameID
         );
         for (String nickname : waitingClients) {
             try {

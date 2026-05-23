@@ -39,6 +39,7 @@ public class TUIHandler implements UIHandler {
         if (update.isGameStarting()) {
             System.out.println("Match is starting!");
         } else {
+            System.out.println("GAME CODE: " + update.getGameID());
             System.out.println("In lobby: " + update.getConnectedPlayers() + "/" + update.getRequiredPlayers() + " players");
             System.out.println("Connected: " + update.getPlayerNicknames());
         }
