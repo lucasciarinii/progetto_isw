@@ -74,7 +74,7 @@ public class GUILoginController {
             errorLabel.setText("Connecting...");
             errorLabel.setStyle("-fx-text-fill: #888866; -fx-font-size: 11px;");
             errorLabel.setVisible(true);
-            controller.connect(host, port, numPlayers, protocol);
+            controller.createLobbyAndConnect(host, port, numPlayers, protocol);
         } catch (Exception e) {
             errorLabel.setTextFill(Color.RED);
             showError("Impossible to connect to server");

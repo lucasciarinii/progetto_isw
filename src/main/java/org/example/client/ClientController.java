@@ -43,10 +43,16 @@ public class ClientController implements GameEventListener {
 
 
     //! CONNECTION TO SERVER -----------------------------------------------
-    public void connect(String host, int port, int numPlayers, CommunicationProtocol protocol) throws Exception {
+    public void createLobbyAndConnect(String host, int port, int numPlayers, CommunicationProtocol protocol) throws Exception {
         networkAdapter = NetworkAdapterFactory.createClientAdapter(protocol, this);
         networkAdapter.connect(host, port);
         networkAdapter.createLobby(nickname, numPlayers);
+    }
+
+    public void joinLobbyAndConnect(String host, int port, String gameID, CommunicationProtocol protocol) throws Exception {
+        networkAdapter = NetworkAdapterFactory.createClientAdapter(protocol, this);
+        networkAdapter.connect(host, port);
+        networkAdapter.joinLobby(nickname, gameID);
     }
 
     @Override

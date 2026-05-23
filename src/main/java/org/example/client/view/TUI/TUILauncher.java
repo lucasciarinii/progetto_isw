@@ -7,7 +7,6 @@ import java.util.Scanner;
 
 public class TUILauncher {
 
-    // ASCII art for the Lobby
     private static final String LOBBY_ART =
             " _      ____  ____  ____ ___  _ \n" +
                     "/ \\  /|/  _ \\/  _ \\/  _ \\\\  \\// \n" +
@@ -21,7 +20,7 @@ public class TUILauncher {
 
         System.out.println(LOBBY_ART);
 
-        // --- CLASSIC MENU LOOP ---
+        // MENU LOOP
         while (selectedOption != 1 && selectedOption != 2) {
             System.out.println("Choose an action:");
             System.out.println("1. Join an existing Lobby");
@@ -39,7 +38,7 @@ public class TUILauncher {
             }
         }
 
-        // --- REDIRECTION ---
+        // REDIRECTION
         if (selectedOption == 2) {
             handleCreateLobby(scanner, host, port, protocol);
         } else {
@@ -63,28 +62,43 @@ public class TUILauncher {
             numPlayers = 4;
         }
 
-        startClient(host, port, nickname, numPlayers, protocol);
+        startClientCreateLobby(host, port, nickname, numPlayers, protocol);
     }
 
     private static void handleJoinLobby(Scanner scanner, String host, int port, CommunicationProtocol protocol) {
         System.out.println("\n=== JOIN AN EXISTING LOBBY ===");
 
+        System.out.print("Insert game code: ");
+        String code = scanner.nextLine().trim();
+
         System.out.print("Insert your nickname: ");
         String nickname = scanner.nextLine().trim();
 
-        // We pass 0 (or another default value) because the server will ignore this field for joining players
-        startClient(host, port, nickname, 0, protocol);
+        startClientJoinLobby(host, port, nickname, code, protocol);
     }
 
-    private static void startClient(String host, int port, String nickname, int numPlayers, CommunicationProtocol protocol) {
+    private static void startClientCreateLobby(String host, int port, String nickname, int numPlayers, CommunicationProtocol protocol) {
         try {
             TUIHandler tui = new TUIHandler();
             ClientController clientController = new ClientController(nickname, tui);
             tui.setController(clientController);
-            clientController.connect(host, port, numPlayers, protocol);
+            clientController.createLobbyAndConnect(host, port, numPlayers, protocol);
         } catch (Exception e) {
             System.out.println("\nImpossible to connect to server at address: " + host);
             System.out.println("Ensure server is active and the address is correct.");
         }
     }
+
+    private static void startClientJoinLobby(String host, int port, String nickname, String gameID, CommunicationProtocol protocol) {
+        try {
+            TUIHandler tui = new TUIHandler();
+            ClientController clientController = new ClientController(nickname, tui);
+            tui.setController(clientController);
+            clientController.joinLobbyAndConnect(host, port, gameID, protocol);
+        } catch (Exception e) {
+            System.out.println("\nImpossible to connect to server at address: " + host);
+            System.out.println("Ensure server is active and the address is correct.");
+        }
+    }
+
 }
