@@ -88,10 +88,13 @@ public class TUILauncher {
             TUIHandler tui = new TUIHandler();
             ClientController clientController = new ClientController(nickname, tui);
             tui.setController(clientController);
+            tui.setLobbyRetryEnabled(protocol == CommunicationProtocol.SOCKET);
             clientController.joinLobbyAndConnect(host, port, gameID, protocol);
             return true;
         } catch (Exception e) {
-            System.out.println("\nJoin error: " + e.getMessage());
+            if (protocol == CommunicationProtocol.SOCKET) {
+                System.out.println("\nJoin error: " + e.getMessage());
+            }
             return false;
         }
     }

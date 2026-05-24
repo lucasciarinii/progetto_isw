@@ -111,13 +111,17 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
     @Override
     public String createLobby(String nickname, int numPlayers, RMIClientCallback callback) throws Exception {
         RMIClientConnection connection = new RMIClientConnection(callback);
-        connections.put(nickname, connection);
+        // Prevent overwriting an active client's callback when a duplicate nickname is attempted.
+        if (connections.putIfAbsent(nickname, connection) != null) {
+            connection.sendError(nickname, "Registration Error: Nickname already used", GamePhase.LOBBY);
+            throw new IllegalArgumentException("Nickname already used");
+        }
         hybrid.registerRoute(nickname, this);
 
         try {
             return matchManager.createLobby(nickname, numPlayers);
         } catch (Exception e) {
-            connections.remove(nickname);
+            connections.remove(nickname, connection);
             connection.sendError(nickname, "Registration Error: " + e.getMessage(), GamePhase.LOBBY);
             throw e;
         }
@@ -126,13 +130,16 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
     @Override
     public void joinLobby(String nickname, String gameID, RMIClientCallback callback) throws Exception {
         RMIClientConnection connection = new RMIClientConnection(callback);
-        connections.put(nickname, connection);
+        if (connections.putIfAbsent(nickname, connection) != null) {
+            connection.sendError(nickname, "Registration Error: Nickname already used", GamePhase.LOBBY);
+            throw new IllegalArgumentException("Nickname already used");
+        }
         hybrid.registerRoute(nickname, this);
 
         try {
             matchManager.joinLobby(nickname, gameID);
         } catch (Exception e) {
-            connections.remove(nickname);
+            connections.remove(nickname, connection);
             connection.sendError(nickname, "Registration Error: " + e.getMessage(), GamePhase.LOBBY);
             throw e;
         }

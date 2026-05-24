@@ -74,13 +74,21 @@ public class ClientSocketHandler implements Runnable {
                     this.nickname = (String) cmd.get("nickname");
                     int numPlayers = (int) cmd.get("numPlayers");
 
-                    connectedClients.put(nickname, this);
+                    ClientSocketHandler existingCreate = connectedClients.putIfAbsent(nickname, this);
+                    if (existingCreate != null && existingCreate != this) {
+                        sendLobbyError("Nickname already used");
+                        break;
+                    }
+                    boolean addedCreate = existingCreate == null;
 
                     try {
                         this.gameID = socketServerNetworkAdapter.createGame(nickname, numPlayers);
                         sendGameID();
                         System.out.println("[SERVER] Lobby with ID" + gameID + "created by " + nickname);
                     } catch (Exception e) {
+                        if (addedCreate) {
+                            connectedClients.remove(nickname, this);
+                        }
                         sendLobbyError(e.getMessage());
                     }
                     break;
@@ -89,11 +97,19 @@ public class ClientSocketHandler implements Runnable {
                     this.nickname = (String) cmd.get("nickname");
                     this.gameID = (String) cmd.get("gameID");
 
-                    connectedClients.put(nickname, this);
+                    ClientSocketHandler existingJoin = connectedClients.putIfAbsent(nickname, this);
+                    if (existingJoin != null && existingJoin != this) {
+                        sendLobbyError("Nickname already used");
+                        break;
+                    }
+                    boolean addedJoin = existingJoin == null;
 
                     try {
                         socketServerNetworkAdapter.joinGame(nickname, gameID);
                     } catch (Exception e) {
+                        if (addedJoin) {
+                            connectedClients.remove(nickname, this);
+                        }
                         sendLobbyError(e.getMessage());
                     }
                     break;

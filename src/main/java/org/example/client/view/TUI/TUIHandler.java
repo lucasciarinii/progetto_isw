@@ -27,6 +27,7 @@ public class TUIHandler implements UIHandler {
     private final Scanner scanner = new Scanner(System.in);
     private GameStateUpdateMessage lastUpdate;
     private String gameID;
+    private boolean lobbyRetryEnabled = false;
 
     // The queue: threads handler that uses a SINGLE thread to execute tasks -> ensures that only ONE thread at a time interacts with System.in.
     private final ExecutorService inputExecutor = newSingleThreadExecutor();
@@ -35,6 +36,10 @@ public class TUIHandler implements UIHandler {
 
     public void setController(ClientController controller) {
         this.controller = controller;
+    }
+
+    public void setLobbyRetryEnabled(boolean enabled) {
+        this.lobbyRetryEnabled = enabled;
     }
 
     @Override
@@ -64,16 +69,18 @@ public class TUIHandler implements UIHandler {
     public void onError(String errorMessage, GamePhase currentPhase) {
         System.out.println("\n[ERROR] " + errorMessage + "\n");
         if (currentPhase == GamePhase.LOBBY) {
-            inputExecutor.submit(() -> {
-                if (!inputBusy.compareAndSet(false, true)) {
-                    return;
-                }
-                try {
-                    handleLobbyRetry();
-                } finally {
-                    inputBusy.set(false);
-                }
-            });
+            if (lobbyRetryEnabled) {
+                inputExecutor.submit(() -> {
+                    if (!inputBusy.compareAndSet(false, true)) {
+                        return;
+                    }
+                    try {
+                        handleLobbyRetry();
+                    } finally {
+                        inputBusy.set(false);
+                    }
+                });
+            }
             return;
         }
         promptForAction(currentPhase);
@@ -83,8 +90,11 @@ public class TUIHandler implements UIHandler {
         while (true) {
             System.out.print("Insert game code: ");
             String code = scanner.nextLine().trim();
+            System.out.print("Insert your nickname: ");
+            String nickname = scanner.nextLine().trim();
             try {
-                controller.retryJoinLobby(code);
+                controller.setNickname(nickname);
+                controller.joinLobby(code);
                 break;
             } catch (Exception e) {
                 System.out.println("[ERROR] " + e.getMessage());

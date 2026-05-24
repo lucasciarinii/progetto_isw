@@ -23,7 +23,7 @@ import java.util.List;
     - Receive updates/errors through ClientCallbackImpl and updates the view
  */
 public class ClientController implements GameEventListener {
-    private final String nickname;
+    private String nickname;
     private String gameID;
     private ClientNetworkAdapter networkAdapter;
     private final UIHandler ui;
@@ -35,6 +35,10 @@ public class ClientController implements GameEventListener {
     }
 
     public String getNickname() { return nickname; }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
 
     public void setGameID(String gameID) {
         this.gameID = gameID;
@@ -55,12 +59,13 @@ public class ClientController implements GameEventListener {
         networkAdapter.joinLobby(nickname, gameID);
     }
 
-    public void retryJoinLobby(String gameID) throws Exception {
+    public void joinLobby(String gameID) throws Exception {
         if (networkAdapter == null) {
             throw new IllegalStateException("Client not connected");
         }
         networkAdapter.joinLobby(nickname, gameID);
     }
+
 
     @Override
     public void onLobbyUpdate(LobbyUpdateMessage update) {

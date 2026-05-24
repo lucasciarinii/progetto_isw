@@ -75,7 +75,8 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
     }
 
     public void registerRoute(String nickname, ServerNetworkAdapter adapter) {
-        routingTable.put(nickname, adapter);
+        // Keep the first registered route to avoid breaking an active client when a duplicate nickname appears.
+        routingTable.putIfAbsent(nickname, adapter);
     }
 
     @Override
