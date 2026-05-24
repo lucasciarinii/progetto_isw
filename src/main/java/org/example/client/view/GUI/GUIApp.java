@@ -10,10 +10,12 @@ import org.example.network.CommunicationProtocol;
 
 public class GUIApp extends Application {
 
+    // ── Runtime config (set by launcher) ───────────────────────────────────────
     private static String host =  "localhost";
     private static CommunicationProtocol protocol = CommunicationProtocol.RMI;
     private static int port = 1099;
 
+    // ── Injected startup options ───────────────────────────────────────────────
     public static void setHost(String host) {
         GUIApp.host = host;
     }
@@ -27,6 +29,7 @@ public class GUIApp extends Application {
     }
 
 
+    // ── JavaFX entry point ─────────────────────────────────────────────────────
     @Override
     public void start(Stage stage) throws Exception {
 
@@ -44,8 +47,8 @@ public class GUIApp extends Application {
         stage.setTitle("MESOS - Client GUI");
         stage.setScene(new Scene(root));
         stage.setResizable(false);
-        stage.setWidth(520);
-        stage.setHeight(520);
+        stage.setWidth(1367);
+        stage.setHeight(768);
         stage.centerOnScreen();
         stage.show();
 

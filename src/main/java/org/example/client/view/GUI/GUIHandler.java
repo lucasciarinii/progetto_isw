@@ -8,6 +8,7 @@ import javafx.stage.Stage;
 import org.example.client.ClientController;
 import org.example.client.view.GUI.GUIController.GUIGameController;
 import org.example.client.view.GUI.GUIController.GUILobbyController;
+import org.example.client.view.GUI.GUIController.GUILoginController;
 import org.example.client.view.GUI.GUIController.GUIRankingController;
 import org.example.client.view.GUI.registry.CardImageRegistry;
 import org.example.client.view.GUI.registry.PlayerColorRegistry;
@@ -29,8 +30,9 @@ public class GUIHandler implements UIHandler {
     private GUIRankingController GUIRankingController;
     private GameStateUpdateMessage lastGameUpdate;
     private String gameID;
+    private boolean lobbyRetryEnabled = false;
 
-    // SETTERS ---------------------------------------------------------------------------------------------------------
+    // ── Setters ────────────────────────────────────────────────────────────────
 
     public void setController(ClientController controller) {
         this.controller = controller;
@@ -45,16 +47,21 @@ public class GUIHandler implements UIHandler {
         });
     }
 
+    public void setLobbyRetryEnabled(boolean enabled) {
+        this.lobbyRetryEnabled = enabled;
+    }
+
     @Override
     public void setGameID(String gameID) {
         this.gameID = gameID;
     }
 
-    // -----------------------------------------------------------------------------------------------------------------
+    // ──────────────────────────────────────────────────────────────────────────
 
     private void init() {
     }
 
+    // ── Lobby updates ──────────────────────────────────────────────────────────
     @Override
     public void onLobbyUpdate(LobbyUpdateMessage update) {
         Platform.runLater(() -> {
@@ -70,6 +77,7 @@ public class GUIHandler implements UIHandler {
     }
 
 
+    // ── Game state updates ─────────────────────────────────────────────────────
     @Override
     public void onGameStateUpdate(GameStateUpdateMessage update) {
         Platform.runLater(() -> {
@@ -85,9 +93,15 @@ public class GUIHandler implements UIHandler {
     }
 
 
+    // ── Error handling ─────────────────────────────────────────────────────────
     @Override
     public void onError(String errorMessage, GamePhase currentPhase) {
         Platform.runLater(() -> {
+            if (currentPhase == GamePhase.LOBBY && lobbyRetryEnabled) {
+                // Go back to login screen to retry joining
+                switchToLogin("Invalid game code or nickname: " + errorMessage);
+                return;
+            }
             if (GUIGameController != null) {
                 GUIGameController.showError(errorMessage);
             }
@@ -95,6 +109,7 @@ public class GUIHandler implements UIHandler {
     }
 
 
+    // ── Ranking updates ────────────────────────────────────────────────────────
     @Override
     public void onRankingUpdate(RankingUpdateMessage rankingMessage) {
         Platform.runLater(() -> {
@@ -121,6 +136,7 @@ public class GUIHandler implements UIHandler {
     }
 
 
+    // ── Round flow requests ────────────────────────────────────────────────────
     @Override
     public void onRoundFlowCardRequest() {
 //        Platform.runLater(() -> {
@@ -130,6 +146,7 @@ public class GUIHandler implements UIHandler {
 //        });
     }
 
+    // ── Shutdown handling ──────────────────────────────────────────────────────
     @Override
     public void onShutdown() {
         Platform.runLater(() -> {
@@ -139,6 +156,7 @@ public class GUIHandler implements UIHandler {
         });
     }
 
+    // ── Action prompts ─────────────────────────────────────────────────────────
     @Override
     public void promptForAction(GamePhase phase) {
         Platform.runLater(() -> {
@@ -148,6 +166,7 @@ public class GUIHandler implements UIHandler {
         });
     }
 
+    // ── Waiting/no-actions UI ──────────────────────────────────────────────────
     @Override
     public void displayNoCardsPickable() {
         Platform.runLater(() -> {
@@ -176,7 +195,33 @@ public class GUIHandler implements UIHandler {
     }
 
 
-    // -----------------------------------------------------------------------------------------------------------------
+    // ──────────────────────────────────────────────────────────────────────────
+
+    private void switchToLogin(String errorMessage) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/login.fxml")
+            );
+            Parent root = loader.load();
+
+            GUILoginController loginController = loader.getController();
+            loginController.setHost(/* recover saved host */ "localhost"); // pass host/port if stored
+            loginController.setStage(stage);
+
+            // Show directly the join panel with the error
+            loginController.showJoinWithError(errorMessage);
+
+            stage.setScene(new Scene(root));
+            stage.setTitle("MESOS — Login");
+            stage.setResizable(false);
+            stage.setWidth(1376);
+            stage.setHeight(768);
+            GUILobbyController = null;
+
+        } catch (Exception e) {
+            System.err.println("Failed to reload login scene: " + e.getMessage());
+        }
+    }
 
     private void switchToLobby(LobbyUpdateMessage update) {
         try {
@@ -191,8 +236,8 @@ public class GUIHandler implements UIHandler {
             stage.setScene(new Scene(root));
             stage.setTitle("MESOS — Lobby");
             stage.setResizable(false);
-            stage.setWidth(520);
-            stage.setHeight(420);
+            stage.setWidth(1376);
+            stage.setHeight(768);
             stage.centerOnScreen();
 
         } catch (Exception e) {
