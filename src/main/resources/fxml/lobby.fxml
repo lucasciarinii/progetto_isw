@@ -1,57 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<BorderPane
+
+<?import java.lang.String?>
+<StackPane
         xmlns="http://javafx.com/javafx"
         xmlns:fx="http://javafx.com/fxml"
         fx:controller="org.example.client.view.GUI.GUIController.GUILobbyController"
-        prefWidth="520" prefHeight="420"
-        style="-fx-background-color: #12120c;">
+        prefWidth="1376" prefHeight="768">
+    <stylesheets>
+        <String fx:value="/css/lobby.css"/>
+    </stylesheets>
 
-    <center>
-        <VBox alignment="CENTER" spacing="20"
-              style="-fx-padding: 50 60 50 60;">
+    <!-- Background image -->
+    <ImageView preserveRatio="false"
+               fitWidth="1376" fitHeight="768">
+        <image><Image url="@/images/login_BG.png"/></image>
+    </ImageView>
 
-            <Label text="MESOS"
-                   style="-fx-text-fill: #ffcc00;
-                          -fx-font-size: 38px;
-                          -fx-font-weight: bold;"/>
+    <!-- Dark overlay for readability -->
+    <StackPane style="-fx-background-color: rgba(0,0,0,0.55);"/>
 
-            <!-- Counter Players -->
-            <Label fx:id="playersCountLabel"
-                   text="0/0 players connected"
-                   style="-fx-text-fill: #f0e0b0;
-                          -fx-font-size: 14px;"/>
+    <!-- Main content -->
+    <VBox alignment="CENTER" spacing="18"
+          style="-fx-padding: 220 60 50 60;">
 
-            <Label text="──────────────────────────────"
-                   style="-fx-text-fill: #2a2a18; -fx-font-size: 11px;"/>
-
-            <!-- Player list -->
-            <VBox spacing="6" style="-fx-fill-width: true;">
-                <Label text="PLAYERS IN LOBBY"
-                       style="-fx-text-fill: #888866;
-                              -fx-font-size: 10px;
-                              -fx-font-weight: bold;"/>
-                <ListView fx:id="playersList"
-                          prefHeight="130"
-                          style="-fx-background-color: #1a1a10;
-                                 -fx-border-color: #3a3a22;
-                                 -fx-border-width: 1;
-                                 -fx-border-radius: 6;
-                                 -fx-background-radius: 6;
-                                 -fx-control-inner-background: #1a1a10;"/>
-            </VBox>
-
-            <!-- Lobby status -->
-            <Label fx:id="statusLabel"
-                   text="Waiting for players..."
+        <!-- Game code display -->
+        <VBox alignment="CENTER" spacing="4">
+            <Label text="GAME CODE"
                    style="-fx-text-fill: #888866;
                           -fx-font-size: 12px;
-                          -fx-font-style: italic;"/>
-
+                          -fx-font-weight: bold;"/>
+            <Label fx:id="gameCodeLabel"
+                   text="———"
+                   style="-fx-text-fill: #ffcc00;
+                          -fx-font-size: 48px;
+                          -fx-font-weight: bold;"/>
+            <Label text="Click on it to copy to clipboard!"
+                   style="-fx-text-fill: #7b7b65;
+                          -fx-font-size: 11px;"/>
         </VBox>
-    </center>
 
-</BorderPane>
+        <!-- Divider -->
+        <Label text="──────────────────────────────────────────"
+               style="-fx-text-fill: #2a2a18; -fx-font-size: 11px;"/>
+
+        <!-- Players counter -->
+        <Label fx:id="playersCountLabel"
+               text="0/0 players connected"
+               style="-fx-text-fill: #f0e0b0; -fx-font-size: 17px;"/>
+
+        <!-- Players list -->
+        <VBox spacing="6" maxWidth="400">
+            <ListView fx:id="playersList"
+                      prefHeight="160"
+                      styleClass="players-list"
+                      style="-fx-background-color: #15150d;
+                     -fx-border-color: #3a3a22;
+                     -fx-border-width: 1;
+                     -fx-border-radius: 8;
+                     -fx-background-radius: 8;
+                     -fx-control-inner-background: #15150d;"/>
+        </VBox>
+
+        <!-- Status text -->
+        <Label fx:id="statusLabel"
+               text="Waiting for players..."
+               style="-fx-text-fill: #888866;
+                      -fx-font-size: 14px;
+                      -fx-font-style: italic;"/>
+
+    </VBox>
+
+</StackPane>
