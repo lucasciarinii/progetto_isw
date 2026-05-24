@@ -1,6 +1,5 @@
 package org.example.server.model.cards.buildingCards;
 
-import org.example.server.model.cards.buildingCards.CavePaintingEventBoostBC;
 import org.example.server.model.cards.characters.Artist;
 import org.example.server.model.cards.eventCards.CavePainting;
 import org.example.server.model.enums.BuildingCardType;

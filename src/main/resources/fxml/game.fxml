@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<BorderPane prefHeight="800" prefWidth="1280" style="-fx-background-color: #12120c;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.client.view.GUI.GUIController.GUIGameController">
+
+    <top>
+        <VBox style="-fx-background-color: #1a1a10;">
+            <HBox spacing="24" style="-fx-padding: 6 16 6 16; -fx-border-color: #333322; -fx-border-width: 0 0 1 0;">
+                <Label style="-fx-text-fill: #888866; -fx-font-size: 12px;" text="ROUND" />
+                <Label fx:id="roundLabel" style="-fx-text-fill: #f0e0b0; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                <Label style="-fx-text-fill: #444433;" text="|" />
+                <Label style="-fx-text-fill: #888866; -fx-font-size: 12px;" text="ERA" />
+                <Label fx:id="eraLabel" style="-fx-text-fill: #f0e0b0; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                <Label style="-fx-text-fill: #444433;" text="|" />
+                <Label style="-fx-text-fill: #888866; -fx-font-size: 12px;" text="PHASE" />
+                <Label fx:id="phaseLabel" style="-fx-text-fill: #f0e0b0; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                <Label style="-fx-text-fill: #444433;" text="|" />
+                <Label style="-fx-text-fill: #888866; -fx-font-size: 12px;" text="TURN" />
+                <Label fx:id="currentPlayerLabel" style="-fx-text-fill: #ffcc00; -fx-font-size: 12px; -fx-font-weight: bold;" />
+            </HBox>
+            <HBox spacing="16" style="-fx-padding: 6 16 6 16; -fx-border-color: #333322; -fx-border-width: 0 0 1 0;">
+                <Button fx:id="confirmButton" onAction="#onConfirm" style="-fx-background-color: #00804d; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 5 18 5 18; -fx-background-radius: 6; -fx-cursor: hand;" text="CONFIRM" visible="false" />
+                <Label fx:id="statusLabel" style="-fx-text-fill: #a0a080; -fx-font-size: 11px;" text="Waiting..." />
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+
+            <VBox spacing="8" style="-fx-padding: 8 12 8 12; -fx-vgrow: always;" VBox.vgrow="ALWAYS">
+                <HBox fx:id="topRowBox" spacing="6" style="-fx-alignment: center-left; -fx-hgrow: always;" HBox.hgrow="ALWAYS" />
+
+                <HBox spacing="4" style="-fx-alignment: center-left;">
+                    <ImageView fx:id="deckBackView" fitHeight="180" fitWidth="120" />
+                    <HBox fx:id="turnSlotBox" />
+                    <HBox fx:id="offerTrackBox">
+                        <HBox.margin>
+                            <Insets left="12" />
+                        </HBox.margin>
+                    </HBox>
+                </HBox>
+
+                <HBox fx:id="bottomRowBox" spacing="6" style="-fx-alignment: center-left; -fx-hgrow: always;" HBox.hgrow="ALWAYS" />
+            </VBox>
+
+        </ScrollPane>
+    </center>
+
+    <right>
+        <VBox prefWidth="360" style="-fx-background-color: #1a1a10; -fx-border-color: #333322; -fx-border-width: 0 0 0 1;">
+            <Label style="-fx-text-fill: #888866; -fx-font-size: 10px; -fx-padding: 10 0 0 16;" text="OPPONENTS" />
+
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="356.0" prefWidth="371.0" style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
+                <VBox fx:id="opponentsBox" spacing="12" style="-fx-padding: 10 16 20 16;" />
+            </ScrollPane>
+        </VBox>
+    </right>
+
+    <bottom>
+        <VBox style="-fx-border-color: #333322; -fx-border-width: 1 0 0 0; -fx-background-color: #1a1a10; -fx-padding: 0 0 8 0;">
+            <Label style="-fx-text-fill: #888866; -fx-padding: 5;" text="YOUR VILLAGE" />
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="240.0" prefWidth="1280.0"
+                        style="-fx-background: #1a1a10; -fx-background-color: #1a1a10; -fx-control-inner-background: #1a1a10; -fx-background-insets: 0; -fx-border-color: #1a1a10; -fx-border-width: 0;">
+                <VBox spacing="10" style="-fx-padding: 10; -fx-background: #1a1a10; -fx-background-color: #1a1a10;">
+                    <HBox fx:id="localPlayerBox" spacing="10" style="-fx-background-color: #1a1a10;" />
+                </VBox>
+            </ScrollPane>
+        </VBox>
+    </bottom>
+
+</BorderPane>

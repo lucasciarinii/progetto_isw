@@ -1,83 +1,79 @@
 package org.example.server;
 
-import org.example.network.RankingUpdateMessage;
-import org.example.server.database.DatabaseConnection;
+import org.example.network.ServerNotifier;
+import org.example.network.messages.GameStateUpdateMessage;
+import org.example.network.messages.RankingUpdateMessage;
+import org.example.network.snapshots.OfferTileSnapshot;
+import org.example.network.snapshots.PlayerSnapshot;
+import org.example.network.snapshots.TurnSlotSnapshot;
 import org.example.server.database.GameDAO;
 import org.example.server.database.RankingEntry;
+import org.example.server.model.board.Board;
 import org.example.server.model.board.OfferTile;
-import org.example.network.GameStateUpdateMessage;
-import org.example.network.Snapshots.OfferTileSnapshot;
-import org.example.network.Snapshots.PlayerSnapshot;
-import org.example.network.Snapshots.TurnSlotSnapshot;
+import org.example.server.model.board.PlayerSlot;
+import org.example.server.model.cards.buildingCards.RoundFlowBC;
+import org.example.server.model.enums.GamePhase;
 import org.example.server.model.exceptions.InvalidCardException;
 import org.example.server.model.exceptions.NoDrawableCardException;
-import org.example.server.rmi.RMIClientConnection;
-import org.example.server.model.board.Board;
-import org.example.server.model.board.PlayerSlot;
-import org.example.server.model.enums.GamePhase;
 import org.example.server.model.match.GameState;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
 
-import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Server-side controller that validates player actions, updates the match state,
+ * and broadcasts snapshots to connected clients.
+ */
 public class ServerController {
     private final Match match;
-    // Maps each connected client to the corresponding player nickname (set at connection time)
-    private final Map<ClientConnection, String> clientNicknames = new HashMap<>();
+    private final ServerNotifier notifier;
     private GameOverListener onGameOver;
+    private boolean waitingForRoundFlow = false;
+    private String roundFlowPlayerNick  = null;
 
 
     //! CONSTRUCTOR ---------------------------------------------------------------------------
-    public ServerController(Match match) {
+    public ServerController(Match match, ServerNotifier notifier) {
         this.match = match;
+        this.notifier = notifier;
     }
 
+    /**
+     * Registers a listener to be called when the game ends.
+     *
+     * @param listener callback invoked after the game-over phase is processed
+     */
     public void setGameOverListener(GameOverListener listener) {
         this.onGameOver = listener;
     }
 
-    //! CLIENT REGISTRATION ---------------------------------------------------------------------------
-    public void registerClient(ClientConnection client, String nickname) {
-        clientNicknames.put(client, nickname);
-    }
-
-    public void unregisterClient(ClientConnection client) {
-        clientNicknames.remove(client);
-    }
-
-    // Close the connection
+    /**
+     * Finalizes the session and notifies the game-over listener, if any.
+     */
     private void shutdown() {
-        // Empty local map
-        new ArrayList<>(clientNicknames.keySet()).forEach(this::unregisterClient);
-
-        // Close DB connection
-//        try {
-//            DatabaseConnection.getInstance().close();
-//        } catch (SQLException e) {
-//            System.err.println("[DB] Error closing connection: " + e.getMessage());
-//        }
-
-        System.out.println("[SERVER] Game match session closed.");
+        ServerLogger.server("Game match session closed.");
         if (onGameOver != null) {
             onGameOver.onGameOver(this);
         }
     }
 
-    //! GAME ACTIONS ---------------------------------------------------------------------------
+    /**
+     * Places a player's totem on the selected offer tile.
+     *
+     * @param nickname     the player nickname
+     * @param tilePosition the offer tile index
+     */
     public void placeTotemOnOfferTile(String nickname, int tilePosition) {
-        ClientConnection sender = findConnection(nickname);
-        if (sender == null) {
-            System.err.println("[SERVER] Connection not found for: " + nickname);
+        if (!isKnownPlayer(nickname)) {
+            ServerLogger.server("Player not found for: " + nickname);
             return;
         }
 
         if (isWrongPlayer(nickname) || isWrongPhase(GamePhase.PLACE_TOTEMS)) {
-            sendError(sender, "Invalid move: it's not yourn turn or invalid phase.");
+            sendError(nickname, "Invalid move: it's not yourn turn or invalid phase.");
             return;
         }
 
@@ -89,20 +85,25 @@ public class ServerController {
             match.getGameState().advanceToNextPlayer();
             handlePhaseTransition(phaseBefore);
         } catch (Exception e) {
-            sendError(sender, "Invalid move: " + e.getMessage());
+            sendError(nickname, "Invalid move: " + e.getMessage());
         }
 
     }
 
+    /**
+     * Executes the action for the offer tile selected by the current player.
+     *
+     * @param nickname the player nickname
+     * @param cards    the serialized card selection
+     */
     public void offerTileAction(String nickname, String cards) {
-        ClientConnection sender = findConnection(nickname);
-        if (sender == null) {
-            System.err.println("[SERVER] Connection not found for: " + nickname);
+        if (!isKnownPlayer(nickname)) {
+            ServerLogger.server("Player not found for: " + nickname);
             return;
         }
 
         if (isWrongPlayer(nickname) || isWrongPhase(GamePhase.PLAYER_TURN)) {
-            sendError(sender, "Invalid move: it's not yourn turn or invalid phase.");
+            sendError(nickname, "Invalid move: it's not yourn turn or invalid phase.");
             return;
         }
 
@@ -122,44 +123,117 @@ public class ServerController {
             selectedTile.removePlayer();
 
             // Warn about the NoDrawableCard and skip his turn
-            sendError(sender, e.getMessage());
+            sendError(nickname, e.getMessage());
             GamePhase phaseBefore = match.getGameState().getCurrentPhase();
             match.getGameState().advanceToNextPlayer();
             handlePhaseTransition(phaseBefore);
         }
         catch (InvalidCardException e) {
-            sendError(sender, "Invalid move: " + e.getMessage());
+            sendError(nickname, "Invalid move: " + e.getMessage());
         }
         catch (Exception e) {
-            sendError(sender, "Generic Exception: " + e.getMessage());
+            sendError(nickname, "Generic Exception: " + e.getMessage());
         }
 
     }
 
+    /**
+     * Handles the RoundFlow building request when a player must choose the extra top card.
+     *
+     * @param nickname the player nickname
+     * @param cards    the card ID
+     */
+    public void roundFlowCardRequest(String nickname, String cards) {
+        if (!waitingForRoundFlow) { // waitingForRoundFlow is set to true only if we are in END_ROUND and a player has RoundFlowBC, so we expect this request only in that case
+            try {
+                notifier.sendError(nickname, "No RoundFlow action expected now.",
+                        match.getGameState().getCurrentPhase());
+            } catch (Exception e) {
+                ServerLogger.error("Failed to send error: " + e.getMessage());
+            }
+            return;
+        }
+
+        if (!nickname.equals(roundFlowPlayerNick)) {
+            try {
+                notifier.sendError(nickname, "It's not your RoundFlow turn.",
+                        match.getGameState().getCurrentPhase());
+            } catch (Exception e) {
+                ServerLogger.error("Failed to send error: " + e.getMessage());
+            }
+            return;
+        }
+
+        Player player = getPlayerByNickname(nickname);
+        try {
+            match.roundFlowCardRequest(player, cards);
+        }
+        catch (InvalidCardException e) {
+            sendError(nickname, "Invalid move: " + e.getMessage());
+            try {
+                notifier.sendRoundFlowCardRequest(nickname);
+            } catch (Exception ex) {
+                ServerLogger.error("Failed to resend RoundFlow request: " + ex.getMessage());
+            }
+            return;
+        }
+        catch (Exception e) {
+            sendError(nickname, "Generic Exception: " + e.getMessage());
+            try {
+                notifier.sendRoundFlowCardRequest(nickname);
+            } catch (Exception ex) {
+                ServerLogger.error("Failed to resend RoundFlow request: " + ex.getMessage());
+            }
+            return;
+        }
+
+        waitingForRoundFlow = false;
+        roundFlowPlayerNick = null;
+
+        // Notify all players with the updated state, then continue.
+        notifyAll(buildSnapshot());
+        proceedEndRound();
+
+    }
+
+    /**
+     * Skips the current player's turn and advances the phase if needed. (called when there are no drawable cards for the player on his turn)
+     *
+     * @param nickname the player nickname
+     */
     public void skipTurn(String nickname) {
-        ClientConnection sender = findConnection(nickname);
-        if (sender == null) {
-            System.err.println("[SERVER] SkipTurn failed: connection not found for: " + nickname);
+        if (!isKnownPlayer(nickname)) {
+            ServerLogger.server("SkipTurn failed: player not found for: " + nickname);
             return;
         }
 
         if (isWrongPlayer(nickname) || isWrongPhase(GamePhase.PLAYER_TURN)) {
-            sendError(sender, "SkipTurn failed: invalid move: it's not yourn turn or invalid phase.");
+            sendError(nickname, "SkipTurn failed: invalid move: it's not yourn turn or invalid phase.");
             return;
         }
+
+        // Remove the player's totem from the offer track before advancing
+        match.getBoard().getOfferTrack().stream()
+                .filter(tile -> tile.getPlayer() != null)
+                .filter(tile -> tile.getPlayer().getNickname().equals(nickname))
+                .findFirst()
+                .ifPresent(OfferTile::removePlayer);
 
         GamePhase phaseBefore = match.getGameState().getCurrentPhase();
         match.getGameState().advanceToNextPlayer();
         handlePhaseTransition(phaseBefore);
     }
 
-    //! UTILITY METHODS ---------------------------------------------------------------------------
     private boolean isWrongPlayer(String nick) {
         return !match.getGameState().getCurrentPlayer().getNickname().equals(nick);
     }
 
     private boolean isWrongPhase(GamePhase expected) {
         return !(match.getGameState().getCurrentPhase() == expected);
+    }
+
+    private boolean isKnownPlayer(String nickname) {
+        return match.getPlayers().stream().anyMatch(p -> p.getNickname().equals(nickname));
     }
 
     private Player getPlayerByNickname(String nick) {
@@ -169,53 +243,47 @@ public class ServerController {
                 .orElseThrow(() -> new IllegalArgumentException("Player not found: " + nick));
     }
 
-    public RMIClientConnection getConnectionByNickname(String nickname) {
-        return (RMIClientConnection) clientNicknames.entrySet().stream()
-                .filter(e -> e.getValue().equals(nickname))
-                .map(Map.Entry::getKey)
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Client not found: " + nickname));
-    }
-
-    // Internal lookup to get the ClientConnection associated with a nickname
-    private ClientConnection findConnection(String nickname) {
-        return clientNicknames.entrySet().stream()
-                .filter(e -> e.getValue().equals(nickname))
-                .map(Map.Entry::getKey)
-                .findFirst()
-                .orElse(null);
-    }
-
-    //! NOTIFICATION METHODS ---------------------------------------------------------------------------
-    // Notifies all clients with the DTO (GameStateUpdateMessage) built from the current Match state with buildSnapshot() method.
+    /**
+     * Sends a game-state update to all connected players.
+     *
+     * @param update the snapshot DTO to broadcast
+     */
     private void notifyAll(GameStateUpdateMessage update) {
-        clientNicknames.keySet().forEach(client -> {
+        for (Player player : match.getPlayers()) {
             try {
-                client.sendUpdate(update);
+                notifier.sendGameStateUpdate(player.getNickname(), update);
             } catch (Exception e) {
-                // Client disconnected, remove it
-                System.out.print("[SERVER] Failed to send update to " + clientNicknames.get(client) + ", unregistering client. Reason: " + e.getMessage());
-                unregisterClient(client);
+                ServerLogger.server("Failed to send update to " + player.getNickname() + ": " + e.getMessage());
             }
-        });
-    }
-
-    // Notifies the sender client with an error message (e.g., invalid move, wrong turn, etc.). If sending fails (e.g., client disconnected), we unregister the client.
-    private void sendError(ClientConnection client, String message) {
-        try {
-            client.sendError(message);
-        } catch (Exception e) {
-            unregisterClient(client);
         }
     }
 
-    // Sends the initial snapshot to all clients when the game exactly starts. Called by LobbyController after registering all clients.
+    /**
+     * Sends an error message to the specified player.
+     *
+     * @param nickname the target player nickname
+     * @param message  the error description
+     */
+    private void sendError(String nickname, String message) {
+        try {
+            notifier.sendError(nickname, message, match.getGameState().getCurrentPhase());
+        } catch (Exception e) {
+            ServerLogger.server("Failed to send error to " + nickname + ": " + e.getMessage());
+        }
+    }
+
+    /**
+     * Sends the initial snapshot to all clients when the game starts.
+     */
     public void sendInitialState() {
         notifyAll(buildSnapshot());
     }
 
-    //! BUILD SNAPSHOT METHOD ---------------------------------------------------------------------------
-    // Method used to read 'Match' and builds the corresponding DTO (GameStateUpdateMessage) to send to the clients.
+    /**
+     * Builds a DTO snapshot of the current match state.
+     *
+     * @return the game-state update message
+     */
     private GameStateUpdateMessage buildSnapshot() {
         // builds DTO from current Match state
         GameState gs = match.getGameState();
@@ -284,7 +352,11 @@ public class ServerController {
         );
     }
 
-    //! HANDLE PHASE TRANSITIONS
+    /**
+     * Handles phase transitions after a player action.
+     *
+     * @param phaseBefore the phase before the action
+     */
     private void handlePhaseTransition(GamePhase phaseBefore) {
         GamePhase phaseAfter = match.getGameState().getCurrentPhase();
 
@@ -298,6 +370,11 @@ public class ServerController {
         handleNewPhase(phaseAfter);
     }
 
+    /**
+     * Executes the logic associated with entering a new phase.
+     *
+     * @param phase the new game phase
+     */
     private void handleNewPhase(GamePhase phase) {
         switch (phase) {
 
@@ -336,27 +413,35 @@ public class ServerController {
             }
 
             case END_ROUND -> {
-                // EVENTS_RESOLVE → END_ROUND: automatic
-                if(match.getGameState().getCurrentRound() == 10) {
-                    // If it's the end of round 10, we go directly to END_GAME
-                    match.getGameState().advancePhase();
-                    handleNewPhase(match.getGameState().getCurrentPhase());
+                Player roundFlowPlayer = match.getPlayers().stream()
+                        .filter(p -> p.getOwnedBuildings().stream()
+                                .anyMatch(c -> c instanceof RoundFlowBC))
+                        .findFirst()
+                        .orElse(null);
+
+                if (roundFlowPlayer != null) {
+                    waitingForRoundFlow = true;
+                    roundFlowPlayerNick = roundFlowPlayer.getNickname();
+                    // Ensure clients see who must answer the RoundFlow request.
+                    match.getGameState().setCurrentPlayer(roundFlowPlayer);
+                    notifyAll(buildSnapshot());
+                    try {
+                        notifier.sendRoundFlowCardRequest(roundFlowPlayerNick);
+                    } catch (Exception e) {
+                        ServerLogger.error("Failed to send RoundFlow request: " + e.getMessage());
+                    }
+                    // stop — resume in roundFlowCardRequest()
                     return;
                 }
-                match.endRoundOperations();
 
-                // END_ROUND.next(state) handle internally:
-                //   - round < 10  → advanceRound() + PLACE_TOTEMS
-                //   - round == 10 → END_GAME
-                match.getGameState().advancePhase();
-                handleNewPhase(match.getGameState().getCurrentPhase());
+                proceedEndRound();
             }
 
             case END_GAME -> {
                 // END_ROUND → END_GAME: round 10 completed
                 match.endOfGame();
 
-                // Avanza a GAME_OVER
+                // Move to GAME_OVER.
                 match.getGameState().advancePhase();
                 handleNewPhase(GamePhase.GAME_OVER);
             }
@@ -385,7 +470,7 @@ public class ServerController {
                 try {
                     dao.saveGame(match.getPlayers().size(), results, placements);
                 } catch (SQLException e) {
-                    System.err.println("[DB ERROR] Failed to save game: " + e.getMessage());
+                    ServerLogger.db_error("Failed to save game: " + e.getMessage());
                 }
 
                 // 3) Execute query and get results
@@ -394,47 +479,48 @@ public class ServerController {
                     for (Player p : match.getPlayers()) {
                         int rankPosition = dao.getPlayerGlobalRank(p.getNickname(), match.getPlayers().size());
                         RankingUpdateMessage msg = new RankingUpdateMessage(ranking, rankPosition);
-
-                        // Find ClientConnection corresponding to nickname and send ranking update
-                        clientNicknames.entrySet().stream()
-                                .filter(entry -> entry.getValue().equals(p.getNickname()))
-                                .map(Map.Entry::getKey)
-                                .findFirst()
-                                .ifPresent(conn -> {
-                                    try {
-                                        conn.sendRankingUpdate(msg);
-                                    } catch (RemoteException e) {
-                                        System.err.println("[ERROR] Failed to send ranking to " + p.getNickname());
-                                    }
-                                    catch (Exception e) {
-                                        System.err.println("[ERROR] in send ranking " + p.getNickname() + ": exception" + e.getMessage());
-                                    }
-                                });
+                        try {
+                            notifier.sendRankingUpdate(p.getNickname(), msg);
+                        } catch (Exception e) {
+                            ServerLogger.db_error("Failed to send ranking to " + p.getNickname() + ": " + e.getMessage());
+                        }
                     }
                 } catch (SQLException e) {
-                    System.err.println("[DB ERROR] Failed to retrieve ranking: " + e.getMessage());
+                    ServerLogger.db_error("Failed to retrieve ranking: " + e.getMessage());
                 }
 
                 // 4) Now we can send shutdown to all clients (of this match)
-                clientNicknames.keySet().forEach(conn -> {
+                for (Player player : match.getPlayers()) {
                     try {
-                        conn.sendShutdown();
+                        notifier.sendShutdown(player.getNickname());
+                    } catch (Exception e) {
+                        ServerLogger.error("Failed to send shutdown to " + player.getNickname() + ": " + e.getMessage());
                     }
-                    catch (RemoteException e) {
-                        // Nothing, it's just client disconnection
-                    }
-                    catch (Exception e) {
-                        System.err.println("[ERROR] Failed to send shutdown to client");
-                    }
-                });
+                }
 
                 // Close connection
                 shutdown();
             }
 
              default -> throw new IllegalStateException("Unexpected phase: " + phase);
-        }
-    }
+         }
+     }
+
+    /**
+     * Finalizes the end-of-round flow, including end-game transition.
+     */
+     private void proceedEndRound() {
+         if (match.getGameState().getCurrentRound() == 10) {
+             match.getGameState().advancePhase();
+             handleNewPhase(match.getGameState().getCurrentPhase());
+             return;
+         }
+         match.endRoundOperations();
+         match.getGameState().advancePhase();
+         handleNewPhase(match.getGameState().getCurrentPhase());
+     }
 
 
-}
+
+ }
+

@@ -1,0 +1,178 @@
+package org.example.client.view.GUI.GUIController;
+
+import javafx.fxml.FXML;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import org.example.client.view.GUI.registry.PlayerColorRegistry;
+import org.example.network.messages.RankingUpdateMessage;
+import org.example.network.snapshots.PlayerSnapshot;
+import org.example.server.database.RankingEntry;
+
+import java.util.List;
+
+/**
+ * Controller for the ranking/results screen.
+ */
+public class GUIRankingController {
+
+    @FXML private HBox matchResultsBox;
+    @FXML private VBox rankingBox;
+    @FXML private Label myPositionLabel;
+    @FXML private Label closingLabel;
+
+
+    // Public methods
+
+    /**
+     * Called by GUIHandler.onRankingUpdate().
+     *
+     * @param rankingMessage message with ranking and local player position
+     * @param matchPlayers players of the just finished match (for results)
+     */
+    public void populate(RankingUpdateMessage rankingMessage, List<PlayerSnapshot> matchPlayers) {
+        buildMatchResults(matchPlayers);
+        buildGlobalRanking(rankingMessage.getRanking(), rankingMessage.getPlayerRankPosition());
+    }
+
+    /** Called by GUIHandler.onShutdown() to signal the server disconnected. */
+    public void showClosingMessage() {
+        closingLabel.setVisible(true);
+        closingLabel.setManaged(true);
+    }
+
+    // Private methods
+
+    /**
+     * Build cards with the results of the just finished match, ordered by points descending.
+     */
+    private void buildMatchResults(List<PlayerSnapshot> players) {
+        matchResultsBox.getChildren().clear();
+
+        List<PlayerSnapshot> sorted = players.stream()
+                .sorted((a, b) -> Integer.compare(b.getPoints(), a.getPoints()))
+                .toList();
+
+        for (int i = 0; i < sorted.size(); i++) {
+            PlayerSnapshot p = sorted.get(i);
+            String hex = PlayerColorRegistry.getInstance().getHex(p.getNickname());
+            boolean isFirst = (i == 0);
+
+            VBox card = new VBox(6);
+            card.setAlignment(Pos.CENTER);
+            card.setPrefWidth(160);
+            card.setStyle(
+                    "-fx-background-color: #1a1a10; " +
+                            "-fx-border-color: " + hex + "; " +
+                            "-fx-border-width: " + (isFirst ? "2.5" : "1.2") + "; " +
+                            "-fx-border-radius: 10; " +
+                            "-fx-background-radius: 10; " +
+                            "-fx-padding: 16 12 16 12;"
+            );
+
+            // Position
+            Label posLabel = new Label(medalFor(i));
+            posLabel.setStyle(
+                    "-fx-font-size: " + (isFirst ? "28px" : "18px") + "; "
+            );
+
+            // Nickname
+            Label nickLabel = new Label(p.getNickname());
+            nickLabel.setStyle(
+                    "-fx-text-fill: " + hex + "; " +
+                            "-fx-font-size: 13px; " +
+                            "-fx-font-weight: bold;"
+            );
+
+            // Points
+            Label pointsLabel = new Label(p.getPoints() + " pts");
+            pointsLabel.setStyle(
+                    "-fx-text-fill: #f0e0b0; " +
+                            "-fx-font-size: " + (isFirst ? "22px" : "16px") + "; " +
+                            "-fx-font-weight: bold;"
+            );
+
+            // Food
+            Label foodLabel = new Label("🍖 " + p.getFood());
+            foodLabel.setStyle("-fx-text-fill: #888866; -fx-font-size: 11px;");
+
+            card.getChildren().addAll(posLabel, nickLabel, pointsLabel, foodLabel);
+            matchResultsBox.getChildren().add(card);
+        }
+    }
+
+    /**
+     * Build rows of the global ranking, highlighting the local player if present.
+     */
+    private void buildGlobalRanking(List<RankingEntry> ranking, int myPosition) {
+        rankingBox.getChildren().clear();
+
+        if (ranking.isEmpty()) {
+            Label empty = new Label("No players in ranking yet.");
+            empty.setStyle("-fx-text-fill: #555544; -fx-font-size: 12px;");
+            rankingBox.getChildren().add(empty);
+        } else {
+            for (int i = 0; i < ranking.size(); i++) {
+                RankingEntry entry = ranking.get(i);
+                boolean isMe = (i + 1) == myPosition;
+
+                HBox row = new HBox(12);
+                row.setAlignment(Pos.CENTER_LEFT);
+                row.setStyle(
+                        "-fx-padding: 6 12 6 12; " +
+                                "-fx-background-radius: 6; " +
+                                "-fx-background-color: " + (isMe ? "#2a2a16" : "#1a1a10") + "; " +
+                                (isMe ? "-fx-border-color: #ffcc00; -fx-border-width: 1; -fx-border-radius: 6;" : "")
+                );
+
+                // Position
+                Label posLabel = new Label(String.format("%2d.", i + 1));
+                posLabel.setPrefWidth(30);
+                posLabel.setStyle(
+                        "-fx-text-fill: " + (isMe ? "#ffcc00" : "#555544") + "; " +
+                                "-fx-font-size: 12px; -fx-font-weight: bold;"
+                );
+
+                // Nickname
+                Label nickLabel = new Label(entry.getNickname());
+                nickLabel.setPrefWidth(180);
+                nickLabel.setStyle(
+                        "-fx-text-fill: " + (isMe ? "#ffcc00" : "#d0c8a0") + "; " +
+                                "-fx-font-size: 12px;" +
+                                (isMe ? " -fx-font-weight: bold;" : "")
+                );
+
+                // Wins
+                Label winsLabel = new Label("Wins: " + entry.getWins());
+                winsLabel.setPrefWidth(80);
+                winsLabel.setStyle("-fx-text-fill: #888866; -fx-font-size: 11px;");
+
+                // Points average
+                Label avgLabel = new Label(
+                        String.format("Avg score: %.1f", entry.getAvgScore())
+                );
+                avgLabel.setStyle("-fx-text-fill: #888866; -fx-font-size: 11px;");
+
+                row.getChildren().addAll(posLabel, nickLabel, winsLabel, avgLabel);
+                rankingBox.getChildren().add(row);
+            }
+        }
+
+        // Local player position label
+        if (myPosition == -1) {
+            myPositionLabel.setText("You are not in the ranking yet (no wins).");
+        } else {
+            myPositionLabel.setText("Your global position: #" + myPosition);
+        }
+    }
+
+    private String medalFor(int index) {
+        return switch (index) {
+            case 0 -> "🥇";
+            case 1 -> "🥈";
+            case 2 -> "🥉";
+            default -> String.valueOf(index + 1) + ".";
+        };
+    }
+}

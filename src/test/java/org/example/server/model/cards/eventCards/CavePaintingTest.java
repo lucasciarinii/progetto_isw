@@ -1,8 +1,7 @@
 package org.example.server.model.cards.eventCards;
 
-import org.example.server.model.cards.characters.Artist;
 import org.example.server.model.cards.buildingCards.CavePaintingEventBoostBC;
-import org.example.server.model.cards.eventCards.CavePainting;
+import org.example.server.model.cards.characters.Artist;
 import org.example.server.model.enums.BuildingCardType;
 import org.example.server.model.enums.CharacterType;
 import org.example.server.model.enums.Era;
@@ -14,9 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CavePaintingTest {
 

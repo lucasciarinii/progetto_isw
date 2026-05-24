@@ -1,86 +1,98 @@
 package org.example.client;
 
-import org.example.client.rmi.RMIClientCallbackImpl;
-import org.example.client.rmi.GameEventListener;
-import org.example.client.view.CLIInputHandler;
-import org.example.client.view.View;
-import org.example.network.RankingUpdateMessage;
-import org.example.network.Snapshots.OfferTileSnapshot;
-import org.example.network.Snapshots.PlayerSnapshot;
+import org.example.client.view.UIHandler;
+import org.example.network.ClientNetworkAdapter;
+import org.example.network.CommunicationProtocol;
+import org.example.network.NetworkAdapterFactory;
+import org.example.network.messages.GameStateUpdateMessage;
+import org.example.network.messages.LobbyUpdateMessage;
+import org.example.network.messages.RankingUpdateMessage;
+import org.example.network.snapshots.OfferTileSnapshot;
+import org.example.network.snapshots.PlayerSnapshot;
 import org.example.server.model.cards.Card;
 import org.example.server.model.cards.buildingCards.BuildingCard;
+import org.example.server.model.cards.buildingCards.RoundFlowBC;
 import org.example.server.model.enums.GamePhase;
-import org.example.network.GameStateUpdateMessage;
-import org.example.network.LobbyUpdateMessage;
 import org.example.server.model.enums.OfferEffect;
-import org.example.server.rmi.RMIGameServer;
 
-import java.rmi.Naming;
-import java.rmi.RemoteException;
 import java.util.List;
 
-/*? Client-Side Controller:
-    - It connects to the RMI server
-    - Send commands to the server (placeTotem, offerTileAction)
-    - Receive updates/errors through ClientCallbackImpl and updates the view
+/**
+ * Client-side controller that connects to the server, sends player actions,
+ * and forwards server updates to the UI handler.
  */
 public class ClientController implements GameEventListener {
     private final String nickname;
-    private RMIGameServer server;       // server stub RMI
-    private final View view;
-    private final CLIInputHandler inputHandler;
+    private ClientNetworkAdapter networkAdapter;
+    private final UIHandler ui;
+    GameStateUpdateMessage lastGameStateUpdate;
 
-    public ClientController(String nickname) {
+    /**
+     * Creates a client controller for a specific player.
+     *
+     * @param nickname the player's nickname
+     * @param ui       the UI handler for rendering updates
+     */
+    public ClientController(String nickname, UIHandler ui) {
         this.nickname = nickname;
-        this.view = new View();
-        this.inputHandler = new CLIInputHandler(this);
+        this.ui = ui;
     }
 
+    /**
+     * Returns the player's nickname.
+     *
+     * @return the nickname
+     */
     public String getNickname() { return nickname; }
 
-    public View getView() {
-        return view;
+    /**
+     * Connects to the server using the selected protocol.
+     *
+     * @param host       the server host
+     * @param port       the server port
+     * @param numPlayers desired total number of players
+     * @param protocol   the communication protocol
+     * @throws Exception if the connection fails
+     */
+    public void connect(String host, int port, int numPlayers, CommunicationProtocol protocol) throws Exception {
+        networkAdapter = NetworkAdapterFactory.createClientAdapter(protocol, this);
+        networkAdapter.connect(host, port, nickname, numPlayers);
     }
 
-    //! CONNECTION TO SERVER -----------------------------------------------
-    public void connect(String host, int numPlayers) throws Exception {
-        // Forces RMI to use localhost instead of network board IP
-        System.setProperty("java.rmi.server.hostname", "localhost");
-
-        // 1. Retrieve the server stub from the registry
-        server = (RMIGameServer) Naming.lookup("rmi://" + host + "/GameServer");
-
-        // 2. Create the callback (remote object on client side)
-        RMIClientCallbackImpl callback = new RMIClientCallbackImpl(this);
-
-        // 3. It registers on the server
-        server.register(nickname, numPlayers, callback);
+    /**
+     * Sends a totem placement request to the server.
+     */
+    public void placeTotemOnOfferTile(int tilePosition) throws Exception {
+        networkAdapter.placeTotemOnOfferTile(tilePosition);
     }
 
+    /**
+     * Sends the selected cards for the offer tile action.
+     */
+    public void offerTileAction(String cards) throws Exception {
+        networkAdapter.offerTileAction(cards);
+    }
+
+    /**
+     * Sends the selected cards for the RoundFlow request.
+     */
+    public void roundFlowCardRequest(String cards) throws Exception {
+        networkAdapter.roundFlowCardRequest(cards);
+    }
+
+    /**
+     * Receives a lobby update update from the server and drives the UI flow.
+     */
     @Override
     public void onLobbyUpdate(LobbyUpdateMessage update) {
-        if (update.isGameStarting()) {
-            System.out.println("Match is starting!");
-        } else {
-            System.out.println("In lobby: " + update.getConnectedPlayers() + "/" + update.getRequiredPlayers() + " players");
-            System.out.println("Connected: " + update.getPlayerNicknames());
-        }
+        ui.onLobbyUpdate(update);
     }
 
-    //! COMMANDS TO SERVER -----------------------------------------------
-    public void placeTotemOnOfferTile(int tilePosition) throws Exception {
-        server.placeTotemOnOfferTile(nickname, tilePosition);
-    }
-
-    public void offerTileAction(String cards) throws Exception {
-        server.offerTileAction(nickname, cards);
-    }
-
-    //! RECEIVING UPDATES FROM SERVER (called by ClientCallbackImpl) -----------------------------------------------
+    /**
+     * Receives a game state update from the server and drives the UI flow.
+     */
     @Override
     public void onUpdate(GameStateUpdateMessage update) {
-        view.update(update);
-
         if (isMyTurn(update)) {
             if (update.getCurrentPhase() == GamePhase.PLAYER_TURN) {
                 OfferEffect effect = update.getOfferTrack().stream()
@@ -88,47 +100,99 @@ public class ClientController implements GameEventListener {
                         .map(OfferTileSnapshot::getOfferEffect)
                         .findFirst()
                         .orElse(null);
-
-                if (!hasPickableCards(effect, update)) { // Client-Side check
-                    view.displayNoCardsPickable();
-                    // Warn server to go on
-                    try {
-                        server.skipTurn(nickname);
-                    } catch (RemoteException e) {
-                        view.displayError("Communication error: " + e.getMessage());
-                    }
+                if (!hasPickableCards(effect, update)) {
+                    ui.displayNoCardsPickable();
+                    // skipTurn() must be called on a separate thread to avoid a deadlock:
+                    // onUpdate() runs on the RMI callback thread, and calling server.skipTurn()
+                    // synchronously from it would block that thread while waiting for the server
+                    // to respond — which it cannot, since the callback thread is still occupied.
+                    new Thread(() -> {
+                        try {
+                            networkAdapter.skipTurn();
+                        } catch (Exception e) {
+                            ui.onError(e.getMessage(), update.getCurrentPhase());
+                        }
+                    }).start();
                     return;
                 }
             }
-            inputHandler.promptForAction(update.getCurrentPhase());
-        } else if ( !isMyTurn(update) && isInteractivePhase(update.getCurrentPhase()) ) {
-            view.displayWaiting(update.getCurrentPlayerNickname());
+            ui.onGameStateUpdate(update);
+            ui.promptForAction(update.getCurrentPhase());
+            lastGameStateUpdate = update;
+        } else {
+            ui.onGameStateUpdate(update);
+            lastGameStateUpdate = update;
+            if (isRoundFlowPending(update)) {
+                if (!update.getCurrentPlayerNickname().equals(nickname)) {
+                    ui.displayRoundFlowWaiting(update.getCurrentPlayerNickname());
+                }
+            } else if (isInteractivePhase(update.getCurrentPhase())) {
+                ui.displayWaiting(update.getCurrentPlayerNickname());
+            }
         }
     }
 
     @Override
-    public void onError(String errorMessage) {
-        view.displayError(errorMessage);
-        inputHandler.promptForAction(view.getCurrentPhase()); // in handleOfferTileAction (promptForAction) there is a while loop that will keep asking for input until the server accepts a valid command, so we can just rely on that and do not need to re-prompt here
+    public void onError(String errorMessage, GamePhase phase) {
+        ui.onError(errorMessage, phase);
     }
 
     @Override
     public void onRankingUpdate(RankingUpdateMessage rankingMessage) {
-        view.displayRankingUpdate(rankingMessage.getRanking(), rankingMessage.getPlayerRankPosition());
+        ui.onRankingUpdate(rankingMessage);
     }
 
     @Override
-    public void onShutdown() {
-        inputHandler.warnExit();
+    public void onRoundFlowCardRequest() {
+        if (lastGameStateUpdate == null) {
+            ui.onRoundFlowCardRequest();
+            return;
+        }
+
+        if (!hasPickableCards(OfferEffect.U, lastGameStateUpdate)) {
+            ui.displayNoCardsPickable();
+            /*
+             skipTurn() must be called on a separate thread to avoid a deadlock:
+             onUpdate() runs on the RMI callback thread, and calling server.skipTurn()
+             synchronously from it would block that thread while waiting for the server
+             to respond — which it cannot, since the callback thread is still occupied. */
+            new Thread(() -> {
+                try {
+                    networkAdapter.skipTurn();
+                } catch (Exception e) {
+                    ui.onError(e.getMessage(), lastGameStateUpdate.getCurrentPhase());
+                }
+            }).start();
+            return;
+        }
+
+        ui.onRoundFlowCardRequest();
     }
 
-    //! UTILITY METHODS -----------------------------------------------
+
+    @Override
+    public void onShutdown() {
+        ui.onShutdown();
+    }
+
+    // Utility methods
     private boolean isMyTurn(GameStateUpdateMessage update) {
         return update.getCurrentPlayerNickname().equals(nickname) && isInteractivePhase(update.getCurrentPhase());
     }
 
     private boolean isInteractivePhase(GamePhase phase) {
         return phase == GamePhase.PLACE_TOTEMS || phase == GamePhase.PLAYER_TURN;
+    }
+
+    private boolean isRoundFlowPending(GameStateUpdateMessage update) {
+        if (update.getCurrentPhase() != GamePhase.END_ROUND) {
+            return false;
+        }
+        return update.getPlayers().stream()
+                .filter(p -> p.getNickname().equals(update.getCurrentPlayerNickname()))
+                .findFirst()
+                .map(p -> p.getOwnedBuildings().stream().anyMatch(b -> b instanceof RoundFlowBC))
+                .orElse(false);
     }
 
     private long countPickable(List<Card> row, PlayerSnapshot player) {

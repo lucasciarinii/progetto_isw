@@ -7,8 +7,21 @@ import org.example.server.model.enums.Era;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
 
-// Col2 Row3
+// Column 2, Row 3
+/**
+ * End-game building that doubles points from Builder cards.
+ */
 public class EndGameBonusBC extends BuildingCard {
+    /**
+     * Creates the building card from JSON data.
+     *
+     * @param id card id
+     * @param era card era
+     * @param foodCost food cost
+     * @param endPoints end points
+     * @param buildingCardType building type
+     * @param isEndGame true if it scores at end game
+     */
     public EndGameBonusBC(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,
@@ -25,6 +38,12 @@ public class EndGameBonusBC extends BuildingCard {
         return "%s\tEffect: get double the points indicated in your Builder cards (end game)\n".formatted(super.toString());
     }
 
+    /**
+     * Adds bonus points based on the owner's Builder cards.
+     *
+     * @param owner building owner
+     * @param match current match
+     */
     public void applyEffect(Player owner, Match match) {
         int puntiCostruttore = owner.getBuilders().stream()
                 .mapToInt(Builder::getEndPoints)

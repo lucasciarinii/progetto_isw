@@ -1,7 +1,7 @@
 package org.example.server.model.cards.eventCards;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.example.client.view.ConsoleColors;
+import org.example.client.view.TUI.ConsoleColors;
 import org.example.server.model.cards.buildingCards.BuildingCard;
 import org.example.server.model.enums.BuildingCardType;
 import org.example.server.model.enums.Era;
@@ -11,12 +11,29 @@ import org.example.server.model.match.Player;
 
 import java.util.Objects;
 
+/**
+ * Cave Painting event that awards points based on artist count.
+ */
 public class CavePainting extends EventCard {
 
+    /** Points awarded per artist when meeting the threshold. */
     private final int bonusPoints;
+    /** Points applied when below the threshold. */
     private final int malusPoints;
+    /** Minimum artists needed to avoid the malus. */
     private final int interval;
 
+    /**
+     * Creates the event card from JSON data.
+     *
+     * @param id card id
+     * @param era card era
+     * @param isEraFinal true if it ends the era
+     * @param effect event effect type
+     * @param bonusPoints bonus points per artist
+     * @param malusPoints malus points when below threshold
+     * @param interval minimum artists threshold
+     */
     public CavePainting(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,
@@ -37,6 +54,11 @@ public class CavePainting extends EventCard {
         return "%s\t<%d artists: %d points\n\t>=%d artists: %d points X number of artists%s\n".formatted(super.toString(), interval, malusPoints, interval, bonusPoints, ConsoleColors.RESET);
     }
 
+    /**
+     * Applies the cave painting scoring to all players.
+     *
+     * @param match current match
+     */
     @Override
     public void applyEvent(Match match) {
 

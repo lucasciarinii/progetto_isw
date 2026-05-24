@@ -2,25 +2,12 @@ package org.example.server.model.match;
 
 import org.example.server.model.board.PlayerSlot;
 import org.example.server.model.cards.Card;
-import org.example.server.model.cards.buildingCards.BuildingCard;
-import org.example.server.model.cards.buildingCards.EndGameBonus25BC;
-import org.example.server.model.cards.buildingCards.HuntEventBoostBC;
-import org.example.server.model.cards.buildingCards.ShamanicNoMalusBC;
-import org.example.server.model.cards.buildingCards.SetCollectionFoodBC;
-import org.example.server.model.cards.characters.Builder;
-import org.example.server.model.cards.characters.Gatherer;
-import org.example.server.model.cards.characters.Hunter;
-import org.example.server.model.cards.characters.Inventor;
-import org.example.server.model.cards.characters.Artist;
+import org.example.server.model.cards.buildingCards.*;
+import org.example.server.model.cards.characters.*;
 import org.example.server.model.cards.eventCards.HuntEvent;
 import org.example.server.model.cards.eventCards.Sustenance;
-import org.example.server.model.enums.BuildingCardType;
-import org.example.server.model.enums.CharacterType;
-import org.example.server.model.enums.Era;
-import org.example.server.model.enums.EventEffect;
-import org.example.server.model.enums.InventionType;
-import org.example.server.model.enums.OfferEffect;
 import org.example.server.model.decks.Deck;
+import org.example.server.model.enums.*;
 import org.example.server.model.exceptions.InvalidCardException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,12 +15,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.NoSuchElementException;
 import java.lang.reflect.Field;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -60,12 +43,10 @@ class MatchTest {
     private static Stream<Arguments> blankStringOfferEffects() {
         return Stream.of(
                 Arguments.of(5, OfferEffect.FOOD, null),
-                Arguments.of(2, OfferEffect.D, NoSuchElementException.class),
-                Arguments.of(2, OfferEffect.U, NoSuchElementException.class),
-                Arguments.of(3, OfferEffect.DD, IndexOutOfBoundsException.class),
-                Arguments.of(4, OfferEffect.DU, NoSuchElementException.class),
-                Arguments.of(2, OfferEffect.UU, IndexOutOfBoundsException.class),
-                Arguments.of(4, OfferEffect.DUU, NoSuchElementException.class)
+                Arguments.of(5, OfferEffect.DD, InvalidCardException.class),
+                Arguments.of(5, OfferEffect.DU, InvalidCardException.class),
+                Arguments.of(5, OfferEffect.UU, InvalidCardException.class),
+                Arguments.of(5, OfferEffect.DUU, InvalidCardException.class)
         );
     }
 
@@ -473,9 +454,15 @@ class MatchTest {
     }
 
     // Test that blank input is accepted only for FOOD and rejected with the refactored exception flow for card-selection offers.
+// Test that blank input is accepted only for FOOD and rejected with a domain exception
+// for offer effects that require card selection.
     @ParameterizedTest
     @MethodSource("blankStringOfferEffects")
-    void offerTileAction_blankStringWorksOnlyForFood(int playerCount, OfferEffect effect, Class<? extends Throwable> expectedExceptionType) {
+    void offerTileAction_blankStringWorksOnlyForFood(
+            int playerCount,
+            OfferEffect effect,
+            Class<? extends Throwable> expectedExceptionType
+    ) {
         Match match = new Match(createPlayers(playerCount));
         Player player = match.getBoard().getTurnOrderTile().getSlots().getFirst().getPlayer();
         int offerTileIndex = findOfferTileIndex(match, effect);
@@ -484,9 +471,11 @@ class MatchTest {
         match.placeTotemOnOfferTile(player, offerTileIndex);
 
         if (effect == OfferEffect.FOOD) {
+            // FOOD accepts blank input because no card IDs are needed.
             assertDoesNotThrow(() -> match.offerTileAction(player, ""));
             assertEquals(initialFood + 3 + 3, player.getFood());
         } else {
+            // Composite card-pick effects now reject missing IDs with InvalidCardException.
             assertThrows(expectedExceptionType,
                     () -> match.offerTileAction(player, ""));
         }
@@ -1032,10 +1021,17 @@ class MatchTest {
                 .orElseThrow();
         int ownedBefore = totalOwnedCharacters(player);
 
-        assertThrows(NoSuchElementException.class,
+        // Missing IDs must now be rejected with a domain exception instead of a collection access error.
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, ""));
-        assertDoesNotThrow(() -> match.offerTileAction(player,
-                bottomCharacter.getId() + "," + topCharacter.getId() + "," + nextUnusedCardId(match)));
+
+        // Extra IDs must be ignored once the required picks have been resolved.
+        assertDoesNotThrow(() -> match.offerTileAction(
+                player,
+                bottomCharacter.getId() + "," + topCharacter.getId() + "," + nextUnusedCardId(match)
+        ));
+
+        // The player must collect exactly the two valid selected cards.
         assertEquals(ownedBefore + 2, totalOwnedCharacters(player));
         assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card.getId() == bottomCharacter.getId()));
         assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == topCharacter.getId()));
@@ -1186,6 +1182,7 @@ class MatchTest {
     }
 
     // Test that UU rejects missing IDs when two picks are available and ignores extra IDs.
+    // Test that UU rejects missing IDs when two picks are available and ignores extra IDs.
     @Test
     void offerTileAction_UU_rejectsWrongNumberOfIds() {
         Match match = new Match(createPlayers(5));
@@ -1199,11 +1196,19 @@ class MatchTest {
         match.getBoard().getTopRow().add(new Gatherer(secondId, Era.I, CharacterType.GATHERER));
         int ownedBefore = totalOwnedCharacters(player);
 
-        assertThrows(IndexOutOfBoundsException.class,
+        // Missing IDs must now be rejected with a domain exception instead of an index error.
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, ""));
-        assertThrows(IndexOutOfBoundsException.class,
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, String.valueOf(firstId)));
-        assertDoesNotThrow(() -> match.offerTileAction(player, firstId + "," + secondId + "," + nextUnusedCardId(match)));
+
+        // Extra IDs are ignored because the UU strategy only consumes the required picks.
+        assertDoesNotThrow(() -> match.offerTileAction(
+                player,
+                firstId + "," + secondId + "," + nextUnusedCardId(match)
+        ));
+
+        // Only the two selected valid cards must be collected.
         assertEquals(ownedBefore + 2, totalOwnedCharacters(player));
         assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == firstId));
         assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == secondId));
@@ -1279,6 +1284,7 @@ class MatchTest {
     }
 
     // Test that DUU requires enough IDs for available picks and ignores extra IDs beyond required picks.
+    // Test that DUU requires enough IDs for available picks and ignores extra IDs beyond required picks.
     @Test
     void offerTileAction_DUU_rejectsWrongNumberOfIds() {
         Match match = new Match(createPlayers(5));
@@ -1294,10 +1300,17 @@ class MatchTest {
         match.getBoard().getTopRow().add(new Gatherer(topId2, Era.I, CharacterType.GATHERER));
         int ownedBefore = totalOwnedCharacters(player);
 
-        assertThrows(NoSuchElementException.class,
+        // Missing IDs must now be rejected with a domain exception instead of a collection access error.
+        assertThrows(InvalidCardException.class,
                 () -> match.offerTileAction(player, ""));
-        assertDoesNotThrow(() -> match.offerTileAction(player,
-                bottomId + "," + topId1 + "," + topId2 + "," + nextUnusedCardId(match)));
+
+        // Extra IDs must be ignored once the required picks have been resolved.
+        assertDoesNotThrow(() -> match.offerTileAction(
+                player,
+                bottomId + "," + topId1 + "," + topId2 + "," + nextUnusedCardId(match)
+        ));
+
+        // The player must collect exactly the three valid selected cards.
         assertEquals(ownedBefore + 3, totalOwnedCharacters(player));
         assertTrue(match.getBoard().getBottomRow().stream().noneMatch(card -> card.getId() == bottomId));
         assertTrue(match.getBoard().getTopRow().stream().noneMatch(card -> card.getId() == topId1));

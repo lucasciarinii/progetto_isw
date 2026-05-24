@@ -1,11 +1,6 @@
 package org.example.server.model.cards.buildingCards;
 
-import org.example.server.model.cards.buildingCards.SustenanceDiscountBC;
-import org.example.server.model.cards.characters.Artist;
-import org.example.server.model.cards.characters.Gatherer;
-import org.example.server.model.cards.characters.Hunter;
-import org.example.server.model.cards.characters.Inventor;
-import org.example.server.model.cards.characters.Shaman;
+import org.example.server.model.cards.characters.*;
 import org.example.server.model.enums.BuildingCardType;
 import org.example.server.model.enums.CharacterType;
 import org.example.server.model.enums.Era;
@@ -19,7 +14,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SustenanceDiscountBCTest {
 

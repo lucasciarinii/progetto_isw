@@ -6,12 +6,26 @@ import org.example.server.model.enums.Era;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
 
-// Col1 Row6
+// Column 1, Row 6
+/**
+ * Building that grants extra shamanic stars.
+ */
 public class ShamanicStarsBC extends BuildingCard {
 
 
+    /** Bonus stars granted by this building. */
     private static final int SHAMANIC_STARS_POINTS = 3;
 
+    /**
+     * Creates the building card from JSON data.
+     *
+     * @param id card id
+     * @param era card era
+     * @param foodCost food cost
+     * @param endPoints end points
+     * @param buildingCardType building type
+     * @param isEndGame true if it scores at end game
+     */
     public ShamanicStarsBC(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,
@@ -28,7 +42,12 @@ public class ShamanicStarsBC extends BuildingCard {
         return "%s\tEffect: during shamanic ritual get +3 stars\n".formatted(super.toString());
     }
 
-    //add Shamanic Stars to player
+    /**
+     * Applies the bonus stars to the owner.
+     *
+     * @param owner building owner
+     * @param match current match
+     */
     @Override
     public void applyEffect(Player owner, Match match) {
         // It will be called just first time

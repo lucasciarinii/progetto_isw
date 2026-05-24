@@ -1,7 +1,7 @@
 package org.example.server.model.cards.eventCards;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.example.client.view.ConsoleColors;
+import org.example.client.view.TUI.ConsoleColors;
 import org.example.server.model.cards.buildingCards.BuildingCard;
 import org.example.server.model.enums.BuildingCardType;
 import org.example.server.model.enums.Era;
@@ -11,11 +11,25 @@ import org.example.server.model.match.Player;
 
 import java.util.Objects;
 
+/**
+ * Hunt event that grants food and points per hunter.
+ */
 public class HuntEvent extends EventCard {
 
+    /** Points awarded per hunter. */
     private final int points;
-    private final static int FOOD_BONUS = 1;
+    /** Base food bonus for the event. */
+    private static final int FOOD_BONUS = 1;
 
+    /**
+     * Creates the event card from JSON data.
+     *
+     * @param id card id
+     * @param era card era
+     * @param isEraFinal true if it ends the era
+     * @param effect event effect type
+     * @param points points per hunter
+     */
     public HuntEvent(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,
@@ -32,6 +46,11 @@ public class HuntEvent extends EventCard {
         return "%s\t%d food + %d points X number of hunters%s\n".formatted(super.toString(), FOOD_BONUS, this.points, ConsoleColors.RESET);
     }
 
+    /**
+     * Applies hunt rewards and any hunt-boost buildings.
+     *
+     * @param match current match
+     */
     @Override
     public void applyEvent(Match match) {
 

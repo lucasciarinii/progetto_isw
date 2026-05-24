@@ -10,14 +10,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Game board containing the offer track, decks, and card rows.
+ */
 public class Board {
+    /** Turn order tile with player slots. */
     private final TurnOrderTile turnOrderTile;
+    /** Offer track tiles. */
     private final List<OfferTile> offerTrack;
+    /** Main deck with character and event cards. */
     private final MainDeck mainDeck;
+    /** Building deck used to populate the top row. */
     private final BuildingDeck buildingDeck;
+    /** Visible cards on the top row. */
     private final List<Card> topRow;
+    /** Visible cards on the bottom row. */
     private final List<Card> bottomRow;
 
+    /**
+     * Creates the board and initializes rows and decks based on players.
+     *
+     * @param players list of players in the match
+     */
     public Board(List<Player> players) {
         Objects.requireNonNull(players, "Players list cannot be null");
 
@@ -78,30 +92,47 @@ public class Board {
         }
     }
 
+    /**
+     * @return the turn order tile
+     */
     public TurnOrderTile getTurnOrderTile() {
         return turnOrderTile;
     }
 
+    /**
+     * @return the offer track tiles
+     */
     public List<OfferTile> getOfferTrack() {
         return offerTrack;
     }
 
+    /**
+     * @return the main deck
+     */
     public MainDeck getMainDeck() {
         return mainDeck;
     }
 
+    /**
+     * @return the building deck
+     */
     public BuildingDeck getBuildingDeck() {
         return buildingDeck;
     }
 
+    /**
+     * @return the top row cards
+     */
     public List<Card> getTopRow() {
         return topRow;
     }
 
+    /**
+     * @return the bottom row cards
+     */
     public List<Card> getBottomRow() {
         return bottomRow;
     }
 
 
 }
-

@@ -5,15 +5,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Data access object for game persistence and ranking queries.
+ */
 public class GameDAO {
 
     /**
-     Save a complete game on a DB
-     @param numPlayers number of players in the game
-     @param results    maps nickname -> final score
-     @param placements maps nickname -> final position (1 = first)
+     * Saves a completed game and its results.
+     *
+     * @param numPlayers number of players in the game
+     * @param results maps nickname -> final score
+     * @param placements maps nickname -> final position (1 = first)
+     * @throws SQLException when persistence fails
      */
-
     public void saveGame(int numPlayers, Map<String, Integer> results, Map<String, Integer> placements) throws SQLException {
 
         Connection conn = DatabaseConnection.getInstance();
@@ -56,9 +60,11 @@ public class GameDAO {
     }
 
     /**
-     Returns the ranking of players for the specific number of players of the match,
-     ordered by number of wins and then by average score (descending).
-     @param numPlayers the number of players in the matches to consider for the ranking
+     * Returns the ranking for matches with a given number of players.
+     *
+     * @param numPlayers the number of players in the matches to consider
+     * @return list of ranking entries ordered by position
+     * @throws SQLException when the query fails
      */
     public List<RankingEntry> getRanking(int numPlayers) throws SQLException {
         String query = """
@@ -84,10 +90,12 @@ public class GameDAO {
     }
 
     /**
-     Returns position of that player in the ranking for matches with a given number of players,
-     based on wins and average score.
-        @param nickname the player nickname
-        @param numPlayers the number of players in the matches to consider for the ranking
+     * Returns the global rank position of the player for a given match size.
+     *
+     * @param nickname the player nickname
+     * @param numPlayers the number of players in the matches to consider
+     * @return rank position, or -1 if not found
+     * @throws SQLException when the query fails
      */
     public int getPlayerGlobalRank(String nickname, int numPlayers) throws SQLException {
         String query = """

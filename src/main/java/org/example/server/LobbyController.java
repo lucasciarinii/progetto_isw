@@ -1,59 +1,61 @@
 package org.example.server;
 
-/*? Handle waiting phase before the game starts.
-    - First player decides how many players will be in the game (2-5)
-    - When the number is reached, creates Match and ServerController.
-*/
+/**
+ * Controller that manages the lobby before the game starts.
+ * The first player selects the total number of players (2-5), and once
+ * the lobby is full a match and its controller are created.
+ */
 
+import org.example.network.ServerNotifier;
+import org.example.network.messages.LobbyUpdateMessage;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
-import org.example.network.LobbyUpdateMessage;
-import org.example.server.rmi.RMIClientCallback;
-import org.example.server.rmi.RMIClientConnection;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 
 public class LobbyController implements GameOverListener {
     private int requiredPlayers = -1;  // -1 = not decided yet
 
-    // Keeps the order of connection: nickname, callback
-    private final Map<String, RMIClientCallback> waitingClients = new LinkedHashMap<>();
+    // Keeps the order of connection: nicknames
+    private final LinkedHashSet<String> waitingClients = new LinkedHashSet<>();
 
-    // Callback called by GameServerImpl when the lobby is full
+    // Callback invoked when the lobby is full.
     private final LobbyReadyListener onReady;
+    private final ServerNotifier notifier;
 
-    public LobbyController(LobbyReadyListener onReady) {
+    public LobbyController(LobbyReadyListener onReady, ServerNotifier notifier) {
         this.onReady = onReady;
+        this.notifier = notifier;
     }
 
-    /* Registers a new player in the lobby
-        - @param nickname       player's nickname
-        - @param numPlayers     desired number of players (used only by the first one)
-        - @param callback       RMI callback to communicate with this client
-    */
-    public synchronized void registerPlayer(String nickname, int numPlayers, RMIClientCallback callback) throws Exception {
+    /**
+     * Registers a player in the lobby.
+     * The first player sets the desired total number of players.
+     *
+     * @param nickname   the player's nickname
+     * @param numPlayers desired number of players (used only by the first one)
+     * @throws Exception if the nickname is already taken or the lobby is invalid
+     */
+    public synchronized void registerPlayer(String nickname, int numPlayers) throws Exception {
 
         // Check if the nickname is already taken
-        if (waitingClients.containsKey(nickname)) {
-            callback.receiveError("Nickname already used: " + nickname);
-            return;
+        if (waitingClients.contains(nickname)) {
+            throw new IllegalArgumentException("Nickname already used: " + nickname);
         }
 
         // First player decides how many players will be in the game (2-5)
         if (waitingClients.isEmpty()) {
             if (numPlayers < 2 || numPlayers > 5) {
-                callback.receiveError("Invalid number of players. Choose between 2 and 5.");
-                return;
+                throw new IllegalArgumentException("Invalid number of players. Choose between 2 and 5.");
             }
             requiredPlayers = numPlayers;
         }
 
         // Add the player to the lobby
-        waitingClients.put(nickname, callback);
-        System.out.println("[LOBBY] " + nickname + " is connected. (" + waitingClients.size() + "/" + requiredPlayers + ")");
+        waitingClients.add(nickname);
+        ServerLogger.lobby(nickname + " joined the lobby. (" + waitingClients.size() + "/" + requiredPlayers + ")");
 
         // Notifies all clients in waiting
         notifyAllWaiting(false);
@@ -64,57 +66,76 @@ public class LobbyController implements GameOverListener {
         }
     }
 
+    /**
+     * Initializes the match and notifies clients that the game is starting.
+     * - Creates the list of Players from the waiting clients connected to the lobby
+     * - Creates the Match (model) and ServerController (controller)
+     * - Sends the first snapshot to all clients
+     */
     private void startGame() throws Exception {
         // Notify all clients that the game is starting (gameStarting = true)
         notifyAllWaiting(true);
 
         // Creates the list of Player from the model
         List<Player> players = new ArrayList<>();
-        for (String nick : waitingClients.keySet()) {
+        for (String nick : waitingClients) {
             players.add(new Player(nick));
         }
 
         // Creates the Match and ServerController
         Match match = new Match(players);
-        ServerController serverController = new ServerController(match);
+        ServerController serverController = new ServerController(match, notifier);
         serverController.setGameOverListener(this);
-
-        // Registers each client in the ServerController
-        for (Map.Entry<String, RMIClientCallback> entry : waitingClients.entrySet()) {
-            String nick = entry.getKey();
-            RMIClientCallback callback = entry.getValue();
-            RMIClientConnection connection = new RMIClientConnection(callback);
-            serverController.registerClient(connection, nick);
-        }
 
         // Send first snapshot to all clients
         serverController.sendInitialState();
 
         // Alerts GameServerImpl that the controller is ready
         onReady.onLobbyReady(serverController);
+        ServerLogger.game("Game started with mixed connections.");
     }
 
+    /**
+     * Sends the current lobby status to all waiting clients.
+     *
+     * @param gameStarting whether the game is starting now
+     */
     private void notifyAllWaiting(boolean gameStarting) {
         LobbyUpdateMessage update = new LobbyUpdateMessage(
                 waitingClients.size(),
                 requiredPlayers,
-                new ArrayList<>(waitingClients.keySet()),
+                new ArrayList<>(waitingClients),
                 gameStarting
         );
-        for (RMIClientCallback cb : waitingClients.values()) {
+        for (String nickname : waitingClients) {
             try {
-                cb.receiveLobbyUpdate(update);
+                notifier.sendLobbyUpdate(nickname, update);
             } catch (Exception e) {
-                System.err.println("[LOBBY] Errore notifica client: " + e.getMessage());
+                ServerLogger.lobby("Failed to notify " + nickname + ": " + e.getMessage());
             }
         }
     }
 
+    /**
+     * Checks whether a nickname is already present in the lobby.
+     *
+     * @param nickname the nickname to verify
+     * @return true if the nickname is already taken
+     */
+    public boolean isNicknameTaken(String nickname) {
+        return waitingClients.contains(nickname);
+    }
+
+    /**
+     * Resets the lobby state when a match ends.
+     *
+     * @param controller the controller that finished the match
+     */
     @Override
     public void onGameOver(ServerController controller) {
         // Reset lobby state for a new match
         waitingClients.clear();
         requiredPlayers = -1;
-        System.out.println("[LOBBY] Ready for a new game.");
+        ServerLogger.lobby("Game over. Lobby ready for new game.");
     }
 }

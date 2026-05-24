@@ -1,29 +1,44 @@
 package org.example.server.model.decks;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.example.server.model.cards.buildingCards.BuildingCard;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.server.model.enums.Era;
 import org.example.server.model.board.Board;
+import org.example.server.model.cards.buildingCards.BuildingCard;
+import org.example.server.model.enums.Era;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Deck of building cards, loaded from JSON and arranged by era.
+ */
 public class BuildingDeck extends Deck<BuildingCard> {
 
+    /**
+     * Builds the deck and places era I cards on the board's top row.
+     *
+     * @param numPlayers number of players
+     * @param b target board
+     */
     public BuildingDeck(int numPlayers, Board b) {
         super();
         initializeDeck(numPlayers);
         addCardToTopRow(b, Era.I); // add era I cards to the top row of the board
     }
 
+    /**
+     * Initializes and trims the deck based on player count.
+     *
+     * @param numPlayers number of players
+     */
     private void initializeDeck(int numPlayers) {
         ObjectMapper mapper = new ObjectMapper();
         try {
             // 1. Read all objects from the JSON file into a List<Card>
-            Path p = Path.of("src/main/java/org/example/server/model/decks/decks_json/buildingCards.json");
+            //Path p = Path.of("src/main/java/org/example/server/model/decks/decks_json/buildingCards.json");
+            Path p = Path.of(getClass().getClassLoader().getResource("json/buildingCards.json").toURI());
             List<BuildingCard> allCards = mapper.readValue(
                     p.toFile(),
                     new TypeReference<List<BuildingCard>>(){}
@@ -73,6 +88,12 @@ public class BuildingDeck extends Deck<BuildingCard> {
         }
     }
 
+    /**
+     * Moves all cards of the given era to the board's top row.
+     *
+     * @param b board to receive the cards
+     * @param era era to move
+     */
     public void addCardToTopRow(Board b, Era era) {
         switch (era) {
             case I -> {

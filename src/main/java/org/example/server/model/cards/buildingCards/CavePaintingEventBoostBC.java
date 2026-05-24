@@ -6,9 +6,22 @@ import org.example.server.model.enums.Era;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
 
-// Col2, Row4
+// Column 2, Row 4
+/**
+ * Building that grants bonus food during the Cave Painting event.
+ */
 public class CavePaintingEventBoostBC extends BuildingCard {
 
+    /**
+     * Creates the building card from JSON data.
+     *
+     * @param id card id
+     * @param era card era
+     * @param foodCost food cost
+     * @param endPoints end points
+     * @param buildingCardType building type
+     * @param isEndGame true if it scores at end game
+     */
     public CavePaintingEventBoostBC(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,
@@ -25,6 +38,12 @@ public class CavePaintingEventBoostBC extends BuildingCard {
         return "%s\tEffect: get 1 food for each artist in your tribe\n".formatted(super.toString());
     }
 
+    /**
+     * Applies the bonus food based on the owner's artists.
+     *
+     * @param owner building owner
+     * @param match current match
+     */
     @Override
     public void applyEffect(Player owner, Match match) {
 

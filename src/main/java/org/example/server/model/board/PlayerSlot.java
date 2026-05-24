@@ -4,11 +4,24 @@ import org.example.server.model.match.Player;
 
 import java.util.Objects;
 
+/**
+ * Slot on the turn order tile that holds a player and its reward/penalty.
+ */
 public class PlayerSlot {
+    /** Player currently in the slot, or null if empty. */
     private Player player;
+    /** Food delta applied when the slot is taken. */
     private final int food;
+    /** Points delta applied when the slot is taken. */
     private final int points;
 
+    /**
+     * Creates a player slot with its food and points effects.
+     *
+     * @param player initial player in the slot
+     * @param food food delta
+     * @param points points delta (must be <= 0)
+     */
     public PlayerSlot(Player player, int food, int points) {
         if (points > 0) {
             throw new IllegalArgumentException("points must be negative or equal to zero");
@@ -18,21 +31,33 @@ public class PlayerSlot {
         this.points = points;
     }
 
+    /**
+     * @return the player occupying the slot, or null
+     */
     public Player getPlayer() {
         return player;
     }
 
 
+    /**
+     * @return food delta associated with the slot
+     */
     public int getFood() {
         return food;
     }
 
+    /**
+     * @return points delta associated with the slot
+     */
     public int getPoints() {
         return points;
     }
 
-    // Places the player on the slot and triggers the effect of it.
-    // used during the game phases when the player
+    /**
+     * Places the player on the slot and applies its effect.
+     *
+     * @param player player to place
+     */
     public void placePlayerAndApplyEffect(Player player) {
 
         Objects.requireNonNull(player, "player parameter can't be null");
@@ -53,6 +78,9 @@ public class PlayerSlot {
     }
 
 
+    /**
+     * Removes the player from the slot.
+     */
     public void removeTotem() {
         this.player = null;
     }

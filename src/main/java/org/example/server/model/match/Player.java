@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Objects;
 
 
+/**
+ * Represents a player state: resources, owned cards, and character collections.
+ */
 public class Player  {
 
     private final String nickname;
@@ -30,7 +33,7 @@ public class Player  {
     private int shamanStars = 0;
 
     private final Visitor addToListVisitor = new Visitor() {
-        // Every override adds the selected Character to the appropriate list
+        // Every override adds the selected Character to the appropriate list.
         @Override
         public void visit(Inventor inventor) {
             inventors.add(inventor);
@@ -148,17 +151,23 @@ public class Player  {
         return Collections.unmodifiableList(ownedBuildings);
     }
 
+    /**
+     * Adds a character to the player, updating derived bonuses through double dispatch.
+     */
     public void addCharacter(Character character) {
 
         if (character == null) {
             throw new IllegalArgumentException("character must not be null");
         }
 
-        // Double dispatch: the runtime type of character select the correct visit(...) in the Characters classes.
+        // Double dispatch: the runtime type selects the matching visit(...) implementation.
         character.accept(addToListVisitor);
 
     }
 
+    /**
+     * Adds a building card to the player.
+     */
     public void addBuilding(BuildingCard building) {
 
         if (building == null) {
@@ -215,6 +224,9 @@ public class Player  {
         return this.nickname.hashCode();
     }
 
+    /**
+     * Accepts a generic card and routes it to the correct collection.
+     */
     public void acceptCard(Card card) {
         if (card != null) {
             card.accept(addToListVisitor);

@@ -6,11 +6,25 @@ import org.example.server.model.enums.Era;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
 
-// Col2 Row5
+// Column 2, Row 5
+/**
+ * End-game building that scores completed character sets.
+ */
 public class SetCollectionEndPointsBC extends BuildingCard {
 
-    private final static int END_POINTS = 6;
+    /** Points awarded for each completed set. */
+    private static final int END_POINTS = 6;
 
+    /**
+     * Creates the building card from JSON data.
+     *
+     * @param id card id
+     * @param era card era
+     * @param foodCost food cost
+     * @param endPoints end points
+     * @param buildingCardType building type
+     * @param isEndGame true if it scores at end game
+     */
     public SetCollectionEndPointsBC(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,
@@ -28,6 +42,12 @@ public class SetCollectionEndPointsBC extends BuildingCard {
 
     }
 
+    /**
+     * Awards points for each completed character set owned by the player.
+     *
+     * @param owner building owner
+     * @param match current match
+     */
     @Override
     public void applyEffect(Player owner, Match match) {
 
@@ -39,6 +59,12 @@ public class SetCollectionEndPointsBC extends BuildingCard {
         owner.addPoints(completedSets * END_POINTS);
     }
 
+    /**
+     * Counts the number of complete character sets owned by the player.
+     *
+     * @param owner building owner
+     * @return number of complete sets
+     */
     private int countCompletedSets(Player owner) {
 
         //A complete set contains one character of each type,

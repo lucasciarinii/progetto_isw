@@ -1,6 +1,5 @@
 package org.example.server.model.board;
 
-import org.example.server.model.board.OfferTile;
 import org.example.server.model.enums.OfferEffect;
 import org.example.server.model.match.Player;
 import org.junit.jupiter.api.BeforeEach;

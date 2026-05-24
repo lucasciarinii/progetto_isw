@@ -2,8 +2,6 @@ package org.example.server.model.match;
 
 import org.example.server.model.enums.Era;
 import org.example.server.model.enums.GamePhase;
-import org.example.server.model.match.GameState;
-import org.example.server.model.match.Player;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
