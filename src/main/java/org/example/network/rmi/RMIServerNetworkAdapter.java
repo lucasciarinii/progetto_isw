@@ -15,19 +15,16 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements ServerNetworkAdapter, RMIGameServer {
 
     public static final int DEFAULT_PORT = 1099;
-    private final Map<String, ServerNotifier> connections = new HashMap<>();
+    private final Map<String, ServerNotifier> connections = new ConcurrentHashMap<>();
 
     private final HybridServerNetworkAdapter hybrid;
     private final MatchManager matchManager;
-
-
-
 
     // Hybrid constructor (RMI + Socket)
     public RMIServerNetworkAdapter(MatchManager matchManager, HybridServerNetworkAdapter hybrid) throws RemoteException {
@@ -35,7 +32,6 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
         this.matchManager = matchManager;
         this.hybrid = hybrid;
     }
-
 
     @Override
     public void start() throws Exception {

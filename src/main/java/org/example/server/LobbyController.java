@@ -25,6 +25,7 @@ public class LobbyController {
     private final ServerNotifier notifier;
     private final String gameID;
     private final int numPlayers;
+    private boolean started = false;
 
     public LobbyController(LobbyReadyListener onReady, ServerNotifier notifier, String gameID, int numPlayers) {
         this.onReady = onReady;
@@ -39,6 +40,13 @@ public class LobbyController {
         * @param callback       RMI callback to communicate with this client
     */
     public synchronized void registerPlayer(String nickname) throws Exception {
+
+        if (started) {
+            throw new IllegalStateException("Lobby already started");
+        }
+        if (waitingClients.size() >= numPlayers) {
+            throw new IllegalStateException("Lobby already full");
+        }
 
         // Check if the nickname is already taken
         if (waitingClients.contains(nickname)) {
@@ -58,7 +66,12 @@ public class LobbyController {
         }
     }
 
-    private void startGame() throws Exception {
+    private synchronized void startGame() throws Exception {
+        if (started) {
+            return;
+        }
+        started = true;
+
         // Notify all clients that the game is starting (gameStarting = true)
         notifyAllWaiting(true);
 
@@ -71,9 +84,6 @@ public class LobbyController {
         // Creates the Match and ServerController
         Match match = new Match(players);
         ServerController serverController = new ServerController(match, notifier);
-
-        // Send first snapshot to all clients
-        serverController.sendInitialState();
 
         // Alerts GameServerImpl that the controller is ready
         onReady.onLobbyReady(serverController, gameID);
@@ -97,7 +107,11 @@ public class LobbyController {
         }
     }
 
-    public boolean isNicknameTaken(String nickname) {
+    public synchronized boolean isNicknameTaken(String nickname) {
         return waitingClients.contains(nickname);
+    }
+
+    public synchronized boolean isStarted() {
+        return started;
     }
 }

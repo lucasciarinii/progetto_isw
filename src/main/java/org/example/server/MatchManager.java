@@ -60,12 +60,20 @@ public class MatchManager {
     public void joinLobby(String nickname, String gameID) throws Exception{
         String cleanID = gameID.trim().toUpperCase();
 
-        // Retrieve lobby controller from map
-        LobbyController lobbyController = lobbies.get(cleanID);
-        if ( lobbyController == null ) {
-            throw new IllegalStateException("Lobby not found");
+        // If game already started, reject with an error
+        if (games.containsKey(cleanID)) {
+            throw new IllegalStateException("Lobby already started");
         }
 
+        // If the lobby does not exsist, reject with an error
+        LobbyController lobbyController = lobbies.get(cleanID);
+        if ( lobbyController == null ) {
+            throw new IllegalStateException("Lobby not found or already finished");
+        }
+
+        if (lobbyController.isStarted()) {
+            throw new IllegalStateException("Lobby already started");
+        }
         if ( lobbyController.isNicknameTaken(nickname) ) {
             throw new IllegalArgumentException("Nickname already taken");
         }

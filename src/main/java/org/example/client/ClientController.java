@@ -55,6 +55,13 @@ public class ClientController implements GameEventListener {
         networkAdapter.joinLobby(nickname, gameID);
     }
 
+    public void retryJoinLobby(String gameID) throws Exception {
+        if (networkAdapter == null) {
+            throw new IllegalStateException("Client not connected");
+        }
+        networkAdapter.joinLobby(nickname, gameID);
+    }
+
     @Override
     public void onLobbyUpdate(LobbyUpdateMessage update) {
         ui.onLobbyUpdate(update);

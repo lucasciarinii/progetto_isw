@@ -14,6 +14,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SocketServerNetworkAdapter implements ServerNetworkAdapter {
 
@@ -21,7 +22,7 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter {
     private final ObjectMapper mapper = new ObjectMapper();
     private boolean running = false;
 
-    private final Map<String, ClientSocketHandler> connectedClients = new HashMap<>();
+    private final ConcurrentHashMap<String, ClientSocketHandler> connectedClients = new ConcurrentHashMap<>();
     private final HybridServerNetworkAdapter hybrid;
     private ServerSocket serverSocket;
     private final MatchManager matchManager;
