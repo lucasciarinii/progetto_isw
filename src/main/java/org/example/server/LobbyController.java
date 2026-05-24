@@ -2,7 +2,7 @@ package org.example.server;
 
 /**
  * Controller that manages the lobby before the game starts.
- * The first player selects the total number of players (2-5), and once
+ * Lobby is created with already decided number of players (2-5), and once
  * the lobby is full a match and its controller are created.
  */
 
@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-public class LobbyController implements GameOverListener {
-    private int requiredPlayers = -1;  // -1 = not decided yet
+public class LobbyController {
+
 
     // Keeps the order of connection: nicknames
     private final LinkedHashSet<String> waitingClients = new LinkedHashSet<>();
@@ -24,55 +24,55 @@ public class LobbyController implements GameOverListener {
     // Callback invoked when the lobby is full.
     private final LobbyReadyListener onReady;
     private final ServerNotifier notifier;
+    private final String gameID;
+    private final int numPlayers;
+    private boolean started = false;
 
-    public LobbyController(LobbyReadyListener onReady, ServerNotifier notifier) {
+    public LobbyController(LobbyReadyListener onReady, ServerNotifier notifier, String gameID, int numPlayers) {
         this.onReady = onReady;
         this.notifier = notifier;
+        this.gameID = gameID;
+        this.numPlayers = numPlayers;
     }
 
-    /**
-     * Registers a player in the lobby.
-     * The first player sets the desired total number of players.
-     *
-     * @param nickname   the player's nickname
-     * @param numPlayers desired number of players (used only by the first one)
-     * @throws Exception if the nickname is already taken or the lobby is invalid
-     */
-    public synchronized void registerPlayer(String nickname, int numPlayers) throws Exception {
+    /* Registers a new player in the lobby
+        * @param nickname       player's nickname
+        * @param numPlayers     desired number of players (used only by the first one)
+        * @param callback       RMI callback to communicate with this client
+    */
+    public synchronized void registerPlayer(String nickname) throws Exception {
+
+        if (started) {
+            throw new IllegalStateException("Lobby already started");
+        }
+        if (waitingClients.size() >= numPlayers) {
+            throw new IllegalStateException("Lobby already full");
+        }
 
         // Check if the nickname is already taken
         if (waitingClients.contains(nickname)) {
             throw new IllegalArgumentException("Nickname already used: " + nickname);
         }
 
-        // First player decides how many players will be in the game (2-5)
-        if (waitingClients.isEmpty()) {
-            if (numPlayers < 2 || numPlayers > 5) {
-                throw new IllegalArgumentException("Invalid number of players. Choose between 2 and 5.");
-            }
-            requiredPlayers = numPlayers;
-        }
-
         // Add the player to the lobby
         waitingClients.add(nickname);
-        ServerLogger.lobby(nickname + " joined the lobby. (" + waitingClients.size() + "/" + requiredPlayers + ")");
+        ServerLogger.lobby(nickname + " joined lobby with code: " + gameID + " (" + waitingClients.size() + "/" + numPlayers + ")");
 
         // Notifies all clients in waiting
         notifyAllWaiting(false);
 
         // Check if lobby is full
-        if (waitingClients.size() == requiredPlayers) {
+        if (waitingClients.size() == numPlayers) {
             startGame();
         }
     }
 
-    /**
-     * Initializes the match and notifies clients that the game is starting.
-     * - Creates the list of Players from the waiting clients connected to the lobby
-     * - Creates the Match (model) and ServerController (controller)
-     * - Sends the first snapshot to all clients
-     */
-    private void startGame() throws Exception {
+    private synchronized void startGame() throws Exception {
+        if (started) {
+            return;
+        }
+        started = true;
+
         // Notify all clients that the game is starting (gameStarting = true)
         notifyAllWaiting(true);
 
@@ -85,14 +85,10 @@ public class LobbyController implements GameOverListener {
         // Creates the Match and ServerController
         Match match = new Match(players);
         ServerController serverController = new ServerController(match, notifier);
-        serverController.setGameOverListener(this);
-
-        // Send first snapshot to all clients
-        serverController.sendInitialState();
 
         // Alerts GameServerImpl that the controller is ready
-        onReady.onLobbyReady(serverController);
-        ServerLogger.game("Game started with mixed connections.");
+        onReady.onLobbyReady(serverController, gameID);
+        ServerLogger.game("Game started with code: " + gameID);
     }
 
     /**
@@ -103,9 +99,10 @@ public class LobbyController implements GameOverListener {
     private void notifyAllWaiting(boolean gameStarting) {
         LobbyUpdateMessage update = new LobbyUpdateMessage(
                 waitingClients.size(),
-                requiredPlayers,
+                numPlayers,
                 new ArrayList<>(waitingClients),
-                gameStarting
+                gameStarting,
+                gameID
         );
         for (String nickname : waitingClients) {
             try {
@@ -122,20 +119,11 @@ public class LobbyController implements GameOverListener {
      * @param nickname the nickname to verify
      * @return true if the nickname is already taken
      */
-    public boolean isNicknameTaken(String nickname) {
+    public synchronized boolean isNicknameTaken(String nickname) {
         return waitingClients.contains(nickname);
     }
 
-    /**
-     * Resets the lobby state when a match ends.
-     *
-     * @param controller the controller that finished the match
-     */
-    @Override
-    public void onGameOver(ServerController controller) {
-        // Reset lobby state for a new match
-        waitingClients.clear();
-        requiredPlayers = -1;
-        ServerLogger.lobby("Game over. Lobby ready for new game.");
+    public synchronized boolean isStarted() {
+        return started;
     }
 }

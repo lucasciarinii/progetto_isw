@@ -42,8 +42,7 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
      * Connects to the socket server and sends the initial "register" command.
      */
     @Override
-    public void connect(String host, int port, String nickname, int numPlayers) throws Exception {
-        this.nickname = nickname;
+    public void connect(String host, int port) throws Exception {
 
         // Create socket to connect to server.
         socket = new Socket(host, port);
@@ -51,17 +50,33 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
         out = new PrintWriter(socket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-        // Send registration command to server (handled by ClientSocketHandler).
+        // Start a thread to receive messages from server
+        startListeningThread();
+
+    }
+
+    @Override
+    public void createLobby(String nickname, int numPlayers) throws Exception {
+        this.nickname = nickname;
+
+        // Send registration command to server
         Map<String, Object> registrationCmd = new HashMap<>();
-        registrationCmd.put("action", "register");
+        registrationCmd.put("action", "create_lobby");
         registrationCmd.put("nickname", nickname);
         registrationCmd.put("numPlayers", numPlayers);
 
         out.println(mapper.writeValueAsString(registrationCmd));
+    }
 
-        // Start a thread to receive messages from server.
-        startListeningThread();
+    @Override
+    public void joinLobby(String nickname, String gameID) throws Exception {
+        this.nickname = nickname;
 
+        Map<String, Object> cmd = new HashMap<>();
+        cmd.put("action", "join_lobby");
+        cmd.put("nickname", nickname);
+        cmd.put("gameID", gameID);
+        out.println(mapper.writeValueAsString(cmd));
     }
 
     /**
@@ -158,6 +173,11 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
             String event = (String) msg.get("event");
 
             switch (event) {
+
+                case "GAME_ID":
+                    String gameID = (String) msg.get("gameID");
+                    clientController.setGameID(gameID);
+                    break;
                 case "GAME_STATE_UPDATE":
                     GameStateUpdateMessage update = mapper.convertValue(msg.get("data"), GameStateUpdateMessage.class);
                     clientController.onUpdate(update);

@@ -15,18 +15,21 @@ public class LobbyUpdateMessage implements Serializable {
     private final int connectedPlayers;
     private final int requiredPlayers;
     private final List<String> playerNicknames;
-    private final boolean gameStarting;
+    private final boolean gameStarting;  // true = the game is about to start, false = still waiting for players
+    private final String gameID;
 
     @JsonCreator
     public LobbyUpdateMessage(
             @JsonProperty("connectedPlayers") int connectedPlayers,
             @JsonProperty("requiredPlayers") int requiredPlayers,
             @JsonProperty("playerNicknames") List<String> playerNicknames,
-            @JsonProperty("gameStarting") boolean gameStarting) {
+            @JsonProperty("gameStarting") boolean gameStarting,
+            @JsonProperty("gameID") String gameID) {
         this.connectedPlayers = connectedPlayers;
         this.requiredPlayers = requiredPlayers;
         this.playerNicknames = List.copyOf(playerNicknames);
         this.gameStarting = gameStarting;
+        this.gameID = gameID;
     }
 
     /**
@@ -56,4 +59,7 @@ public class LobbyUpdateMessage implements Serializable {
      * @return true if the game is starting
      */
     public boolean isGameStarting()       { return gameStarting; }
+    public String getGameID() {
+        return this.gameID;
+    }
 }

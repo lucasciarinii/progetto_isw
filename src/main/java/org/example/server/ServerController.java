@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * Server-side controller that validates player actions, updates the match state,
  * and broadcasts snapshots to connected clients.
  */
-public class ServerController {
+public class ServerController implements Runnable {
     private final Match match;
     private final ServerNotifier notifier;
     private GameOverListener onGameOver;
@@ -41,6 +41,11 @@ public class ServerController {
         this.notifier = notifier;
     }
 
+    @Override
+    public void run() {
+        sendInitialState();
+    }
+
     /**
      * Registers a listener to be called when the game ends.
      *
@@ -50,15 +55,20 @@ public class ServerController {
         this.onGameOver = listener;
     }
 
+    public List<Player> getPlayers() {
+        return match.getPlayers();
+    }
+
     /**
      * Finalizes the session and notifies the game-over listener, if any.
      */
     private void shutdown() {
-        ServerLogger.server("Game match session closed.");
         if (onGameOver != null) {
             onGameOver.onGameOver(this);
         }
     }
+
+    //! GAME ACTIONS ---------------------------------------------------------------------------
 
     /**
      * Places a player's totem on the selected offer tile.
@@ -224,6 +234,7 @@ public class ServerController {
         handlePhaseTransition(phaseBefore);
     }
 
+    //! UTILITY METHODS ---------------------------------------------------------------------------
     private boolean isWrongPlayer(String nick) {
         return !match.getGameState().getCurrentPlayer().getNickname().equals(nick);
     }
@@ -243,6 +254,7 @@ public class ServerController {
                 .orElseThrow(() -> new IllegalArgumentException("Player not found: " + nick));
     }
 
+    //! NOTIFICATION METHODS ---------------------------------------------------------------------------
     /**
      * Sends a game-state update to all connected players.
      *
@@ -351,6 +363,8 @@ public class ServerController {
                 winners
         );
     }
+
+    //! HANDLE PHASE TRANSITIONS
 
     /**
      * Handles phase transitions after a player action.
@@ -503,24 +517,23 @@ public class ServerController {
             }
 
              default -> throw new IllegalStateException("Unexpected phase: " + phase);
-         }
-     }
+        }
+    }
 
     /**
      * Finalizes the end-of-round flow, including end-game transition.
      */
-     private void proceedEndRound() {
-         if (match.getGameState().getCurrentRound() == 10) {
-             match.getGameState().advancePhase();
-             handleNewPhase(match.getGameState().getCurrentPhase());
-             return;
-         }
-         match.endRoundOperations();
-         match.getGameState().advancePhase();
-         handleNewPhase(match.getGameState().getCurrentPhase());
-     }
+    private void proceedEndRound() {
+        if (match.getGameState().getCurrentRound() == 10) {
+            match.getGameState().advancePhase();
+            handleNewPhase(match.getGameState().getCurrentPhase());
+            return;
+        }
+        match.endRoundOperations();
+        match.getGameState().advancePhase();
+        handleNewPhase(match.getGameState().getCurrentPhase());
+    }
 
 
 
- }
-
+}

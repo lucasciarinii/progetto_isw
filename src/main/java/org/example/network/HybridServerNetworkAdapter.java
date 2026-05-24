@@ -5,10 +5,7 @@ import org.example.network.messages.LobbyUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
 import org.example.network.rmi.RMIServerNetworkAdapter;
 import org.example.network.socket.SocketServerNetworkAdapter;
-import org.example.server.LobbyController;
-import org.example.server.LobbyReadyListener;
-import org.example.server.ServerController;
-import org.example.server.ServerLogger;
+import org.example.server.*;
 import org.example.server.model.enums.GamePhase;
 
 import java.util.Map;
@@ -21,9 +18,13 @@ import java.util.concurrent.CountDownLatch;
  */
 public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyReadyListener {
 
-    private final SocketServerNetworkAdapter socketAdapter;
-    private final RMIServerNetworkAdapter rmiAdapter;
+    private SocketServerNetworkAdapter socketAdapter;
+    private RMIServerNetworkAdapter rmiAdapter;
+    private MatchManager matchManager;
+
     private final Map<String, ServerNetworkAdapter> routingTable = new ConcurrentHashMap<>();
+    private final Map<String, String> playerToGameID = new ConcurrentHashMap<>();
+    private final Map<String, ServerController> gameControllers = new ConcurrentHashMap<>();
 
     /**
      * Creates a hybrid adapter with a shared lobby for both protocols.
@@ -32,13 +33,7 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
      */
     public HybridServerNetworkAdapter() throws Exception {
         System.setProperty("java.rmi.server.hostname", "127.0.0.1");
-        LobbyController sharedLobby = new LobbyController(this, this);
-
-        this.socketAdapter = new SocketServerNetworkAdapter(sharedLobby);
-        this.rmiAdapter = new RMIServerNetworkAdapter(sharedLobby);
-
-        socketAdapter.setHybrid(this);
-        rmiAdapter.setHybrid(this);
+        //LobbyController sharedLobby = new LobbyController(this, this);
     }
 
     /**
@@ -48,6 +43,12 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
      */
     @Override
     public void start() throws Exception {
+
+        matchManager = new MatchManager(this, this, this);
+
+        socketAdapter = new SocketServerNetworkAdapter(matchManager, this);
+        rmiAdapter = new RMIServerNetworkAdapter(matchManager, this);
+
         CountDownLatch latch = new CountDownLatch(2);
 
         new Thread(() -> {
@@ -70,7 +71,7 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
             }
         }).start();
 
-        latch.await(); // Blocks until both are ready.
+        latch.await(); // blocks until both are ready
         ServerLogger.server("Hybrid server network adapter started successfully (RMI + Socket).");
     }
 
@@ -91,9 +92,10 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
      * @param serverController the controller for the started match
      */
     @Override
-    public void onLobbyReady(ServerController serverController) {
-        socketAdapter.onLobbyReady(serverController);
-        rmiAdapter.onLobbyReady(serverController);
+    public void onLobbyReady(ServerController serverController, String gameID) {
+        String cleanID = gameID.trim().toUpperCase();
+        gameControllers.put(cleanID, serverController);
+        matchManager.onLobbyReady(cleanID, serverController);
     }
 
     /**
@@ -103,7 +105,8 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
      * @param adapter  the adapter handling that player's connection (RMI or Socket)
      */
     public void registerRoute(String nickname, ServerNetworkAdapter adapter) {
-        routingTable.put(nickname, adapter);
+        // Keep the first registered route to avoid breaking an active client when a duplicate nickname appears.
+        routingTable.putIfAbsent(nickname, adapter);
     }
 
     @Override
@@ -136,12 +139,27 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
         route(nickname).sendShutdown(nickname);
     }
 
-    /**
-     * Resolves the protocol adapter associated with the given player.
-     *
-     * @param nickname the player nickname
-     * @return the corresponding adapter
-     */
+
+    public void registerPlayerGameID(String nickname, String gameID) {
+        String cleanID = gameID.trim().toUpperCase();
+        playerToGameID.put(nickname, cleanID);
+    }
+
+
+    public ServerController resolveServerControllerByNickname(String nickname) {
+        String gameID = playerToGameID.get(nickname);
+        if (gameID == null) {
+            throw new IllegalStateException("No game for: " + nickname);
+        }
+        ServerController controller = gameControllers.get(gameID);
+        if (controller == null) {
+            throw new IllegalStateException("Game not started for: " + nickname);
+        }
+        return controller;
+    }
+
+    //! UTILITY METHODS
+
     private ServerNetworkAdapter route(String nickname) {
         ServerNetworkAdapter adapter = routingTable.get(nickname);
         if (adapter == null) throw new IllegalStateException("No route for: " + nickname);

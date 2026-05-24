@@ -7,52 +7,40 @@ import org.example.network.ServerNotifier;
 import org.example.network.messages.GameStateUpdateMessage;
 import org.example.network.messages.LobbyUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
-import org.example.server.LobbyController;
-import org.example.server.LobbyReadyListener;
-import org.example.server.ServerController;
-import org.example.server.ServerLogger;
+import org.example.server.*;
 import org.example.server.model.enums.GamePhase;
 
+import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * RMI-based server adapter that exposes RMIGameServer and dispatches actions
  * to the ServerController while using callbacks to notify clients.
  */
-public class RMIServerNetworkAdapter extends UnicastRemoteObject implements ServerNetworkAdapter, RMIGameServer, LobbyReadyListener {
+public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements ServerNetworkAdapter, RMIGameServer {
 
     public static final int DEFAULT_PORT = 1099;
-    private final LobbyController lobby;
-    private ServerController serverController;
-    private final Map<String, ServerNotifier> connections = new HashMap<>();
-    private HybridServerNetworkAdapter hybrid = null;
+    private final Map<String, ServerNotifier> connections = new ConcurrentHashMap<>();
 
+    private final HybridServerNetworkAdapter hybrid;
+    private final MatchManager matchManager;
 
     /**
-     * Creates an RMI adapter with a shared lobby.
-     *
-     * @param sharedLobby the shared lobby controller
+     * Creates an RMI adapter.
+     * @param matchManager handling multiple lobbies
+     * @param hybrid hybrid adapter
      * @throws RemoteException if the remote object cannot be exported
      */
-    public RMIServerNetworkAdapter(LobbyController sharedLobby) throws RemoteException {
+    public RMIServerNetworkAdapter(MatchManager matchManager, HybridServerNetworkAdapter hybrid) throws RemoteException {
         super();
-        this.lobby = sharedLobby;
-    }
-
-    /**
-     * Registers the hybrid adapter used for routing notifications.
-     *
-     * @param hybrid the hybrid adapter
-     */
-    public void setHybrid(HybridServerNetworkAdapter hybrid) {
+        this.matchManager = matchManager;
         this.hybrid = hybrid;
     }
-
 
     /**
      * Starts the RMI registry and binds the RMIGameServer stub.
@@ -66,7 +54,7 @@ public class RMIServerNetworkAdapter extends UnicastRemoteObject implements Serv
             ServerLogger.error("Failed to create RMI registry or it already exists: " + e.getMessage());
         }
 
-        java.rmi.Naming.rebind("//127.0.0.1:" + DEFAULT_PORT + "/GameServer", this);
+        Naming.rebind("//127.0.0.1:" + DEFAULT_PORT + "/GameServer", this);
         ServerLogger.server("RMI ready on port " + DEFAULT_PORT + ". Waiting for players...");
     }
 
@@ -135,6 +123,7 @@ public class RMIServerNetworkAdapter extends UnicastRemoteObject implements Serv
         if (connection == null) {
             throw new RemoteException("Client not found: " + nickname);
         }
+        connection.sendRoundFlowCardRequest(nickname);
     }
 
     /**
@@ -150,28 +139,54 @@ public class RMIServerNetworkAdapter extends UnicastRemoteObject implements Serv
     }
 
 
-    // RMIGameServer methods
-
-
     /**
-     * Registers a client callback and forwards the player to the lobby.
+     * Create a lobby
+     *
+     * @param nickname player nickname chosen
+     * @param numPlayers number of players for the lobby
+     * @param callback callback for the RMIClientConnection
      */
     @Override
-    public void register(String nickname, int numPlayers, RMIClientCallback callback) throws Exception {
+    public String createLobby(String nickname, int numPlayers, RMIClientCallback callback) throws Exception {
         RMIClientConnection connection = new RMIClientConnection(callback);
-        if (lobby.isNicknameTaken(nickname)) {
-            connection.sendError(nickname, "Nickname already used: " + nickname, GamePhase.LOBBY);
-            return;
+        // Prevent overwriting an active client's callback when a duplicate nickname is attempted.
+        if (connections.putIfAbsent(nickname, connection) != null) {
+            connection.sendError(nickname, "Registration Error: Nickname already used", GamePhase.LOBBY);
+            throw new IllegalArgumentException("Nickname already used");
         }
-        connections.put(nickname, connection);
-        if (hybrid != null)
-            hybrid.registerRoute(nickname, this);
+        hybrid.registerRoute(nickname, this);
 
         try {
-            lobby.registerPlayer(nickname, numPlayers);
+            return matchManager.createLobby(nickname, numPlayers);
         } catch (Exception e) {
-            connections.remove(nickname);
+            connections.remove(nickname, connection);
             connection.sendError(nickname, "Registration Error: " + e.getMessage(), GamePhase.LOBBY);
+            throw e;
+        }
+    }
+
+    /**
+     * Join an existing lobby
+     *
+     * @param nickname player nickname chosen
+     * @param gameID lobby ID
+     * @param callback callback for the RMIClientConnection
+     */
+    @Override
+    public void joinLobby(String nickname, String gameID, RMIClientCallback callback) throws Exception {
+        RMIClientConnection connection = new RMIClientConnection(callback);
+        if (connections.putIfAbsent(nickname, connection) != null) {
+            connection.sendError(nickname, "Registration Error: Nickname already used", GamePhase.LOBBY);
+            throw new IllegalArgumentException("Nickname already used");
+        }
+        hybrid.registerRoute(nickname, this);
+
+        try {
+            matchManager.joinLobby(nickname, gameID);
+        } catch (Exception e) {
+            connections.remove(nickname, connection);
+            connection.sendError(nickname, "Registration Error: " + e.getMessage(), GamePhase.LOBBY);
+            throw e;
         }
     }
 
@@ -180,8 +195,8 @@ public class RMIServerNetworkAdapter extends UnicastRemoteObject implements Serv
      */
     @Override
     public void placeTotemOnOfferTile(String nickname, int tilePosition) throws RemoteException {
-        checkGameStarted();
-        serverController.placeTotemOnOfferTile(nickname, tilePosition);
+        hybrid.resolveServerControllerByNickname(nickname)
+                .placeTotemOnOfferTile(nickname, tilePosition);
     }
 
     /**
@@ -189,18 +204,17 @@ public class RMIServerNetworkAdapter extends UnicastRemoteObject implements Serv
      */
     @Override
     public void offerTileAction(String nickname, String cards) throws RemoteException {
-        checkGameStarted();
-        serverController.offerTileAction(nickname, cards);
+        hybrid.resolveServerControllerByNickname(nickname)
+                .offerTileAction(nickname, cards);
     }
-
 
     /**
      * Forwards a RoundFlow request to the server controller.
      */
     @Override
     public void roundFlowCardRequest(String nickname, String cards) throws RemoteException {
-        checkGameStarted();
-        serverController.roundFlowCardRequest(nickname, cards);
+        hybrid.resolveServerControllerByNickname(nickname)
+                .roundFlowCardRequest(nickname, cards);
     }
 
     /**
@@ -208,26 +222,7 @@ public class RMIServerNetworkAdapter extends UnicastRemoteObject implements Serv
      */
     @Override
     public void skipTurn(String nickname) throws RemoteException {
-        checkGameStarted();
-        serverController.skipTurn(nickname);
-    }
-
-    // LOBBY methods
-    /**
-     * Receives the controller instance when the lobby is full.
-     */
-    @Override
-    public void onLobbyReady(ServerController serverController) {
-        this.serverController = serverController;
-        ServerLogger.server("Lobby full, game started!");
-    }
-
-
-    // Utility methods
-    private void checkGameStarted() throws RemoteException {
-        if (serverController == null) {
-            throw new RemoteException("Match is not started yet.");
-        }
+        hybrid.resolveServerControllerByNickname(nickname)
+                .skipTurn(nickname);
     }
 }
-

@@ -10,11 +10,13 @@ public interface ClientNetworkAdapter {
      *
      * @param host       the server host
      * @param port       the server port
-     * @param nickname   the chosen player nickname
-     * @param numPlayers desired total number of players
      * @throws Exception if the connection fails
      */
-    void connect(String host, int port, String nickname, int numPlayers) throws Exception;
+    void connect(String host, int port) throws Exception;
+
+    void createLobby(String nickname, int numPlayers) throws Exception;
+
+    void joinLobby(String nickname, String gameID) throws Exception;
 
     /**
      * Requests to place a totem on a specific offer tile.

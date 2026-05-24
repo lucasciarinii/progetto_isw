@@ -23,6 +23,7 @@ public class ClientSocketHandler implements Runnable {
     private PrintWriter out;
     private BufferedReader in;
     private String nickname;
+    private String gameID;
     private final ObjectMapper mapper = new ObjectMapper();
 
 
@@ -94,21 +95,53 @@ public class ClientSocketHandler implements Runnable {
         try {
             Map<String, Object> cmd = mapper.readValue(command, Map.class);
             String action = (String) cmd.get("action");
+
             String cards;
 
             switch (action) {
-                case "register":
-                    String nickname = (String) cmd.get("nickname");
+                case "create_lobby":
+                    this.nickname = (String) cmd.get("nickname");
                     int numPlayers = (int) cmd.get("numPlayers");
 
-                    if (socketServerNetworkAdapter.isNicknameTaken(nickname)) {
-                        sendLobbyError("Nickname already used: " + nickname);
+                    // Prevent a new connection with a duplicate nickname from overwriting or disconnecting an active player.
+                    ClientSocketHandler existingCreate = connectedClients.putIfAbsent(nickname, this);
+                    if (existingCreate != null && existingCreate != this) {
+                        sendLobbyError("Nickname already used");
                         break;
                     }
-                    this.nickname = nickname;
-                    connectedClients.put(nickname, this);
-                    socketServerNetworkAdapter.registerPlayer(nickname, numPlayers);
-                    System.out.println("[SERVER] Player " + nickname + " registered");
+                    boolean addedCreate = existingCreate == null;
+
+                    try {
+                        this.gameID = socketServerNetworkAdapter.createGame(nickname, numPlayers);
+                        sendGameID();
+                    } catch (Exception e) {
+                        if (addedCreate) {
+                            connectedClients.remove(nickname, this);
+                        }
+                        sendLobbyError(e.getMessage());
+                    }
+                    break;
+
+                case "join_lobby":
+                    this.nickname = (String) cmd.get("nickname");
+                    this.gameID = (String) cmd.get("gameID");
+
+                    // Avoid clobbering an active client's handler when a duplicate nickname is attempted.
+                    ClientSocketHandler existingJoin = connectedClients.putIfAbsent(nickname, this);
+                    if (existingJoin != null && existingJoin != this) {
+                        sendLobbyError("Nickname already used");
+                        break;
+                    }
+                    boolean addedJoin = existingJoin == null;
+
+                    try {
+                        socketServerNetworkAdapter.joinGame(nickname, gameID);
+                    } catch (Exception e) {
+                        if (addedJoin) {
+                            connectedClients.remove(nickname, this);
+                        }
+                        sendLobbyError(e.getMessage());
+                    }
                     break;
 
                 case "placeTotem":
@@ -151,6 +184,17 @@ public class ClientSocketHandler implements Runnable {
             out.println(mapper.writeValueAsString(msg));
         } catch (IOException e) {
             System.err.println("[Server] Failed to send lobby error: " + e.getMessage());
+        }
+    }
+
+    private void sendGameID() {
+        try {
+            Map<String, Object> msg = new HashMap<>();
+            msg.put("event", "GAME_ID");
+            msg.put("gameID", gameID);
+            out.println(mapper.writeValueAsString(msg));
+        } catch (IOException e) {
+            System.err.println("[Server] Failed to send gameID: " + e.getMessage());
         }
     }
 }

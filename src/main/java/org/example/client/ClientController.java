@@ -22,7 +22,8 @@ import java.util.List;
  * and forwards server updates to the UI handler.
  */
 public class ClientController implements GameEventListener {
-    private final String nickname;
+    private String nickname;
+    private String gameID;
     private ClientNetworkAdapter networkAdapter;
     private final UIHandler ui;
     GameStateUpdateMessage lastGameStateUpdate;
@@ -45,19 +46,39 @@ public class ClientController implements GameEventListener {
      */
     public String getNickname() { return nickname; }
 
-    /**
-     * Connects to the server using the selected protocol.
-     *
-     * @param host       the server host
-     * @param port       the server port
-     * @param numPlayers desired total number of players
-     * @param protocol   the communication protocol
-     * @throws Exception if the connection fails
-     */
-    public void connect(String host, int port, int numPlayers, CommunicationProtocol protocol) throws Exception {
-        networkAdapter = NetworkAdapterFactory.createClientAdapter(protocol, this);
-        networkAdapter.connect(host, port, nickname, numPlayers);
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
+
+    public void setGameID(String gameID) {
+        this.gameID = gameID;
+        ui.setGameID(gameID);
+    }
+
+
+    //! CONNECTION TO SERVER -----------------------------------------------
+    public void createLobbyAndConnect(String host, int port, int numPlayers, CommunicationProtocol protocol) throws Exception {
+        networkAdapter = NetworkAdapterFactory.createClientAdapter(protocol, this);
+        networkAdapter.connect(host, port);
+        networkAdapter.createLobby(nickname, numPlayers);
+    }
+
+    public void joinLobbyAndConnect(String host, int port, String gameID, CommunicationProtocol protocol) throws Exception {
+        networkAdapter = NetworkAdapterFactory.createClientAdapter(protocol, this);
+        networkAdapter.connect(host, port);
+        networkAdapter.joinLobby(nickname, gameID);
+    }
+
+    public void joinLobby(String gameID) throws Exception {
+        if (networkAdapter == null) {
+            throw new IllegalStateException("Client not connected");
+        }
+        networkAdapter.joinLobby(nickname, gameID);
+    }
+
+
+
+    //! COMMANDS TO SERVER -----------------------------------------------
 
     /**
      * Sends a totem placement request to the server.
@@ -175,7 +196,7 @@ public class ClientController implements GameEventListener {
         ui.onShutdown();
     }
 
-    // Utility methods
+    //! UTILITY METHODS -----------------------------------------------
     private boolean isMyTurn(GameStateUpdateMessage update) {
         return update.getCurrentPlayerNickname().equals(nickname) && isInteractivePhase(update.getCurrentPhase());
     }

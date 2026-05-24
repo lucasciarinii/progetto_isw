@@ -9,5 +9,5 @@ public interface LobbyReadyListener {
      *
      * @param serverController the initialized controller for the new match
      */
-    void onLobbyReady(ServerController serverController);
+    void onLobbyReady(ServerController serverController, String gameID);
 }

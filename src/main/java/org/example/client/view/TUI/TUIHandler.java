@@ -16,7 +16,11 @@ import org.example.server.model.enums.OfferEffect;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
 /**
  * Text-based UI handler for TUI VIEW that renders updates and collects player input.
@@ -25,7 +29,14 @@ import java.util.stream.Collectors;
 public class TUIHandler implements UIHandler {
     private ClientController controller;
     private final Scanner scanner = new Scanner(System.in);
-    private GameStateUpdateMessage lastGameUpdate;
+    private GameStateUpdateMessage lastUpdate;
+    private String gameID;
+    private boolean lobbyRetryEnabled = false;
+
+    // The queue: threads handler that uses a SINGLE thread to execute tasks -> ensures that only ONE thread at a time interacts with System.in.
+    private final ExecutorService inputExecutor = newSingleThreadExecutor();
+    // Thread-safe flag to check if the user is currently interacting with a prompt
+    private final AtomicBoolean inputBusy = new AtomicBoolean(false);
 
     /**
      * Binds the client controller used to send player actions.
@@ -36,14 +47,22 @@ public class TUIHandler implements UIHandler {
         this.controller = controller;
     }
 
-    /**
-     * Renders lobby updates.
-     */
+    public void setLobbyRetryEnabled(boolean enabled) {
+        this.lobbyRetryEnabled = enabled;
+    }
+
+    @Override
+    public void setGameID(String gameID) {
+        this.gameID = gameID;
+    }
+
+    //! TUI EVENTS -----------------------------------------------
     @Override
     public void onLobbyUpdate(LobbyUpdateMessage update) {
         if (update.isGameStarting()) {
             System.out.println("Match is starting!");
         } else {
+            System.out.println("GAME CODE: " + update.getGameID());
             System.out.println("In lobby: " + update.getConnectedPlayers() + "/" + update.getRequiredPlayers() + " players");
             System.out.println("Connected: " + update.getPlayerNicknames());
         }
@@ -54,7 +73,7 @@ public class TUIHandler implements UIHandler {
      */
     @Override
     public void onGameStateUpdate(GameStateUpdateMessage update) {
-        this.lastGameUpdate = update;
+        this.lastUpdate = update;
         display(update);
     }
 
@@ -64,12 +83,40 @@ public class TUIHandler implements UIHandler {
     @Override
     public void onError(String errorMessage, GamePhase currentPhase) {
         System.out.println("\n[ERROR] " + errorMessage + "\n");
+        if (currentPhase == GamePhase.LOBBY) {
+            if (lobbyRetryEnabled) {
+                inputExecutor.submit(() -> {
+                    if (!inputBusy.compareAndSet(false, true)) {
+                        return;
+                    }
+                    try {
+                        handleLobbyRetry();
+                    } finally {
+                        inputBusy.set(false);
+                    }
+                });
+            }
+            return;
+        }
         promptForAction(currentPhase);
     }
 
-    /**
-     * Displays the ranking results.
-     */
+    private void handleLobbyRetry() {
+        while (true) {
+            System.out.print("Insert game code: ");
+            String code = scanner.nextLine().trim();
+            System.out.print("Insert your nickname: ");
+            String nickname = scanner.nextLine().trim();
+            try {
+                controller.setNickname(nickname);
+                controller.joinLobby(code);
+                break;
+            } catch (Exception e) {
+                System.out.println("[ERROR] " + e.getMessage());
+            }
+        }
+    }
+
     @Override
     public void onRankingUpdate(RankingUpdateMessage rankingUpdate) {
         displayRanking(rankingUpdate.getRanking(), rankingUpdate.getPlayerRankPosition());
@@ -80,7 +127,7 @@ public class TUIHandler implements UIHandler {
      */
     @Override
     public void onRoundFlowCardRequest() {
-        new Thread (this::handleRoundFlowCardRequest).start();
+        inputExecutor.submit(this::handleRoundFlowCardRequest);
     }
 
     /**
@@ -97,13 +144,25 @@ public class TUIHandler implements UIHandler {
      */
     @Override
     public void promptForAction(GamePhase phase) {
-        new Thread(() -> {
-            switch (phase) {
-                case PLACE_TOTEMS -> handlePlaceTotem();
-                case PLAYER_TURN  -> handleOfferTileAction();
-                default           -> {}
+        // Transfer the TUI input handling to a separate thread to prevent blocking other threads (that want to read from System.in).
+        inputExecutor.submit(() -> {
+            /* Atomic Check-and-Set: If the user is already typing in another prompt,
+               discard this overlapping request to prevent duplicate or interleaved prompts. */
+            if (!inputBusy.compareAndSet(false, true)) {
+                return;
             }
-        }).start();
+            try {
+                switch (phase) {
+                    case PLACE_TOTEMS -> handlePlaceTotem();
+                    case PLAYER_TURN  -> handleOfferTileAction();
+                    default           -> {}
+                }
+            } finally {
+                /* ALWAYS release the lock, ensuring the TUI
+                   doesn't freeze permanently if an exception occurs during input. */
+                inputBusy.set(false);
+            }
+        });
     }
 
 
@@ -138,10 +197,10 @@ public class TUIHandler implements UIHandler {
      */
     private void handlePlaceTotem() {
         while (true) {
-            System.out.print(">>> Choose offer tile (1-" + lastGameUpdate.getOfferTrack().size() + "): ");
+            System.out.print(">>> Choose offer tile (1-" + lastUpdate.getOfferTrack().size() + "): ");
             try {
                 int pos = Integer.parseInt(scanner.nextLine().trim());
-                if (pos < 1 || pos > lastGameUpdate.getOfferTrack().size()) {
+                if (pos < 1 || pos > lastUpdate.getOfferTrack().size()) {
                     System.out.println("[!] Invalid position.");
                     continue;
                 }
@@ -160,13 +219,13 @@ public class TUIHandler implements UIHandler {
      * Builds the card selection payload and calls ClientController.offerTileAction.
      */
     private void handleOfferTileAction() {
-        OfferEffect effect = lastGameUpdate.getOfferTrack().stream()
+        OfferEffect effect = lastUpdate.getOfferTrack().stream()
                 .filter(tile -> controller.getNickname().equals(tile.getOccupantNickname()))
                 .map(OfferTileSnapshot::getOfferEffect)
                 .findFirst()
                 .orElse(null);
 
-        PlayerSnapshot player = lastGameUpdate.getPlayers().stream()
+        PlayerSnapshot player = lastUpdate.getPlayers().stream()
                 .filter(p -> p.getNickname().equals(controller.getNickname()))
                 .findFirst()
                 .orElseThrow();
@@ -175,17 +234,17 @@ public class TUIHandler implements UIHandler {
         int fromTop    = 0;
 
         switch (effect) {
-            case D   -> fromBottom = (int) Math.min(1, countPickable(lastGameUpdate.getBottomRow(), player));
-            case DD  -> fromBottom = (int) Math.min(2, countPickable(lastGameUpdate.getBottomRow(), player));
-            case U   -> fromTop    = (int) Math.min(1, countPickable(lastGameUpdate.getTopRow(), player));
-            case UU  -> fromTop    = (int) Math.min(2, countPickable(lastGameUpdate.getTopRow(), player));
+            case D   -> fromBottom = (int) Math.min(1, countPickable(lastUpdate.getBottomRow(), player));
+            case DD  -> fromBottom = (int) Math.min(2, countPickable(lastUpdate.getBottomRow(), player));
+            case U   -> fromTop    = (int) Math.min(1, countPickable(lastUpdate.getTopRow(), player));
+            case UU  -> fromTop    = (int) Math.min(2, countPickable(lastUpdate.getTopRow(), player));
             case DU  -> {
-                fromBottom = (int) Math.min(1, countPickable(lastGameUpdate.getBottomRow(), player));
-                fromTop    = (int) Math.min(1, countPickable(lastGameUpdate.getTopRow(), player));
+                fromBottom = (int) Math.min(1, countPickable(lastUpdate.getBottomRow(), player));
+                fromTop    = (int) Math.min(1, countPickable(lastUpdate.getTopRow(), player));
             }
             case DUU -> {
-                fromBottom = (int) Math.min(1, countPickable(lastGameUpdate.getBottomRow(), player));
-                fromTop    = (int) Math.min(2, countPickable(lastGameUpdate.getTopRow(), player));
+                fromBottom = (int) Math.min(1, countPickable(lastUpdate.getBottomRow(), player));
+                fromTop    = (int) Math.min(2, countPickable(lastUpdate.getTopRow(), player));
             }
             case FOOD -> {
                 try { controller.offerTileAction(""); } catch (Exception e) { System.out.println("[ERROR] " + e.getMessage()); }
@@ -212,13 +271,13 @@ public class TUIHandler implements UIHandler {
      */
     private void handleRoundFlowCardRequest() {
         System.out.println("[INFO] RoundFlow active: pick an extra card from the top row.");
-        PlayerSnapshot player = lastGameUpdate.getPlayers().stream()
+        PlayerSnapshot player = lastUpdate.getPlayers().stream()
                 .filter(p -> p.getNickname().equals(controller.getNickname()))
                 .findFirst()
                 .orElseThrow();
 
 
-        int fromTop = (int) Math.min(1, countPickable(lastGameUpdate.getTopRow(), player));
+        int fromTop = (int) Math.min(1, countPickable(lastUpdate.getTopRow(), player));
 
         List<Integer> ids = new ArrayList<>();
 

@@ -10,16 +10,11 @@ import java.rmi.RemoteException;
  * Clients obtain a stub from the registry and invoke these methods to send actions.
  */
 public interface RMIGameServer extends Remote {
-    /**
-     * Registers the client and its callback for server-to-client notifications.
-     * This is called by the client right after obtaining the stub.
-     *
-     * @param nickname   the player's nickname
-     * @param numPlayers desired total number of players (only used by the first player)
-     * @param callback   the client callback for server notifications
-     * @throws Exception if registration fails
-     */
-    void register(String nickname, int numPlayers, RMIClientCallback callback) throws Exception;
+
+    /* Create or join a game with the client callback used for server updates. */
+    String createLobby(String nickname, int numPlayers, RMIClientCallback callback) throws Exception;
+
+    void joinLobby(String nickname, String gameID, RMIClientCallback callback) throws Exception;
 
     /**
      * Places a totem on the selected offer tile.

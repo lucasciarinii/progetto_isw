@@ -1,0 +1,50 @@
+.players-list {
+    -fx-background-color: #15150d;
+    -fx-background-insets: 0;
+    -fx-padding: 2;
+}
+
+.players-list .list-cell {
+    -fx-background-color: #15150d;
+    -fx-text-fill: #f0e0b0;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER;
+    -fx-padding: 10 0 10 0;
+    -fx-border-color: transparent transparent #272716 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.players-list .list-cell:filled:hover {
+    -fx-background-color: #242415;
+}
+
+.players-list .list-cell:filled:selected {
+    -fx-background-color: #2a2a16;
+    -fx-text-fill: #ffcc00;
+}
+
+.players-list .list-cell:empty {
+    -fx-background-color: #15150d;
+    -fx-border-color: transparent;
+}
+
+.players-list .scroll-bar:vertical {
+    -fx-background-color: #15150d;
+    -fx-pref-width: 6;
+}
+
+.players-list .scroll-bar:vertical .track {
+    -fx-background-color: #15150d;
+}
+
+.players-list .scroll-bar:vertical .thumb {
+    -fx-background-color: #3a3a22;
+    -fx-background-radius: 3;
+}
+
+.players-list .scroll-bar:vertical .increment-button,
+.players-list .scroll-bar:vertical .decrement-button {
+    -fx-pref-height: 0;
+    -fx-pref-width: 0;
+}

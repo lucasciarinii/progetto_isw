@@ -13,10 +13,12 @@ import org.example.network.CommunicationProtocol;
  */
 public class GUIApp extends Application {
 
-    private static String host;
-    private static CommunicationProtocol protocol;
-    private static int port;
+    // ── Runtime config (set by launcher) ───────────────────────────────────────
+    private static String host =  "localhost";
+    private static CommunicationProtocol protocol = CommunicationProtocol.RMI;
+    private static int port = 1099;
 
+    // ── Injected startup options ───────────────────────────────────────────────
     /** @param host the server host */
     public static void setHost(String host) {
         GUIApp.host = host;
@@ -32,6 +34,8 @@ public class GUIApp extends Application {
         GUIApp.port = port;
     }
 
+
+    // ── JavaFX entry point ─────────────────────────────────────────────────────
     /**
      * Loads the login scene and configures the GUI controller.
      */
@@ -52,8 +56,8 @@ public class GUIApp extends Application {
         stage.setTitle("MESOS - Client GUI");
         stage.setScene(new Scene(root));
         stage.setResizable(false);
-        stage.setWidth(520);
-        stage.setHeight(520);
+        stage.setWidth(1367);
+        stage.setHeight(768);
         stage.centerOnScreen();
         stage.show();
 

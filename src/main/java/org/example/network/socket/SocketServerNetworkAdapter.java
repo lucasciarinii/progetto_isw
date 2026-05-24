@@ -6,10 +6,7 @@ import org.example.network.ServerNetworkAdapter;
 import org.example.network.messages.GameStateUpdateMessage;
 import org.example.network.messages.LobbyUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
-import org.example.server.LobbyController;
-import org.example.server.LobbyReadyListener;
-import org.example.server.ServerController;
-import org.example.server.ServerLogger;
+import org.example.server.*;
 import org.example.server.model.enums.GamePhase;
 
 import java.io.IOException;
@@ -17,40 +14,26 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Socket-based server adapter that accepts client connections and forwards
  * incoming actions to the server controller, while pushing events back to clients.
  */
-public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyReadyListener {
+public class SocketServerNetworkAdapter implements ServerNetworkAdapter {
 
     public static final int DEFAULT_PORT = 9999;
-
-    private final LobbyController lobby;
-    private ServerSocket serverSocket;
-    private final Map<String, ClientSocketHandler> connectedClients = new HashMap<>();
     private final ObjectMapper mapper = new ObjectMapper();
-
-    private ServerController serverController;
     private boolean running = false;
-    private HybridServerNetworkAdapter hybrid = null;
+
+    private final ConcurrentHashMap<String, ClientSocketHandler> connectedClients = new ConcurrentHashMap<>();
+    private final HybridServerNetworkAdapter hybrid;
+    private ServerSocket serverSocket;
+    private final MatchManager matchManager;
 
 
-    /**
-     * Creates a socket adapter that shares the lobby with the RMI protocol.
-     *
-     * @param sharedLobby the shared lobby controller
-     */
-    public SocketServerNetworkAdapter(LobbyController sharedLobby) {
-        this.lobby = sharedLobby;
-    }
-
-    /**
-     * Registers the hybrid adapter used for routing notifications.
-     *
-     * @param hybrid the hybrid adapter
-     */
-    public void setHybrid(HybridServerNetworkAdapter hybrid) {
+    public SocketServerNetworkAdapter(MatchManager matchManager, HybridServerNetworkAdapter hybrid) {
+        this.matchManager = matchManager;
         this.hybrid = hybrid;
     }
 
@@ -83,7 +66,7 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
             serverSocket.close();
         }
 
-        // Close all client connections.
+        // Close all client connections
         for ( ClientSocketHandler handler : connectedClients.values() ) {
             handler.close();
         }
@@ -183,96 +166,50 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
         }
     }
 
-    /**
-     * Registers a player in the lobby after a socket "register" action.
-     *
-     * @param nickname   the player's nickname
-     * @param numPlayers desired total number of players
-     */
-    public void registerPlayer(String nickname, int numPlayers) {
-        if (hybrid != null)
+    public String createGame(String nickname, int numPlayers) throws Exception {
+        if (hybrid != null) {
             hybrid.registerRoute(nickname, this);
-
-        try {
-            lobby.registerPlayer(nickname, numPlayers);
-        } catch (Exception e) {
-            try {
-                sendError(nickname, e.getMessage(), GamePhase.LOBBY);
-            } catch (Exception ex) {
-                ServerLogger.error("Failed to send lobby error: " + ex.getMessage());
-            }
         }
+        return matchManager.createLobby(nickname, numPlayers);
     }
 
-    /**
-     * Checks whether a nickname is already taken in the lobby.
-     *
-     * @param nickname the nickname to verify
-     * @return true if the nickname is already used
-     */
-    public boolean isNicknameTaken(String nickname) {
-        return lobby.isNicknameTaken(nickname);
+    public void joinGame(String nickname, String gameID) throws Exception {
+        if (hybrid != null) {
+            hybrid.registerRoute(nickname, this);
+        }
+        matchManager.joinLobby(nickname, gameID);
     }
 
     /**
      * Forwards a "placeTotem" action from the socket client to the controller.
      */
     public void placeTotemOnOfferTile(String nickname, int tilePosition) {
-        if (serverController == null) {
-            ServerLogger.server("Game not started yet. Cannot place totem.");
-            return;
-        }
-        serverController.placeTotemOnOfferTile(nickname, tilePosition);
+        hybrid.resolveServerControllerByNickname(nickname)
+                .placeTotemOnOfferTile(nickname, tilePosition);
     }
 
     /**
      * Forwards an "offerTileAction" command from the socket client to the controller.
      */
     public void offerTileAction(String nickname, String cards) {
-        if (serverController == null) {
-            ServerLogger.server("Game not started yet. Cannot perform offer tile action.");
-            return;
-        }
-        serverController.offerTileAction(nickname, cards);
+        hybrid.resolveServerControllerByNickname(nickname)
+                .offerTileAction(nickname, cards);
     }
 
     /**
      * Forwards a "roundFlowCardRequest" command from the socket client to the controller.
      */
     public void roundFlowCardRequest(String nickname, String cards) {
-        if (serverController == null) {
-            ServerLogger.server("Game not started yet. Cannot perform round flow card request action.");
-            return;
-        }
-        serverController.roundFlowCardRequest(nickname, cards);
+        hybrid.resolveServerControllerByNickname(nickname)
+                .roundFlowCardRequest(nickname, cards);
     }
 
     /**
      * Forwards a "skipTurn" command from the socket client to the controller.
      */
     public void skipTurn(String nickname) {
-        if (serverController == null) {
-            ServerLogger.server("Game not started yet. Cannot skip turn.");
-            return;
-        }
-        serverController.skipTurn(nickname);
-    }
-
-    /**
-     * Receives the server controller when the lobby is ready.
-     */
-    @Override
-    public void onLobbyReady(ServerController serverController) {
-        this.serverController = serverController;
-    }
-
-    /**
-     * Exposes the current server controller, if any.
-     *
-     * @return the server controller or null if the game has not started
-     */
-    public ServerController getServerController() {
-        return serverController;
+        hybrid.resolveServerControllerByNickname(nickname)
+                .skipTurn(nickname);
     }
 
     /**
@@ -284,7 +221,6 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
             try {
 
                 Socket clientSocket = serverSocket.accept();
-                ServerLogger.server("New client connected: " + clientSocket.getInetAddress());
 
                 // Client handler
                 ClientSocketHandler handler = new ClientSocketHandler(

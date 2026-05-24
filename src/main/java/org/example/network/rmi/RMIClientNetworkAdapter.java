@@ -11,7 +11,7 @@ import java.rmi.Naming;
  */
 public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
 
-    private final ClientController controller;
+    private final ClientController clientController;
     private RMIGameServer server;
     private String nickname;
 
@@ -21,7 +21,7 @@ public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
      * @param controller the client controller that receives callbacks
      */
     public RMIClientNetworkAdapter(ClientController controller) {
-        this.controller = controller;
+        this.clientController = controller;
     }
 
     /**
@@ -29,17 +29,28 @@ public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
      * The server will invoke RMIClientCallback methods to push updates.
      */
     @Override
-    public void connect(String host, int port, String nickname, int numPlayers) throws Exception {
+    public void connect(String host, int port) throws Exception {
         System.setProperty("java.rmi.server.hostname", "127.0.0.1");
-        this.nickname = nickname;
 
         String resolvedHost = host.equalsIgnoreCase("localhost") ? "127.0.0.1" : host;
         String url = "rmi://" + resolvedHost + ":" + port + "/GameServer";
 
         server = (RMIGameServer) Naming.lookup(url);
+    }
 
-        RMIClientCallbackImpl callback = new RMIClientCallbackImpl(controller);
-        server.register(nickname, numPlayers, callback);
+    @Override
+    public void createLobby(String nickname, int numPlayers) throws Exception {
+        this.nickname = nickname;
+        RMIClientCallbackImpl callback = new RMIClientCallbackImpl(clientController);
+        String gameID = server.createLobby(nickname, numPlayers, callback);
+        clientController.setGameID(gameID);
+    }
+
+    @Override
+    public void joinLobby(String nickname, String gameID) throws Exception {
+        this.nickname = nickname;
+        RMIClientCallbackImpl callback = new RMIClientCallbackImpl(clientController);
+        server.joinLobby(nickname, gameID, callback);
     }
 
     /**

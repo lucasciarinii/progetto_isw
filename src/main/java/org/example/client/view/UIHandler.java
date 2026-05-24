@@ -32,4 +32,6 @@ public interface UIHandler {
     /** @param currentPlayerNickname the nickname of the RoundFlow player */
     void displayRoundFlowWaiting(String currentPlayerNickname);
 
+    void setGameID(String gameID);
+
 }
