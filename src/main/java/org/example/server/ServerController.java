@@ -39,7 +39,6 @@ public class ServerController implements Runnable {
 
     @Override
     public void run() {
-        ServerLogger.server("New server controller started");
         sendInitialState();
     }
 
@@ -53,7 +52,6 @@ public class ServerController implements Runnable {
 
     // Close the connection
     private void shutdown() {
-        ServerLogger.server("Game match session closed.");
         if (onGameOver != null) {
             onGameOver.onGameOver(this);
         }

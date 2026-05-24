@@ -4,6 +4,7 @@ import org.example.client.view.GUI.GUILauncher;
 import org.example.client.view.TUI.TUILauncher;
 import org.example.network.CommunicationProtocol;
 import org.example.network.HybridServerNetworkAdapter;
+import org.example.server.ServerLogger;
 
 import java.util.Scanner;
 
@@ -42,10 +43,10 @@ public class App {
     private static void startServer() throws Exception {
         HybridServerNetworkAdapter adapter = new HybridServerNetworkAdapter();
         adapter.start();
-        System.out.println("Server started. Press ENTER to shut down.");
+        ServerLogger.server("Server started. Press ENTER to shut down.");
         new Scanner(System.in).nextLine();
         adapter.stop();
-        System.out.println("Server OFF.");
+        ServerLogger.server("Server OFF.");
         System.exit(0);
     }
 

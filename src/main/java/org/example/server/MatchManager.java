@@ -39,6 +39,8 @@ public class MatchManager {
         // Reserve the nickname
         reserveNickname(nickname);
 
+        ServerLogger.lobby("Lobby created. Game code: " + gameID + " by " + nickname);
+
         // Create a lobby
         LobbyController newLobby = new LobbyController(onReady, notifier, gameID, numPlayers);
 
@@ -97,6 +99,8 @@ public class MatchManager {
         lobbies.remove(cleanID);
         games.put(cleanID, serverController);
 
+        ServerLogger.game("Game session starting with code: " + cleanID);
+
         serverController.setGameOverListener(_ -> this.onGameOver(cleanID));
 
         // 2. Create dedicated thread using Runnable interface in ServerController
@@ -118,6 +122,7 @@ public class MatchManager {
 
         games.remove(cleanID);
         gameThreads.remove(cleanID);
+        ServerLogger.game("Game session ended with code: " + cleanID);
     }
 
     //! UTILITY METHODS -------------------------------------------------------------------------------------------------

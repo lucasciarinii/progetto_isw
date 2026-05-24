@@ -55,7 +55,7 @@ public class LobbyController {
 
         // Add the player to the lobby
         waitingClients.add(nickname);
-        ServerLogger.lobby(nickname + " joined the lobby. (" + waitingClients.size() + "/" + numPlayers + ")");
+        ServerLogger.lobby(nickname + " joined lobby with code: " + gameID + " (" + waitingClients.size() + "/" + numPlayers + ")");
 
         // Notifies all clients in waiting
         notifyAllWaiting(false);
@@ -87,7 +87,7 @@ public class LobbyController {
 
         // Alerts GameServerImpl that the controller is ready
         onReady.onLobbyReady(serverController, gameID);
-        ServerLogger.game("Game started with mixed connections.");
+        ServerLogger.game("Game started with code: " + gameID);
     }
 
     private void notifyAllWaiting(boolean gameStarting) {

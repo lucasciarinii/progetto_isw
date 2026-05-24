@@ -85,7 +85,6 @@ public class ClientSocketHandler implements Runnable {
                     try {
                         this.gameID = socketServerNetworkAdapter.createGame(nickname, numPlayers);
                         sendGameID();
-                        System.out.println("[SERVER] Lobby with ID" + gameID + "created by " + nickname);
                     } catch (Exception e) {
                         if (addedCreate) {
                             connectedClients.remove(nickname, this);

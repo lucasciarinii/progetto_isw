@@ -171,7 +171,6 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter {
             try {
 
                 Socket clientSocket = serverSocket.accept();
-                ServerLogger.server("New client connected: " + clientSocket.getInetAddress());
 
                 // Client handler
                 ClientSocketHandler handler = new ClientSocketHandler(
