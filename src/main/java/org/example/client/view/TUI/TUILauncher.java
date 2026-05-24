@@ -8,11 +8,21 @@ import java.util.Scanner;
 public class TUILauncher {
 
     private static final String LOBBY_ART =
-            " _      ____  ____  ____ ___  _ \n" +
-                    "/ \\  /|/  _ \\/  _ \\/  _ \\\\  \\// \n" +
-                    "| |  ||| / \\|| | //| | // \\  /  \n" +
-                    "| |/\\||| \\_/|| |_\\\\| |_\\\\ / /   \n" +
-                    "\\_/  \\|\\____/\\____/\\____//_/    \n";
+                    "\n" +
+                    "                                 \n" +
+                    "                    __  __  ______   _____   ____    _____ \n" +
+                    "                   |  \\/  ||  ____| / ____| / __ \\  / ____|\n" +
+                    "                   | \\  / || |__   | (___  | |  | || (___  \n" +
+                    "                   | |\\/| ||  __|   \\___ \\ | |  | | \\___ \\ \n" +
+                    "                   | |  | || |____  ____) || |__| | ____) |\n" +
+                    "                   |_|  |_||______||_____/  \\____/ |_____/ \n" +
+                    "                                              \n" +
+                    "                       ~ Enter the Mesolithic world ~\n\n" +
+                    "       _______________________          _______________________\n" +
+                    "      |                       |        |                       |\n" +
+                    "      |    [1] JOIN LOBBY     |        |    [2] CREATE LOBBY   |\n" +
+                    "      |_______________________|        |_______________________|\n" +
+                    "\n";
 
     public static void launchTuiClient(String host, CommunicationProtocol protocol, int port) {
         Scanner scanner = new Scanner(System.in);
