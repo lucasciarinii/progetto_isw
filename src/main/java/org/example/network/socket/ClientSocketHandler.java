@@ -74,6 +74,7 @@ public class ClientSocketHandler implements Runnable {
                     this.nickname = (String) cmd.get("nickname");
                     int numPlayers = (int) cmd.get("numPlayers");
 
+                    // Prevent a new connection with a duplicate nickname from overwriting or disconnecting an active player.
                     ClientSocketHandler existingCreate = connectedClients.putIfAbsent(nickname, this);
                     if (existingCreate != null && existingCreate != this) {
                         sendLobbyError("Nickname already used");
