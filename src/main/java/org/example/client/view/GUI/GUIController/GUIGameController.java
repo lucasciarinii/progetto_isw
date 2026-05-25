@@ -30,7 +30,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Controller for the main game screen; renders updates and handles input.
+ * Controller for the main game screen.
+ * It renders the full match state and manages user interactions during the match.
  */
 public class GUIGameController {
 
@@ -38,19 +39,20 @@ public class GUIGameController {
     private static final double BOARD_TILE_HEIGHT = 180;
 
     // FXML bindings
-    @FXML private Label     roundLabel;
-    @FXML private Label     eraLabel;
-    @FXML private Label     phaseLabel;
-    @FXML private Label     currentPlayerLabel;
-    @FXML private Label     statusLabel;
-    @FXML private Button    confirmButton;
+    @FXML private ImageView bgImageView;
+    @FXML private Label roundLabel;
+    @FXML private Label eraLabel;
+    @FXML private Label phaseLabel;
+    @FXML private Label currentPlayerLabel;
+    @FXML private Label statusLabel;
+    @FXML private Button confirmButton;
     @FXML private ImageView deckBackView;
-    @FXML private HBox      topRowBox;
-    @FXML private HBox      bottomRowBox;
-    @FXML private HBox      offerTrackBox;
-    @FXML private HBox      turnSlotBox;
-    @FXML private VBox      opponentsBox;
-    @FXML private HBox      localPlayerBox;
+    @FXML private HBox topRowBox;
+    @FXML private HBox bottomRowBox;
+    @FXML private HBox offerTrackBox;
+    @FXML private HBox turnSlotBox;
+    @FXML private VBox opponentsBox;
+    @FXML private HBox localPlayerBox;
 
     // Internal state
     private ClientController controller;
@@ -61,24 +63,46 @@ public class GUIGameController {
     private final List<CardView> selectedCards = new ArrayList<>();
     private boolean roundFlowMode = false;
 
-    // Player panels kept in memory to update them without recreating.
+    // Player panels cached to update them without recreating them every time
     private final List<PlayerPanelView> playerPanels = new ArrayList<>();
 
-    // Setters called from GUIHandler
+    /**
+     * Initializes the controller after FXML loading.
+     * The background image is bound to the actual scene size so that it scales
+     * correctly when the window becomes fullscreen.
+     */
+    @FXML
+    private void initialize() {
+        bgImageView.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                bgImageView.fitWidthProperty().bind(newScene.widthProperty());
+                bgImageView.fitHeightProperty().bind(newScene.heightProperty());
+            }
+        });
+    }
 
+    /**
+     * Injects the client controller used to send actions to the server.
+     *
+     * @param controller the client controller
+     */
     public void setController(ClientController controller) {
         this.controller = controller;
     }
 
+    /**
+     * Sets the nickname of the local player.
+     *
+     * @param nickname the local player's nickname
+     */
     public void setLocalNickname(String nickname) {
         this.localNickname = nickname;
     }
 
-    // Public methods (called from GUIHandler)
-
     /**
-     * Update whole screen with new state of the game.
-     * Called for each GameStateUpdateMessage received
+     * Updates the entire screen with a fresh game state snapshot.
+     *
+     * @param update the latest game state update
      */
     public void update(GameStateUpdateMessage update) {
         this.lastUpdate = update;
@@ -91,12 +115,10 @@ public class GUIGameController {
         updateTurnSlot(update);
         updatePlayerPanels(update.getPlayers());
 
-        // Reset the state at each interaction for each update
-        confirmButton.setVisible(false);
+        hideConfirmButton();
         selectedCards.clear();
         roundFlowMode = false;
 
-        // Check game over
         if (!update.getWinners().isEmpty()) {
             showGameOver(update.getWinners());
         }
@@ -107,19 +129,25 @@ public class GUIGameController {
     }
 
     /**
-     * Enable the interaction for the current phase.
-     * Called from GUIHandler after update().
+     * Enables interaction for the current game phase.
+     *
+     * @param phase the current phase
      */
     public void promptForAction(GamePhase phase) {
         switch (phase) {
             case PLACE_TOTEMS -> enablePlaceTotems();
-            case PLAYER_TURN  -> enablePlayerTurn();
-            default           -> {}
+            case PLAYER_TURN -> enablePlayerTurn();
+            default -> { }
         }
     }
 
+    /**
+     * Prompts the local player to choose an extra top-row card for RoundFlow.
+     */
     public void promptRoundFlowPick() {
-        if (lastUpdate == null) return;
+        if (lastUpdate == null) {
+            return;
+        }
 
         PlayerSnapshot localPlayer = lastUpdate.getPlayers().stream()
                 .filter(p -> p.getNickname().equals(localNickname))
@@ -127,19 +155,20 @@ public class GUIGameController {
                 .orElseThrow();
 
         roundFlowMode = true;
-        confirmButton.setVisible(false);
+        hideConfirmButton();
         selectedCards.clear();
         enableRoundFlowSelection(localPlayer);
     }
 
     /**
-     * Show an error message in the action bar.
+     * Displays an error message in the top status area and re-enables interaction if needed.
+     *
+     * @param message the error message
      */
     public void showError(String message) {
         statusLabel.setTextFill(Color.web("#e63946"));
         statusLabel.setText("[ERROR] " + message);
 
-        // Re-enable the interaction using the phase of the last update
         if (lastUpdate != null && lastUpdate.getCurrentPlayerNickname().equals(localNickname)) {
             selectedCards.clear();
             if (isRoundFlowPhase()) {
@@ -151,161 +180,186 @@ public class GUIGameController {
     }
 
     /**
-     * Shows an info message when the player cannot select any card.
+     * Shows an informational message when no selectable cards are available.
      */
     public void showNoCardsPickable() {
-        confirmButton.setVisible(false);
+        hideConfirmButton();
         selectedCards.clear();
-        statusLabel.setTextFill(Color.web("#a0a080"));
+        statusLabel.setTextFill(Color.web("#d8c78f"));
         statusLabel.setText("No selectable card: the turn will be skipped.");
     }
 
     /**
-     * Shows that another player's turn is in progress.
+     * Shows a waiting message while another player is taking their turn.
+     *
+     * @param currentPlayerNickname the nickname of the player currently playing
      */
     public void showWaiting(String currentPlayerNickname) {
-        confirmButton.setVisible(false);
+        hideConfirmButton();
         selectedCards.clear();
-        statusLabel.setTextFill(Color.web("#a0a080"));
+        statusLabel.setTextFill(Color.web("#d8c78f"));
         statusLabel.setText(currentPlayerNickname + "'s turn...");
     }
 
     /**
-     * Shows that another player is picking the extra card for RoundFlow.
-    */
+     * Shows a waiting message while another player is resolving RoundFlow.
+     *
+     * @param currentPlayerNickname the nickname of the player currently choosing
+     */
     public void showRoundFlowWaiting(String currentPlayerNickname) {
-        confirmButton.setVisible(false);
+        hideConfirmButton();
         selectedCards.clear();
-        statusLabel.setTextFill(Color.web("#a0a080"));
+        statusLabel.setTextFill(Color.web("#d8c78f"));
         statusLabel.setText(currentPlayerNickname + " is picking an extra card (RoundFlow)...");
     }
 
-    // Info bar update
-
+    /**
+     * Updates the top floating information panel.
+     *
+     * @param update the latest game state update
+     */
     private void updateInfoBar(GameStateUpdateMessage update) {
         roundLabel.setText(String.valueOf(update.getCurrentRound()));
         eraLabel.setText(update.getCurrentEra().toString());
         phaseLabel.setText(update.getCurrentPhase().toString());
         currentPlayerLabel.setText(update.getCurrentPlayerNickname());
 
-        // Color the current player's name with their totem color.
-        String hex = PlayerColorRegistry.getInstance()
-                .getHex(update.getCurrentPlayerNickname());
+        String hex = PlayerColorRegistry.getInstance().getHex(update.getCurrentPlayerNickname());
         currentPlayerLabel.setStyle(
-                "-fx-text-fill: " + hex + "; " +
-                        "-fx-font-size: 12px; -fx-font-weight: bold;"
+                "-fx-text-fill: " + hex + ";" +
+                        "-fx-font-size: 12px;" +
+                        "-fx-font-weight: bold;"
         );
 
-        // Status message
         if (update.getCurrentPlayerNickname().equals(localNickname)) {
             statusLabel.setTextFill(Color.web("#00cc66"));
             statusLabel.setText("It's your turn!");
         } else {
-            statusLabel.setTextFill(Color.web("#a0a080"));
+            statusLabel.setTextFill(Color.web("#d8c78f"));
             statusLabel.setText(update.getCurrentPlayerNickname() + "'s turn...");
         }
     }
 
-    // Deck back update
-
+    /**
+     * Updates the deck back image according to the current era.
+     *
+     * @param era the current era
+     */
     private void updateDeckBack(Era era) {
         String filename = switch (era) {
-            case I   -> "back_era1.jpg";
-            case II  -> "back_era2.jpg";
+            case I -> "back_era1.jpg";
+            case II -> "back_era2.jpg";
             case III -> "back_era3.jpg";
         };
+
         String path = "/images/cards/" + filename;
+
         try (InputStream is = getClass().getResourceAsStream(path)) {
-            if (is != null) deckBackView.setImage(new Image(is));
+            if (is != null) {
+                deckBackView.setImage(new Image(is));
+            }
         } catch (Exception e) {
             System.err.println("[GUIGameController] Deck back not found: " + path);
         }
     }
 
-    // Card rows update
-
+    /**
+     * Renders the top row of cards.
+     *
+     * @param cards the cards to display
+     */
     private void updateTopRow(List<Card> cards) {
         topRowBox.getChildren().clear();
+
         for (Card card : cards) {
-            CardView cv = new CardView(card, BOARD_TILE_WIDTH, BOARD_TILE_HEIGHT);
-            cv.setState(CardView.State.NORMAL);
-            topRowBox.getChildren().add(cv);
+            CardView cardView = new CardView(card, BOARD_TILE_WIDTH, BOARD_TILE_HEIGHT);
+            cardView.setState(CardView.State.NORMAL);
+            topRowBox.getChildren().add(cardView);
         }
     }
 
+    /**
+     * Renders the bottom row of cards.
+     *
+     * @param cards the cards to display
+     */
     private void updateBottomRow(List<Card> cards) {
         bottomRowBox.getChildren().clear();
+
         for (Card card : cards) {
-            CardView cv = new CardView(card, BOARD_TILE_WIDTH, BOARD_TILE_HEIGHT);
-            cv.setState(CardView.State.NORMAL);
-            bottomRowBox.getChildren().add(cv);
+            CardView cardView = new CardView(card, BOARD_TILE_WIDTH, BOARD_TILE_HEIGHT);
+            cardView.setState(CardView.State.NORMAL);
+            bottomRowBox.getChildren().add(cardView);
         }
     }
 
-    // Offer track update
-
+    /**
+     * Renders the offer track.
+     *
+     * @param tiles the offer-track tiles to display
+     */
     private void updateOfferTrack(List<OfferTileSnapshot> tiles) {
         offerTrackBox.getChildren().clear();
+
         for (int i = 0; i < tiles.size(); i++) {
-            OfferTileView tv = new OfferTileView(tiles.get(i), i + 1);
-            offerTrackBox.getChildren().add(tv);
+            OfferTileView tileView = new OfferTileView(tiles.get(i), i + 1);
+            offerTrackBox.getChildren().add(tileView);
         }
     }
 
-    // Turn order tile update
-
+    /**
+     * Renders the turn-order slots.
+     *
+     * @param update the latest game state update
+     */
     private void updateTurnSlot(GameStateUpdateMessage update) {
         turnSlotBox.getChildren().clear();
-        TurnSlotView tsv = new TurnSlotView(update.getTurnOrderSlots());
-        turnSlotBox.getChildren().add(tsv);
+        TurnSlotView turnSlotView = new TurnSlotView(update.getTurnOrderSlots());
+        turnSlotBox.getChildren().add(turnSlotView);
     }
 
-    // Player panels update
-
+    /**
+     * Updates the player panels for both opponents and local player.
+     *
+     * @param players the players to render
+     */
     private void updatePlayerPanels(List<PlayerSnapshot> players) {
         if (playerPanels.isEmpty()) {
-            // First time: create panels and split them between right and bottom.
-            for (PlayerSnapshot p : players) {
-                boolean isLocal = p.getNickname().equals(localNickname);
-
-                // Non-local players use a smaller panel.
-                PlayerPanelView panel = new PlayerPanelView(p, isLocal, !isLocal);
+            for (PlayerSnapshot player : players) {
+                boolean isLocal = player.getNickname().equals(localNickname);
+                PlayerPanelView panel = new PlayerPanelView(player, isLocal, !isLocal);
                 playerPanels.add(panel);
 
                 if (isLocal) {
-                    localPlayerBox.getChildren().add(panel); // Local player at bottom
+                    localPlayerBox.getChildren().add(panel);
                 } else {
-                    opponentsBox.getChildren().add(panel);   // Opponents on the right
+                    opponentsBox.getChildren().add(panel);
                 }
             }
         } else {
-            // Subsequent updates: refresh existing panels.
             for (int i = 0; i < playerPanels.size(); i++) {
                 playerPanels.get(i).update(players.get(i));
             }
         }
     }
 
-    // PLACE_TOTEMS interaction
-
     /**
-     * Makes the available tiles on the offer track clickable.
+     * Enables selection of free offer-track tiles during the PLACE_TOTEMS phase.
      */
     private void enablePlaceTotems() {
         statusLabel.setTextFill(Color.web("#ffcc00"));
         statusLabel.setText("Choose a tile where to place the totem.");
 
-        List<OfferTileView> tileViews = offerTrackBox.getChildren()
-                .stream()
-                .filter(n -> n instanceof OfferTileView)
-                .map(n -> (OfferTileView) n)
+        List<OfferTileView> tileViews = offerTrackBox.getChildren().stream()
+                .filter(node -> node instanceof OfferTileView)
+                .map(node -> (OfferTileView) node)
                 .toList();
 
-        for (OfferTileView tv : tileViews) {
-            if (tv.getSnapshot().isFree()) {
-                tv.setSelectable(true, () -> {
+        for (OfferTileView tileView : tileViews) {
+            if (tileView.getSnapshot().isFree()) {
+                tileView.setSelectable(true, () -> {
                     try {
-                        controller.placeTotemOnOfferTile(tv.getPosition());
+                        controller.placeTotemOnOfferTile(tileView.getPosition());
                     } catch (Exception e) {
                         showError(e.getMessage());
                     }
@@ -314,27 +368,23 @@ public class GUIGameController {
         }
     }
 
-    // PLAYER_TURN interaction
-
     /**
-     * Enable the selection of the card based on the effect of the tile
-     * on witch the local player has placed the totem.
-     * It replicates the logic of TUIHandler.handleOfferTileAction
+     * Enables interaction during the PLAYER_TURN phase according to the offer tile effect.
      */
     private void enablePlayerTurn() {
-        // Find the effect of the tile occupied by the local player.
         OfferEffect effect = lastUpdate.getOfferTrack().stream()
-                .filter(t -> localNickname.equals(t.getOccupantNickname()))
+                .filter(tile -> localNickname.equals(tile.getOccupantNickname()))
                 .map(OfferTileSnapshot::getOfferEffect)
                 .findFirst()
                 .orElse(null);
 
-        if (effect == null) return;
+        if (effect == null) {
+            return;
+        }
 
-        // FOOD tile: no interaction, automatic action.
         if (effect == OfferEffect.FOOD) {
-            statusLabel.setTextFill(Color.web("#a0a080"));
-            statusLabel.setText("Food Tile — automatic turn.");
+            statusLabel.setTextFill(Color.web("#d8c78f"));
+            statusLabel.setText("Food tile — automatic turn.");
             try {
                 controller.offerTileAction("");
             } catch (Exception e) {
@@ -343,125 +393,127 @@ public class GUIGameController {
             return;
         }
 
-        // Find the local player snapshot.
         PlayerSnapshot localPlayer = lastUpdate.getPlayers().stream()
-                .filter(p -> p.getNickname().equals(localNickname))
+                .filter(player -> player.getNickname().equals(localNickname))
                 .findFirst()
                 .orElseThrow();
 
-        // Calculate how many cards can be drawn from each row.
         int fromBottom = 0;
-        int fromTop    = 0;
+        int fromTop = 0;
 
         switch (effect) {
-            case D   -> fromBottom = (int) Math.min(1, countPickable(lastUpdate.getBottomRow(), localPlayer));
-            case DD  -> fromBottom = (int) Math.min(2, countPickable(lastUpdate.getBottomRow(), localPlayer));
-            case U   -> fromTop    = (int) Math.min(1, countPickable(lastUpdate.getTopRow(), localPlayer));
-            case UU  -> fromTop    = (int) Math.min(2, countPickable(lastUpdate.getTopRow(), localPlayer));
-            case DU  -> {
+            case D -> fromBottom = (int) Math.min(1, countPickable(lastUpdate.getBottomRow(), localPlayer));
+            case DD -> fromBottom = (int) Math.min(2, countPickable(lastUpdate.getBottomRow(), localPlayer));
+            case U -> fromTop = (int) Math.min(1, countPickable(lastUpdate.getTopRow(), localPlayer));
+            case UU -> fromTop = (int) Math.min(2, countPickable(lastUpdate.getTopRow(), localPlayer));
+            case DU -> {
                 fromBottom = (int) Math.min(1, countPickable(lastUpdate.getBottomRow(), localPlayer));
-                fromTop    = (int) Math.min(1, countPickable(lastUpdate.getTopRow(), localPlayer));
+                fromTop = (int) Math.min(1, countPickable(lastUpdate.getTopRow(), localPlayer));
             }
             case DUU -> {
                 fromBottom = (int) Math.min(1, countPickable(lastUpdate.getBottomRow(), localPlayer));
-                fromTop    = (int) Math.min(2, countPickable(lastUpdate.getTopRow(), localPlayer));
+                fromTop = (int) Math.min(2, countPickable(lastUpdate.getTopRow(), localPlayer));
             }
-            default -> {}
+            default -> { }
         }
 
         int totalToSelect = fromBottom + fromTop;
-
-        // Enable card selection on the appropriate rows.
         enableCardSelection(fromBottom, fromTop, totalToSelect, localPlayer);
     }
 
     /**
-     * Enables card selection on rows based on the computed counts.
+     * Enables selection on the top and/or bottom row according to the required counts.
+     *
+     * @param fromBottom number of cards to pick from the bottom row
+     * @param fromTop number of cards to pick from the top row
+     * @param totalToSelect total number of cards to select
+     * @param localPlayer local player snapshot
      */
-    private void enableCardSelection(int fromBottom, int fromTop,
-                                     int totalToSelect, PlayerSnapshot localPlayer) {
+    private void enableCardSelection(int fromBottom, int fromTop, int totalToSelect, PlayerSnapshot localPlayer) {
         statusLabel.setTextFill(Color.web("#ffcc00"));
         statusLabel.setText("Select " + totalToSelect + " card(s).");
 
-        // Enable top row cards.
         if (fromTop > 0) {
             for (var node : topRowBox.getChildren()) {
-                if (node instanceof CardView cv) {
-                    if (isPickable(cv.getCard(), localPlayer)) {
-                        cv.setSelectable(true, () -> onCardClicked(cv, totalToSelect));
+                if (node instanceof CardView cardView) {
+                    if (isPickable(cardView.getCard(), localPlayer)) {
+                        cardView.setSelectable(true, () -> onCardClicked(cardView, totalToSelect));
                     } else {
-                        cv.setState(CardView.State.DISABLED);
+                        cardView.setState(CardView.State.DISABLED);
                     }
                 }
             }
         } else {
-            // Row not usable: disable everything.
-            topRowBox.getChildren().forEach(n -> {
-                if (n instanceof CardView cv) cv.setState(CardView.State.DISABLED);
+            topRowBox.getChildren().forEach(node -> {
+                if (node instanceof CardView cardView) {
+                    cardView.setState(CardView.State.DISABLED);
+                }
             });
         }
 
-        // Enable bottom row cards.
         if (fromBottom > 0) {
             for (var node : bottomRowBox.getChildren()) {
-                if (node instanceof CardView cv) {
-                    if (isPickable(cv.getCard(), localPlayer)) {
-                        cv.setSelectable(true, () -> onCardClicked(cv, totalToSelect));
+                if (node instanceof CardView cardView) {
+                    if (isPickable(cardView.getCard(), localPlayer)) {
+                        cardView.setSelectable(true, () -> onCardClicked(cardView, totalToSelect));
                     } else {
-                        cv.setState(CardView.State.DISABLED);
+                        cardView.setState(CardView.State.DISABLED);
                     }
                 }
             }
         } else {
-            bottomRowBox.getChildren().forEach(n -> {
-                if (n instanceof CardView cv) cv.setState(CardView.State.DISABLED);
+            bottomRowBox.getChildren().forEach(node -> {
+                if (node instanceof CardView cardView) {
+                    cardView.setState(CardView.State.DISABLED);
+                }
             });
         }
     }
 
     /**
-     * Enables card selection on rows based on the computed counts just for top row (for RoundFlowBC).
+     * Enables top-row-only selection for the RoundFlow extra-card effect.
+     *
+     * @param localPlayer local player snapshot
      */
     private void enableRoundFlowSelection(PlayerSnapshot localPlayer) {
         int totalToSelect = 1;
         statusLabel.setTextFill(Color.web("#ffcc00"));
         statusLabel.setText("Pick 1 extra card from the top row (RoundFlow).");
 
-        // Enable top row cards
         for (var node : topRowBox.getChildren()) {
-            if (node instanceof CardView cv) {
-                if (isPickable(cv.getCard(), localPlayer)) {
-                    cv.setSelectable(true, () -> onCardClicked(cv, totalToSelect));
+            if (node instanceof CardView cardView) {
+                if (isPickable(cardView.getCard(), localPlayer)) {
+                    cardView.setSelectable(true, () -> onCardClicked(cardView, totalToSelect));
                 } else {
-                    cv.setState(CardView.State.DISABLED);
+                    cardView.setState(CardView.State.DISABLED);
                 }
             }
         }
 
-        // Disable bottom row cards.
-        bottomRowBox.getChildren().forEach(n -> {
-            if (n instanceof CardView cv) cv.setState(CardView.State.DISABLED);
+        bottomRowBox.getChildren().forEach(node -> {
+            if (node instanceof CardView cardView) {
+                cardView.setState(CardView.State.DISABLED);
+            }
         });
     }
 
     /**
-     * Handles a click on a selectable card.
+     * Handles the click on a selectable card.
+     *
+     * @param cardView the clicked card view
+     * @param totalToSelect the total number of cards required
      */
-    private void onCardClicked(CardView cv, int totalToSelect) {
-        if (cv.isSelected()) {
-            // Deselect
-            cv.toggleSelected();
-            selectedCards.remove(cv);
-        } else {
-            if (selectedCards.size() < totalToSelect) {
-                // Select
-                cv.toggleSelected();
-                selectedCards.add(cv);
-            }
+    private void onCardClicked(CardView cardView, int totalToSelect) {
+        if (cardView.isSelected()) {
+            cardView.toggleSelected();
+            selectedCards.remove(cardView);
+        } else if (selectedCards.size() < totalToSelect) {
+            cardView.toggleSelected();
+            selectedCards.add(cardView);
         }
 
-        // Update message.
         int remaining = totalToSelect - selectedCards.size();
+
         if (remaining > 0) {
             statusLabel.setTextFill(Color.web("#ffcc00"));
             if (roundFlowMode) {
@@ -469,7 +521,7 @@ public class GUIGameController {
             } else {
                 statusLabel.setText("Select " + remaining + " other card(s).");
             }
-            confirmButton.setVisible(false);
+            hideConfirmButton();
         } else {
             statusLabel.setTextFill(Color.web("#00cc66"));
             if (roundFlowMode) {
@@ -477,20 +529,20 @@ public class GUIGameController {
             } else {
                 statusLabel.setText("Ready! Confirm the selection.");
             }
-            confirmButton.setVisible(true);
+            showConfirmButton();
         }
     }
 
     /**
-     * Called by the confirm button in game.fxml.
+     * Sends the selected cards to the server when the confirm button is pressed.
      */
     @FXML
     private void onConfirm() {
         String payload = selectedCards.stream()
-                .map(cv -> String.valueOf(cv.getCard().getId()))
+                .map(cardView -> String.valueOf(cardView.getCard().getId()))
                 .collect(Collectors.joining(","));
 
-        confirmButton.setVisible(false);
+        hideConfirmButton();
         selectedCards.clear();
 
         try {
@@ -505,37 +557,73 @@ public class GUIGameController {
         }
     }
 
-    // Game over
-
+    /**
+     * Displays the game-over message.
+     *
+     * @param winners the list of winners
+     */
     private void showGameOver(List<String> winners) {
         statusLabel.setTextFill(Color.web("#ffcc00"));
         statusLabel.setText("Game ended! Winners: " + String.join(", ", winners));
-        confirmButton.setVisible(false);
+        hideConfirmButton();
     }
 
-    // Utility
-
+    /**
+     * Counts how many cards in a row are currently pickable by the player.
+     *
+     * @param row the row to inspect
+     * @param player the player trying to pick
+     * @return number of pickable cards
+     */
     private long countPickable(List<Card> row, PlayerSnapshot player) {
         return row.stream()
-                .filter(c -> isPickable(c, player))
+                .filter(card -> isPickable(card, player))
                 .count();
     }
 
+    /**
+     * Checks whether a card can be picked by the given player.
+     *
+     * @param card the card to inspect
+     * @param player the player attempting to pick
+     * @return true if the card is pickable, false otherwise
+     */
     private boolean isPickable(Card card, PlayerSnapshot player) {
-        return card.isCharacter() ||
-                (card.isBuilding() &&
-                        ((BuildingCard) card).getFoodCost() <=
-                                player.getFood() + player.getDiscountOnBuilding());
+        return card.isCharacter()
+                || (card.isBuilding()
+                && ((BuildingCard) card).getFoodCost() <= player.getFood() + player.getDiscountOnBuilding());
     }
 
+    /**
+     * Checks whether the local player is in the RoundFlow extra-card step.
+     *
+     * @return true if the local player must resolve a RoundFlow extra pick
+     */
     private boolean isRoundFlowPhase() {
         if (lastUpdate == null || lastUpdate.getCurrentPhase() != GamePhase.END_ROUND) {
             return false;
         }
+
         return lastUpdate.getPlayers().stream()
-                .filter(p -> p.getNickname().equals(localNickname))
+                .filter(player -> player.getNickname().equals(localNickname))
                 .findFirst()
-                .map(p -> p.getOwnedBuildings().stream().anyMatch(b -> b instanceof RoundFlowBC))
+                .map(player -> player.getOwnedBuildings().stream().anyMatch(building -> building instanceof RoundFlowBC))
                 .orElse(false);
+    }
+
+    /**
+     * Makes the confirm button visible and managed in the layout.
+     */
+    private void showConfirmButton() {
+        confirmButton.setVisible(true);
+        confirmButton.setManaged(true);
+    }
+
+    /**
+     * Hides the confirm button and removes it from layout calculations.
+     */
+    private void hideConfirmButton() {
+        confirmButton.setVisible(false);
+        confirmButton.setManaged(false);
     }
 }
