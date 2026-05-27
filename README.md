@@ -15,7 +15,7 @@ Artifacts will be generated under `target/`:
 lServer (with DB env vars):
 
 ```zsh
-DB_URL="jdbc:mysql://localhost:3306/mesos" DB_USER="root" DB_PASSWORD="<password>" java -jar target/mesos-server.jar
+DB_URL="jdbc:mysql://localhost:3306/GR39_Mesos_DB" DB_USER="root" DB_PASSWORD="<password>" java -jar target/mesos-server.jar
 ```
 
 Server (no inline env vars, uses current shell env):
@@ -47,7 +47,7 @@ java -jar target/mesos-client.jar gui socket 9999 <server-ip>
 Set (macOS/Linux):
 
 ```zsh
-export DB_URL="jdbc:mysql://localhost:3306/mesos"
+export DB_URL="jdbc:mysql://localhost:3306/GR39_Mesos_DB"
 export DB_USER="root"
 export DB_PASSWORD="<password>"
 export SERVER_HOST="<server-ip>"
@@ -56,7 +56,7 @@ export SERVER_HOST="<server-ip>"
 Set (Windows PowerShell):
 
 ```powershell
-$env:DB_URL="jdbc:mysql://localhost:3306/mesos"
+$env:DB_URL="jdbc:mysql://localhost:3306/GR39_Mesos_DB"
 $env:DB_USER="root"
 $env:DB_PASSWORD="<password>"
 $env:SERVER_HOST="<server-ip>"
