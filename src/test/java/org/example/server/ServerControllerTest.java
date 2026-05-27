@@ -320,6 +320,7 @@ class ServerControllerTest {
         assertTrue(fakeNotifier.gameUpdates.containsKey("alice"));
         assertTrue(fakeNotifier.gameUpdates.containsKey("bob"));
     }
+
     @Test
     void gamePhases_ShouldTriggerEndGameAndShutdownOnRound10() throws Exception {
         Match match = createTwoPlayerMatch();

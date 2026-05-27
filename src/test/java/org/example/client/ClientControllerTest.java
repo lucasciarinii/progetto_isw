@@ -43,6 +43,7 @@ class ClientControllerTest {
         int noCardsPickableCount = 0;
         int roundFlowRequests = 0;
         int shutdowns = 0;
+        String lastGameId = null;
 
         @Override public void onLobbyUpdate(LobbyUpdateMessage update) { lobbyUpdates.add(update); }
         @Override public void onGameStateUpdate(GameStateUpdateMessage update) { gameUpdates.add(update); }
@@ -54,6 +55,7 @@ class ClientControllerTest {
         @Override public void onRankingUpdate(RankingUpdateMessage rankingMessage) {}
         @Override public void onRoundFlowCardRequest() { roundFlowRequests++; }
         @Override public void onShutdown() { shutdowns++; }
+        @Override public void setGameID(String gameID) { lastGameId = gameID; }
     }
 
     /**
@@ -67,7 +69,9 @@ class ClientControllerTest {
         // CountDownLatch safely handles waiting for async threads without busy-waiting loops
         CountDownLatch skipTurnLatch = new CountDownLatch(1);
 
-        @Override public void connect(String h, int p, String n, int np) {}
+        @Override public void connect(String host, int port) {}
+        @Override public void createLobby(String nickname, int numPlayers) {}
+        @Override public void joinLobby(String nickname, String gameID) {}
         @Override public void disconnect() {} // Implemented to fulfill the interface contract
 
         @Override public void placeTotemOnOfferTile(int tilePosition) { placeTotemCalls++; }

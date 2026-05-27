@@ -15,6 +15,8 @@ import java.util.Scanner;
 
 public class App {
 
+    // kept for local debug, IDE runs, or a single-jar launcher.
+    // Production packaging uses ClientMain/ServerMain, but this remains handy for quick testing.
     public static void main(String[] args) throws Exception {
         System.out.println("App started with args: " + java.util.Arrays.toString(args));
         if (args.length == 0) {
@@ -27,17 +29,8 @@ public class App {
             return;
         }
 
-        // Quick notes:
-        // - The server binds RMI on the LAN IP (auto-detect or SERVER_HOST) so clients on the same Wi-Fi can reach it.
-        // - Clients must pass the server IP as <host> (works for both GUI/TUI and RMI/SOCKET).
-        // - RMI clients set java.rmi.server.hostname to their local IP for callbacks.
-        // - Socket server binds on all interfaces by default (no extra host config needed).
-        //
-        // Find server IP:
-        // - Linux:   ip -4 addr | grep -E "inet " | grep -v 127.0.0.1
-        // - macOS:   ipconfig getifaddr en0   (try en1 if empty)
-        // - Windows: Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.IPAddress -ne "127.0.0.1" }
-
+        // Entry-point router for the single-jar launcher: delegate to server or client flow.
+        // The real work is in startServer/startClient to keep the logic reusable.
         switch (args[0]) {
             case "server" -> {
                 startServer();
@@ -63,6 +56,7 @@ public class App {
     // SERVER
     // =========================================================================
 
+    // Server entry point: initialize DB, resolve bind host, and start network adapters.
     public static void startServer() throws Exception {
         // If the database doesn't exist, create it with the right schema
         DatabaseInitializer.ensureDatabase();
@@ -78,6 +72,7 @@ public class App {
         System.exit(0);
     }
 
+    // Shared helper used by client launchers to map CLI strings to protocol.
     public static CommunicationProtocol parseProtocol(String raw) {
         if ("socket".equalsIgnoreCase(raw)) {
             return CommunicationProtocol.SOCKET;
@@ -85,10 +80,12 @@ public class App {
         return CommunicationProtocol.RMI;
     }
 
+    // Shared helper to provide protocol-specific default ports for clients.
     public static int defaultPort(CommunicationProtocol protocol) {
         return protocol == CommunicationProtocol.SOCKET ? 9999 : 1099;
     }
 
+    // Resolve the LAN IP for the server so remote clients can reach it.
     public static String resolveServerHost() {
         String forced = System.getenv("SERVER_HOST");
         if (forced != null && !forced.isBlank()) {
@@ -123,6 +120,7 @@ public class App {
     // CLIENT
     // =========================================================================
 
+    // Client entry point: choose GUI/TUI and start the chosen transport.
     public static void startClient(String host, String mode, CommunicationProtocol protocol, int port) {
         switch (mode) {
             case "tui" -> TUILauncher.launchTuiClient(host, protocol, port);

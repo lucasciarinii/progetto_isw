@@ -23,11 +23,13 @@ class LobbyControllerTest {
     private static class FakeLobbyReadyListener implements LobbyReadyListener {
         int readyCalls = 0;
         ServerController lastCreatedController = null;
+        String lastGameId = null;
 
         @Override
-        public void onLobbyReady(ServerController serverController) {
+        public void onLobbyReady(ServerController serverController, String gameID) {
             readyCalls++;
             lastCreatedController = serverController;
+            lastGameId = gameID;
         }
     }
 
@@ -70,26 +72,17 @@ class LobbyControllerTest {
     void setUp() {
         fakeListener = new FakeLobbyReadyListener();
         fakeNotifier = new FakeServerNotifier();
-        lobbyController = new LobbyController(fakeListener, fakeNotifier);
-    }
-
-    @Test
-    void registerPlayer_ShouldRejectInvalidNumberOfPlayersForFirstPlayer() {
-        // Act & Assert: The first player chooses an invalid number of players (e.g., 1)
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> lobbyController.registerPlayer("alice", 1)
-        );
-        assertTrue(exception.getMessage().contains("Invalid number of players"));
+        lobbyController = new LobbyController(fakeListener, fakeNotifier, "TEST01", 3);
     }
 
     @Test
     void registerPlayer_ShouldRejectDuplicateNickname() throws Exception {
         // Arrange: Register the first player successfully
-        lobbyController.registerPlayer("alice", 2);
+        lobbyController.registerPlayer("alice");
 
         // Act & Assert: Attempt to register another client with the exact same nickname
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> lobbyController.registerPlayer("alice", 2)
+                () -> lobbyController.registerPlayer("alice")
         );
         assertTrue(exception.getMessage().contains("Nickname already used"));
     }
@@ -97,7 +90,7 @@ class LobbyControllerTest {
     @Test
     void registerPlayer_ShouldNotifyWaitingClientsAfterRegistration() throws Exception {
         // Act: Register the first player with a valid lobby size
-        lobbyController.registerPlayer("alice", 3);
+        lobbyController.registerPlayer("alice");
 
         // Assert: Alice should receive exactly one lobby update
         List<LobbyUpdateMessage> aliceUpdates = fakeNotifier.lobbyUpdates.get("alice");
@@ -114,8 +107,8 @@ class LobbyControllerTest {
     @Test
     void registerPlayer_ShouldPreserveConnectionOrder() throws Exception {
         // Act: Register two players in sequence
-        lobbyController.registerPlayer("alice", 3);
-        lobbyController.registerPlayer("bob", 3);
+        lobbyController.registerPlayer("alice");
+        lobbyController.registerPlayer("bob");
 
         // Assert: The latest update sent to Bob should preserve insertion order
         List<LobbyUpdateMessage> bobUpdates = fakeNotifier.lobbyUpdates.get("bob");
@@ -127,9 +120,11 @@ class LobbyControllerTest {
 
     @Test
     void registerPlayer_ShouldStartGameWhenLobbyBecomesFull() throws Exception {
+        lobbyController = new LobbyController(fakeListener, fakeNotifier, "START2", 2);
+
         // Act: Fill a 2-player lobby
-        lobbyController.registerPlayer("alice", 2);
-        lobbyController.registerPlayer("bob", 2);
+        lobbyController.registerPlayer("alice");
+        lobbyController.registerPlayer("bob");
 
         // Assert: The lobby must trigger the ready listener and create a ServerController
         assertEquals(1, fakeListener.readyCalls);
@@ -154,26 +149,12 @@ class LobbyControllerTest {
         fakeNotifier.simulateFailureForAlice = true;
 
         // Act: Register Alice (which will fail silently during notification) and then Bob
-        lobbyController.registerPlayer("alice", 3);
-        assertDoesNotThrow(() -> lobbyController.registerPlayer("bob", 3));
+        lobbyController.registerPlayer("alice");
+        assertDoesNotThrow(() -> lobbyController.registerPlayer("bob"));
 
         // Assert: Bob must still receive his update successfully despite Alice's failure
         assertNotNull(fakeNotifier.lobbyUpdates.get("bob"));
         assertFalse(fakeNotifier.lobbyUpdates.get("bob").isEmpty());
     }
 
-    @Test
-    void onGameOver_ShouldResetLobbyAndAllowNewMatches() throws Exception {
-        // Arrange: Fill the lobby completely
-        lobbyController.registerPlayer("alice", 2);
-        lobbyController.registerPlayer("bob", 2);
-
-        // Act: Simulate game over from the ServerController
-        lobbyController.onGameOver(fakeListener.lastCreatedController);
-
-        // Assert: Lobby must be empty and ready for completely new nicknames and sizes
-        assertFalse(lobbyController.isNicknameTaken("alice"));
-        assertFalse(lobbyController.isNicknameTaken("bob"));
-        assertDoesNotThrow(() -> lobbyController.registerPlayer("carol", 4));
-    }
 }
