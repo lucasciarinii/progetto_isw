@@ -4,7 +4,11 @@ import org.example.client.ClientController;
 import org.example.client.rmi.RMIClientCallbackImpl;
 import org.example.network.ClientNetworkAdapter;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.rmi.Naming;
+import java.util.Enumeration;
 
 /**
  * RMI-based client adapter that invokes RMIGameServer methods on the server.
@@ -30,12 +34,43 @@ public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
      */
     @Override
     public void connect(String host, int port) throws Exception {
-        System.setProperty("java.rmi.server.hostname", "127.0.0.1");
-
-        String resolvedHost = host.equalsIgnoreCase("localhost") ? "127.0.0.1" : host;
-        String url = "rmi://" + resolvedHost + ":" + port + "/GameServer";
-
+        System.setProperty("java.rmi.server.hostname", resolveClientHost());
+        String url = "rmi://" + host + ":" + port + "/GameServer";
         server = (RMIGameServer) Naming.lookup(url);
+    }
+
+    private static String resolveClientHost() {
+        String fromProperty = System.getProperty("mesos.client.host");
+        if (fromProperty != null && !fromProperty.isBlank()) {
+            return fromProperty.trim();
+        }
+        String fromEnv = System.getenv("CLIENT_HOST");
+        if (fromEnv != null && !fromEnv.isBlank()) {
+            return fromEnv.trim();
+        }
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface iface = interfaces.nextElement();
+                if (!iface.isUp() || iface.isLoopback() || iface.isVirtual()) {
+                    continue;
+                }
+                Enumeration<InetAddress> addresses = iface.getInetAddresses();
+                while (addresses.hasMoreElements()) {
+                    InetAddress addr = addresses.nextElement();
+                    if (addr instanceof Inet4Address && addr.isSiteLocalAddress()) {
+                        return addr.getHostAddress();
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+            // Fall back to localhost below if detection fails.
+        }
+        try {
+            return InetAddress.getLocalHost().getHostAddress();
+        } catch (Exception ignored) {
+            return "127.0.0.1";
+        }
     }
 
     @Override

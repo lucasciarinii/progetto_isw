@@ -21,6 +21,7 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
     private SocketServerNetworkAdapter socketAdapter;
     private RMIServerNetworkAdapter rmiAdapter;
     private MatchManager matchManager;
+    private final String serverHost;
 
     private final Map<String, ServerNetworkAdapter> routingTable = new ConcurrentHashMap<>();
     private final Map<String, String> playerToGameID = new ConcurrentHashMap<>();
@@ -31,8 +32,18 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
      *
      * @throws Exception if the adapters cannot be initialized
      */
-    public HybridServerNetworkAdapter() throws Exception {
-        System.setProperty("java.rmi.server.hostname", "127.0.0.1");
+    public HybridServerNetworkAdapter() {
+        this(resolveConfiguredHost());
+    }
+
+    /**
+     * Creates a hybrid adapter with a shared lobby for both protocols.
+     *
+     * @throws Exception if the adapters cannot be initialized
+     */
+    public HybridServerNetworkAdapter(String serverHost) {
+        this.serverHost = serverHost;
+        System.setProperty("java.rmi.server.hostname", serverHost);
         //LobbyController sharedLobby = new LobbyController(this, this);
     }
 
@@ -47,7 +58,7 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
         matchManager = new MatchManager(this, this, this);
 
         socketAdapter = new SocketServerNetworkAdapter(matchManager, this);
-        rmiAdapter = new RMIServerNetworkAdapter(matchManager, this);
+        rmiAdapter = new RMIServerNetworkAdapter(matchManager, this, serverHost);
 
         CountDownLatch latch = new CountDownLatch(2);
 
@@ -164,5 +175,17 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
         ServerNetworkAdapter adapter = routingTable.get(nickname);
         if (adapter == null) throw new IllegalStateException("No route for: " + nickname);
         return adapter;
+    }
+
+    private static String resolveConfiguredHost() {
+        String fromProperty = System.getProperty("mesos.server.host");
+        if (fromProperty != null && !fromProperty.isBlank()) {
+            return fromProperty.trim();
+        }
+        String fromEnv = System.getenv("SERVER_HOST");
+        if (fromEnv != null && !fromEnv.isBlank()) {
+            return fromEnv.trim();
+        }
+        return "127.0.0.1";
     }
 }

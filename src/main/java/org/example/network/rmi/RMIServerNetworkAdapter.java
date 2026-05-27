@@ -26,6 +26,7 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
 
     public static final int DEFAULT_PORT = 1099;
     private final Map<String, ServerNotifier> connections = new ConcurrentHashMap<>();
+    private final String serverHost;
 
     private final HybridServerNetworkAdapter hybrid;
     private final MatchManager matchManager;
@@ -36,10 +37,11 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
      * @param hybrid hybrid adapter
      * @throws RemoteException if the remote object cannot be exported
      */
-    public RMIServerNetworkAdapter(MatchManager matchManager, HybridServerNetworkAdapter hybrid) throws RemoteException {
+    public RMIServerNetworkAdapter(MatchManager matchManager, HybridServerNetworkAdapter hybrid, String serverHost) throws RemoteException {
         super();
         this.matchManager = matchManager;
         this.hybrid = hybrid;
+        this.serverHost = serverHost;
     }
 
     /**
@@ -54,7 +56,7 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
             ServerLogger.error("Failed to create RMI registry or it already exists: " + e.getMessage());
         }
 
-        Naming.rebind("//127.0.0.1:" + DEFAULT_PORT + "/GameServer", this);
+        Naming.rebind("//" + serverHost + ":" + DEFAULT_PORT + "/GameServer", this);
         ServerLogger.server("RMI ready on port " + DEFAULT_PORT + ". Waiting for players...");
     }
 

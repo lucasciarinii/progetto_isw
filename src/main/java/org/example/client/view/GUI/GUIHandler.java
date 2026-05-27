@@ -13,6 +13,7 @@ import org.example.client.view.GUI.GUIController.GUIRankingController;
 import org.example.client.view.GUI.registry.CardImageRegistry;
 import org.example.client.view.GUI.registry.PlayerColorRegistry;
 import org.example.client.view.UIHandler;
+import org.example.network.CommunicationProtocol;
 import org.example.network.messages.GameStateUpdateMessage;
 import org.example.network.messages.LobbyUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
@@ -27,6 +28,10 @@ import java.util.List;
 public class GUIHandler implements UIHandler {
     private ClientController controller;
     private Stage stage;
+
+    private String host;
+    private int port;
+    private CommunicationProtocol protocol;
 
     private GUILobbyController GUILobbyController;
     private GUIGameController GUIGameController;
@@ -52,6 +57,12 @@ public class GUIHandler implements UIHandler {
 
     public void setLobbyRetryEnabled(boolean enabled) {
         this.lobbyRetryEnabled = enabled;
+    }
+
+    public void setConnectionInfo(String host, int port, org.example.network.CommunicationProtocol protocol) {
+        this.host = host;
+        this.port = port;
+        this.protocol = protocol;
     }
 
     @Override
@@ -204,7 +215,9 @@ public class GUIHandler implements UIHandler {
             Parent root = loader.load();
 
             GUILoginController loginController = loader.getController();
-            loginController.setHost(/* recover saved host */ "localhost"); // pass host/port if stored
+            loginController.setHost(host);
+            loginController.setPort(port);
+            loginController.setProtocol(protocol);
             loginController.setStage(stage);
 
             // Show directly the join panel with the error

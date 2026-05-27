@@ -85,6 +85,7 @@ public class GUILoginController {
 
         GUIHandler gui = new GUIHandler();
         gui.setPrimaryStage(stage);
+        gui.setConnectionInfo(host, port, protocol);
         ClientController controller = new ClientController(nickname, gui);
         gui.setController(controller);
 
@@ -114,6 +115,7 @@ public class GUILoginController {
 
         GUIHandler gui = new GUIHandler();
         gui.setPrimaryStage(stage);
+        gui.setConnectionInfo(host, port, protocol);
         ClientController controller = new ClientController(nickname, gui);
         gui.setController(controller);
         gui.setLobbyRetryEnabled(protocol == CommunicationProtocol.SOCKET);
