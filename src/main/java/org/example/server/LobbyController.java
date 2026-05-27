@@ -10,6 +10,7 @@ import org.example.network.ServerNotifier;
 import org.example.network.messages.LobbyUpdateMessage;
 import org.example.server.model.match.Match;
 import org.example.server.model.match.Player;
+import org.example.server.model.enums.GamePhase;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -125,5 +126,22 @@ public class LobbyController {
 
     public synchronized boolean isStarted() {
         return started;
+    }
+
+    // Returns a snapshot of waiting nicknames for cleanup when a lobby is aborted.
+    public synchronized List<String> getWaitingNicknames() {
+        return new ArrayList<>(waitingClients);
+    }
+
+    // Cancels the lobby and notifies all waiting clients with an error + shutdown.
+    public synchronized void cancelLobby(String reason) {
+        for (String nickname : waitingClients) {
+            try {
+                notifier.sendError(nickname, reason, GamePhase.LOBBY);
+                notifier.sendShutdown(nickname);
+            } catch (Exception e) {
+                ServerLogger.lobby("Failed to notify " + nickname + " about lobby cancellation: " + e.getMessage());
+            }
+        }
     }
 }

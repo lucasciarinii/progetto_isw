@@ -120,36 +120,83 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
         routingTable.putIfAbsent(nickname, adapter);
     }
 
+    // Route updates and detect failures to mark the client as disconnected.
     @Override
     public void sendLobbyUpdate(String nickname, LobbyUpdateMessage update) throws Exception {
-        route(nickname).sendLobbyUpdate(nickname, update);
+        try {
+            route(nickname).sendLobbyUpdate(nickname, update);
+        } catch (Exception e) {
+            handleClientDisconnect(nickname, "Client disconnected");
+            throw e;
+        }
     }
 
     @Override
     public void sendGameStateUpdate(String nickname, GameStateUpdateMessage update) throws Exception {
-        route(nickname).sendGameStateUpdate(nickname, update);
+        try {
+            route(nickname).sendGameStateUpdate(nickname, update);
+        } catch (Exception e) {
+            handleClientDisconnect(nickname, "Client disconnected");
+            throw e;
+        }
     }
 
     @Override
     public void sendError(String nickname, String errorMessage, GamePhase phase) throws Exception {
-        route(nickname).sendError(nickname, errorMessage, phase);
+        try {
+            route(nickname).sendError(nickname, errorMessage, phase);
+        } catch (Exception e) {
+            handleClientDisconnect(nickname, "Client disconnected");
+            throw e;
+        }
     }
 
     @Override
     public void sendRankingUpdate(String nickname, RankingUpdateMessage update) throws Exception {
-        route(nickname).sendRankingUpdate(nickname, update);
+        try {
+            route(nickname).sendRankingUpdate(nickname, update);
+        } catch (Exception e) {
+            handleClientDisconnect(nickname, "Client disconnected");
+            throw e;
+        }
     }
 
     @Override
     public void sendRoundFlowCardRequest(String nickname) throws Exception {
-        route(nickname).sendRoundFlowCardRequest(nickname);
+        try {
+            route(nickname).sendRoundFlowCardRequest(nickname);
+        } catch (Exception e) {
+            handleClientDisconnect(nickname, "Client disconnected");
+            throw e;
+        }
     }
 
     @Override
     public void sendShutdown(String nickname) throws Exception {
-        route(nickname).sendShutdown(nickname);
+        try {
+            route(nickname).sendShutdown(nickname);
+        } catch (Exception e) {
+            handleClientDisconnect(nickname, "Client disconnected");
+            throw e;
+        }
     }
 
+    // Centralized cleanup when a client connection drops.
+    public void handleClientDisconnect(String nickname, String reason) {
+        String gameID = playerToGameID.remove(nickname);
+        routingTable.remove(nickname);
+        if (gameID == null) {
+            return;
+        }
+        ServerLogger.server("Client disconnected: " + nickname + " (" + reason + ")");
+        matchManager.abortGame(gameID, reason);
+    }
+
+    // Removes nickname mappings without aborting (used during cleanup).
+    public void removePlayerMapping(String nickname) {
+        playerToGameID.remove(nickname);
+        routingTable.remove(nickname);
+    }
 
     public void registerPlayerGameID(String nickname, String gameID) {
         String cleanID = gameID.trim().toUpperCase();

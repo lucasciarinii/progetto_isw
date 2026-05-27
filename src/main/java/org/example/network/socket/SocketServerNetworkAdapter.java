@@ -238,4 +238,14 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter {
             }
         }
     }
+
+    // Propagates socket disconnections to the hybrid adapter.
+    public void handleClientDisconnect(String nickname, String reason) {
+        if (nickname == null || nickname.isBlank()) {
+            return;
+        }
+        if (hybrid != null) {
+            hybrid.handleClientDisconnect(nickname, reason);
+        }
+    }
 }

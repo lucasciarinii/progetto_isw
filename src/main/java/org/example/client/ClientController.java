@@ -76,6 +76,18 @@ public class ClientController implements GameEventListener {
         networkAdapter.joinLobby(nickname, gameID);
     }
 
+    // client disconnect used on GUI window close.
+    public void disconnect() {
+        if (networkAdapter == null) {
+            return;
+        }
+        try {
+            networkAdapter.disconnect();
+        } catch (Exception e) {
+            System.err.println("[Client] Failed to disconnect: " + e.getMessage());
+        }
+    }
+
 
 
     //! COMMANDS TO SERVER -----------------------------------------------

@@ -125,6 +125,42 @@ public class MatchManager {
         ServerLogger.game("Game session ended with code: " + cleanID);
     }
 
+    // Aborts a lobby or a running match when a client disconnects.
+    public void abortGame(String gameID, String reason) {
+        String cleanID = gameID.trim().toUpperCase();
+
+        LobbyController lobby = lobbies.remove(cleanID);
+        if (lobby != null) {
+            // Lobby not started yet: free nicknames and notify everyone waiting.
+            for (String nick : lobby.getWaitingNicknames()) {
+                globalNicknames.remove(nick);
+                hybrid.removePlayerMapping(nick);
+            }
+            lobby.cancelLobby(reason);
+            ServerLogger.lobby("Lobby cancelled with code: " + cleanID + " (" + reason + ")");
+            return;
+        }
+
+        ServerController serverController = games.remove(cleanID);
+        if (serverController != null) {
+            // Match already started: notify all players and cleanup shared state.
+            serverController.getPlayers().forEach(p -> {
+                String nick = p.getNickname();
+                try {
+                    notifier.sendError(nick, reason, null);
+                    notifier.sendShutdown(nick);
+                } catch (Exception e) {
+                    ServerLogger.game("Failed to notify " + nick + " about disconnection: " + e.getMessage());
+                } finally {
+                    globalNicknames.remove(nick);
+                    hybrid.removePlayerMapping(nick);
+                }
+            });
+            gameThreads.remove(cleanID);
+            ServerLogger.game("Game session aborted with code: " + cleanID + " (" + reason + ")");
+        }
+    }
+
     //! UTILITY METHODS -------------------------------------------------------------------------------------------------
     // The method generates an uniqueID without collisions with ID of already existing games or lobbies
     private String generateUniqueID() {

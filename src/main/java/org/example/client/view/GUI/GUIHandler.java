@@ -50,6 +50,10 @@ public class GUIHandler implements UIHandler {
     public void setPrimaryStage(Stage primaryStage) {
         this.stage = primaryStage;
         this.stage.setOnCloseRequest(_ -> {
+            // Try to notify the server before closing the app.
+            if (controller != null) {
+                controller.disconnect();
+            }
             Platform.exit();
             System.exit(0);
         });

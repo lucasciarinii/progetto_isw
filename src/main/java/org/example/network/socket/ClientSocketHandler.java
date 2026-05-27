@@ -25,6 +25,8 @@ public class ClientSocketHandler implements Runnable {
     private String nickname;
     private String gameID;
     private final ObjectMapper mapper = new ObjectMapper();
+    // Guard to avoid double-close and duplicate disconnect handling.
+    private boolean closed = false;
 
 
     /**
@@ -68,8 +70,27 @@ public class ClientSocketHandler implements Runnable {
      * Closes the handler and removes the client from the registry.
      */
     public void close() {
+        if (closed) {
+            return;
+        }
+        closed = true;
         if (nickname != null) {
             connectedClients.remove(nickname);
+            // Notify the server so the match/lobby can be aborted.
+            socketServerNetworkAdapter.handleClientDisconnect(nickname, "Client disconnected");
+        }
+        try {
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
+            }
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
+        } catch (IOException e) {
+            System.err.println("[Server] Error closing client socket: " + e.getMessage());
         }
     }
 
