@@ -6,8 +6,7 @@ import org.example.server.model.cards.Card;
 import org.example.server.model.cards.characters.Character;
 import org.example.server.model.cards.eventCards.EventCard;
 
-import java.net.URISyntaxException;
-import java.nio.file.Path;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -70,21 +69,25 @@ public class MainDeck extends Deck<Card> {
      */
     private void loadCardsFromJson(ObjectMapper mapper, int numPlayers) {
         // Let's decide the json file beforehand
-        Path p;
         if (numPlayers < 2 || numPlayers > 5) throw new IllegalArgumentException("Invalid players");
 
-        try {
-            p = Path.of(getClass().getClassLoader().getResource("json/characters_%dp.json".formatted(numPlayers)).toURI());
-        }
-        catch (URISyntaxException e) {
-            throw new RuntimeException("Failed to load character cards JSON file", e);
-        }
+        String charactersPath = "json/characters_%dp.json".formatted(numPlayers);
+        String eventsPath = "json/events.json";
 
+        try (
+                InputStream characterStream = getClass().getClassLoader().getResourceAsStream(charactersPath);
+                InputStream eventStream = getClass().getClassLoader().getResourceAsStream(eventsPath)
+        ) {
+            if (characterStream == null) {
+                throw new IllegalStateException("Missing resource: " + charactersPath);
+            }
+            if (eventStream == null) {
+                throw new IllegalStateException("Missing resource: " + eventsPath);
+            }
 
-        try {
             // 1. Read all character objects from the JSON file into a List<Character>>
             List<Character> characterCards = mapper.readValue(
-                    p.toFile(),
+                    characterStream,
                     new TypeReference<List<Character>>() {
                     }
             );
@@ -99,9 +102,8 @@ public class MainDeck extends Deck<Card> {
             }
 
             // 1. Read all event objects from the JSON file into a List<EventCard>>
-            p = Path.of(getClass().getClassLoader().getResource("json/events.json".formatted(numPlayers)).toURI());
             List<EventCard> eventCards = mapper.readValue(
-                    p.toFile(),
+                    eventStream,
                     new TypeReference<List<EventCard>>() {
                     }
             );
@@ -121,7 +123,7 @@ public class MainDeck extends Deck<Card> {
             Collections.shuffle(era_III_cards);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to load main deck resources", e);
         }
     }
 }

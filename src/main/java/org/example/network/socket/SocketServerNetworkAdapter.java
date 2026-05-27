@@ -113,9 +113,10 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter {
         ClientSocketHandler handler = connectedClients.get(nickname);
 
         if (handler != null) {
+            String safeMessage = (errorMessage == null || errorMessage.isBlank()) ? "Unknown error" : errorMessage;
             Map<String, Object> msg = new HashMap<>();
             msg.put("event", "ERROR");
-            msg.put("message", errorMessage);
+            msg.put("message", safeMessage);
             msg.put("phase", phase != null ? phase.name() : null);
             handler.send(mapper.writeValueAsString(msg));
         }

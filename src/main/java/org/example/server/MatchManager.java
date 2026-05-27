@@ -31,7 +31,15 @@ public class MatchManager {
         this.hybrid = hybrid;
     }
 
+    private static boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
     public String createLobby(String nickname, int numPlayers) throws Exception {
+
+        if (isBlank(nickname)) {
+            throw new IllegalArgumentException("Nickname cannot be empty");
+        }
 
         // Create a unique key
         String gameID = generateUniqueID();
@@ -60,6 +68,13 @@ public class MatchManager {
 
 
     public void joinLobby(String nickname, String gameID) throws Exception{
+        if (isBlank(gameID)) {
+            throw new IllegalArgumentException("Game code cannot be empty");
+        }
+        if (isBlank(nickname)) {
+            throw new IllegalArgumentException("Nickname cannot be empty");
+        }
+
         String cleanID = gameID.trim().toUpperCase();
 
         // If game already started, reject with an error

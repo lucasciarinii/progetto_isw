@@ -28,6 +28,10 @@ public class ClientSocketHandler implements Runnable {
     // Guard to avoid double-close and duplicate disconnect handling.
     private boolean closed = false;
 
+    private static boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
 
     /**
      * Creates a handler bound to a socket connection.
@@ -124,6 +128,11 @@ public class ClientSocketHandler implements Runnable {
                     this.nickname = (String) cmd.get("nickname");
                     int numPlayers = (int) cmd.get("numPlayers");
 
+                    if (isBlank(nickname)) {
+                        sendLobbyError("Nickname cannot be empty");
+                        break;
+                    }
+
                     // Prevent a new connection with a duplicate nickname from overwriting or disconnecting an active player.
                     ClientSocketHandler existingCreate = connectedClients.putIfAbsent(nickname, this);
                     if (existingCreate != null && existingCreate != this) {
@@ -146,6 +155,15 @@ public class ClientSocketHandler implements Runnable {
                 case "join_lobby":
                     this.nickname = (String) cmd.get("nickname");
                     this.gameID = (String) cmd.get("gameID");
+
+                    if (isBlank(nickname)) {
+                        sendLobbyError("Nickname cannot be empty");
+                        break;
+                    }
+                    if (isBlank(gameID)) {
+                        sendLobbyError("Game code cannot be empty");
+                        break;
+                    }
 
                     // Avoid clobbering an active client's handler when a duplicate nickname is attempted.
                     ClientSocketHandler existingJoin = connectedClients.putIfAbsent(nickname, this);
@@ -191,16 +209,12 @@ public class ClientSocketHandler implements Runnable {
         }
     }
 
-    /**
-     * Sends a lobby error back to the client.
-     *
-     * @param message the error description
-     */
     private void sendLobbyError(String message) {
         try {
+            String safeMessage = message != null ? message : "Unknown error";
             Map<String, Object> msg = new HashMap<>();
             msg.put("event", "ERROR");
-            msg.put("message", message);
+            msg.put("message", safeMessage);
             msg.put("phase", "LOBBY");
             out.println(mapper.writeValueAsString(msg));
         } catch (IOException e) {

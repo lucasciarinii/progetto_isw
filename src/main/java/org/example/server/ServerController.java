@@ -278,7 +278,8 @@ public class ServerController implements Runnable {
      */
     private void sendError(String nickname, String message) {
         try {
-            notifier.sendError(nickname, message, match.getGameState().getCurrentPhase());
+            String safeMessage = (message == null || message.isBlank()) ? "Unknown error" : message;
+            notifier.sendError(nickname, safeMessage, match.getGameState().getCurrentPhase());
         } catch (Exception e) {
             ServerLogger.server("Failed to send error to " + nickname + ": " + e.getMessage());
         }

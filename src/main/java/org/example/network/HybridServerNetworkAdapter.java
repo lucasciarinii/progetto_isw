@@ -181,7 +181,6 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
         }
     }
 
-    // Centralized cleanup when a client connection drops.
     public void handleClientDisconnect(String nickname, String reason) {
         String gameID = playerToGameID.remove(nickname);
         routingTable.remove(nickname);

@@ -6,7 +6,7 @@ import org.example.server.model.board.Board;
 import org.example.server.model.cards.buildingCards.BuildingCard;
 import org.example.server.model.enums.Era;
 
-import java.nio.file.Path;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,12 +35,14 @@ public class BuildingDeck extends Deck<BuildingCard> {
      */
     private void initializeDeck(int numPlayers) {
         ObjectMapper mapper = new ObjectMapper();
-        try {
+        String buildingsPath = "json/buildingCards.json";
+        try (InputStream buildingStream = getClass().getClassLoader().getResourceAsStream(buildingsPath)) {
+            if (buildingStream == null) {
+                throw new IllegalStateException("Missing resource: " + buildingsPath);
+            }
             // 1. Read all objects from the JSON file into a List<Card>
-            //Path p = Path.of("src/main/java/org/example/server/model/decks/decks_json/buildingCards.json");
-            Path p = Path.of(getClass().getClassLoader().getResource("json/buildingCards.json").toURI());
             List<BuildingCard> allCards = mapper.readValue(
-                    p.toFile(),
+                    buildingStream,
                     new TypeReference<List<BuildingCard>>(){}
             );
 
@@ -84,7 +86,7 @@ public class BuildingDeck extends Deck<BuildingCard> {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to load building deck resources", e);
         }
     }
 
