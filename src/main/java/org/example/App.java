@@ -15,7 +15,7 @@ import java.util.Scanner;
 
 public class App {
 
-    static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         System.out.println("App started with args: " + java.util.Arrays.toString(args));
         if (args.length == 0) {
             System.out.println("Use:");
@@ -63,7 +63,7 @@ public class App {
     // SERVER
     // =========================================================================
 
-    private static void startServer() throws Exception {
+    public static void startServer() throws Exception {
         // If the database doesn't exist, create it with the right schema
         DatabaseInitializer.ensureDatabase();
 
@@ -78,18 +78,18 @@ public class App {
         System.exit(0);
     }
 
-    private static CommunicationProtocol parseProtocol(String raw) {
+    public static CommunicationProtocol parseProtocol(String raw) {
         if ("socket".equalsIgnoreCase(raw)) {
             return CommunicationProtocol.SOCKET;
         }
         return CommunicationProtocol.RMI;
     }
 
-    private static int defaultPort(CommunicationProtocol protocol) {
+    public static int defaultPort(CommunicationProtocol protocol) {
         return protocol == CommunicationProtocol.SOCKET ? 9999 : 1099;
     }
 
-    private static String resolveServerHost() {
+    public static String resolveServerHost() {
         String forced = System.getenv("SERVER_HOST");
         if (forced != null && !forced.isBlank()) {
             return forced.trim();
@@ -123,7 +123,7 @@ public class App {
     // CLIENT
     // =========================================================================
 
-    private static void startClient(String host, String mode, CommunicationProtocol protocol, int port) {
+    public static void startClient(String host, String mode, CommunicationProtocol protocol, int port) {
         switch (mode) {
             case "tui" -> TUILauncher.launchTuiClient(host, protocol, port);
             case "gui" -> GUILauncher.launchGuiClient(host, protocol, port);
