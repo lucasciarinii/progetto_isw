@@ -205,9 +205,6 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
 
     public ServerController resolveServerControllerByNickname(String nickname) {
         String gameID = playerToGameID.get(nickname);
-        if (gameID == null) {
-            throw new IllegalStateException("No game for: " + nickname);
-        }
         ServerController controller = gameControllers.get(gameID);
         if (controller == null) {
             throw new IllegalStateException("Game not started for: " + nickname);
