@@ -2,6 +2,7 @@ package org.example;
 
 import org.example.client.view.GUI.GUILauncher;
 import org.example.client.view.TUI.TUILauncher;
+import org.example.network.ClientNetworkAdapter;
 import org.example.network.CommunicationProtocol;
 import org.example.network.HybridServerNetworkAdapter;
 import org.example.server.database.DatabaseInitializer;
@@ -22,8 +23,8 @@ public class App {
         if (args.length == 0) {
             System.out.println("Use:");
             System.out.println("  java -jar mesos.jar server");
-            System.out.println("  java -jar mesos.jar client tui [rmi|socket] [port] <host>");
-            System.out.println("  java -jar mesos.jar client gui [rmi|socket] [port] <host>");
+            System.out.println("  java -jar mesos.jar client tui [rmi|socket] <host>");
+            System.out.println("  java -jar mesos.jar client gui [rmi|socket] <host>");
             System.out.println("Env:");
             System.out.println("  SERVER_HOST to force the server bind address (LAN IP)");
             return;
@@ -38,15 +39,14 @@ public class App {
             case "client" -> {
                 String mode = args.length > 1 ? args[1] : "tui";
                 CommunicationProtocol protocol = parseProtocol(args.length > 2 ? args[2] : "rmi");
-                int port = args.length > 3 ? Integer.parseInt(args[3]) : defaultPort(protocol);
-                String host = args.length > 4 ? args[4] : null;
+                String host = args.length > 3 ? args[3] : null;
 
                 if (host == null || host.isBlank()) {
-                    System.out.println("Missing server host. Example: java -jar mesos.jar client tui rmi 1099 192.168.1.10");
+                    System.out.println("Missing server host. Example: java -jar mesos.jar client tui rmi 192.168.1.10");
                     return;
                 }
 
-                startClient(host, mode, protocol, port);
+                startClient(host, mode, protocol);
             }
             default -> System.out.println("Argument not recognized: " + args[0]);
         }
@@ -82,7 +82,7 @@ public class App {
 
     // Shared helper to provide protocol-specific default ports for clients.
     public static int defaultPort(CommunicationProtocol protocol) {
-        return protocol == CommunicationProtocol.SOCKET ? 9999 : 1099;
+        return protocol == CommunicationProtocol.SOCKET ? ClientNetworkAdapter.SOCKET_PORT : ClientNetworkAdapter.RMI_PORT;
     }
 
     // Resolve the LAN IP for the server so remote clients can reach it.
@@ -117,10 +117,10 @@ public class App {
     // =========================================================================
 
     // Client entry point: choose GUI/TUI and start the chosen transport.
-    public static void startClient(String host, String mode, CommunicationProtocol protocol, int port) {
+    public static void startClient(String host, String mode, CommunicationProtocol protocol) {
         switch (mode) {
-            case "tui" -> TUILauncher.launchTuiClient(host, protocol, port);
-            case "gui" -> GUILauncher.launchGuiClient(host, protocol, port);
+            case "tui" -> TUILauncher.launchTuiClient(host, protocol);
+            case "gui" -> GUILauncher.launchGuiClient(host, protocol);
             default -> System.out.println("Client mode not recognized: " + mode + ". Use 'tui' or 'gui'.");
         }
     }

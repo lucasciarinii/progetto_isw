@@ -5,6 +5,9 @@ package org.example.network;
  */
 public interface ClientNetworkAdapter {
 
+    int RMI_PORT = 1099;
+    int SOCKET_PORT = 9999;
+
     /**
      * Connects a client to the server lobby.
      *

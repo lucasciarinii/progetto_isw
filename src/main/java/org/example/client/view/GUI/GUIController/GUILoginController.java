@@ -32,11 +32,9 @@ public class GUILoginController {
     // ── Connection config ───────────────────────────────────────────────────────
     private Stage stage;
     private String host = "localhost";
-    private int port = 1099;
     private CommunicationProtocol protocol = CommunicationProtocol.RMI;
 
     public void setHost(String host) { this.host = host; }
-    public void setPort(int port) { this.port = port; }
     public void setProtocol(CommunicationProtocol p) { this.protocol = p; }
     public void setStage(Stage stage) { this.stage = stage; }
 
@@ -85,14 +83,14 @@ public class GUILoginController {
 
         GUIHandler gui = new GUIHandler();
         gui.setPrimaryStage(stage);
-        gui.setConnectionInfo(host, port, protocol);
+        gui.setConnectionInfo(host, protocol);
         ClientController controller = new ClientController(nickname, gui);
         gui.setController(controller);
 
         try {
             hideError(createErrorLabel);
             showInfo(createErrorLabel, "Connecting...");
-            controller.createLobbyAndConnect(host, port, numPlayers, protocol);
+            controller.createLobbyAndConnect(host, numPlayers, protocol);
         } catch (Exception e) {
             showError(createErrorLabel, "Impossible to connect to server");
         }
@@ -115,7 +113,7 @@ public class GUILoginController {
 
         GUIHandler gui = new GUIHandler();
         gui.setPrimaryStage(stage);
-        gui.setConnectionInfo(host, port, protocol);
+        gui.setConnectionInfo(host, protocol);
         ClientController controller = new ClientController(nickname, gui);
         gui.setController(controller);
         gui.setLobbyRetryEnabled(protocol == CommunicationProtocol.SOCKET);
@@ -123,7 +121,7 @@ public class GUILoginController {
         try {
             hideError(joinErrorLabel);
             showInfo(joinErrorLabel, "Connecting...");
-            controller.joinLobbyAndConnect(host, port, code, protocol);
+            controller.joinLobbyAndConnect(host, code, protocol);
         } catch (Exception e) {
             showError(joinErrorLabel, "Invalid game code or server unreachable");
         }
@@ -161,6 +159,7 @@ public class GUILoginController {
         label.setVisible(true);
         label.setManaged(true);
     }
+
 
     // Hides the specified label.
     private void hideError(Label label) {

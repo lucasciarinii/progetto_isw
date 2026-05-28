@@ -32,9 +32,8 @@ public class TUILauncher {
      *
      * @param host     the server host
      * @param protocol the communication protocol
-     * @param port     the server port
      */
-    public static void launchTuiClient(String host, CommunicationProtocol protocol, int port) {
+    public static void launchTuiClient(String host, CommunicationProtocol protocol) {
         Scanner scanner = new Scanner(System.in);
         int selectedOption = -1;
 
@@ -60,13 +59,13 @@ public class TUILauncher {
 
         // REDIRECTION
         if (selectedOption == 2) {
-            handleCreateLobby(scanner, host, port, protocol);
+            handleCreateLobby(scanner, host, protocol);
         } else {
-            handleJoinLobby(scanner, host, port, protocol);
+            handleJoinLobby(scanner, host, protocol);
         }
     }
 
-    private static void handleCreateLobby(Scanner scanner, String host, int port, CommunicationProtocol protocol) {
+    private static void handleCreateLobby(Scanner scanner, String host, CommunicationProtocol protocol) {
         System.out.println("\n=== CREATE A NEW LOBBY ===");
 
         System.out.print("Insert your nickname: ");
@@ -82,10 +81,10 @@ public class TUILauncher {
             numPlayers = 4;
         }
 
-        startClientCreateLobby(host, port, nickname, numPlayers, protocol);
+        startClientCreateLobby(host, nickname, numPlayers, protocol);
     }
 
-    private static void handleJoinLobby(Scanner scanner, String host, int port, CommunicationProtocol protocol) {
+    private static void handleJoinLobby(Scanner scanner, String host, CommunicationProtocol protocol) {
         System.out.println("\n=== JOIN AN EXISTING LOBBY ===");
 
         while (true) {
@@ -95,7 +94,7 @@ public class TUILauncher {
             System.out.print("Insert your nickname: ");
             String nickname = scanner.nextLine().trim();
 
-            if (startClientJoinLobby(host, port, nickname, code, protocol)) {
+            if (startClientJoinLobby(host, nickname, code, protocol)) {
                 break;
             }
 
@@ -103,13 +102,13 @@ public class TUILauncher {
         }
     }
 
-    private static boolean startClientJoinLobby(String host, int port, String nickname, String gameID, CommunicationProtocol protocol) {
+    private static boolean startClientJoinLobby(String host, String nickname, String gameID, CommunicationProtocol protocol) {
         try {
             TUIHandler tui = new TUIHandler();
             ClientController clientController = new ClientController(nickname, tui);
             tui.setController(clientController);
             tui.setLobbyRetryEnabled(protocol == CommunicationProtocol.SOCKET);
-            clientController.joinLobbyAndConnect(host, port, gameID, protocol);
+            clientController.joinLobbyAndConnect(host, gameID, protocol);
             return true;
         } catch (Exception e) {
             if (protocol == CommunicationProtocol.SOCKET) {
@@ -119,12 +118,12 @@ public class TUILauncher {
         }
     }
 
-    private static void startClientCreateLobby(String host, int port, String nickname, int numPlayers, CommunicationProtocol protocol) {
+    private static void startClientCreateLobby(String host, String nickname, int numPlayers, CommunicationProtocol protocol) {
         try {
             TUIHandler tui = new TUIHandler();
             ClientController clientController = new ClientController(nickname, tui);
             tui.setController(clientController);
-            clientController.createLobbyAndConnect(host, port, numPlayers, protocol);
+            clientController.createLobbyAndConnect(host, numPlayers, protocol);
         } catch (Exception e) {
             System.out.println("\nImpossible to connect to server at address: " + host);
             System.out.println("Ensure server is active and the address is correct.");

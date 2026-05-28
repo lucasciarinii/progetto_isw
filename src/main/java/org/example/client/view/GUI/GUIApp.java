@@ -16,7 +16,6 @@ public class GUIApp extends Application {
     // ── Runtime config (set by launcher) ───────────────────────────────────────
     private static String host =  "localhost";
     private static CommunicationProtocol protocol = CommunicationProtocol.RMI;
-    private static int port = 1099;
 
     // ── Injected startup options ───────────────────────────────────────────────
     /** @param host the server host */
@@ -27,11 +26,6 @@ public class GUIApp extends Application {
     /** @param protocol the communication protocol */
     public static void setProtocol(CommunicationProtocol protocol) {
         GUIApp.protocol = protocol;
-    }
-
-    /** @param port the server port */
-    public static void setPort(int port) {
-        GUIApp.port = port;
     }
 
 
@@ -50,7 +44,6 @@ public class GUIApp extends Application {
         GUILoginController controller = loader.getController();
         controller.setHost(host);
         controller.setProtocol(protocol);
-        controller.setPort(port);
         controller.setStage(stage);
 
         stage.setTitle("MESOS - Client GUI");

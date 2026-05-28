@@ -30,7 +30,6 @@ public class GUIHandler implements UIHandler {
     private Stage stage;
 
     private String host;
-    private int port;
     private CommunicationProtocol protocol;
 
     private GUILobbyController GUILobbyController;
@@ -63,9 +62,8 @@ public class GUIHandler implements UIHandler {
         this.lobbyRetryEnabled = enabled;
     }
 
-    public void setConnectionInfo(String host, int port, org.example.network.CommunicationProtocol protocol) {
+    public void setConnectionInfo(String host, CommunicationProtocol protocol) {
         this.host = host;
-        this.port = port;
         this.protocol = protocol;
     }
 
@@ -220,7 +218,6 @@ public class GUIHandler implements UIHandler {
 
             GUILoginController loginController = loader.getController();
             loginController.setHost(host);
-            loginController.setPort(port);
             loginController.setProtocol(protocol);
             loginController.setStage(stage);
 

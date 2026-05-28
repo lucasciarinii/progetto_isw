@@ -27,19 +27,19 @@ java -jar target/mesos-server.jar
 Client TUI (RMI):
 
 ```zsh
-java -jar target/mesos-client.jar tui rmi 1099 <server-ip>
+java -jar target/mesos-client.jar tui rmi <server-ip>
 ```
 
 Client GUI (SOCKET):
 
 ```zsh
-java -jar target/mesos-client.jar gui socket 9999 <server-ip>
+java -jar target/mesos-client.jar gui socket <server-ip>
 ```
 
 ## Notes
 
 - Use `SERVER_HOST` to force the server bind address on LAN.
-- RMI default port is `1099`, socket default port is `9999`.
+- RMI port is fixed to `1099`, socket port is fixed to `9999`.
 - DB env vars: `DB_URL`, `DB_USER`, `DB_PASSWORD`.
 
 ### Environment variables
@@ -50,7 +50,6 @@ Set (macOS/Linux):
 export DB_URL="jdbc:mysql://localhost:3306/GR39_Mesos_DB"
 export DB_USER="root"
 export DB_PASSWORD="<password>"
-export SERVER_HOST="<server-ip>"
 ```
 
 Set (Windows PowerShell):
@@ -59,7 +58,6 @@ Set (Windows PowerShell):
 $env:DB_URL="jdbc:mysql://localhost:3306/GR39_Mesos_DB"
 $env:DB_USER="root"
 $env:DB_PASSWORD="<password>"
-$env:SERVER_HOST="<server-ip>"
 ```
 
 Show env vars (macOS/Linux):
