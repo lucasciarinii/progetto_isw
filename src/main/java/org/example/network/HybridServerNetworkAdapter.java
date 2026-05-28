@@ -188,7 +188,7 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
             return;
         }
         ServerLogger.server("Client disconnected: " + nickname + " (" + reason + ")");
-        matchManager.abortGame(gameID, reason);
+        matchManager.abortGame(gameID, reason, nickname);
     }
 
     // Removes nickname mappings without aborting (used during cleanup).

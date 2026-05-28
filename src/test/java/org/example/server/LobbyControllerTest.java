@@ -62,6 +62,7 @@ class LobbyControllerTest {
         @Override public void sendRoundFlowCardRequest(String nickname) throws Exception {}
         @Override public void sendRankingUpdate(String nickname, RankingUpdateMessage msg) throws Exception {}
         @Override public void sendShutdown(String nickname) throws Exception {}
+        @Override public void handleClientDisconnect(String nickname, String reason) {}
     }
 
     private FakeLobbyReadyListener fakeListener;

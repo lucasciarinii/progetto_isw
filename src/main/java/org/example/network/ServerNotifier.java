@@ -61,5 +61,7 @@ public interface ServerNotifier {
      * @throws Exception if the notification cannot be delivered
      */
     void sendShutdown(String nickname) throws Exception;
+
+    void handleClientDisconnect(String nickname, String reason);
 }
 

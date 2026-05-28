@@ -124,7 +124,10 @@ public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
      * RMI does not require an explicit disconnect for this client.
      */
     @Override
-    public void disconnect() {
-        // RMI doesn't request an explicit disconnection
+    public void disconnect() throws Exception {
+        if (server == null || nickname == null || nickname.isBlank()) {
+            return;
+        }
+        server.disconnect(nickname);
     }
 }

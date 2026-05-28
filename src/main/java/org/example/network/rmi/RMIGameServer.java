@@ -50,4 +50,12 @@ public interface RMIGameServer extends Remote {
      * @throws RemoteException if the remote call fails
      */
     void skipTurn(String nickname) throws RemoteException;
+
+    /**
+     * Notifies the server that the client is disconnecting.
+     *
+     * @param nickname the player's nickname
+     * @throws RemoteException if the remote call fails
+     */
+    void disconnect(String nickname) throws RemoteException;
 }

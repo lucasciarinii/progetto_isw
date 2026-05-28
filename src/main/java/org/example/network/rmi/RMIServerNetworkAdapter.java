@@ -227,4 +227,22 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
         hybrid.resolveServerControllerByNickname(nickname)
                 .skipTurn(nickname);
     }
+
+    @Override
+    public void disconnect(String nickname) throws RemoteException {
+        handleClientDisconnect(nickname, "Client requested disconnect");
+    }
+
+    @Override
+    public void handleClientDisconnect(String nickname, String reason) {
+        if (nickname == null || nickname.isBlank()) {
+            return;
+        }
+
+        connections.remove(nickname);
+        if (hybrid != null) {
+            hybrid.handleClientDisconnect(nickname, reason);
+        }
+
+    }
 }

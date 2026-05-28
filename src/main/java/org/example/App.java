@@ -87,10 +87,6 @@ public class App {
 
     // Resolve the LAN IP for the server so remote clients can reach it.
     public static String resolveServerHost() {
-        String forced = System.getenv("SERVER_HOST");
-        if (forced != null && !forced.isBlank()) {
-            return forced.trim();
-        }
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces.hasMoreElements()) {

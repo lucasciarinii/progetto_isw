@@ -140,9 +140,10 @@ public class MatchManager {
         ServerLogger.game("Game session ended with code: " + cleanID);
     }
 
-    // Aborts a lobby or a running match when a client disconnects.
-    public void abortGame(String gameID, String reason) {
+    // Aborts a lobby or a running match, optionally skipping notifications to a disconnected player.
+    public void abortGame(String gameID, String reason, String disconnectedNickname) {
         String cleanID = gameID.trim().toUpperCase();
+        String cleanDisconnected = isBlank(disconnectedNickname) ? null : disconnectedNickname.trim();
 
         LobbyController lobby = lobbies.remove(cleanID);
         if (lobby != null) {
@@ -161,11 +162,16 @@ public class MatchManager {
             // Match already started: notify all players and cleanup shared state.
             serverController.getPlayers().forEach(p -> {
                 String nick = p.getNickname();
+                boolean skipNotify = cleanDisconnected != null && cleanDisconnected.equals(nick);
                 try {
-                    notifier.sendError(nick, reason, null);
-                    notifier.sendShutdown(nick);
+                    if (!skipNotify) {
+                        notifier.sendError(nick, reason, null);
+                        notifier.sendShutdown(nick);
+                    }
                 } catch (Exception e) {
-                    ServerLogger.game("Failed to notify " + nick + " about disconnection: " + e.getMessage());
+                    if (!skipNotify) {
+                        ServerLogger.game("Failed to notify " + nick + " about disconnection: " + e.getMessage());
+                    }
                 } finally {
                     globalNicknames.remove(nick);
                     hybrid.removePlayerMapping(nick);

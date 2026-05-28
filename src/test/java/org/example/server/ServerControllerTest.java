@@ -68,6 +68,7 @@ class ServerControllerTest {
         // --- Other ServerNotifier methods (stubbed as empty for these tests) ---
         @Override public void sendLobbyUpdate(String nickname, LobbyUpdateMessage update) {}
         @Override public void sendRankingUpdate(String nickname, RankingUpdateMessage msg) {}
+        @Override public void handleClientDisconnect(String nickname, String reason) {}
     }
 
     /** Match subclass used to force InvalidCardException from offerTileAction. */

@@ -70,4 +70,9 @@ public class RMIClientConnection implements ServerNotifier {
     public void sendLobbyUpdate(String nickname, LobbyUpdateMessage update) throws Exception {
         callback.receiveLobbyUpdate(update);
     }
+
+    @Override
+    public void handleClientDisconnect(String nickname, String reason) {
+        // No-op: RMI callbacks do not need server-side disconnect handling here.
+    }
 }

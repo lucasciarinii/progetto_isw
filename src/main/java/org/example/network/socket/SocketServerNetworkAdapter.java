@@ -240,7 +240,8 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter {
         }
     }
 
-    // Propagates socket disconnections to the hybrid adapter.
+    // Propagates disconnections to the hybrid adapter.
+    @Override
     public void handleClientDisconnect(String nickname, String reason) {
         if (nickname == null || nickname.isBlank()) {
             return;
