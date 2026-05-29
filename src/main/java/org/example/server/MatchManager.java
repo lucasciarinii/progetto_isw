@@ -12,7 +12,7 @@ import static java.util.concurrent.ThreadLocalRandom.current;
 public class MatchManager {
 
     private static final int ID_LENGTH = 6;
-    private static final String ALPHABET = "ABCDEFGHIJKLMOPQRSTUVWXYZ0123456789";
+    private static final String ALPHABET = "ABCDEFGHIJKLMPQRSTUVWXYZ123456789";
 
 
     private final LobbyReadyListener onReady;
