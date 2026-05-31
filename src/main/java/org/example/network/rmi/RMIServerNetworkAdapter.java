@@ -35,7 +35,7 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
     private final MatchManager matchManager;
 
     // Ping-Pongs signals and timeouts
-    private final ScheduledExecutorService heartbeatScheduler = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService heartbeatScheduler = Executors.newScheduledThreadPool(20);
     private final ConcurrentHashMap<String, Long> lastPongAt = new ConcurrentHashMap<>();
     private static final long PING_INTERVAL_MS = 5_000;
     private static final long PONG_TIMEOUT_MS = 15_000;
@@ -254,6 +254,8 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
         }
 
         connections.remove(nickname);
+        lastPongAt.remove(nickname);
+
         if (hybrid != null) {
             hybrid.handleClientDisconnect(nickname, reason);
         }
@@ -263,21 +265,25 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
     private void startHeartbeat() {
         heartbeatScheduler.scheduleAtFixedRate(() -> {
             long now = System.currentTimeMillis();
-            for (String nick : connections.keySet()) {
+            // Usa una copia per evitare ConcurrentModificationException
+            for (String nick : new java.util.ArrayList<>(connections.keySet())) {
+                RMIClientConnection conn = connections.get(nick);
+                if (conn == null) continue;
                 try {
-                    if (now - lastPongAt.getOrDefault(nick, now) > PONG_TIMEOUT_MS) {
-                        handleClientDisconnect(nick, "Timeout: connection lost with some players");
+                    // 1. Prima controlla il timeout sul pong
+                    long lastPong = lastPongAt.getOrDefault(nick, 0L);
+                    if (lastPong > 0 && now - lastPong > PONG_TIMEOUT_MS) {
+                        handleClientDisconnect(nick, "Pong timeout: client non risponde");
                         continue;
                     }
-                    // Try to call the method receivePing exposed by RMIClientCallback on client (to verify if it is alive)
-                    connections.get(nick).getCallback().receivePing();
+                    // 2. Poi prova a pingare: se il client è morto lancia RemoteException
+                    conn.getCallback().receivePing();
                 } catch (Exception e) {
                     handleClientDisconnect(nick, "Ping failed: " + e.getMessage());
                 }
             }
-        }, 0, PING_INTERVAL_MS, TimeUnit.MILLISECONDS);
+        }, PING_INTERVAL_MS, PING_INTERVAL_MS, TimeUnit.MILLISECONDS);
     }
-
     @Override
     public void pong(String nickname) throws RemoteException {
         lastPongAt.put(nickname, System.currentTimeMillis());

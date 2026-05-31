@@ -46,7 +46,8 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
 
         //System.setProperty("java.rmi.server.hostname", serverHost); // for classic parameters
         System.setProperty("java.rmi.server.hostname", "25.23.2.248"); // for forced address
-        //LobbyController sharedLobby = new LobbyController(this, this);
+        System.setProperty("sun.rmi.transport.tcp.responseTimeout", "15000");
+        System.setProperty("sun.rmi.transport.tcp.readTimeout", "15000");
     }
 
     /**
