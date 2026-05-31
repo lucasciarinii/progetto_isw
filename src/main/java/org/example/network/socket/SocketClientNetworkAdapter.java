@@ -142,6 +142,7 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
     @Override
     public void disconnect() throws Exception {
         if ( socket != null && !socket.isClosed() ) {
+            heartbeatScheduler.shutdownNow();
             socket.close();
         }
     }
