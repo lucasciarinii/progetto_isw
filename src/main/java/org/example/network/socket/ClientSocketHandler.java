@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 
@@ -39,6 +40,7 @@ public class ClientSocketHandler implements Runnable {
     private final ObjectMapper mapper = new ObjectMapper();
     // Guard to avoid double-close and duplicate disconnect handling.
     private boolean closed = false;
+    private final AtomicBoolean disconnectNotified = new java.util.concurrent.atomic.AtomicBoolean(false);
 
     private static boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
@@ -75,12 +77,14 @@ public class ClientSocketHandler implements Runnable {
             while ((line = in.readLine()) != null) {
                 processClientCommand(line);
             }
+            notifyDisconnect("Client closed connection");
 
         } catch (IOException e) {
-                System.err.println("[Server] Error handling client: " + e.getMessage());
-            } finally {
-                close();
-            }
+            System.err.println("[Server] Error handling client: " + e.getMessage());
+            notifyDisconnect("Socket error: " + e.getMessage());
+        } finally {
+            close();
+        }
     }
 
 
@@ -251,7 +255,7 @@ public class ClientSocketHandler implements Runnable {
         heartbeatScheduler.scheduleAtFixedRate(() -> {
             long now = System.currentTimeMillis();
             if (now - lastPongAt.get() > PONG_TIMEOUT_MS) {
-                socketServerNetworkAdapter.handleClientDisconnect(nickname, "Timeout: connection lost with some players");
+                notifyDisconnect("Timeout: connection lost with some players");
                 close();
                 return;
             }
@@ -270,6 +274,15 @@ public class ClientSocketHandler implements Runnable {
             out.println(mapper.writeValueAsString(msg));
         } catch (Exception e) {
             ServerLogger.server("Failed to ping client");
+        }
+    }
+
+    private void notifyDisconnect(String reason) {
+        if (isBlank(nickname)) {
+            return;
+        }
+        if (disconnectNotified.compareAndSet(false, true)) {
+            socketServerNetworkAdapter.handleClientDisconnect(nickname, reason);
         }
     }
 }
