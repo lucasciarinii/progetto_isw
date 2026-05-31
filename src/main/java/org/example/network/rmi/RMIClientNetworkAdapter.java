@@ -33,9 +33,9 @@ public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
      * The server will invoke RMIClientCallback methods to push updates.
      */
     @Override
-    public void connect(String host, int port) throws Exception {
+    public void connect(String host) throws Exception {
         System.setProperty("java.rmi.server.hostname", resolveClientHost());
-        String url = "rmi://" + host + ":" + port + "/GameServer";
+        String url = "rmi://" + host + ":" + RMI_PORT + "/GameServer";
         server = (RMIGameServer) Naming.lookup(url);
     }
 

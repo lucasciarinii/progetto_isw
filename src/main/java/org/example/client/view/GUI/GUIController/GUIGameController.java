@@ -179,6 +179,12 @@ public class GUIGameController {
         }
     }
 
+    public void showGameAborted(String message) {
+        statusLabel.setTextFill(Color.web("#e63946"));
+        statusLabel.setText("[ERROR] " + message);
+        selectedCards.clear();
+    }
+
     /**
      * Shows an informational message when no selectable cards are available.
      */

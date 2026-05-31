@@ -2,11 +2,13 @@ package org.example.client.view.TUI;
 
 import org.example.client.ClientController;
 import org.example.client.view.UIHandler;
+import org.example.network.HybridServerNetworkAdapter;
 import org.example.network.messages.GameStateUpdateMessage;
 import org.example.network.messages.LobbyUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
 import org.example.network.snapshots.OfferTileSnapshot;
 import org.example.network.snapshots.PlayerSnapshot;
+import org.example.server.ServerLogger;
 import org.example.server.database.RankingEntry;
 import org.example.server.model.cards.Card;
 import org.example.server.model.cards.buildingCards.BuildingCard;
@@ -89,11 +91,8 @@ public class TUIHandler implements UIHandler {
                     if (!inputBusy.compareAndSet(false, true)) {
                         return;
                     }
-                    try {
                         handleLobbyRetry();
-                    } finally {
                         inputBusy.set(false);
-                    }
                 });
             }
             return;
@@ -155,6 +154,7 @@ public class TUIHandler implements UIHandler {
                 switch (phase) {
                     case PLACE_TOTEMS -> handlePlaceTotem();
                     case PLAYER_TURN  -> handleOfferTileAction();
+                    case GAME_ABORTED -> handleGameAborted();
                     default           -> {}
                 }
             } finally {
@@ -289,6 +289,12 @@ public class TUIHandler implements UIHandler {
         } catch (Exception e) {
             System.out.println("[ERROR] " + e.getMessage());
         }
+    }
+
+    private void handleGameAborted() {
+        System.out.println("\nPress ENTER to shutdown...");
+        new Scanner(System.in).nextLine();
+        System.exit(0);
     }
 
     /**

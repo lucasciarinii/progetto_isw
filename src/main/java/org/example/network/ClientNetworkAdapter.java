@@ -12,10 +12,9 @@ public interface ClientNetworkAdapter {
      * Connects a client to the server lobby.
      *
      * @param host       the server host
-     * @param port       the server port
      * @throws Exception if the connection fails
      */
-    void connect(String host, int port) throws Exception;
+    void connect(String host) throws Exception;
 
     void createLobby(String nickname, int numPlayers) throws Exception;
 

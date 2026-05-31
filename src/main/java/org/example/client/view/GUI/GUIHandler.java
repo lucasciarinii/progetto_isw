@@ -118,6 +118,10 @@ public class GUIHandler implements UIHandler {
                 switchToLogin("Invalid game code or nickname: " + errorMessage);
                 return;
             }
+            if (currentPhase == GamePhase.GAME_ABORTED) {
+                GUIGameController.showGameAborted(errorMessage);
+                return;
+            }
             if (GUIGameController != null) {
                 GUIGameController.showError(errorMessage);
             }

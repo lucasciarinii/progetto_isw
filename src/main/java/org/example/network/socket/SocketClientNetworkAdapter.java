@@ -15,6 +15,12 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static org.example.server.model.enums.GamePhase.GAME_ABORTED;
 
 /**
  * Socket-based client adapter that sends JSON commands and processes server events.
@@ -26,6 +32,13 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
     private PrintWriter out;
     private BufferedReader in;
     private final ObjectMapper mapper = new ObjectMapper();
+
+    // Ping-Pongs signals and timeouts
+    private final ScheduledExecutorService heartbeatScheduler = Executors.newSingleThreadScheduledExecutor();
+    private final AtomicLong lastPingAt = new AtomicLong(System.currentTimeMillis());
+    private static final long PING_TIMEOUT_MS = 20_000;
+    private static final long PONG_INTERVAL_MS = 5_000;
+
 
     private String nickname;
 
@@ -42,10 +55,10 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
      * Connects to the socket server and sends the initial "register" command.
      */
     @Override
-    public void connect(String host, int port) throws Exception {
+    public void connect(String host) throws Exception {
 
         // Create socket to connect to server.
-        socket = new Socket(host, port);
+        socket = new Socket(host, SOCKET_PORT);
 
         out = new PrintWriter(socket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -140,6 +153,9 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
     private void startListeningThread() {
 
         new Thread(() -> {
+
+            startClientTimeoutChecker();
+
             try {
                 String line;
 
@@ -207,9 +223,29 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
                 case "SHUTDOWN":
                     clientController.onShutdown();
                     break;
+
+                case "PING":
+                    lastPingAt.set(System.currentTimeMillis());
+                    Map<String, Object> pong = new HashMap<>();
+                    pong.put("action", "pong");
+                    out.println(mapper.writeValueAsString(pong));
+                    break;
             }
         } catch (IOException e) {
             System.err.println("[Socket Client] Error processing message: " + e.getMessage());
         }
+    }
+
+    private void startClientTimeoutChecker() {
+        // Start a schedule at a fixed time and check for ping, then send pong
+
+        heartbeatScheduler.scheduleAtFixedRate(() -> {
+            long now = System.currentTimeMillis();
+            if (now - lastPingAt.get() > PING_TIMEOUT_MS) {
+                clientController.onError("Connection timeout: no ping from server. Please close the game.", GAME_ABORTED);
+                try { disconnect();
+                } catch (Exception ignored) {}
+            }
+        }, PONG_INTERVAL_MS, PONG_INTERVAL_MS, TimeUnit.MILLISECONDS);
     }
 }

@@ -66,6 +66,13 @@ public enum GamePhase implements GamePhaseInterface {
         public GamePhase next(GameState state) {
             return GAME_OVER; // no next phase, game is over
         }
+    },
+
+    GAME_ABORTED {
+        @Override
+        public GamePhase next(GameState state) {
+            return GAME_ABORTED; // no next phase, error in game connection
+        }
     };
 
 
@@ -79,6 +86,7 @@ public enum GamePhase implements GamePhaseInterface {
             case END_ROUND -> "END_ROUND";
             case END_GAME -> "END_GAME";
             case GAME_OVER -> "GAME_OVER";
+            case GAME_ABORTED -> "GAME_ABORTED";
         };
     }
 }
