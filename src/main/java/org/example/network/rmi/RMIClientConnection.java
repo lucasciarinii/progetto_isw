@@ -23,6 +23,10 @@ public class RMIClientConnection implements ServerNotifier {
         this.callback = callback;
     }
 
+    public RMIClientCallback getCallback(){
+        return callback;
+    }
+
     /**
      * Forwards a game state update to the client callback.
      */

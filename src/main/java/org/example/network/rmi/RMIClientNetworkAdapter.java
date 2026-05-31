@@ -3,12 +3,19 @@ package org.example.network.rmi;
 import org.example.client.ClientController;
 import org.example.client.rmi.RMIClientCallbackImpl;
 import org.example.network.ClientNetworkAdapter;
+import org.example.server.model.enums.GamePhase;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.rmi.Naming;
 import java.util.Enumeration;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static org.example.server.model.enums.GamePhase.GAME_ABORTED;
 
 /**
  * RMI-based client adapter that invokes RMIGameServer methods on the server.
@@ -18,6 +25,11 @@ public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
     private final ClientController clientController;
     private RMIGameServer server;
     private String nickname;
+
+    private final AtomicLong lastPingAt = new AtomicLong(System.currentTimeMillis());
+    private final ScheduledExecutorService heartbeatScheduler = Executors.newSingleThreadScheduledExecutor();
+    private static final long PING_TIMEOUT_MS = 20_000;
+    private static final long PONG_INTERVAL_MS = 5_000;
 
     /**
      * Creates a client adapter bound to a controller.
@@ -76,16 +88,18 @@ public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
     @Override
     public void createLobby(String nickname, int numPlayers) throws Exception {
         this.nickname = nickname;
-        RMIClientCallbackImpl callback = new RMIClientCallbackImpl(clientController);
+        RMIClientCallbackImpl callback = new RMIClientCallbackImpl(clientController, server, nickname, lastPingAt);
         String gameID = server.createLobby(nickname, numPlayers, callback);
+        startClientTimeoutChecker();
         clientController.setGameID(gameID);
     }
 
     @Override
     public void joinLobby(String nickname, String gameID) throws Exception {
         this.nickname = nickname;
-        RMIClientCallbackImpl callback = new RMIClientCallbackImpl(clientController);
+        RMIClientCallbackImpl callback = new RMIClientCallbackImpl(clientController, server, nickname, lastPingAt);
         server.joinLobby(nickname, gameID, callback);
+        startClientTimeoutChecker();
     }
 
     /**
@@ -129,5 +143,18 @@ public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
             return;
         }
         server.disconnect(nickname);
+    }
+
+
+    private void startClientTimeoutChecker() {
+        heartbeatScheduler.scheduleAtFixedRate(() -> {
+            long now = System.currentTimeMillis();
+            if (now - lastPingAt.get() > PING_TIMEOUT_MS) {
+                clientController.onError("Connection timeout: no ping from server. Please close the game.", GAME_ABORTED);
+                try {
+                    disconnect();
+                } catch (Exception ignored) {}
+            }
+        }, PONG_INTERVAL_MS, PONG_INTERVAL_MS, TimeUnit.MILLISECONDS);
     }
 }

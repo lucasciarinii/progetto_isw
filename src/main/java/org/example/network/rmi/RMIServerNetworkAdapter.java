@@ -17,6 +17,9 @@ import java.rmi.server.ExportException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * RMI-based server adapter that exposes RMIGameServer and dispatches actions
@@ -25,11 +28,17 @@ import java.util.concurrent.ConcurrentHashMap;
 public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements ServerNetworkAdapter, RMIGameServer {
 
     public static final int DEFAULT_PORT = 1099;
-    private final Map<String, ServerNotifier> connections = new ConcurrentHashMap<>();
+    private final Map<String, RMIClientConnection> connections = new ConcurrentHashMap<>();
     private final String serverHost;
 
     private final HybridServerNetworkAdapter hybrid;
     private final MatchManager matchManager;
+
+    // Ping-Pongs signals and timeouts
+    private final ScheduledExecutorService heartbeatScheduler = Executors.newSingleThreadScheduledExecutor();
+    private final ConcurrentHashMap<String, Long> lastPongAt = new ConcurrentHashMap<>();
+    private static final long PING_INTERVAL_MS = 5_000;
+    private static final long PONG_TIMEOUT_MS = 15_000;
 
     /**
      * Creates an RMI adapter.
@@ -58,6 +67,8 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
 
         Naming.rebind("//" + serverHost + ":" + DEFAULT_PORT + "/GameServer", this);
         ServerLogger.server("RMI ready on port " + DEFAULT_PORT + ". Waiting for players...");
+
+        startHeartbeat();
     }
 
     /**
@@ -159,7 +170,9 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
         hybrid.registerRoute(nickname, this);
 
         try {
-            return matchManager.createLobby(nickname, numPlayers);
+            String gameID = matchManager.createLobby(nickname, numPlayers);
+            lastPongAt.put(nickname, System.currentTimeMillis()); // set here because from here the client is connected
+            return gameID;
         } catch (Exception e) {
             connections.remove(nickname, connection);
             connection.sendError(nickname, "Registration Error: " + e.getMessage(), GamePhase.LOBBY);
@@ -185,6 +198,7 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
 
         try {
             matchManager.joinLobby(nickname, gameID);
+            lastPongAt.put(nickname, System.currentTimeMillis()); // set here because from here the client is connected
         } catch (Exception e) {
             connections.remove(nickname, connection);
             connection.sendError(nickname, "Registration Error: " + e.getMessage(), GamePhase.LOBBY);
@@ -244,5 +258,28 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
             hybrid.handleClientDisconnect(nickname, reason);
         }
 
+    }
+
+    private void startHeartbeat() {
+        heartbeatScheduler.scheduleAtFixedRate(() -> {
+            long now = System.currentTimeMillis();
+            for (String nick : connections.keySet()) {
+                try {
+                    if (now - lastPongAt.getOrDefault(nick, now) > PONG_TIMEOUT_MS) {
+                        handleClientDisconnect(nick, "Timeout: no pong within 15s");
+                        continue;
+                    }
+                    // Try to call the method receivePing exposed by RMIClientCallback on client (to verify if it is alive)
+                    connections.get(nick).getCallback().receivePing();
+                } catch (Exception e) {
+                    handleClientDisconnect(nick, "Ping failed: " + e.getMessage());
+                }
+            }
+        }, 0, PING_INTERVAL_MS, TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    public void pong(String nickname) throws RemoteException {
+        lastPongAt.put(nickname, System.currentTimeMillis());
     }
 }

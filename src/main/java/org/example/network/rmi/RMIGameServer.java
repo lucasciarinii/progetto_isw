@@ -58,4 +58,6 @@ public interface RMIGameServer extends Remote {
      * @throws RemoteException if the remote call fails
      */
     void disconnect(String nickname) throws RemoteException;
+
+    void pong(String nickname) throws RemoteException;
 }
