@@ -37,6 +37,7 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
     // Ping-Pongs signals and timeouts
     private final ScheduledExecutorService heartbeatScheduler = Executors.newScheduledThreadPool(20);
     private final ConcurrentHashMap<String, Long> lastPongAt = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, String> playerGameIds = new ConcurrentHashMap<>();
     private static final long PING_INTERVAL_MS = 5_000;
     private static final long PONG_TIMEOUT_MS = 15_000;
 
@@ -172,6 +173,9 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
         try {
             String gameID = matchManager.createLobby(nickname, numPlayers);
             lastPongAt.put(nickname, System.currentTimeMillis()); // set here because from here the client is connected
+            if (gameID != null) {
+                playerGameIds.put(nickname, gameID.trim().toUpperCase());
+            }
             return gameID;
         } catch (Exception e) {
             connections.remove(nickname, connection);
@@ -199,6 +203,9 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
         try {
             matchManager.joinLobby(nickname, gameID);
             lastPongAt.put(nickname, System.currentTimeMillis()); // set here because from here the client is connected
+            if (gameID != null) {
+                playerGameIds.put(nickname, gameID.trim().toUpperCase());
+            }
         } catch (Exception e) {
             connections.remove(nickname, connection);
             connection.sendError(nickname, "Registration Error: " + e.getMessage(), GamePhase.LOBBY);
@@ -253,13 +260,31 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
             return;
         }
 
+        String gameID = playerGameIds.remove(nickname);
         connections.remove(nickname);
         lastPongAt.remove(nickname);
 
         if (hybrid != null) {
             hybrid.handleClientDisconnect(nickname, reason);
+        } else if (gameID != null && !gameID.isBlank()) {
+            closeConnectionsForGame(gameID);
         }
 
+    }
+
+    public void closeConnectionsForGame(String gameID) {
+        if (gameID == null || gameID.isBlank()) {
+            return;
+        }
+        for (Map.Entry<String, String> entry : playerGameIds.entrySet()) {
+            String nick = entry.getKey();
+            String entryGameID = entry.getValue();
+            if (entryGameID != null && entryGameID.equalsIgnoreCase(gameID)) {
+                playerGameIds.remove(nick, entryGameID);
+                connections.remove(nick);
+                lastPongAt.remove(nick);
+            }
+        }
     }
 
     private void startHeartbeat() {
