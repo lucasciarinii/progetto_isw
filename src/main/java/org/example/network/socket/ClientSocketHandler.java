@@ -251,7 +251,7 @@ public class ClientSocketHandler implements Runnable {
         heartbeatScheduler.scheduleAtFixedRate(() -> {
             long now = System.currentTimeMillis();
             if (now - lastPongAt.get() > PONG_TIMEOUT_MS) {
-                socketServerNetworkAdapter.handleClientDisconnect(nickname, "Timeout: no pong within 15s");
+                socketServerNetworkAdapter.handleClientDisconnect(nickname, "Timeout: connection lost with some players");
                 close();
                 return;
             }

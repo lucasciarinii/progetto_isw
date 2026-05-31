@@ -179,9 +179,9 @@ public class GUIGameController {
         }
     }
 
-    public void showGameAborted(String message) {
+    public void showGameAborted() {
         statusLabel.setTextFill(Color.web("#e63946"));
-        statusLabel.setText("[ERROR] " + message);
+        statusLabel.setText("CONNECTION LOST - GAME ABORTED - Please close the game.");
         selectedCards.clear();
     }
 

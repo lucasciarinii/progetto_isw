@@ -266,7 +266,7 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
             for (String nick : connections.keySet()) {
                 try {
                     if (now - lastPongAt.getOrDefault(nick, now) > PONG_TIMEOUT_MS) {
-                        handleClientDisconnect(nick, "Timeout: no pong within 15s");
+                        handleClientDisconnect(nick, "Timeout: connection lost with some players");
                         continue;
                     }
                     // Try to call the method receivePing exposed by RMIClientCallback on client (to verify if it is alive)
