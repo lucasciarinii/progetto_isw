@@ -40,7 +40,7 @@ public class ClientSocketHandler implements Runnable {
     private final ObjectMapper mapper = new ObjectMapper();
     // Guard to avoid double-close and duplicate disconnect handling.
     private boolean closed = false;
-    private final AtomicBoolean disconnectNotified = new java.util.concurrent.atomic.AtomicBoolean(false);
+    private final AtomicBoolean disconnectNotified = new AtomicBoolean(false);
 
     private static boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
@@ -115,6 +115,10 @@ public class ClientSocketHandler implements Runnable {
      */
     public void send(String msg) {
         out.println(msg);
+    }
+
+    public String getGameID() {
+        return gameID;
     }
 
 
