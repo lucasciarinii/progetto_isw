@@ -17,8 +17,6 @@ public class Inventor extends Character {
 
     /** Invention associated with the inventor. */
     private final InventionType invention;
-    /** Whether the inventor was present in the previous turn. */
-    private boolean wasPresentLastTurn = false;
 
 
     /**

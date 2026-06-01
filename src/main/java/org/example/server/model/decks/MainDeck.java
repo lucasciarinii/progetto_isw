@@ -7,6 +7,7 @@ import org.example.server.model.cards.characters.Character;
 import org.example.server.model.cards.eventCards.EventCard;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -85,10 +86,10 @@ public class MainDeck extends Deck<Card> {
                 throw new IllegalStateException("Missing resource: " + eventsPath);
             }
 
-            // 1. Read all character objects from the JSON file into a List<Character>>
+            // 1. Read all character objects from the JSON file into a List<Character>
             List<Character> characterCards = mapper.readValue(
                     characterStream,
-                    new TypeReference<List<Character>>() {
+                    new TypeReference<>() {
                     }
             );
 
@@ -104,7 +105,7 @@ public class MainDeck extends Deck<Card> {
             // 1. Read all event objects from the JSON file into a List<EventCard>>
             List<EventCard> eventCards = mapper.readValue(
                     eventStream,
-                    new TypeReference<List<EventCard>>() {
+                    new TypeReference<>() {
                     }
             );
 
@@ -120,7 +121,23 @@ public class MainDeck extends Deck<Card> {
             //3. Shuffle each era's list to ensure randomness
             Collections.shuffle(era_I_cards);
             Collections.shuffle(era_II_cards);
-            Collections.shuffle(era_III_cards);
+
+            List<Card> eraIIINonFinal = new ArrayList<>();
+            List<Card> eraIIIFinalEvents = new ArrayList<>();
+            for (Card card : era_III_cards) {
+                if(card.isEventCard() && ((EventCard) card).isEraFinal()) {
+                    eraIIIFinalEvents.add(card);
+                } else {
+                    eraIIINonFinal.add(card);
+                }
+            }
+
+            Collections.shuffle(eraIIINonFinal);
+            Collections.shuffle(eraIIIFinalEvents);
+
+            era_III_cards.clear();
+            era_III_cards.addAll(eraIIINonFinal);
+            era_III_cards.addAll(eraIIIFinalEvents);
 
         } catch (Exception e) {
             throw new RuntimeException("Failed to load main deck resources", e);

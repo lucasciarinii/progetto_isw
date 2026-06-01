@@ -42,7 +42,7 @@ public class Player  {
         @Override
         public void visit(Gatherer gatherer) {
             gatherers.add(gatherer);
-            discountOnSustenance += 3;
+            discountOnSustenance += gatherer.getDiscountFactor();
         }
 
         @Override
@@ -65,6 +65,10 @@ public class Player  {
         @Override
         public void visit(Hunter hunter) {
             hunters.add(hunter);
+
+            if (hunter.isObtainFood()) {
+                addFood(hunters.size());
+            }
         }
 
         @Override

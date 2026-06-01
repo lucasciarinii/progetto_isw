@@ -68,6 +68,7 @@ public enum GamePhase implements GamePhaseInterface {
         }
     },
 
+    /** Game aborted state after a fatal error on game*/
     GAME_ABORTED {
         @Override
         public GamePhase next(GameState state) {

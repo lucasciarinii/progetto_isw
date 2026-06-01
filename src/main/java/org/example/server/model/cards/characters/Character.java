@@ -31,8 +31,6 @@ public abstract class Character extends Card implements Visitable {
 
     /** Character type associated with the card. */
     protected final CharacterType characterType;
-    /** True if this card completed a new set for the owner. */
-    protected boolean newCardInSet = false;
 
 
     /**
@@ -69,22 +67,6 @@ public abstract class Character extends Card implements Visitable {
     }
 
 
-    /**
-     * @return true if the card completed a new set
-     */
-    public boolean getNewCardInSet() {
-        return newCardInSet;
-    }
-
-
-    /**
-     * Sets whether the card completed a new set.
-     *
-     * @param newCardInSet true if it completed a new set
-     */
-    public void setNewCardInSet(boolean newCardInSet) {
-        this.newCardInSet = newCardInSet;
-    }
 
     @Override
     public String toString() {

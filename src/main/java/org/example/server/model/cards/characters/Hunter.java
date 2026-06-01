@@ -53,8 +53,6 @@ public class Hunter extends Character {
 
     @Override
     public String toString() {
-        String RED = "\u001B[31m";
-        String RESET = "\u001B[0m";
         return "%s%s\tobtainFood: %s%s\n".formatted(ConsoleColors.RED, super.toString(), (obtainFood ? "YES" : "NO"), ConsoleColors.RESET);
     }
 }

@@ -17,7 +17,7 @@ import java.util.List;
 public class BuildingDeck extends Deck<BuildingCard> {
 
     /**
-     * Builds the deck and places era I cards on the board's top row.
+     * Builds the deck and places era 1 cards on the board's top row.
      *
      * @param numPlayers number of players
      * @param b target board
@@ -25,7 +25,7 @@ public class BuildingDeck extends Deck<BuildingCard> {
     public BuildingDeck(int numPlayers, Board b) {
         super();
         initializeDeck(numPlayers);
-        addCardToTopRow(b, Era.I); // add era I cards to the top row of the board
+        addCardToTopRow(board, Era.I); // add era 1 cards to the top row of the board
     }
 
     /**

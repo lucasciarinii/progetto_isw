@@ -23,9 +23,9 @@ public abstract class Deck<T extends Card> {
      * Initializes empty lists for each era.
      */
     public Deck() {
-        this.era_I_cards = new ArrayList<T>();
-        this.era_II_cards = new ArrayList<T>();
-        this.era_III_cards = new ArrayList<T>();
+        this.era_I_cards = new ArrayList<>();
+        this.era_II_cards = new ArrayList<>();
+        this.era_III_cards = new ArrayList<>();
     }
 
 }

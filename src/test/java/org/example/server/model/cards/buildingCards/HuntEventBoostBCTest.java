@@ -56,9 +56,9 @@ class HuntEventBoostBCTest {
 
         card.applyEffect(player, match);
 
-        // 5 base + 1 = 6
+        // 6 base + 1 = 7
         assertEquals(6, player.getPoints());
-        assertEquals(6, player.getFood());
+        assertEquals(7, player.getFood());
     }
 
     @Test
@@ -90,9 +90,9 @@ class HuntEventBoostBCTest {
 
         card.applyEffect(player, match);
 
-        // 5 (initial value) + 5 (hunter bonus) = 10
+        // 10 (initial value) + 5 (hunter bonus) = 15
         assertEquals(10, player.getPoints());
-        assertEquals(10, player.getFood());
+        assertEquals(15, player.getFood());
     }
 
     @Test
