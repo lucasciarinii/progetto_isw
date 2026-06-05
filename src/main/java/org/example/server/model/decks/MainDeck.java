@@ -69,8 +69,6 @@ public class MainDeck extends Deck<Card> {
      * @param numPlayers number of players (2-5)
      */
     private void loadCardsFromJson(ObjectMapper mapper, int numPlayers) {
-        // Let's decide the json file beforehand
-        if (numPlayers < 2 || numPlayers > 5) throw new IllegalArgumentException("Invalid players");
 
         String charactersPath = "json/characters_%dp.json".formatted(numPlayers);
         String eventsPath = "json/events.json";

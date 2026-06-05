@@ -30,7 +30,6 @@ public abstract class Card implements Serializable {
      * @param era card era
      */
     public Card(int id, Era era) {
-
         this.era = Objects.requireNonNull(era, "Era cannot be null");
         this.id = id;
     }

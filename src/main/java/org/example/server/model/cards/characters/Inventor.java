@@ -55,22 +55,6 @@ public class Inventor extends Character {
     }
 
 
-    /**
-     * @return true if present in the previous turn
-     */
-    public boolean isWasPresentLastTurn() {
-        return wasPresentLastTurn;
-    }
-
-    /**
-     * Sets whether the inventor was present in the previous turn.
-     *
-     * @param wasPresentLastTurn presence flag
-     */
-    public void setWasPresentLastTurn(boolean wasPresentLastTurn) {
-        this.wasPresentLastTurn = wasPresentLastTurn;
-    }
-
     @Override
     public String toString() {
         return "%s%s\tinvention: %s%s\n".formatted(ConsoleColors.MINT, super.toString(), invention, ConsoleColors.RESET);

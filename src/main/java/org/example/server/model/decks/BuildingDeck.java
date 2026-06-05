@@ -20,9 +20,9 @@ public class BuildingDeck extends Deck<BuildingCard> {
      * Builds the deck and places era 1 cards on the board's top row.
      *
      * @param numPlayers number of players
-     * @param b target board
+     * @param board target board
      */
-    public BuildingDeck(int numPlayers, Board b) {
+    public BuildingDeck(int numPlayers, Board board) {
         super();
         initializeDeck(numPlayers);
         addCardToTopRow(board, Era.I); // add era 1 cards to the top row of the board
@@ -43,7 +43,7 @@ public class BuildingDeck extends Deck<BuildingCard> {
             // 1. Read all objects from the JSON file into a List<Card>
             List<BuildingCard> allCards = mapper.readValue(
                     buildingStream,
-                    new TypeReference<List<BuildingCard>>(){}
+                    new TypeReference<>(){}
             );
 
             // 2. Filter on specific eras and add to the respective lists
@@ -93,21 +93,21 @@ public class BuildingDeck extends Deck<BuildingCard> {
     /**
      * Moves all cards of the given era to the board's top row.
      *
-     * @param b board to receive the cards
+     * @param board board to receive the cards
      * @param era era to move
      */
-    public void addCardToTopRow(Board b, Era era) {
+    public void addCardToTopRow(Board board, Era era) {
         switch (era) {
             case I -> {
-                b.getTopRow().addAll(era_I_cards);
+                board.getTopRow().addAll(era_I_cards);
                 era_I_cards.clear();
             }
             case II -> {
-                b.getTopRow().addAll(era_II_cards);
+                board.getTopRow().addAll(era_II_cards);
                 era_II_cards.clear();
             }
             case III -> {
-                b.getTopRow().addAll(era_III_cards);
+                board.getTopRow().addAll(era_III_cards);
                 era_III_cards.clear();
             }
         }
