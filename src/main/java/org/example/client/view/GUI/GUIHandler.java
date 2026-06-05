@@ -122,6 +122,7 @@ public class GUIHandler implements UIHandler {
                 if (GUIGameController != null) {
                     GUIGameController.showGameAborted();
                 }
+                // If the game scene was never shown, avoid triggering UI errors.
                 return;
             }
             if (GUIGameController != null) {

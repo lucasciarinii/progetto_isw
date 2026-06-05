@@ -13,6 +13,7 @@ import java.util.Enumeration;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.example.server.model.enums.GamePhase.GAME_ABORTED;
@@ -28,6 +29,7 @@ public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
 
     private final AtomicLong lastPingAt = new AtomicLong(System.currentTimeMillis());
     private final ScheduledExecutorService heartbeatScheduler = Executors.newSingleThreadScheduledExecutor();
+    private final AtomicBoolean timeoutNotified = new AtomicBoolean(false);
     private static final long PING_TIMEOUT_MS = 20_000;
     private static final long PONG_INTERVAL_MS = 5_000;
 
@@ -149,11 +151,13 @@ public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
     private void startClientTimeoutChecker() {
         heartbeatScheduler.scheduleAtFixedRate(() -> {
             long now = System.currentTimeMillis();
-            if (now - lastPingAt.get() > PING_TIMEOUT_MS) {
+            if (now - lastPingAt.get() > PING_TIMEOUT_MS && timeoutNotified.compareAndSet(false, true)) {
                 clientController.onError("Connection timeout: no ping from server. Please close the game.", GAME_ABORTED);
+                heartbeatScheduler.shutdownNow();
                 try {
                     disconnect();
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             }
         }, PONG_INTERVAL_MS, PONG_INTERVAL_MS, TimeUnit.MILLISECONDS);
     }
