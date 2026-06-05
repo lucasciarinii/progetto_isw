@@ -119,7 +119,9 @@ public class GUIHandler implements UIHandler {
                 return;
             }
             if (currentPhase == GamePhase.GAME_ABORTED) {
-                GUIGameController.showGameAborted();
+                if (GUIGameController != null) {
+                    GUIGameController.showGameAborted();
+                }
                 return;
             }
             if (GUIGameController != null) {
