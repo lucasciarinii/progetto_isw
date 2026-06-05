@@ -80,7 +80,9 @@ public class ClientSocketHandler implements Runnable {
             notifyDisconnect("Client closed connection");
 
         } catch (IOException e) {
-            System.err.println("[Server] Error handling client: " + e.getMessage());
+            if (!closed) {
+                System.err.println("[Server] Error handling client: " + e.getMessage());
+            }
             notifyDisconnect("Socket error: " + e.getMessage());
         } finally {
             close();
