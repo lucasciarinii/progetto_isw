@@ -71,14 +71,10 @@ public class TUILauncher {
         System.out.print("Insert your nickname: ");
         String nickname = scanner.nextLine().trim();
 
-        System.out.print("Insert number of players (2-5): ");
-        int numPlayers;
-        try {
+        int numPlayers = 0;
+        while(numPlayers < 2 || numPlayers > 5) {
+            System.out.print("Insert number of players (2-5): ");
             numPlayers = Integer.parseInt(scanner.nextLine().trim());
-            if (numPlayers < 2 || numPlayers > 5) throw new IllegalArgumentException();
-        } catch (Exception e) {
-            System.out.println("Invalid input. Defaulting to 4 players.");
-            numPlayers = 4;
         }
 
         startClientCreateLobby(host, nickname, numPlayers, protocol);
