@@ -3,6 +3,8 @@ package org.example.server;
 import org.example.network.HybridServerNetworkAdapter;
 import org.example.network.ServerNotifier;
 
+import java.net.NoRouteToHostException;
+import java.rmi.ConnectException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -168,6 +170,8 @@ public class MatchManager {
                         notifier.sendError(nick, reason, null);
                         notifier.sendShutdown(nick);
                     }
+                } catch (ConnectException | NoRouteToHostException e) {
+                    ServerLogger.game("Player " + nick + " already unreachable, skipping notification");
                 } catch (Exception e) {
                     ServerLogger.game("Failed to notify " + nick + " about disconnection: " + e.getMessage());
                 } finally {
