@@ -69,7 +69,7 @@ class ClientControllerTest {
         // CountDownLatch safely handles waiting for async threads without busy-waiting loops
         CountDownLatch skipTurnLatch = new CountDownLatch(1);
 
-        @Override public void connect(String host, int port) {}
+        @Override public void connect(String host) {}
         @Override public void createLobby(String nickname, int numPlayers) {}
         @Override public void joinLobby(String nickname, String gameID) {}
         @Override public void disconnect() {} // Implemented to fulfill the interface contract

@@ -246,8 +246,27 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter {
         if (nickname == null || nickname.isBlank()) {
             return;
         }
+        String gameID = null;
+        ClientSocketHandler handler = connectedClients.get(nickname);
+        if (handler != null) {
+            gameID = handler.getGameID();
+        }
         if (hybrid != null) {
             hybrid.handleClientDisconnect(nickname, reason);
+        } else if (gameID != null && !gameID.isBlank()) {
+            closeConnectionsForGame(gameID);
+        }
+    }
+
+    public void closeConnectionsForGame(String gameID) {
+        if (gameID == null || gameID.isBlank()) {
+            return;
+        }
+        for (ClientSocketHandler handler : connectedClients.values()) {
+            String handlerGameID = handler.getGameID();
+            if (handlerGameID != null && handlerGameID.equalsIgnoreCase(gameID)) {
+                handler.close();
+            }
         }
     }
 }

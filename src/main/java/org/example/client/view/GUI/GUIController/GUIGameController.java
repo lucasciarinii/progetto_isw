@@ -108,7 +108,7 @@ public class GUIGameController {
         this.lastUpdate = update;
 
         updateInfoBar(update);
-        updateDeckBack(update.getCurrentEra());
+        updateDeckBack(update.getCurrentEra(), update.getCurrentRound());
         updateTopRow(update.getTopRow());
         updateBottomRow(update.getBottomRow());
         updateOfferTrack(update.getOfferTrack());
@@ -179,6 +179,12 @@ public class GUIGameController {
         }
     }
 
+    public void showGameAborted() {
+        statusLabel.setTextFill(Color.web("#e63946"));
+        statusLabel.setText("CONNECTION LOST - GAME ABORTED - Please close the game.");
+        selectedCards.clear();
+    }
+
     /**
      * Shows an informational message when no selectable cards are available.
      */
@@ -245,12 +251,18 @@ public class GUIGameController {
      *
      * @param era the current era
      */
-    private void updateDeckBack(Era era) {
-        String filename = switch (era) {
-            case I -> "back_era1.jpg";
-            case II -> "back_era2.jpg";
-            case III -> "back_era3.jpg";
-        };
+    private void updateDeckBack(Era era, int round) {
+        String filename;
+        if(round != 10) {
+            filename = switch (era) {
+                case I -> "back_era1.jpg";
+                case II -> "back_era2.jpg";
+                case III -> "back_era3.jpg";
+            };
+        }
+        else {
+            filename = "back_empty.jpg";
+        }
 
         String path = "/images/cards/" + filename;
 

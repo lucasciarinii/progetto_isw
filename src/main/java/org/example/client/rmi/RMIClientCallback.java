@@ -61,4 +61,13 @@ public interface RMIClientCallback extends Remote {
      */
     void receiveShutdown() throws RemoteException;
 
+    /**
+     * Ping called by server
+     *
+     * @throws RemoteException in order to handle keepalive
+     */
+    void receivePing() throws RemoteException;
+
+
+
 }

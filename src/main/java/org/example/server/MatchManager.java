@@ -169,9 +169,7 @@ public class MatchManager {
                         notifier.sendShutdown(nick);
                     }
                 } catch (Exception e) {
-                    if (!skipNotify) {
-                        ServerLogger.game("Failed to notify " + nick + " about disconnection: " + e.getMessage());
-                    }
+                    ServerLogger.game("Failed to notify " + nick + " about disconnection: " + e.getMessage());
                 } finally {
                     globalNicknames.remove(nick);
                     hybrid.removePlayerMapping(nick);

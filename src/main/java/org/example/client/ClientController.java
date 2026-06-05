@@ -59,13 +59,13 @@ public class ClientController implements GameEventListener {
     //! CONNECTION TO SERVER -----------------------------------------------
     public void createLobbyAndConnect(String host, int numPlayers, CommunicationProtocol protocol) throws Exception {
         networkAdapter = NetworkAdapterFactory.createClientAdapter(protocol, this);
-        networkAdapter.connect(host, resolvePort(protocol));
+        networkAdapter.connect(host);
         networkAdapter.createLobby(nickname, numPlayers);
     }
 
     public void joinLobbyAndConnect(String host, String gameID, CommunicationProtocol protocol) throws Exception {
         networkAdapter = NetworkAdapterFactory.createClientAdapter(protocol, this);
-        networkAdapter.connect(host, resolvePort(protocol));
+        networkAdapter.connect(host);
         networkAdapter.joinLobby(nickname, gameID);
     }
 
@@ -209,11 +209,6 @@ public class ClientController implements GameEventListener {
     }
 
     //! UTILITY METHODS -----------------------------------------------
-    private int resolvePort(CommunicationProtocol protocol) {
-        return protocol == CommunicationProtocol.SOCKET
-                ? ClientNetworkAdapter.SOCKET_PORT
-                : ClientNetworkAdapter.RMI_PORT;
-    }
 
     private boolean isMyTurn(GameStateUpdateMessage update) {
         return update.getCurrentPlayerNickname().equals(nickname) && isInteractivePhase(update.getCurrentPhase());

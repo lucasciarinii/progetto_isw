@@ -1,6 +1,7 @@
 package org.example.network.socket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.server.ServerLogger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,6 +10,11 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 
 /**
@@ -16,6 +22,13 @@ import java.util.Map;
  * It parses incoming JSON commands and routes them to SocketServerNetworkAdapter.
  */
 public class ClientSocketHandler implements Runnable {
+
+    // Ping-Pongs signals and timeouts
+    private final ScheduledExecutorService heartbeatScheduler = Executors.newSingleThreadScheduledExecutor();
+    private final AtomicLong lastPongAt = new AtomicLong(System.currentTimeMillis());
+    private static final long PING_INTERVAL_MS = 5_000;
+    private static final long PONG_TIMEOUT_MS = 15_000;
+
 
     private final Socket socket;
     private final SocketServerNetworkAdapter socketServerNetworkAdapter;
@@ -27,6 +40,7 @@ public class ClientSocketHandler implements Runnable {
     private final ObjectMapper mapper = new ObjectMapper();
     // Guard to avoid double-close and duplicate disconnect handling.
     private boolean closed = false;
+    private final AtomicBoolean disconnectNotified = new AtomicBoolean(false);
 
     private static boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
@@ -57,42 +71,38 @@ public class ClientSocketHandler implements Runnable {
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
+            startHeartbeat();
+
             String line;
             while ((line = in.readLine()) != null) {
                 processClientCommand(line);
             }
+            notifyDisconnect("Client closed connection");
 
         } catch (IOException e) {
-                System.err.println("[Server] Error handling client: " + e.getMessage());
-            } finally {
-                close();
-            }
+            System.err.println("[Server] Error handling client: " + e.getMessage());
+            notifyDisconnect("Socket error: " + e.getMessage());
+        } finally {
+            close();
+        }
     }
 
 
     /**
-     * Closes the handler and removes the client from the registry.
+     * Removes the client from connectedClients map and close the socket
      */
     public void close() {
+
         if (closed) {
             return;
         }
+
         closed = true;
-        if (nickname != null) {
-            connectedClients.remove(nickname);
-            // Notify the server so the match/lobby can be aborted.
-            socketServerNetworkAdapter.handleClientDisconnect(nickname, "Client disconnected");
-        }
+        connectedClients.remove(nickname);
+        heartbeatScheduler.shutdownNow();
+
         try {
-            if (in != null) {
-                in.close();
-            }
-            if (out != null) {
-                out.close();
-            }
-            if (socket != null && !socket.isClosed()) {
-                socket.close();
-            }
+            socket.close();
         } catch (IOException e) {
             System.err.println("[Server] Error closing client socket: " + e.getMessage());
         }
@@ -105,6 +115,10 @@ public class ClientSocketHandler implements Runnable {
      */
     public void send(String msg) {
         out.println(msg);
+    }
+
+    public String getGameID() {
+        return gameID;
     }
 
 
@@ -201,6 +215,10 @@ public class ClientSocketHandler implements Runnable {
                 case "skipTurn":
                     socketServerNetworkAdapter.skipTurn(this.nickname);
                     break;
+
+                case "pong":
+                    lastPongAt.set(System.currentTimeMillis());
+                    break;
             }
         } catch (IOException e) {
             System.err.println("[Server] Error processing command: " + e.getMessage());
@@ -230,6 +248,45 @@ public class ClientSocketHandler implements Runnable {
             out.println(mapper.writeValueAsString(msg));
         } catch (IOException e) {
             System.err.println("[Server] Failed to send gameID: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Check if the pong expires, if so calls the methods to close the connections
+     */
+    private void startHeartbeat() {
+        // Start a schedule at a fixed time and check for pong, then send ping
+        heartbeatScheduler.scheduleAtFixedRate(() -> {
+            long now = System.currentTimeMillis();
+            if (now - lastPongAt.get() > PONG_TIMEOUT_MS) {
+                notifyDisconnect("Timeout: connection lost with some players");
+                close();
+                return;
+            }
+            sendPing();
+        }, 0, PING_INTERVAL_MS, TimeUnit.MILLISECONDS);
+    }
+
+
+    /**
+     * Send a ping message to the client associated to the socket
+     */
+    private void sendPing() {
+        try {
+            Map<String, Object> msg = new HashMap<>();
+            msg.put("event", "PING");
+            out.println(mapper.writeValueAsString(msg));
+        } catch (Exception e) {
+            ServerLogger.server("Failed to ping client");
+        }
+    }
+
+    private void notifyDisconnect(String reason) {
+        if (isBlank(nickname)) {
+            return;
+        }
+        if (disconnectNotified.compareAndSet(false, true)) {
+            socketServerNetworkAdapter.handleClientDisconnect(nickname, reason);
         }
     }
 }

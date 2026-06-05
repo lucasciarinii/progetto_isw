@@ -43,7 +43,12 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
      */
     public HybridServerNetworkAdapter(String serverHost) {
         this.serverHost = serverHost;
-        System.setProperty("java.rmi.server.hostname", serverHost);
+
+        //System.setProperty("java.rmi.server.hostname", serverHost); // for classic parameters
+        System.setProperty("java.rmi.server.hostname", "25.23.2.248"); // for forced address
+        System.setProperty("sun.rmi.transport.tcp.connectTimeout", "3000");
+        System.setProperty("sun.rmi.transport.tcp.readTimeout", "3000");
+        System.setProperty("sun.rmi.transport.tcp.responseTimeout", "3000");
         //LobbyController sharedLobby = new LobbyController(this, this);
     }
 
@@ -189,6 +194,7 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
         }
         ServerLogger.server("Client disconnected: " + nickname + " (" + reason + ")");
         matchManager.abortGame(gameID, reason, nickname);
+        closeConnectionsForGame(gameID);
     }
 
     // Removes nickname mappings without aborting (used during cleanup).
@@ -230,5 +236,17 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
             return fromEnv.trim();
         }
         return "127.0.0.1";
+    }
+
+    public void closeConnectionsForGame(String gameID) {
+        if (gameID == null || gameID.isBlank()) {
+            return;
+        }
+        if (socketAdapter != null) {
+            socketAdapter.closeConnectionsForGame(gameID);
+        }
+        if (rmiAdapter != null) {
+            rmiAdapter.closeConnectionsForGame(gameID);
+        }
     }
 }
