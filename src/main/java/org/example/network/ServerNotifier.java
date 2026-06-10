@@ -62,6 +62,10 @@ public interface ServerNotifier {
      */
     void sendShutdown(String nickname) throws Exception;
 
+    /**
+     * Handles client disconnection by performing necessary cleanup and logging.
+     *
+     */
     void handleClientDisconnect(String nickname, String reason);
 }
 

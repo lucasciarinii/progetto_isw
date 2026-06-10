@@ -30,7 +30,6 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
     /**
      * Creates a hybrid adapter with a shared lobby for both protocols.
      *
-     * @throws Exception if the adapters cannot be initialized
      */
     public HybridServerNetworkAdapter() {
         this(resolveConfiguredHost());
@@ -39,7 +38,6 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
     /**
      * Creates a hybrid adapter with a shared lobby for both protocols.
      *
-     * @throws Exception if the adapters cannot be initialized
      */
     public HybridServerNetworkAdapter(String serverHost) {
         this.serverHost = serverHost;
@@ -114,18 +112,6 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
         matchManager.onLobbyReady(cleanID, serverController);
     }
 
-    /**
-     * Registers the protocol adapter used by a specific player.
-     *
-     * @param nickname the player nickname
-     * @param adapter  the adapter handling that player's connection (RMI or Socket)
-     */
-    public void registerRoute(String nickname, ServerNetworkAdapter adapter) {
-        // Keep the first registered route to avoid breaking an active client when a duplicate nickname appears.
-        routingTable.putIfAbsent(nickname, adapter);
-    }
-
-    // Route updates and detect failures to mark the client as disconnected.
     @Override
     public void sendLobbyUpdate(String nickname, LobbyUpdateMessage update) throws Exception {
         try {
@@ -186,6 +172,14 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
         }
     }
 
+    /**
+     * Handles a client disconnection by removing its routing entries and aborting
+     * the associated game session.
+     *
+     * @param nickname the nickname of the disconnected player
+     * @param reason description of the disconnection cause
+     */
+    @Override
     public void handleClientDisconnect(String nickname, String reason) {
         String gameID = playerToGameID.remove(nickname);
         routingTable.remove(nickname);
@@ -197,18 +191,47 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
         closeConnectionsForGame(gameID);
     }
 
-    // Removes nickname mappings without aborting (used during cleanup).
+    /**
+     * Registers the protocol adapter used by a specific player.
+     *
+     * @param nickname the player nickname
+     * @param adapter  the adapter handling that player's connection (RMI or Socket)
+     */
+    public void registerRoute(String nickname, ServerNetworkAdapter adapter) {
+        // Keep the first registered route to avoid breaking an active client when a duplicate nickname appears.
+        routingTable.putIfAbsent(nickname, adapter);
+    }
+
+    /**
+     * Removes all routing and game-ID mappings for the player
+     * Used during post-game cleanup when the session has already been terminated
+     *
+     * @param nickname the nickname of the player to remove
+     */
     public void removePlayerMapping(String nickname) {
         playerToGameID.remove(nickname);
         routingTable.remove(nickname);
     }
 
+    /**
+     * Associates a player nickname with a game session ID.
+     * Called when the player successfully joins or creates a lobby.
+     *
+     * @param nickname the player nickname
+     * @param gameID  the game session ID
+     */
     public void registerPlayerGameID(String nickname, String gameID) {
         String cleanID = gameID.trim().toUpperCase();
         playerToGameID.put(nickname, cleanID);
     }
 
-
+    /**
+     * Returns the {@link ServerController} managing the game session of the given player.
+     *
+     * @param nickname the player nickname
+     * @return the {@link ServerController} for the player's current game
+     * @throws IllegalStateException if no game session is found for the given nickname
+     */
     public ServerController resolveServerControllerByNickname(String nickname) {
         String gameID = playerToGameID.get(nickname);
         ServerController controller = gameControllers.get(gameID);
@@ -220,12 +243,27 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
 
     //! UTILITY METHODS
 
+    /**
+     * Resolves the protocol-specific adapter registered for the given player.
+     *
+     * @param nickname the player nickname
+     * @return the {@link ServerNetworkAdapter} handling that player's connection
+     * @throws IllegalStateException if no route has been registered for the nickname
+     */
     private ServerNetworkAdapter route(String nickname) {
         ServerNetworkAdapter adapter = routingTable.get(nickname);
         if (adapter == null) throw new IllegalStateException("No route for: " + nickname);
         return adapter;
     }
 
+    /**
+     * Resolves the server host address from system properties or environment variables,
+     * falling back to {@code "127.0.0.1"} if neither is set.
+     * Checks {@code mesos.server.host} (system property) first,
+     * then {@code SERVER_HOST} (environment variable).
+     *
+     * @return the resolved host address string
+     */
     private static String resolveConfiguredHost() {
         String fromProperty = System.getProperty("mesos.server.host");
         if (fromProperty != null && !fromProperty.isBlank()) {
@@ -238,6 +276,12 @@ public class HybridServerNetworkAdapter implements ServerNetworkAdapter, LobbyRe
         return "127.0.0.1";
     }
 
+    /**
+     * Closes all active connections belonging to a specific game session on both
+     * Socket and RMI adapters. Called after a game is aborted
+     *
+     * @param gameID the game session ID whose connections should be closed
+     */
     public void closeConnectionsForGame(String gameID) {
         if (gameID == null || gameID.isBlank()) {
             return;

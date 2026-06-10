@@ -16,8 +16,21 @@ public interface ClientNetworkAdapter {
      */
     void connect(String host) throws Exception;
 
+    /**
+     * Create a new game lobby.
+     * @param nickname the player nickname creating the lobby
+     * @param numPlayers the number of players for the new game
+     * @throws Exception if the lobby creation fails
+     */
     void createLobby(String nickname, int numPlayers) throws Exception;
 
+    /**
+     * Joins an existing game lobby.
+     *
+     * @param nickname the player nickname joining the lobby
+     * @param gameID the ID of the lobby to join
+     * @throws Exception if the join operation fails
+     */
     void joinLobby(String nickname, String gameID) throws Exception;
 
     /**
