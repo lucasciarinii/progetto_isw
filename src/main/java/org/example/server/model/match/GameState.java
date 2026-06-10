@@ -31,12 +31,18 @@ public class GameState {
 
     public int getCurrentRound(){return currentRound;}
 
+    /**
+    * Advances to the next round (incrementing just the round number)
+    */
     public void advanceRound(){currentRound++;}
 
     public Era getCurrentEra() {
         return currentEra;
     }
 
+    /**
+     * Advances to the next era
+     */
     public void advanceCurrentEra() {
         switch (currentEra) {
             case I -> currentEra = Era.II;
@@ -91,12 +97,25 @@ public class GameState {
         else currentPlayerIndex++;
     }
 
+    /**
+     * Checks if the current phase of the game is over.
+     *
+     * @return {@code true} if the current phase is GAME_OVER; {@code false} otherwise
+     */
     public boolean isGameOver() {
         return currentPhase == GamePhase.GAME_OVER;
     }
 
+    /**
+     * Returns the list of winners, which is empty until the game ends.
+     */
     public List<Player> getWinners(){return List.copyOf(winners);}
 
+    /**
+     * Sets the list of winners. It is only called once, when the game ends.
+     *
+     * @param players the list of winners to set
+     */
     public void setWinners(List<Player> players){
         this.winners = players;
         this.currentPhase = GamePhase.GAME_OVER;

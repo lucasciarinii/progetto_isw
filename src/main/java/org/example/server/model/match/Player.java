@@ -32,6 +32,13 @@ public class Player  {
     private int discountOnBuilding = 0;
     private int shamanStars = 0;
 
+    /**
+     * Visitor Pattern double dispatch:
+     * It's an instance of {@link Visitor} implemented as an anonymous class to handle drawn cards.
+     * This object encapsulates the sorting logic for drawn cards using the Visitor Pattern.
+     * It categorizes concrete card types into their respective list of that specific character while dynamically
+     * calculating and applying any immediate recruitment bonuses
+     */
     private final Visitor addToListVisitor = new Visitor() {
         // Every override adds the selected Character to the appropriate list.
         @Override
@@ -85,31 +92,25 @@ public class Player  {
         return nickname;
     }
 
-
     public int getPoints() {
         return points;
     }
-
 
     public void addPoints(int points) {
         this.points += points;
     }
 
-
     public int getFood() {
         return food;
     }
-
 
     public void addFood(int food) {
         this.food += food;
     }
 
-
     public int getDiscountOnSustenance() {
         return discountOnSustenance;
     }
-
 
     public void addDiscountOnSustenance(int discountOnSustenance) {
 
@@ -120,11 +121,9 @@ public class Player  {
         this.discountOnSustenance += discountOnSustenance;
     }
 
-
     public int getDiscountOnBuilding() {
         return discountOnBuilding;
     }
-
 
     public void addDiscountOnBuilding(int discountOnBuilding) {
 
@@ -135,11 +134,9 @@ public class Player  {
         this.discountOnBuilding += discountOnBuilding;
     }
 
-
     public int getShamanStars() {
         return shamanStars;
     }
-
 
     public void addShamanStars(int shamansStars) {
 
@@ -150,13 +147,21 @@ public class Player  {
         this.shamanStars += shamansStars;
     }
 
-
     public List<BuildingCard> getOwnedBuildings() {
         return Collections.unmodifiableList(ownedBuildings);
     }
 
     /**
-     * Adds a character to the player, updating derived bonuses through double dispatch.
+     * Accepts a generic card and routes it to the correct collection.
+     */
+    public void acceptCard(Card card) {
+        if (card != null) {
+            card.accept(addToListVisitor);
+        }
+    }
+
+    /**
+     * Adds a character to the player, updating derived bonuses through double dispatch (visitor pattern).
      */
     public void addCharacter(Character character) {
 
@@ -228,12 +233,4 @@ public class Player  {
         return this.nickname.hashCode();
     }
 
-    /**
-     * Accepts a generic card and routes it to the correct collection.
-     */
-    public void acceptCard(Card card) {
-        if (card != null) {
-            card.accept(addToListVisitor);
-        }
-    }
 }

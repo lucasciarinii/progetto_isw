@@ -6,14 +6,11 @@ import org.example.server.model.board.PlayerSlot;
 import org.example.server.model.board.turnOrderTileActions.OfferActionRegistry;
 import org.example.server.model.cards.Card;
 import org.example.server.model.cards.buildingCards.BuildingCard;
-import org.example.server.model.cards.buildingCards.RoundFlowBC;
 import org.example.server.model.cards.buildingCards.RoundFlowTotemBC;
 import org.example.server.model.cards.characters.Builder;
 import org.example.server.model.cards.characters.Inventor;
 import org.example.server.model.cards.eventCards.EventCard;
 import org.example.server.model.cards.eventCards.Sustenance;
-import org.example.server.model.enums.BuildingCardType;
-import org.example.server.model.enums.Era;
 import org.example.server.model.enums.OfferEffect;
 import org.example.server.model.exceptions.InvalidCardException;
 import org.example.server.model.exceptions.NoDrawableCardException;
@@ -30,7 +27,7 @@ public class Match {
     private final List<Player> players;
     private Board board;
     private GameState gameState;
-    private final OfferActionRegistry offerActionRegistry = new OfferActionRegistry();
+    private final OfferActionRegistry offerActionRegistry = new OfferActionRegistry(); // Registry of actions for offer effects, used to apply the correct move.
 
     public Match(List<Player> players) {
         Objects.requireNonNull(players, "Players list cannot be null");
@@ -44,7 +41,14 @@ public class Match {
 
     public GameState getGameState(){return gameState;}
 
-    private void init() { // initialize board and gameState following the setup steps
+    /**
+     * Initialize the game:
+     * - Randomize players order
+     * - Initialize the board (with decks, tiles, etc.)
+     * - Distribute starting food based on player order (rules)
+     * - Initialize GameState
+     */
+    private void init() { // initialize board and gameState following the setup step
         // Steps 9-10: randomize player order.
         Collections.shuffle(players);
 
@@ -215,6 +219,9 @@ public class Match {
         offerActionRegistry.getActionByEffect(OfferEffect.U).execute(this, player, ids);
     }
 
+    /**
+     * Utility method to extract integers from a comma-separated string.
+     */
     private List<Integer> extractIntegers(String inputString) {
         List<Integer> numbers = new ArrayList<>();
 
