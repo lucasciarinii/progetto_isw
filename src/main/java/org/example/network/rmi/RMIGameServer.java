@@ -11,9 +11,27 @@ import java.rmi.RemoteException;
  */
 public interface RMIGameServer extends Remote {
 
-    /* Create or join a game with the client callback used for server updates. */
+    /**
+     * Creates a new lobby, registers the first player, and reserves its nickname.
+     * The first player also defines the number of players expected for the match.
+     *
+     * @param nickname the chosen nickname of the player creating the lobby
+     * @param numPlayers the total number of players expected in the lobby
+     * @param callback the remote callback used by the server to notify the client
+     *
+     * @return the generated game ID for the new lobby
+     * @throws Exception if lobby creation, nickname reservation, or player registration fails
+     */
     String createLobby(String nickname, int numPlayers, RMIClientCallback callback) throws Exception;
 
+    /**
+     * Joins an existing lobby using the provided game ID and registers the client callback.
+     *
+     * @param nickname the chosen nickname of the joining player
+     * @param gameID the ID of the lobby to join
+     * @param callback the remote callback used by the server to notify the client
+     * @throws Exception if the lobby does not exist, is already started, the nickname is already used, or player registration fails
+     */
     void joinLobby(String nickname, String gameID, RMIClientCallback callback) throws Exception;
 
     /**
@@ -59,5 +77,12 @@ public interface RMIGameServer extends Remote {
      */
     void disconnect(String nickname) throws RemoteException;
 
+    /**
+     * Acknowledges a ping from the server heartbeat, confirming the client is alive.
+     * Invoked by the client after receiving {@code receivePing()} on its callback.
+     *
+     * @param nickname the player's nickname
+     * @throws RemoteException if the remote call fails
+     */
     void pong(String nickname) throws RemoteException;
 }

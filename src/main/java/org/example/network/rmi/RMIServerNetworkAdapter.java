@@ -75,6 +75,7 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
     /**
      * RMI does not require an explicit stop in this implementation.
      */
+    @SuppressWarnings("RedundantThrows")
     @Override
     public void stop() throws Exception {
         // RMI doesn't explicitly require a stop
@@ -249,11 +250,26 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
                 .skipTurn(nickname);
     }
 
+    /**
+     * Handles an explicit client-side disconnect request.
+     *
+     * @param nickname the nickname of the disconnecting player
+     * @throws RemoteException if the remote call fails
+     */
     @Override
     public void disconnect(String nickname) throws RemoteException {
         handleClientDisconnect(nickname, "Client requested disconnect");
     }
 
+    /**
+     * Removes the disconnected client from the internal RMI tracking structures (connections map)
+     * and delegates the higher-level disconnect handling to the hybrid adapter.
+     * If no hybrid adapter is available, it falls back to local cleanup for the
+     * associated game session.
+     *
+     * @param nickname the nickname of the disconnected player
+     * @param reason   a human-readable description of the disconnection cause
+     */
     @Override
     public void handleClientDisconnect(String nickname, String reason) {
         if (nickname == null || nickname.isBlank()) {
@@ -272,6 +288,12 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
 
     }
 
+    /**
+     * Removes all RMI-side connection state associated with the specified game session,
+     * including callback connections, heartbeat timestamps, and player-to-game mappings.
+     *
+     * @param gameID the identifier of the game session to clean up
+     */
     public void closeConnectionsForGame(String gameID) {
         if (gameID == null || gameID.isBlank()) {
             return;
@@ -287,21 +309,27 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
         }
     }
 
+    /**
+     * Starts the periodic heartbeat task used to detect unresponsive RMI clients.
+     * Each cycle checks the latest pong timestamp for every connected client and
+     * sends a ping through the client callback. Clients that exceed the configured
+     * timeout or fail to answer are treated as disconnected.
+     */
     private void startHeartbeat() {
         heartbeatScheduler.scheduleAtFixedRate(() -> {
             long now = System.currentTimeMillis();
-            // Usa una copia per evitare ConcurrentModificationException
+            // Use a copy to avoid ConcurrentModificationException
             for (String nick : new java.util.ArrayList<>(connections.keySet())) {
                 RMIClientConnection conn = connections.get(nick);
                 if (conn == null) continue;
                 try {
-                    // 1. Prima controlla il timeout sul pong
+                    // 1. First check the pong timeout
                     long lastPong = lastPongAt.getOrDefault(nick, 0L);
                     if (lastPong > 0 && now - lastPong > PONG_TIMEOUT_MS) {
                         handleClientDisconnect(nick, "Pong timeout: client non risponde");
                         continue;
                     }
-                    // 2. Poi prova a pingare: se il client è morto lancia RemoteException
+                    // 2. Then send a ping: if the client is unresponsive, it will trigger a RemoteException and be handled in the catch block
                     conn.getCallback().receivePing();
                 } catch (Exception e) {
                     handleClientDisconnect(nick, "Ping failed: " + e.getMessage());
@@ -309,6 +337,14 @@ public class  RMIServerNetworkAdapter extends UnicastRemoteObject implements Ser
             }
         }, PING_INTERVAL_MS, PING_INTERVAL_MS, TimeUnit.MILLISECONDS);
     }
+
+    /**
+     * Records the timestamp of the latest pong received from the given client,
+     * resetting its inactivity timer in the heartbeat
+     *
+     * @param nickname the player's nickname
+     * @throws RemoteException if the remote call fails
+     */
     @Override
     public void pong(String nickname) throws RemoteException {
         lastPongAt.put(nickname, System.currentTimeMillis());

@@ -3,7 +3,6 @@ package org.example.network.rmi;
 import org.example.client.ClientController;
 import org.example.client.rmi.RMIClientCallbackImpl;
 import org.example.network.ClientNetworkAdapter;
-import org.example.server.model.enums.GamePhase;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -53,6 +52,13 @@ public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
         server = (RMIGameServer) Naming.lookup(url);
     }
 
+    /**
+     * Resolves the client host address to be exported for incoming RMI callbacks.
+     * The resolution order is: system property, environment variable, first
+     * site-local IPv4 address, then localhost as a final fallback.
+     *
+     * @return the host address that the client exposes for RMI callbacks
+     */
     private static String resolveClientHost() {
         String fromProperty = System.getProperty("mesos.client.host");
         if (fromProperty != null && !fromProperty.isBlank()) {
@@ -87,6 +93,10 @@ public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
         }
     }
 
+    /**
+     * Creates a new lobby on the remote server and registers the client callback
+     * used to receive asynchronous server notifications.
+     */
     @Override
     public void createLobby(String nickname, int numPlayers) throws Exception {
         this.nickname = nickname;
@@ -96,6 +106,10 @@ public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
         clientController.setGameID(gameID);
     }
 
+    /**
+     * Joins an existing lobby on the remote server and registers the client callback
+     * used to receive asynchronous server notifications.
+     */
     @Override
     public void joinLobby(String nickname, String gameID) throws Exception {
         this.nickname = nickname;
@@ -148,6 +162,11 @@ public class RMIClientNetworkAdapter implements ClientNetworkAdapter {
     }
 
 
+    /**
+     * Starts a local timer that monitors the arrival of heartbeat pings from the server.
+     * If no ping is received within the configured timeout, the client reports the
+     * connection as aborted and attempts a local disconnect.
+     */
     private void startClientTimeoutChecker() {
         heartbeatScheduler.scheduleAtFixedRate(() -> {
             long now = System.currentTimeMillis();

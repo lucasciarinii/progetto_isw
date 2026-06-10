@@ -11,6 +11,7 @@ import org.example.server.model.enums.GamePhase;
  * Adapter that bridges ServerNotifier calls to the client's RMI callback.
  * The server uses this connection to send updates and errors to the client.
  */
+@SuppressWarnings("ClassCanBeRecord")
 public class RMIClientConnection implements ServerNotifier {
     private final RMIClientCallback callback;
 
@@ -75,6 +76,12 @@ public class RMIClientConnection implements ServerNotifier {
         callback.receiveLobbyUpdate(update);
     }
 
+    /**
+     * No operations for RMI client connections.
+     * Disconnect handling is managed by higher-level server components
+     * such as the RMI server adapter and the hybrid network adapter.
+     *
+     */
     @Override
     public void handleClientDisconnect(String nickname, String reason) {
         // No-op: RMI callbacks do not need server-side disconnect handling here.
