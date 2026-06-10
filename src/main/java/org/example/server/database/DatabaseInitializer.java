@@ -123,11 +123,12 @@ public final class DatabaseInitializer {
      * @param password database password
      * @throws SQLException when database creation fails
      */
+    @SuppressWarnings("SqlSourceToSinkFlow") // The database name is validated in parseUrl, so this is safe.
     private static void createDatabaseIfMissing(DbUrlParts parts, String user, String password) throws SQLException {
         try (Connection connection = DriverManager.getConnection(parts.serverUrl(), user, password);
              Statement statement = connection.createStatement()) {
-            statement.execute("CREATE DATABASE IF NOT EXISTS `" + parts.dbName() + "`");
-        }
+                statement.execute("CREATE DATABASE IF NOT EXISTS `" + parts.dbName() + "`");
+            }
     }
 
     /**
@@ -138,6 +139,7 @@ public final class DatabaseInitializer {
      * @param password database password
      * @throws SQLException when schema creation fails
      */
+
     private static void createSchemaIfMissing(String url, String user, String password) throws SQLException {
         try (Connection connection = DriverManager.getConnection(url, user, password);
              Statement statement = connection.createStatement()) {
@@ -161,6 +163,7 @@ public final class DatabaseInitializer {
                 )
                 """);
 
+            //noinspection SqlCaseVsIf
             statement.execute("""
                 CREATE OR REPLACE VIEW ranking_view AS
                 SELECT
