@@ -66,13 +66,16 @@ public class PlayerSlot {
             throw new IllegalArgumentException("tile already taken");
         }
 
+        // set the player to this specific slot
         this.player = player;
 
+        // If we are in the malus slot (food < 0) and the player doesn't have enough food, remove -2 from his points.
         if ( food < 0 && player.getFood() < 1 ) {
             player.addPoints(points);
             return;
         }
 
+        // otherwise, add the food to the player (handle both positive and negative food)
         player.addFood(food);
 
     }

@@ -174,6 +174,7 @@ public class Match {
     public void offerTileAction(Player player, String cards) throws NoDrawableCardException, InvalidCardException {
         List<Integer> ids = new ArrayList<>(extractIntegers(cards));
 
+        // Get the offer tile the player is on.
         OfferTile selectedTile = board.getOfferTrack().stream()
                 .filter(tile -> tile.getPlayer() != null )
                 .filter(tile -> tile.getPlayer().equals(player))
@@ -182,8 +183,10 @@ public class Match {
 
         OfferEffect effect = selectedTile.getOfferEffect();
 
+        // Apply the effect using the registry to find the correct action
         offerActionRegistry.getActionByEffect(effect).execute(this, player, ids);
 
+        // After applying the effect, insert the player on the first available slot of the turn order tile and in case apply the effect of the slot
         board.getTurnOrderTile().getSlots().stream()
                 .filter(slot -> slot.getPlayer() == null )
                 .findFirst()
@@ -208,6 +211,7 @@ public class Match {
                     totem.applyEffect(slot.getPlayer(), this);
                 });
 
+        // Now the player is already on the turn order tile, we can remove it from the offer tile
         selectedTile.removePlayer();
     }
 
