@@ -12,6 +12,7 @@ import java.util.List;
 /**
  * Serializable snapshot of a player's public state.
  */
+@SuppressWarnings("ClassCanBeRecord")
 public class PlayerSnapshot implements Serializable {
     private final String nickname;
     private final int food;

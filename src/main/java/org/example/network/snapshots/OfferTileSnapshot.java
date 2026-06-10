@@ -11,6 +11,7 @@ import java.io.Serializable;
 /**
  * Serializable snapshot of an offer tile and its occupant.
  */
+@SuppressWarnings("ClassCanBeRecord")
 public class OfferTileSnapshot implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -28,10 +29,10 @@ public class OfferTileSnapshot implements Serializable {
 
     /** @return the offer effect of the tile */
     public OfferEffect getOfferEffect()   { return offerEffect; }
+
     /** @return the nickname of the occupying player, or null */
     public String getOccupantNickname()   { return occupantNickname; }
     @JsonIgnore
-    /** @return true if the tile has no occupant */
     public boolean isFree()               { return occupantNickname == null; }
 
     @Override

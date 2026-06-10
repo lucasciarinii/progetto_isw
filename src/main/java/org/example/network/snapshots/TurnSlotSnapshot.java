@@ -10,6 +10,7 @@ import java.io.Serializable;
 /**
  * Serializable snapshot of a turn order slot.
  */
+@SuppressWarnings("ClassCanBeRecord")
 public class TurnSlotSnapshot implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -40,7 +41,6 @@ public class TurnSlotSnapshot implements Serializable {
     /** @return the nickname of the occupying player, or null */
     public String getOccupantNickname() { return occupantNickname; }
     @JsonIgnore
-    /** @return true if the slot has no occupant */
     public boolean isFree()             { return occupantNickname == null; }
 
     @Override
