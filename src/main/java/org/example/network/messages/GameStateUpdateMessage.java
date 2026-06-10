@@ -16,15 +16,14 @@ import java.util.List;
 /**
  * DTO carrying a full snapshot of the match state for client views.
  */
+@SuppressWarnings("ClassCanBeRecord")
 public class GameStateUpdateMessage implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
     private final int currentRound;
     private final Era currentEra;
     private final GamePhase currentPhase;
     private final String currentPlayerNickname;
-    private final List<String> turnOrder;
 
     private final List<Card> topRow;
     private final List<Card> bottomRow;
@@ -41,7 +40,6 @@ public class GameStateUpdateMessage implements Serializable {
             @JsonProperty("currentEra") Era currentEra,
             @JsonProperty("currentPhase") GamePhase currentPhase,
             @JsonProperty("currentPlayerNickname") String currentPlayerNickname,
-            @JsonProperty("turnOrder") List<String> turnOrder,
             @JsonProperty("topRow") List<Card> topRow,
             @JsonProperty("bottomRow") List<Card> bottomRow,
             @JsonProperty("offerTrack") List<OfferTileSnapshot> offerTrack,
@@ -53,7 +51,6 @@ public class GameStateUpdateMessage implements Serializable {
         this.currentEra = currentEra;
         this.currentPhase = currentPhase;
         this.currentPlayerNickname = currentPlayerNickname;
-        this.turnOrder = List.copyOf(turnOrder);
         this.topRow = List.copyOf(topRow);
         this.bottomRow = List.copyOf(bottomRow);
         this.offerTrack = List.copyOf(offerTrack);
@@ -70,8 +67,6 @@ public class GameStateUpdateMessage implements Serializable {
     public GamePhase getCurrentPhase()                { return currentPhase; }
     /** @return the nickname of the current player */
     public String getCurrentPlayerNickname()          { return currentPlayerNickname; }
-    /** @return the ordered nicknames for the turn sequence */
-    public List<String> getTurnOrder()                { return turnOrder; }
     /** @return the cards in the top row */
     public List<Card> getTopRow()                     { return topRow; }
     /** @return the cards in the bottom row */

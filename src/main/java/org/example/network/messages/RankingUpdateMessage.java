@@ -10,6 +10,7 @@ import java.util.List;
 /**
  * DTO carrying the global ranking list and the recipient's position.
  */
+@SuppressWarnings("ClassCanBeRecord")
 public class RankingUpdateMessage implements Serializable {
 
     private final List<RankingEntry> ranking;

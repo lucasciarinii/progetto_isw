@@ -3,14 +3,16 @@ package org.example.network.messages;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
 /**
  * DTO sent to lobby clients with the current waiting room status.
  */
+@SuppressWarnings("ClassCanBeRecord")
 public class LobbyUpdateMessage implements Serializable {
-    private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
     private final int connectedPlayers;
     private final int requiredPlayers;

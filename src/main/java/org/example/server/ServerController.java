@@ -302,12 +302,8 @@ public class ServerController implements Runnable {
         GameState gs = match.getGameState();
         Board board = match.getBoard();
 
-        // 1. turnOrder: nicknames list in the correct turn order
-        List<String> turnOrder = gs.getTurnOrder().stream()
-                .map(Player::getNickname)
-                .collect(Collectors.toList());
 
-        // 2. offerTrack: snapshot of OfferTrack (list of OfferTileSnapshot)
+        // 1. offerTrack: snapshot of OfferTrack (list of OfferTileSnapshot)
         List<OfferTileSnapshot> offerTrack = board.getOfferTrack().stream()
                 .map(tile -> new OfferTileSnapshot(
                         tile.getOfferEffect(),
@@ -315,7 +311,7 @@ public class ServerController implements Runnable {
                 ))
                 .collect(Collectors.toList());
 
-        // 3. turnOrderSlots: snapshot of TurnOrderTile
+        // 2. turnOrderSlots: snapshot of TurnOrderTile
         List<PlayerSlot> slots = board.getTurnOrderTile().getSlots();
         List<TurnSlotSnapshot> turnOrderSlots = new ArrayList<>();
         for (int i = 0; i < slots.size(); i++) {
@@ -328,7 +324,7 @@ public class ServerController implements Runnable {
             ));
         }
 
-        // 4. players: snapshot of each player
+        // 3. players: snapshot of each player
         List<PlayerSnapshot> players = match.getPlayers().stream()
                 .map(p -> new PlayerSnapshot(
                         p.getNickname(),
@@ -345,7 +341,7 @@ public class ServerController implements Runnable {
                 ))
                 .collect(Collectors.toList());
 
-        // 5. winners: winner/winners nicknames (empty if not over)
+        // 4. winners: winner/winners nicknames (empty if not over)
         List<String> winners = gs.getWinners().stream()
                 .map(Player::getNickname)
                 .collect(Collectors.toList());
@@ -355,7 +351,6 @@ public class ServerController implements Runnable {
                 gs.getCurrentEra(),
                 gs.getCurrentPhase(),
                 gs.getCurrentPlayer().getNickname(),
-                turnOrder,
                 new ArrayList<>(board.getTopRow()),
                 new ArrayList<>(board.getBottomRow()),
                 offerTrack,
