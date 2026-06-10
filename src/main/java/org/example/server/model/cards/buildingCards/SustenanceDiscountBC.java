@@ -62,7 +62,7 @@ public class SustenanceDiscountBC extends BuildingCard {
      */
     public void applyEffect(Player owner, Match match) {
         // Lookup the discount by character type, defaulting to 0 if unsupported.
-        int discount = DISCOUNT_LOGIC.getOrDefault(characterEffect, p -> 0).apply(owner);
+        int discount = DISCOUNT_LOGIC.getOrDefault(characterEffect, _ -> 0).apply(owner);
         owner.addDiscountOnSustenance(discount);
     }
 }

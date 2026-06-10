@@ -24,7 +24,7 @@ public class DDActionStrategy implements OfferActionStrategy {
      * @param ids selected card ids
      */
     @Override
-    public void execute(Match match, Player player, List ids) throws NoDrawableCardException, InvalidCardException {
+    public void execute(Match match, Player player, List<Integer> ids) throws NoDrawableCardException, InvalidCardException {
         // Count how many drawable cards are currently available in the bottom row.
         int toPick = (int) Math.min(2, countPickable(match.getBoard().getBottomRow(), player));
 
@@ -39,7 +39,7 @@ public class DDActionStrategy implements OfferActionStrategy {
         }
 
         // Resolve the selected cards only after input validation.
-        Card c1 = singleD.execute(match, player, (int) ids.get(0));
+        Card c1 = singleD.execute(match, player, ids.get(0));
         Card c2 = (toPick == 2) ? singleD.execute(match, player, (int) ids.get(1)) : null;
 
         // Apply the cards and remove them from the board.

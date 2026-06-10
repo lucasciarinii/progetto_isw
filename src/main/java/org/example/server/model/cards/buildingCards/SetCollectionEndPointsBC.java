@@ -70,10 +70,10 @@ public class SetCollectionEndPointsBC extends BuildingCard {
         //A complete set contains one character of each type,
         //so the total number of complete sets is the minimum count
         //among all character type lists
-        int inventors = owner.getInventors().size();
         int gatherers = owner.getGatherers().size();
-        int shamans = owner.getShamans().size();
+        int inventors = owner.getInventors().size();
         int builders = owner.getBuilders().size();
+        int shamans = owner.getShamans().size();
         int artists = owner.getArtists().size();
         int hunters = owner.getHunters().size();
 

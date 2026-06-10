@@ -26,9 +26,9 @@ public class DUActionStrategy implements OfferActionStrategy {
      * @param ids selected card ids
      */
     @Override
-    public void execute(Match match, Player player, List ids) throws NoDrawableCardException, InvalidCardException {
-        List bottomRow = match.getBoard().getBottomRow();
-        List topRow = match.getBoard().getTopRow();
+    public void execute(Match match, Player player, List<Integer> ids) throws NoDrawableCardException, InvalidCardException {
+        List<Card> bottomRow = match.getBoard().getBottomRow();
+        List<Card> topRow = match.getBoard().getTopRow();
 
         // Count how many drawable cards are currently available in both rows.
         int pickableBottom = (int) countPickable(bottomRow, player);
@@ -49,7 +49,7 @@ public class DUActionStrategy implements OfferActionStrategy {
         }
 
         // Resolve the selected cards only after input validation.
-        Card cBottom = (toPickBottom == 1) ? singleD.execute(match, player, (int) ids.get(0)) : null;
+        Card cBottom = (toPickBottom == 1) ? singleD.execute(match, player, (int) ids.getFirst()) : null;
         Card cTop = (toPickTop == 1) ? singleU.execute(match, player, (int) ids.get(toPickBottom)) : null;
 
         // Apply the cards and remove them from the board.
