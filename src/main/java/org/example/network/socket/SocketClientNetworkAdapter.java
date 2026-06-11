@@ -1,5 +1,6 @@
 package org.example.network.socket;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.client.ClientController;
 import org.example.network.ClientNetworkAdapter;
@@ -70,6 +71,10 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
 
     }
 
+    /**
+     * Sends a request to the server to create a new lobby and register this client
+     * as its first player.
+     */
     @Override
     public void createLobby(String nickname, int numPlayers) throws Exception {
         this.nickname = nickname;
@@ -83,6 +88,9 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
         out.println(mapper.writeValueAsString(registrationCmd));
     }
 
+    /**
+     * Sends a request to the server to join an existing lobby.
+     */
     @Override
     public void joinLobby(String nickname, String gameID) throws Exception {
         this.nickname = nickname;
@@ -172,7 +180,7 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
                 try {
                     disconnect();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.err.println("[Socket Client] Failed to disconnect cleanly: " + e.getMessage());
                 }
             }
 
@@ -188,7 +196,8 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
      */
     private void processServerMessage(String message) {
         try {
-            Map<String, Object> msg = mapper.readValue(message, Map.class);
+            Map<String, Object> msg = mapper.readValue(message, new TypeReference<>() {}); // deserialize incoming JSON command (parse JSON command into a generic map)
+
             String event = (String) msg.get("event");
 
             switch (event) {
@@ -239,6 +248,11 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
         }
     }
 
+    /**
+     * Starts a local timer that checks whether heartbeat pings from the server
+     * are still being received. If the timeout expires, the connection is reported
+     * as aborted and the socket is closed.
+     */
     private void startClientTimeoutChecker() {
         // Start a schedule at a fixed time and check for ping, then send pong
 

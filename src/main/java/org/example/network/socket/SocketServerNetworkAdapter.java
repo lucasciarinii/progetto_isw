@@ -32,6 +32,10 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter {
     private final MatchManager matchManager;
 
 
+    /**
+     * Creates a socket-based server adapter bound to the shared match manager
+     * and hybrid network adapter.
+     */
     public SocketServerNetworkAdapter(MatchManager matchManager, HybridServerNetworkAdapter hybrid) {
         this.matchManager = matchManager;
         this.hybrid = hybrid;
@@ -167,6 +171,15 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter {
         }
     }
 
+    /**
+     * Creates a new game lobby for a socket client and registers the socket route
+     * in the hybrid adapter before delegating lobby creation to the match manager.
+     *
+     * @param nickname the nickname of the player creating the lobby
+     * @param numPlayers the total number of players expected in the lobby
+     * @return the generated game session ID
+     * @throws Exception if route registration or lobby creation fails
+     */
     public String createGame(String nickname, int numPlayers) throws Exception {
         if (hybrid != null) {
             hybrid.registerRoute(nickname, this);
@@ -174,6 +187,14 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter {
         return matchManager.createLobby(nickname, numPlayers);
     }
 
+    /**
+     * Registers the socket route for a client and delegates the join request
+     * to the match manager for an existing lobby.
+     *
+     * @param nickname the nickname of the joining player
+     * @param gameID   the identifier of the lobby to join
+     * @throws Exception if route registration or lobby join fails
+     */
     public void joinGame(String nickname, String gameID) throws Exception {
         if (hybrid != null) {
             hybrid.registerRoute(nickname, this);
@@ -240,7 +261,9 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter {
         }
     }
 
-    // Propagates disconnections to the hybrid adapter.
+    /**
+     * Handles the disconnection of a socket client and propagates the event to the hybrid adapter.
+     */
     @Override
     public void handleClientDisconnect(String nickname, String reason) {
         if (nickname == null || nickname.isBlank()) {
@@ -258,6 +281,12 @@ public class SocketServerNetworkAdapter implements ServerNetworkAdapter {
         }
     }
 
+    /**
+     * Closes all socket client handlers associated with the specified game session.
+     *
+     * @param gameID the identifier of the game session whose socket connections
+     *               must be closed
+     */
     public void closeConnectionsForGame(String gameID) {
         if (gameID == null || gameID.isBlank()) {
             return;

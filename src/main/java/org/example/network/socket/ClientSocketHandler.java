@@ -1,5 +1,6 @@
 package org.example.network.socket;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.server.ServerLogger;
 
@@ -34,7 +35,6 @@ public class ClientSocketHandler implements Runnable {
     private final SocketServerNetworkAdapter socketServerNetworkAdapter;
     private final Map<String, ClientSocketHandler> connectedClients;
     private PrintWriter out;
-    private BufferedReader in;
     private String nickname;
     private String gameID;
     private final ObjectMapper mapper = new ObjectMapper();
@@ -69,7 +69,7 @@ public class ClientSocketHandler implements Runnable {
 
         try {
             out = new PrintWriter(socket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             startHeartbeat();
 
@@ -119,10 +119,14 @@ public class ClientSocketHandler implements Runnable {
         out.println(msg);
     }
 
+    /**
+     * Returns the game session ID associated with this client connection.
+     *
+     * @return the game ID
+     */
     public String getGameID() {
         return gameID;
     }
-
 
 
     /**
@@ -134,7 +138,7 @@ public class ClientSocketHandler implements Runnable {
      */
     private void processClientCommand(String command) {
         try {
-            Map<String, Object> cmd = mapper.readValue(command, Map.class);
+            Map<String, Object> cmd = mapper.readValue(command, new TypeReference<>() {}); // deserialize incoming JSON command (parse JSON command into a generic map)
             String action = (String) cmd.get("action");
 
             String cards;
@@ -229,6 +233,11 @@ public class ClientSocketHandler implements Runnable {
         }
     }
 
+    /**
+     * Sends a JSON error event scoped to the lobby phase to the client.
+     *
+     * @param message the error description to deliver
+     */
     private void sendLobbyError(String message) {
         try {
             String safeMessage = message != null ? message : "Unknown error";
@@ -242,6 +251,9 @@ public class ClientSocketHandler implements Runnable {
         }
     }
 
+    /**
+     * Sends the assigned game session ID back to the client after a successful lobby creation.
+     */
     private void sendGameID() {
         try {
             Map<String, Object> msg = new HashMap<>();
@@ -283,6 +295,12 @@ public class ClientSocketHandler implements Runnable {
         }
     }
 
+    /**
+     * Notifies the server adapter of a client disconnection exactly once,
+     * guarded by a compare-and-set to prevent duplicate disconnect events.
+     *
+     * @param reason a human-readable description of the disconnection cause
+     */
     private void notifyDisconnect(String reason) {
         if (isBlank(nickname)) {
             return;
