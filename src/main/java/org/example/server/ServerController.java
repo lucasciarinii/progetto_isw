@@ -32,7 +32,7 @@ public class ServerController implements Runnable {
     private final ServerNotifier notifier;
     private GameOverListener onGameOver;
     private boolean waitingForRoundFlow = false;
-    private String roundFlowPlayerNick  = null;
+    private String roundFlowPlayerNick = null;
 
 
     //! CONSTRUCTOR ---------------------------------------------------------------------------
@@ -41,6 +41,9 @@ public class ServerController implements Runnable {
         this.notifier = notifier;
     }
 
+    /**
+     * Starts the controller execution by sending the initial game state to all players.
+     */
     @Override
     public void run() {
         sendInitialState();
@@ -55,6 +58,11 @@ public class ServerController implements Runnable {
         this.onGameOver = listener;
     }
 
+    /**
+     * Returns the list of players participating in the current match.
+     *
+     * @return the players of the current match
+     */
     public List<Player> getPlayers() {
         return match.getPlayers();
     }
@@ -235,18 +243,43 @@ public class ServerController implements Runnable {
     }
 
     //! UTILITY METHODS ---------------------------------------------------------------------------
+    /**
+     * Checks whether the given nickname does not match the current player in turn.
+     *
+     * @param nick the nickname to verify
+     * @return {@code true} if the nickname does not belong to the current player
+     */
     private boolean isWrongPlayer(String nick) {
         return !match.getGameState().getCurrentPlayer().getNickname().equals(nick);
     }
 
+    /**
+     * Checks whether the current game phase differs from the expected one.
+     *
+     * @param expected the expected game phase
+     * @return {@code true} if the current phase is different from the expected one
+     */
     private boolean isWrongPhase(GamePhase expected) {
         return !(match.getGameState().getCurrentPhase() == expected);
     }
 
+    /**
+     * Checks whether the given nickname belongs to a player in the current match.
+     *
+     * @param nickname the nickname to verify
+     * @return {@code true} if the player exists in the match
+     */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean isKnownPlayer(String nickname) {
         return match.getPlayers().stream().anyMatch(p -> p.getNickname().equals(nickname));
     }
 
+    /**
+     * Returns the player associated with the given nickname.
+     *
+     * @param nick the player's nickname
+     * @return the matching player
+     */
     private Player getPlayerByNickname(String nick) {
         return match.getPlayers().stream()
                 .filter(p -> p.getNickname().equals(nick))

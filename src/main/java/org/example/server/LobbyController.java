@@ -1,11 +1,5 @@
 package org.example.server;
 
-/**
- * Controller that manages the lobby before the game starts.
- * Lobby is created with already decided number of players (2-5), and once
- * the lobby is full a match and its controller are created.
- */
-
 import org.example.network.ServerNotifier;
 import org.example.network.messages.LobbyUpdateMessage;
 import org.example.server.model.match.Match;
@@ -18,17 +12,25 @@ import java.util.List;
 
 public class LobbyController {
 
-
     // Keeps the order of connection: nicknames
     private final LinkedHashSet<String> waitingClients = new LinkedHashSet<>();
 
-    // Callback invoked when the lobby is full.
     private final LobbyReadyListener onReady;
     private final ServerNotifier notifier;
     private final String gameID;
     private final int numPlayers;
     private boolean started = false;
 
+    /**
+     * Creates a lobby controller for a specific game session.
+     * The lobby collects players until the configured number is reached, then
+     * creates the corresponding match and server controller.
+     *
+     * @param onReady listener notified when the lobby is full and the game can start
+     * @param notifier network notifier used to send lobby updates to clients
+     * @param gameID the identifier associated with this lobby
+     * @param numPlayers the number of players required to start the game
+     */
     public LobbyController(LobbyReadyListener onReady, ServerNotifier notifier, String gameID, int numPlayers) {
         this.onReady = onReady;
         this.notifier = notifier;
@@ -36,12 +38,10 @@ public class LobbyController {
         this.numPlayers = numPlayers;
     }
 
-    /* Registers a new player in the lobby
-        * @param nickname       player's nickname
-        * @param numPlayers     desired number of players (used only by the first one)
-        * @param callback       RMI callback to communicate with this client
+    /** Registers a new player in the lobby
+        * @param nickname player's nickname
     */
-    public synchronized void registerPlayer(String nickname) throws Exception {
+    public synchronized void registerPlayer(String nickname) {
 
         if (started) {
             throw new IllegalStateException("Lobby already started");
@@ -68,7 +68,12 @@ public class LobbyController {
         }
     }
 
-    private synchronized void startGame() throws Exception {
+    /**
+     * Marks the lobby as started, notifies all waiting clients that the match is
+     * beginning, creates the model-side players and match, and instantiates the
+     * corresponding server controller.
+     */
+    private synchronized void startGame() {
         if (started) {
             return;
         }
@@ -124,16 +129,29 @@ public class LobbyController {
         return waitingClients.contains(nickname);
     }
 
+    /**
+     * Returns whether this lobby has already transitioned to a started game.
+     *
+     * @return {@code true} if the lobby has started, {@code false} otherwise
+     */
     public synchronized boolean isStarted() {
         return started;
     }
 
-    // Returns a snapshot of waiting nicknames for cleanup when a lobby is aborted.
-    public synchronized List<String> getWaitingNicknames() {
+    /**
+     * Returns a snapshot of the nicknames currently waiting in the lobby
+     *
+     * @return a copy of the waiting players' nicknames
+     */    public synchronized List<String> getWaitingNicknames() {
         return new ArrayList<>(waitingClients);
     }
 
-    // Cancels the lobby and notifies all waiting clients with an error + shutdown.
+    /**
+     * Cancels the lobby and notifies all waiting clients with an error followed
+     * by a shutdown event.
+     *
+     * @param reason the reason for the lobby cancellation
+     */
     public synchronized void cancelLobby(String reason) {
         for (String nickname : waitingClients) {
             try {

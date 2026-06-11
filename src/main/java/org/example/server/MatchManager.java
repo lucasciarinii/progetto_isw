@@ -23,21 +23,43 @@ public class MatchManager {
 
     private final Map<String, LobbyController> lobbies = new ConcurrentHashMap<>();
     private final Map<String, ServerController> games = new ConcurrentHashMap<>();
+    // TODO: CHECK
     private final Map<String, Thread> gameThreads = new ConcurrentHashMap<>();
     private final Set<String> globalNicknames = ConcurrentHashMap.newKeySet();
 
-
+    /**
+     * Creates a match manager responsible for lobby lifecycle, active matches,
+     * and nickname reservation across all game sessions.
+     *
+     * @param onReady listener notified when a lobby becomes ready to start
+     * @param notifier notifier used to send events to connected clients
+     * @param hybrid hybrid adapter used for player-to-game routing and cleanup
+     */
     public MatchManager(LobbyReadyListener onReady, ServerNotifier notifier, HybridServerNetworkAdapter hybrid) {
         this.onReady = onReady;
         this.notifier = notifier;
         this.hybrid = hybrid;
     }
 
+    /**
+     * Returns {@code true} if the given string is {@code null} or contains only whitespace.
+     *
+     * @param value the string to check
+     * @return {@code true} if the string is blank, {@code false} otherwise
+     */
     private static boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
     }
 
-    public String createLobby(String nickname, int numPlayers) throws Exception {
+    /**
+     * Creates a new lobby, reserves the creator's nickname, and registers the
+     * first player in the newly created session.
+     *
+     * @param nickname   the nickname of the player creating the lobby
+     * @param numPlayers the number of players required to start the game
+     * @return the generated game session ID
+     */
+    public String createLobby(String nickname, int numPlayers) {
 
         if (isBlank(nickname)) {
             throw new IllegalArgumentException("Nickname cannot be empty");
@@ -68,7 +90,15 @@ public class MatchManager {
         return gameID;
     }
 
-
+    /**
+     * Registers a player into an existing lobby after validating the lobby state
+     * and reserving the player's nickname globally.
+     *
+     * @param nickname the nickname of the joining player
+     * @param gameID the identifier of the lobby to join
+     * @throws Exception if the lobby is invalid, already started, the nickname is taken,
+     *                   or player registration fails
+     */
     public void joinLobby(String nickname, String gameID) throws Exception{
         if (isBlank(gameID)) {
             throw new IllegalArgumentException("Game code cannot be empty");
@@ -84,7 +114,7 @@ public class MatchManager {
             throw new IllegalStateException("Lobby already started");
         }
 
-        // If the lobby does not exsist, reject with an error
+        // If the lobby does not exist, reject with an error
         LobbyController lobbyController = lobbies.get(cleanID);
         if ( lobbyController == null ) {
             throw new IllegalStateException("Lobby not found or already finished");
@@ -109,6 +139,13 @@ public class MatchManager {
         hybrid.registerPlayerGameID(nickname, cleanID);
     }
 
+    /**
+     * Moves a ready lobby into the active games registry and starts its dedicated
+     * server-controller thread.
+     *
+     * @param gameID           the identifier of the ready game session
+     * @param serverController the controller managing the started match
+     */
     public void onLobbyReady(String gameID, ServerController serverController) {
         String cleanID = gameID.trim().toUpperCase();
 
@@ -128,7 +165,12 @@ public class MatchManager {
         gameThread.start();
     }
 
-
+    /**
+     * Cleans up the registries associated with a completed game session and releases
+     * the nicknames of all participating players.
+     *
+     * @param gameID the identifier of the completed game session
+     */
     public void onGameOver(String gameID) {
         String cleanID = gameID.trim().toUpperCase();
 
@@ -142,7 +184,15 @@ public class MatchManager {
         ServerLogger.game("Game session ended with code: " + cleanID);
     }
 
-    // Aborts a lobby or a running match, optionally skipping notifications to a disconnected player.
+    /**
+     * Aborts a lobby or a running game session, notifies the remaining players when possible,
+     * and releases all associated shared state such as nicknames, mappings, and threads.
+     *
+     * @param gameID the identifier of the session to abort
+     * @param reason the reason for the abort
+     * @param disconnectedNickname the nickname of the player that triggered the abort,
+     *                             or {@code null} if not applicable
+     */
     public void abortGame(String gameID, String reason, String disconnectedNickname) {
         String cleanID = gameID.trim().toUpperCase();
         String cleanDisconnected = isBlank(disconnectedNickname) ? null : disconnectedNickname.trim();
@@ -185,7 +235,13 @@ public class MatchManager {
     }
 
     //! UTILITY METHODS -------------------------------------------------------------------------------------------------
-    // The method generates an uniqueID without collisions with ID of already existing games or lobbies
+    /**
+     * Generates a unique game session identifier that does not collide with any
+     * existing lobby or running match.
+     *
+     * @return a unique game session ID
+     * @throws IllegalStateException if a unique ID cannot be generated after many attempts
+     */
     private String generateUniqueID() {
         String newID;
         int attempts = 0;
@@ -208,6 +264,12 @@ public class MatchManager {
         return newID;
     }
 
+    /**
+     * Reserves a nickname globally across all lobbies and active matches.
+     *
+     * @param nickname the nickname to reserve
+     * @throws IllegalArgumentException if the nickname is already in use
+     */
     private void reserveNickname(String nickname) {
         if (!globalNicknames.add(nickname)) {
             throw new IllegalArgumentException("Nickname already used: " + nickname);
