@@ -23,10 +23,9 @@ import java.util.List;
  */
 public class ClientController implements GameEventListener {
     private String nickname;
-    private String gameID;
     private ClientNetworkAdapter networkAdapter;
     private final UIHandler ui;
-    GameStateUpdateMessage lastGameStateUpdate;
+    private GameStateUpdateMessage lastGameStateUpdate;
 
     /**
      * Creates a client controller for a specific player.
@@ -51,24 +50,45 @@ public class ClientController implements GameEventListener {
     }
 
     public void setGameID(String gameID) {
-        this.gameID = gameID;
         ui.setGameID(gameID);
     }
 
 
     //! CONNECTION TO SERVER -----------------------------------------------
+    /**
+     * Forward to the networkAdapter the connection to server and creation of lobby
+     *
+     * @param host the server host address
+     * @param numPlayers the number of players required to start the game
+     * @param protocol the communication protocol to use
+     * @throws Exception if the connection or lobby creation fails
+     */
     public void createLobbyAndConnect(String host, int numPlayers, CommunicationProtocol protocol) throws Exception {
         networkAdapter = NetworkAdapterFactory.createClientAdapter(protocol, this);
         networkAdapter.connect(host);
         networkAdapter.createLobby(nickname, numPlayers);
     }
 
+    /**
+     * Forward to the networkAdapter the connection to server and joining to lobby
+     *
+     * @param host the server host address
+     * @param gameID the identifier of the lobby to join
+     * @param protocol the communication protocol to use
+     * @throws Exception if the connection or lobby join fails
+     */
     public void joinLobbyAndConnect(String host, String gameID, CommunicationProtocol protocol) throws Exception {
         networkAdapter = NetworkAdapterFactory.createClientAdapter(protocol, this);
         networkAdapter.connect(host);
         networkAdapter.joinLobby(nickname, gameID);
     }
 
+    /**
+     * Forward to the networkAdapter the request to join an existing lobby using an already initialized network adapter.
+     *
+     * @param gameID the identifier of the lobby to join
+     * @throws Exception if the client is not connected or the join request fails
+     */
     public void joinLobby(String gameID) throws Exception {
         if (networkAdapter == null) {
             throw new IllegalStateException("Client not connected");
@@ -76,7 +96,10 @@ public class ClientController implements GameEventListener {
         networkAdapter.joinLobby(nickname, gameID);
     }
 
-    // client disconnect used on GUI window close.
+    /**
+     * Disconnects the client from the server
+     * Used when the GUI window is closed
+     */
     public void disconnect() {
         if (networkAdapter == null) {
             return;
@@ -113,8 +136,9 @@ public class ClientController implements GameEventListener {
         networkAdapter.roundFlowCardRequest(cards);
     }
 
+    //! EVENTS FROM SERVER -----------------------------------------------
     /**
-     * Receives a lobby update update from the server and drives the UI flow.
+     * Receives a lobby update from the server and drives the UI flow.
      */
     @Override
     public void onLobbyUpdate(LobbyUpdateMessage update) {
@@ -135,10 +159,10 @@ public class ClientController implements GameEventListener {
                         .orElse(null);
                 if (!hasPickableCards(effect, update)) {
                     ui.displayNoCardsPickable();
-                    // skipTurn() must be called on a separate thread to avoid a deadlock:
-                    // onUpdate() runs on the RMI callback thread, and calling server.skipTurn()
-                    // synchronously from it would block that thread while waiting for the server
-                    // to respond — which it cannot, since the callback thread is still occupied.
+                    /* skipTurn() must be called on a separate thread to avoid a deadlock:
+                    onUpdate() runs on the RMI callback thread, and calling server.skipTurn()
+                    synchronously from it would block that thread while waiting for the server
+                    to respond — which it cannot, since the callback thread is still occupied.*/
                     new Thread(() -> {
                         try {
                             networkAdapter.skipTurn();
@@ -210,14 +234,33 @@ public class ClientController implements GameEventListener {
 
     //! UTILITY METHODS -----------------------------------------------
 
+    /**
+     * Checks whether the current update indicates that it is this player's turn
+     * during an interactive phase.
+     *
+     * @param update the current game state snapshot
+     * @return {@code true} if it is this player's turn
+     */
     private boolean isMyTurn(GameStateUpdateMessage update) {
         return update.getCurrentPlayerNickname().equals(nickname) && isInteractivePhase(update.getCurrentPhase());
     }
 
+    /**
+     * Checks whether the given phase requires direct player input
+     *
+     * @param phase the phase to evaluate
+     * @return {@code true} if the phase is interactive
+     */
     private boolean isInteractivePhase(GamePhase phase) {
         return phase == GamePhase.PLACE_TOTEMS || phase == GamePhase.PLAYER_TURN;
     }
 
+    /**
+     * Checks whether the current game state indicates a pending RoundFlow request
+     *
+     * @param update the current game state snapshot
+     * @return {@code true} if the current player must resolve a RoundFlow effect
+     */
     private boolean isRoundFlowPending(GameStateUpdateMessage update) {
         if (update.getCurrentPhase() != GamePhase.END_ROUND) {
             return false;
@@ -229,6 +272,13 @@ public class ClientController implements GameEventListener {
                 .orElse(false);
     }
 
+    /**
+     * Counts how many cards in the given row can currently be picked by the player
+     *
+     * @param row the row of cards to inspect
+     * @param player the player snapshot used to evaluate available resources
+     * @return the number of pickable cards
+     */
     private long countPickable(List<Card> row, PlayerSnapshot player) {
         return row.stream()
                 .filter(c -> c.isCharacter() ||
@@ -238,6 +288,15 @@ public class ClientController implements GameEventListener {
                 .count();
     }
 
+    /**
+     * Checks whether the current player has at least one card that can be picked
+     * according to the given offer effect and current game state.
+     *
+     * @param effect the effect of the selected offer tile
+     * @param update the current game state snapshot
+     * @return {@code true} if at least one valid card can be picked
+     */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean hasPickableCards(OfferEffect effect, GameStateUpdateMessage update) {
         if (effect == null) return false;
 

@@ -10,7 +10,6 @@ import org.example.server.model.enums.GamePhase;
  * from the client controller.
  */
 public interface GameEventListener {
-
     void onUpdate(GameStateUpdateMessage update);
 
     void onError(String errorMessage, GamePhase phase);
