@@ -13,11 +13,9 @@ import org.example.network.CommunicationProtocol;
  */
 public class GUIApp extends Application {
 
-    // ── Runtime config (set by launcher) ───────────────────────────────────────
     private static String host =  "localhost";
     private static CommunicationProtocol protocol = CommunicationProtocol.RMI;
 
-    // ── Injected startup options ───────────────────────────────────────────────
     /** @param host the server host */
     public static void setHost(String host) {
         GUIApp.host = host;
@@ -29,7 +27,6 @@ public class GUIApp extends Application {
     }
 
 
-    // ── JavaFX entry point ─────────────────────────────────────────────────────
     /**
      * Loads the login scene and configures the GUI controller.
      */

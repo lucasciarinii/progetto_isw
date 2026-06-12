@@ -36,14 +36,13 @@ public class GUIHandler implements UIHandler {
     private GUIGameController GUIGameController;
     private GUIRankingController GUIRankingController;
     private GameStateUpdateMessage lastGameUpdate;
-    private String gameID;
     private boolean lobbyRetryEnabled = false;
+//    @SuppressWarnings({"FieldCanBeLocal", "unused"})
+    private String gameID;
 
-    // ── Setters ────────────────────────────────────────────────────────────────
 
     public void setController(ClientController controller) {
         this.controller = controller;
-        init();
     }
 
     public void setPrimaryStage(Stage primaryStage) {
@@ -72,12 +71,6 @@ public class GUIHandler implements UIHandler {
         this.gameID = gameID;
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-
-    private void init() {
-    }
-
-    // ── Lobby updates ──────────────────────────────────────────────────────────
     @Override
     public void onLobbyUpdate(LobbyUpdateMessage update) {
         Platform.runLater(() -> {
@@ -92,8 +85,6 @@ public class GUIHandler implements UIHandler {
         });
     }
 
-
-    // ── Game state updates ─────────────────────────────────────────────────────
     @Override
     public void onGameStateUpdate(GameStateUpdateMessage update) {
         Platform.runLater(() -> {
@@ -108,13 +99,11 @@ public class GUIHandler implements UIHandler {
         });
     }
 
-
-    // ── Error handling ─────────────────────────────────────────────────────────
     @Override
     public void onError(String errorMessage, GamePhase currentPhase) {
         Platform.runLater(() -> {
             if (currentPhase == GamePhase.LOBBY && lobbyRetryEnabled) {
-                // Go back to login screen to retry joining
+                // Go back to login-screen to retry joining
                 switchToLogin("Invalid game code or nickname: " + errorMessage);
                 return;
             }
@@ -131,8 +120,6 @@ public class GUIHandler implements UIHandler {
         });
     }
 
-
-    // ── Ranking updates ────────────────────────────────────────────────────────
     @Override
     public void onRankingUpdate(RankingUpdateMessage rankingMessage) {
         Platform.runLater(() -> {
@@ -159,13 +146,11 @@ public class GUIHandler implements UIHandler {
     }
 
 
-    // ── Round flow requests ────────────────────────────────────────────────────
     @Override
     public void onRoundFlowCardRequest() {
-        // This method is intentionally left empty, as the card picking logic is now handled in the GUIGameController when the GameStateUpdateMessage is received.
+        // This method is intentionally left empty, as the card picking logic is handled in the GUIGameController when the GameStateUpdateMessage is received
     }
 
-    // ── Shutdown handling ──────────────────────────────────────────────────────
     @Override
     public void onShutdown() {
         Platform.runLater(() -> {
@@ -175,7 +160,6 @@ public class GUIHandler implements UIHandler {
         });
     }
 
-    // ── Action prompts ─────────────────────────────────────────────────────────
     @Override
     public void promptForAction(GamePhase phase) {
         Platform.runLater(() -> {
@@ -185,7 +169,6 @@ public class GUIHandler implements UIHandler {
         });
     }
 
-    // ── Waiting/no-actions UI ──────────────────────────────────────────────────
     @Override
     public void displayNoCardsPickable() {
         Platform.runLater(() -> {
@@ -214,8 +197,12 @@ public class GUIHandler implements UIHandler {
     }
 
 
-    // ──────────────────────────────────────────────────────────────────────────
-
+    /**
+     * Switches the GUI to the login scene and shows the join panel with
+     * the provided error message.
+     *
+     * @param errorMessage the error message to display in the login scene
+     */
     private void switchToLogin(String errorMessage) {
         try {
             FXMLLoader loader = new FXMLLoader(
@@ -243,6 +230,11 @@ public class GUIHandler implements UIHandler {
         }
     }
 
+    /**
+     * Switches the GUI to the lobby scene and renders the provided lobby state.
+     *
+     * @param update the lobby update to display
+     */
     private void switchToLobby(LobbyUpdateMessage update) {
         try {
             FXMLLoader loader = new FXMLLoader(
@@ -265,7 +257,12 @@ public class GUIHandler implements UIHandler {
         }
     }
 
-
+    /**
+     * Switches the GUI to the game scene, initializes shared GUI registries,
+     * and renders the provided game state.
+     *
+     * @param update the game state update to display
+     */
     private void switchToGame(GameStateUpdateMessage update) {
         // 1. Assign colors to players
         List<String> nicknames = update.getPlayers().stream()
