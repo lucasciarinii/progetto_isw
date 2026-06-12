@@ -26,7 +26,7 @@ public interface RMIClientCallback extends Remote {
      * Receives an error message from the server.
      *
      * @param errorMessage the error description
-     * @param phase        the related game phase
+     * @param phase the related game phase
      * @throws RemoteException if the callback fails
      */
     void receiveError(String errorMessage, GamePhase phase) throws RemoteException;
@@ -40,7 +40,7 @@ public interface RMIClientCallback extends Remote {
     void receiveLobbyUpdate(LobbyUpdateMessage update) throws RemoteException;
 
     /**
-     * Receives a ranking update.
+     * Receives a ranking update
      *
      * @param rankingUpdate the ranking update
      * @throws RemoteException if the callback fails
@@ -48,14 +48,14 @@ public interface RMIClientCallback extends Remote {
     void receiveRankingUpdate(RankingUpdateMessage rankingUpdate) throws RemoteException;
 
     /**
-     * Receives a RoundFlow card request.
+     * Receives a RoundFlow card request
      *
      * @throws RemoteException if the callback fails
      */
     void receiveRoundFlowCardRequest() throws RemoteException;
 
     /**
-     * Receives a shutdown notification from the server.
+     * Receives a shutdown notification from the server
      *
      * @throws RemoteException if the callback fails
      */

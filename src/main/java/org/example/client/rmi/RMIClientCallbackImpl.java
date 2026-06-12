@@ -39,7 +39,6 @@ public class RMIClientCallbackImpl extends UnicastRemoteObject implements RMICli
     }
 
 
-
     /**
      * Forwards a game state update to the listener.
      */
@@ -90,7 +89,6 @@ public class RMIClientCallbackImpl extends UnicastRemoteObject implements RMICli
 
     /**
      * Method to communicate to the server that the client is alive (ping pong)
-     * @throws RemoteException
      */
     @Override
     public void receivePing() throws RemoteException {
