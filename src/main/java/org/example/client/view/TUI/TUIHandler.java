@@ -2,13 +2,11 @@ package org.example.client.view.TUI;
 
 import org.example.client.ClientController;
 import org.example.client.view.UIHandler;
-import org.example.network.HybridServerNetworkAdapter;
 import org.example.network.messages.GameStateUpdateMessage;
 import org.example.network.messages.LobbyUpdateMessage;
 import org.example.network.messages.RankingUpdateMessage;
 import org.example.network.snapshots.OfferTileSnapshot;
 import org.example.network.snapshots.PlayerSnapshot;
-import org.example.server.ServerLogger;
 import org.example.server.database.RankingEntry;
 import org.example.server.model.cards.Card;
 import org.example.server.model.cards.buildingCards.BuildingCard;
@@ -250,7 +248,7 @@ public class TUIHandler implements UIHandler {
                 try { controller.offerTileAction(""); } catch (Exception e) { System.out.println("[ERROR] " + e.getMessage()); }
                 return;
             }
-            case null -> { throw new IllegalStateException("Current player's totem is not on any offer tile!"); }
+            case null ->  throw new IllegalStateException("Current player's totem is not on any offer tile!");
         }
 
         List<Integer> ids = new ArrayList<>();
@@ -279,9 +277,7 @@ public class TUIHandler implements UIHandler {
 
         int fromTop = (int) Math.min(1, countPickable(lastUpdate.getTopRow(), player));
 
-        List<Integer> ids = new ArrayList<>();
-
-        ids.addAll(askIds("top row", fromTop));
+        List<Integer> ids = new ArrayList<>(askIds("top row", fromTop));
 
         String payload = ids.stream().map(String::valueOf).collect(Collectors.joining(","));
         try {
@@ -345,6 +341,7 @@ public class TUIHandler implements UIHandler {
                 """;
 
         System.out.println(logo);
+        System.out.println("\nLOBBY: " + gameID + "\n");
 
         System.out.println("ROUND: " + update.getCurrentRound() + " | ERA: " + update.getCurrentEra() + " | PHASE: " + update.getCurrentPhase() + " | CURRENT PLAYER: " + update.getCurrentPlayerNickname());
         System.out.println("\nPLAYERS ----------------------------------------");
@@ -401,7 +398,8 @@ public class TUIHandler implements UIHandler {
      * Clears the console output
      */
     public static void clearScreen() {
-        System.out.println("\n".repeat(50));
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
     }
 
 

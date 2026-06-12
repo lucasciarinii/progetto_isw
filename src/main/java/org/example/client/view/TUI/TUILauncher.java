@@ -10,22 +10,22 @@ import java.util.Scanner;
  */
 public class TUILauncher {
 
-    private static final String LOBBY_ART =
-                    "\n" +
-                    "                                 \n" +
-                    "                    __  __  ______   _____   ____    _____ \n" +
-                    "                   |  \\/  ||  ____| / ____| / __ \\  / ____|\n" +
-                    "                   | \\  / || |__   | (___  | |  | || (___  \n" +
-                    "                   | |\\/| ||  __|   \\___ \\ | |  | | \\___ \\ \n" +
-                    "                   | |  | || |____  ____) || |__| | ____) |\n" +
-                    "                   |_|  |_||______||_____/  \\____/ |_____/ \n" +
-                    "                                              \n" +
-                    "                       ~ Enter the Mesolithic world ~\n\n" +
-                    "       _______________________          _______________________\n" +
-                    "      |                       |        |                       |\n" +
-                    "      |    [1] JOIN LOBBY     |        |    [2] CREATE LOBBY   |\n" +
-                    "      |_______________________|        |_______________________|\n" +
-                    "\n";
+    private static final String LOBBY_ART = """
+                                \s
+                    __  __  ______   _____   ____    _____\s
+                   |  \\/  ||  ____| / ____| / __ \\  / ____|
+                   | \\  / || |__   | (___  | |  | || (___ \s
+                   | |\\/| ||  __|   \\___ \\ | |  | | \\___ \\\s
+                   | |  | || |____  ____) || |__| | ____) |
+                   |_|  |_||______||_____/  \\____/ |_____/\s
+                                             \s
+                       ~ Enter the Mesolithic world ~
+
+       _______________________          _______________________
+      |                       |        |                       |
+      |    [1] JOIN LOBBY     |        |    [2] CREATE LOBBY   |
+      |_______________________|        |_______________________|
+""";
 
     /**
      * Prompts for connection info and starts a TUI client session.
@@ -65,6 +65,14 @@ public class TUILauncher {
         }
     }
 
+    /**
+     * Prompts the user for nickname and player count, then starts the flow
+     * to create a new lobby.
+     *
+     * @param scanner the scanner used to read user input
+     * @param host the server host
+     * @param protocol the communication protocol
+     */
     private static void handleCreateLobby(Scanner scanner, String host, CommunicationProtocol protocol) {
         System.out.println("\n=== CREATE A NEW LOBBY ===");
 
@@ -80,6 +88,14 @@ public class TUILauncher {
         startClientCreateLobby(host, nickname, numPlayers, protocol);
     }
 
+    /**
+     * Prompts the user for lobby code and nickname, then attempts
+     * to join an existing lobby until the operation succeeds.
+     *
+     * @param scanner the scanner used to read user input
+     * @param host the server host
+     * @param protocol the communication protocol
+     */
     private static void handleJoinLobby(Scanner scanner, String host, CommunicationProtocol protocol) {
         System.out.println("\n=== JOIN AN EXISTING LOBBY ===");
 
@@ -98,6 +114,15 @@ public class TUILauncher {
         }
     }
 
+    /**
+     * Creates the TUI client components and attempts to join an existing lobby.
+     *
+     * @param host the server host
+     * @param nickname the player's nickname
+     * @param gameID the identifier of the lobby to join
+     * @param protocol the communication protocol
+     * @return {@code true} if the join operation succeeds, {@code false} otherwise
+     */
     private static boolean startClientJoinLobby(String host, String nickname, String gameID, CommunicationProtocol protocol) {
         try {
             TUIHandler tui = new TUIHandler();
@@ -114,6 +139,14 @@ public class TUILauncher {
         }
     }
 
+    /**
+     * Creates the TUI client components and starts a new lobby.
+     *
+     * @param host the server host
+     * @param nickname the player's nickname
+     * @param numPlayers the number of players required to start the lobby
+     * @param protocol the communication protocol
+     */
     private static void startClientCreateLobby(String host, String nickname, int numPlayers, CommunicationProtocol protocol) {
         try {
             TUIHandler tui = new TUIHandler();
