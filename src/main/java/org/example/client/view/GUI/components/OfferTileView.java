@@ -1,6 +1,5 @@
 package org.example.client.view.GUI.components;
 
-import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -34,13 +33,19 @@ public class OfferTileView extends StackPane {
     private final OfferTileSnapshot snapshot;
     private final int position;
 
-    @FXML final ImageView imageView;
-    @FXML final VBox totemBox;
-    @FXML final Label totemLabel;
-    @FXML final Label posLabel;
+    final ImageView imageView;
+    final VBox totemBox;
+    final Label totemLabel;
+    final Label posLabel;
 
     private Runnable onClickCallback = null;
 
+    /**
+     * Constructs a view for a single offer-track tile and performs its initial rendering.
+     *
+     * @param snapshot the snapshot describing the tile state
+     * @param position the 1-based position of the tile on the offer track
+     */
     public OfferTileView(OfferTileSnapshot snapshot, int position) {
         this.snapshot = snapshot;
         this.position = position;
@@ -117,9 +122,13 @@ public class OfferTileView extends StackPane {
     }
 
     public OfferTileSnapshot getSnapshot() { return snapshot; }
-    public int getPosition()               { return position; }
+    public int getPosition() { return position; }
 
-    // Rendering
+    /**
+     * Renders the tile according to its current occupancy state.
+     * Free tiles use the default border, while occupied tiles show
+     * the occupant's color and initials.
+     */
     private void render() {
         if (snapshot.isFree()) {
             setStyle(baseStyle() + borderNormal());
@@ -146,7 +155,10 @@ public class OfferTileView extends StackPane {
     }
 
     /**
-     * Loads the tile image based on the offer effect.
+     * Loads the background image associated with the given offer effect.
+     *
+     * @param effect the offer effect used to determine the image filename
+     * @return the loaded tile image, or {@code null} if the resource is missing or cannot be loaded
      */
     private Image loadTileImage(OfferEffect effect) {
         String path = IMAGE_BASE_PATH + effect.name() + ".jpg";
@@ -162,6 +174,15 @@ public class OfferTileView extends StackPane {
         }
     }
 
+    /**
+     * Computes a short initials string from a player's nickname.
+     * Single-word nicknames produce up to 2 uppercase characters;
+     * multi-word nicknames produce the uppercase initials of the first two words.
+     *
+     * @param nickname the player's nickname
+     * @return the initials string, or {@code "?"} if the nickname is null or blank
+     */
+    @SuppressWarnings("DuplicatedCode")
     private String getInitials(String nickname) {
         if (nickname == null || nickname.isBlank()) return "?";
         String[] parts = nickname.trim().split("\\s+");
@@ -171,35 +192,66 @@ public class OfferTileView extends StackPane {
         return (parts[0].charAt(0) + "" + parts[1].charAt(0)).toUpperCase();
     }
 
+
+    /**
+     * Applies the hover style for a selectable tile when the mouse enters it.
+     *
+     * @param event the mouse-enter event
+     */
     private void handleSelectableMouseEntered(MouseEvent event) {
         if (event != null) {
             setStyle(baseStyle() + borderSelectable() + "-fx-background-color: #2e2e1a;");
         }
     }
 
+    /**
+     * Restores the default selectable style when the mouse exits the tile.
+     *
+     * @param event the mouse-exit event
+     */
     private void handleSelectableMouseExited(MouseEvent event) {
         if (event != null) {
             setStyle(baseStyle() + borderSelectable());
         }
     }
 
+    /**
+     * Invokes the registered click callback when the selectable tile is clicked.
+     *
+     * @param event the mouse-click event
+     */
     private void handleSelectableMouseClicked(MouseEvent event) {
         if (event != null && onClickCallback != null) {
             onClickCallback.run();
         }
     }
 
+    /**
+     * Returns the common base CSS style applied to the tile.
+     *
+     * @return the base style string
+     */
     private String baseStyle() {
         return "-fx-background-color: #1e1e14; " +
                 "-fx-background-radius: 6; ";
     }
 
+    /**
+     * Returns the default border style for a non-selectable tile.
+     *
+     * @return the normal border CSS style
+     */
     private String borderNormal() {
         return "-fx-border-color: #555544; " +
                 "-fx-border-width: 1.5; " +
                 "-fx-border-radius: 6;";
     }
 
+    /**
+     * Returns the border style used for selectable free tiles.
+     *
+     * @return the selectable border CSS style
+     */
     private String borderSelectable() {
         return "-fx-border-color: #ffcc00; " +
                 "-fx-border-width: 2.5; " +

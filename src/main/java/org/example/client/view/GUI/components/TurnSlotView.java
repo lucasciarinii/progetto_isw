@@ -28,27 +28,33 @@ public class TurnSlotView extends StackPane {
 
     private static final String IMAGE_BASE_PATH = "/images/turnOrderTile/";
 
-    // TODO: these dimensions are tuned by eye.
     // Tile dimensions — same proportion as the image
     public static final double TILE_WIDTH = 120;
     public static final double TILE_HEIGHT = 180;
 
-    // Position X of the center of the totem inside each slot (to be adjusted by eye)
+    // Position X of the center of the totem inside each slot
     private static final double TOTEM_X = 38;
 
-    // Dimensions of the totem box — adapted to the rectangles in the image
+    // Dimensions of the totem box
     private static final double TOTEM_W = 45;
     private static final double TOTEM_H = 26;
 
     private final List<TurnSlotSnapshot> slots;
 
     // Position Y of the first slot (from the top of the tile) and distance between slots
-    private final double FIRST_SLOT_Y;   // px from top to center of first slot
-    private final double SLOT_SPACING;   // px between center of one slot and the next
+    private final double FIRST_SLOT_Y; // px from top to center of first slot
+    private final double SLOT_SPACING; // px between center of one slot and the next
 
     // Pane above the image where we position the totems with absolute coordinates
     private final Pane totemLayer;
 
+    /**
+     * Constructs a {@code TurnSlotView} for the given list of turn slots.
+     * Loads the background tile image for the correct player count and
+     * performs the initial rendering of the totems.
+     *
+     * @param slots the ordered list of turn slots to display
+     */
     public TurnSlotView(List<TurnSlotSnapshot> slots) {
         this.slots = slots;
         int numPlayers = slots.size();
@@ -86,7 +92,6 @@ public class TurnSlotView extends StackPane {
         render();
     }
 
-    // Rendering
 
     /**
      * Redraws the totems based on the current state of the slots.
@@ -111,7 +116,13 @@ public class TurnSlotView extends StackPane {
     }
 
 
-    // Builds the colored box of the totem with the player's initials.
+    /**
+     * Builds the colored totem box for a player, showing their initials
+     * on a background colored with the player's registry color.
+     *
+     * @param nickname the player's nickname used to retrieve the color and compute initials
+     * @return a {@link VBox} styled as the player's totem
+     */
     private VBox buildTotemBox(String nickname) {
         String hex = PlayerColorRegistry.getInstance().getHex(nickname);
 
@@ -135,6 +146,12 @@ public class TurnSlotView extends StackPane {
         return box;
     }
 
+    /**
+     * Loads the background tile image for the given player count
+     *
+     * @param numPlayers the number of players, used to select the correct image file
+     * @return the loaded {@link Image}, or {@code null} if the resource is not found or fails to load
+     */
     private Image loadImage(int numPlayers) {
         String path = IMAGE_BASE_PATH + "ts_" + numPlayers + "_players.jpg";
         try (InputStream is = getClass().getResourceAsStream(path)) {
@@ -149,6 +166,15 @@ public class TurnSlotView extends StackPane {
         }
     }
 
+    /**
+     * Computes a short initials string from a player's nickname.
+     * Single-word nicknames produce up to 2 characters; multi-word nicknames
+     * produce the first letter of the first and second word, both uppercase.
+     *
+     * @param nickname the player's nickname
+     * @return the initials string, or {@code "?"} if the nickname is null or blank
+     */
+    @SuppressWarnings("DuplicatedCode")
     private String getInitials(String nickname) {
         if (nickname == null || nickname.isBlank()) return "?";
         String[] parts = nickname.trim().split("\\s+");

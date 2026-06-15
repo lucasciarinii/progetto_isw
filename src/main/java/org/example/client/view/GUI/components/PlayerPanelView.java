@@ -17,24 +17,35 @@ import java.util.List;
  */
 public class PlayerPanelView extends VBox {
 
-    private final PlayerSnapshot snapshot;
-
     private final Label foodLabel;
     private final Label discountLabel;
     private final Label totalPointsLabel;
 
-    // Container where card stacks are placed.
+    /** Container that holds the rendered card stacks. */
     private final HBox stacksContainer;
 
-    // Size settings based on the "isMini" flag.
+    /** Width of each rendered card. */
     private final double cardW;
+
+    /** Height of each rendered card. */
     private final double cardH;
+
+    /** Vertical overlap between cards in the same stack. */
     private final double stackOverlap;
 
-    public PlayerPanelView(PlayerSnapshot snapshot, boolean isLocalPlayer, boolean isMini) {
-        this.snapshot = snapshot;
+    /**
+     * Constructs a player panel showing the player's public information and owned cards.
+     * The layout and card sizes change depending on whether the panel represents
+     * the local player or a smaller opponent view.
+     *
+     * @param snapshot the snapshot containing the player data to display
+     * @param isLocalPlayer {@code true} if this panel represents the local player,
+     *                      {@code false} otherwise
+     */
+    public PlayerPanelView(PlayerSnapshot snapshot, boolean isLocalPlayer) {
+        boolean isMini = !isLocalPlayer; // Opponent panels are mini by default
 
-        // Use smaller sizes for opponents and larger for the local player.
+        // Use smaller sizes for opponents and larger for the local player
         this.cardW = isMini ? 45 : 100;
         this.cardH = isMini ? 65 : 140;
         this.stackOverlap = isMini ? -45 : -80;
@@ -42,7 +53,7 @@ public class PlayerPanelView extends VBox {
         String hex = PlayerColorRegistry.getInstance().getHex(snapshot.getNickname());
         setPadding(new Insets(8));
 
-        // Border style (thicker for the local player).
+        // Border style (thicker for the local player)
         String borderWidth = isLocalPlayer ? "3" : "1.5";
         setStyle("-fx-background-color: #1a1a10; -fx-border-color: " + hex +
                 "; -fx-border-width: " + borderWidth + "; -fx-border-radius: 8; -fx-background-radius: 8;");
@@ -86,9 +97,9 @@ public class PlayerPanelView extends VBox {
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         // Layout assembly
+        setMaxWidth(Double.MAX_VALUE);
         if (isMini) {
             // Horizontal layout for opponents
-            setMaxWidth(Double.MAX_VALUE);
             scrollPane.setPrefHeight(90);
 
             VBox infoBox = new VBox(5, header, stats, discountLabel);
@@ -105,7 +116,6 @@ public class PlayerPanelView extends VBox {
             getChildren().add(miniLayout);
         } else {
             // Vertical layout for local player
-            setMaxWidth(Double.MAX_VALUE);
             HBox.setHgrow(this, javafx.scene.layout.Priority.ALWAYS);
 
             // Fix height to avoid layout shifts when cards are added.
@@ -120,6 +130,12 @@ public class PlayerPanelView extends VBox {
         }
     }
 
+    /**
+     * Updates the panel contents with a new player snapshot, refreshing
+     * both the statistics and the rendered card stacks.
+     *
+     * @param newSnapshot the updated snapshot to display
+     */
     public void update(PlayerSnapshot newSnapshot) {
         foodLabel.setText("Food: " + newSnapshot.getFood());
         discountLabel.setText("Discount on Buildings: -" + newSnapshot.getDiscountOnBuilding());
@@ -130,6 +146,11 @@ public class PlayerPanelView extends VBox {
         renderCards(newSnapshot);
     }
 
+    /**
+     * Renders all owned card groups contained in the given snapshot.
+     *
+     * @param s the snapshot whose owned cards must be displayed
+     */
     private void renderCards(PlayerSnapshot s) {
         addCardStackIfNotEmpty(s.getOwnedHunters());
         addCardStackIfNotEmpty(s.getOwnedGatherers());
@@ -140,7 +161,13 @@ public class PlayerPanelView extends VBox {
         addCardStackIfNotEmpty(s.getOwnedBuildings());
     }
 
-    // Use wildcard to accept any card type.
+
+    /**
+     * Renders a list of cards as an overlapping vertical stack and adds it to the player's panel.
+     * If the provided list is {@code null} or empty, the method safely returns without modifying the UI.
+     *
+     * @param cards the collection of cards to be displayed belonging to the same category
+     */
     private void addCardStackIfNotEmpty(List<? extends Card> cards) {
         if (cards == null || cards.isEmpty()) return;
 
