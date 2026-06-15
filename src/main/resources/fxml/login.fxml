@@ -9,7 +9,17 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<!-- StackPane lets us layer background, overlay, and panels -->
+<!--
+    Login screen with three mutually exclusive panels layered on top of each other:
+    - menuPanel -> initial menu with Create/Join choices
+    - createPanel -> form used to create a new lobby
+    - joinPanel -> form used to join an existing lobby
+
+    Connected controller:
+    - GUILoginController
+
+    Panels are shown/hidden at runtime through showPanel(...)
+-->
 <StackPane
         xmlns="http://javafx.com/javafx"
         xmlns:fx="http://javafx.com/fxml"
@@ -17,25 +27,25 @@
         prefWidth="1376" prefHeight="768">
 
     <!-- Background image -->
-    <ImageView preserveRatio="false"
-               fitWidth="1376" fitHeight="768">
-        <image><Image url="@/images/login_BG.png"/></image>
+    <ImageView fitWidth="1376" fitHeight="768">
+        <Image url="@/images/login_BG.png"/>
     </ImageView>
 
     <!-- Dark overlay for readability -->
     <StackPane style="-fx-background-color: rgba(0,0,0,0.45);"/>
 
-    <!-- ═══════════════════════════════════════════════ -->
-    <!-- PANEL 0: MAIN MENU -> Join Lobby & Create Lobby cards                             -->
-    <!-- ═══════════════════════════════════════════════ -->
+    <!-- Initial menu panel.
+         Visible at startup; lets the user choose between lobby creation and lobby join
+    -->
     <VBox fx:id="menuPanel"
           alignment="CENTER" spacing="32"
           style="-fx-padding: 180 0 0 0;">
 
+        <!-- Two clickable cards used as entry points to the two login flows -->
         <HBox spacing="40" alignment="CENTER">
 
             <!-- Card: join an existing lobby -->
-            <VBox fx:id="joinCard"
+            <VBox
                   alignment="CENTER" spacing="12"
                   prefWidth="340" prefHeight="220"
                   onMouseClicked="#onJoinSelected"
@@ -56,7 +66,7 @@
             </VBox>
 
             <!-- Card: create a new lobby -->
-            <VBox fx:id="createCard"
+            <VBox
                   alignment="CENTER" spacing="12"
                   prefWidth="340" prefHeight="220"
                   onMouseClicked="#onCreateSelected"
@@ -79,9 +89,9 @@
         </HBox>
     </VBox>
 
-    <!-- ══════════════════════════════════════ -->
-    <!-- PANEL 1: CREATE LOBBY (visible just when pressing "create lobby"                 -->
-    <!-- ══════════════════════════════════════ -->
+    <!-- Lobby creation panel.
+         Hidden by default and shown when the user selects the create-lobby flow
+    -->
     <VBox fx:id="createPanel"
           alignment="CENTER" spacing="14"
           visible="false" managed="false"
@@ -92,6 +102,7 @@
                       -fx-font-size: 16px;
                       -fx-font-weight: bold;"/>
 
+        <!-- Input group: nickname used for the new lobby -->
         <VBox spacing="5" maxWidth="320" style="-fx-fill-width: true;">
             <Label text="NICKNAME"
                    style="-fx-text-fill: #888866;
@@ -111,6 +122,7 @@
                               -fx-padding: 9 14 9 14;"/>
         </VBox>
 
+        <!-- Input group: required number of players for the new match -->
         <VBox spacing="5" maxWidth="320" style="-fx-fill-width: true;">
             <Label text="NUMBER OF PLAYERS  (2–5)"
                    style="-fx-text-fill: #888866;
@@ -130,6 +142,7 @@
                               -fx-padding: 9 14 9 14;"/>
         </VBox>
 
+        <!-- Action button: validates the form and asks the controller to create the lobby -->
         <Button text="CREATE LOBBY"
                 onAction="#onCreateLobby"
                 prefWidth="320"
@@ -142,10 +155,12 @@
                        -fx-padding: 10 0 10 0;
                        -fx-cursor: hand;"/>
 
+        <!-- Validation / connection feedback for the create-lobby flow -->
         <Label fx:id="createErrorLabel"
                visible="false" managed="false" minHeight="14"
                style="-fx-text-fill: #cc4444; -fx-font-size: 11px;"/>
 
+        <!-- Returns to the initial menu panel -->
         <Label text="← Back"
                onMouseClicked="#onBack"
                style="-fx-text-fill: #888866;
@@ -153,9 +168,9 @@
                       -fx-cursor: hand;"/>
     </VBox>
 
-    <!-- ══════════════════════════════════════ -->
-    <!-- PANEL 2: JOIN LOBBY                   -->
-    <!-- ══════════════════════════════════════ -->
+    <!-- Lobby join panel.
+         Hidden by default and shown when the user selects the join-lobby flow
+    -->
     <VBox fx:id="joinPanel"
           alignment="CENTER" spacing="14"
           visible="false" managed="false"
@@ -166,6 +181,7 @@
                       -fx-font-size: 16px;
                       -fx-font-weight: bold;"/>
 
+        <!-- Input group: game code of the lobby to join -->
         <VBox spacing="5" maxWidth="320" style="-fx-fill-width: true;">
             <Label text="GAME CODE"
                    style="-fx-text-fill: #888866;
@@ -185,6 +201,7 @@
                               -fx-padding: 9 14 9 14;"/>
         </VBox>
 
+        <!-- Input group: nickname used to enter the selected lobby -->
         <VBox spacing="5" maxWidth="320" style="-fx-fill-width: true;">
             <Label text="NICKNAME"
                    style="-fx-text-fill: #888866;
@@ -204,6 +221,7 @@
                               -fx-padding: 9 14 9 14;"/>
         </VBox>
 
+        <!-- Action button: validates the form and asks the controller to join the lobby -->
         <Button text="JOIN LOBBY"
                 onAction="#onJoinLobby"
                 prefWidth="320"
@@ -218,10 +236,12 @@
                        -fx-padding: 10 0 10 0;
                        -fx-cursor: hand;"/>
 
+        <!-- Validation / connection feedback for the join-lobby flow -->
         <Label fx:id="joinErrorLabel"
                visible="false" managed="false" minHeight="14"
                style="-fx-text-fill: #cc4444; -fx-font-size: 11px;"/>
 
+        <!-- Returns to the initial menu panel -->
         <Label text="← Back"
                onMouseClicked="#onBack"
                style="-fx-text-fill: #888866;
