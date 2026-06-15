@@ -17,35 +17,46 @@ import java.util.List;
  */
 public class GUIRankingController {
 
+    /** Container showing the result cards of the just-finished match */
     @FXML private HBox matchResultsBox;
+
+    /** Container holding the rows of the global ranking */
     @FXML private VBox rankingBox;
+
+    /** Label displaying the local player's current global ranking position */
     @FXML private Label myPositionLabel;
+
+    /** Label shown when the server is disconnecting from the client */
     @FXML private Label closingLabel;
 
 
-    // Public methods
-
     /**
-     * Called by GUIHandler.onRankingUpdate().
+     * Populates the ranking screen with the finished match results and
+     * the current global ranking data. Called by GUIHandler.onRankingUpdate()
      *
-     * @param rankingMessage message with ranking and local player position
-     * @param matchPlayers players of the just finished match (for results)
+     * @param rankingMessage the message containing the global ranking list and the local player's ranking position
+     * @param matchPlayers the players of the just-finished match
      */
     public void populate(RankingUpdateMessage rankingMessage, List<PlayerSnapshot> matchPlayers) {
         buildMatchResults(matchPlayers);
         buildGlobalRanking(rankingMessage.getRanking(), rankingMessage.getPlayerRankPosition());
     }
 
-    /** Called by GUIHandler.onShutdown() to signal the server disconnected. */
+    /**
+     * Displays the shutdown message when the server notifies that it is closing
+     * or the connection is being terminated.
+     * Called by GUIHandler.onShutdown() to signal the server disconnected
+     */
     public void showClosingMessage() {
         closingLabel.setVisible(true);
         closingLabel.setManaged(true);
     }
 
-    // Private methods
-
     /**
-     * Build cards with the results of the just finished match, ordered by points descending.
+     * Builds the result cards for the just-finished match, ordering players
+     * by descending score and visually locate the winner.
+     *
+     * @param players the players to include in the match result section
      */
     private void buildMatchResults(List<PlayerSnapshot> players) {
         matchResultsBox.getChildren().clear();
@@ -55,11 +66,11 @@ public class GUIRankingController {
                 .toList();
 
         for (int i = 0; i < sorted.size(); i++) {
+            VBox card = new VBox(6);
             PlayerSnapshot p = sorted.get(i);
             String hex = PlayerColorRegistry.getInstance().getHex(p.getNickname());
             boolean isFirst = (i == 0);
 
-            VBox card = new VBox(6);
             card.setAlignment(Pos.CENTER);
             card.setPrefWidth(160);
             card.setStyle(
@@ -103,7 +114,10 @@ public class GUIRankingController {
     }
 
     /**
-     * Build rows of the global ranking, highlighting the local player if present.
+     * Builds the rows of the global ranking and highlights the local player if their position is available.
+     *
+     * @param ranking the ordered global ranking entries
+     * @param myPosition the local player's ranking position, or {@code -1} if the player is not currently ranked
      */
     private void buildGlobalRanking(List<RankingEntry> ranking, int myPosition) {
         rankingBox.getChildren().clear();
@@ -167,12 +181,18 @@ public class GUIRankingController {
         }
     }
 
+    /**
+     * Returns the medal emoji (top 3) or text (4 +) associated with the given ranking index.
+     *
+     * @param index the zero-based ranking index
+     * @return a medal emoji for the top three positions, or the numeric placement for lower positions
+     */
     private String medalFor(int index) {
         return switch (index) {
             case 0 -> "🥇";
             case 1 -> "🥈";
             case 2 -> "🥉";
-            default -> String.valueOf(index + 1) + ".";
+            default -> (index + 1) + ".";
         };
     }
 }

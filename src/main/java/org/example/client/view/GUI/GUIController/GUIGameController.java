@@ -31,27 +31,53 @@ import java.util.stream.Collectors;
 
 /**
  * Controller for the main game screen.
- * It renders the full match state and manages user interactions during the match.
+ * It renders the full match state and manages user interactions during the match
  */
 public class GUIGameController {
 
     private static final double BOARD_TILE_WIDTH = 120;
     private static final double BOARD_TILE_HEIGHT = 180;
 
-    // FXML bindings
+    /** Background image of the game scene */
     @FXML private ImageView bgImageView;
+
+    /** Label displaying the current round number */
     @FXML private Label roundLabel;
+
+    /** Label displaying the current era */
     @FXML private Label eraLabel;
+
+    /** Label displaying the current game phase */
     @FXML private Label phaseLabel;
+
+    /** Label displaying the nickname of the active player */
     @FXML private Label currentPlayerLabel;
+
+    /** Top status label used for prompts, errors, and feedback messages */
     @FXML private Label statusLabel;
+
+    /** Button used to confirm the currently selected cards */
     @FXML private Button confirmButton;
+
+    /** Image view displaying the back of the current deck */
     @FXML private ImageView deckBackView;
+
+    /** Container holding the top row of board cards */
     @FXML private HBox topRowBox;
+
+    /** Container holding the bottom row of board cards */
     @FXML private HBox bottomRowBox;
+
+    /** Container holding the offer-track tiles */
     @FXML private HBox offerTrackBox;
+
+    /** Container holding the turn-order tile view */
     @FXML private HBox turnSlotBox;
+
+    /** Container holding the opponent player panels */
     @FXML private VBox opponentsBox;
+
+    /** Container holding the local player's panel */
     @FXML private HBox localPlayerBox;
 
     // Internal state
@@ -69,11 +95,11 @@ public class GUIGameController {
     /**
      * Initializes the controller after FXML loading.
      * The background image is bound to the actual scene size so that it scales
-     * correctly when the window becomes fullscreen.
+     * correctly when the window becomes fullscreen
      */
     @FXML
     private void initialize() {
-        bgImageView.sceneProperty().addListener((obs, oldScene, newScene) -> {
+        bgImageView.sceneProperty().addListener((_, _, newScene) -> {
             if (newScene != null) {
                 bgImageView.fitWidthProperty().bind(newScene.widthProperty());
                 bgImageView.fitHeightProperty().bind(newScene.heightProperty());
@@ -82,7 +108,7 @@ public class GUIGameController {
     }
 
     /**
-     * Injects the client controller used to send actions to the server.
+     * Injects the client controller used to send actions to the server
      *
      * @param controller the client controller
      */
@@ -91,7 +117,7 @@ public class GUIGameController {
     }
 
     /**
-     * Sets the nickname of the local player.
+     * Sets the nickname of the local player
      *
      * @param nickname the local player's nickname
      */
@@ -100,7 +126,7 @@ public class GUIGameController {
     }
 
     /**
-     * Updates the entire screen with a fresh game state snapshot.
+     * Updates the entire screen with a fresh game state snapshot
      *
      * @param update the latest game state update
      */
@@ -129,7 +155,7 @@ public class GUIGameController {
     }
 
     /**
-     * Enables interaction for the current game phase.
+     * Enables interaction for the current game phase
      *
      * @param phase the current phase
      */
@@ -142,7 +168,7 @@ public class GUIGameController {
     }
 
     /**
-     * Prompts the local player to choose an extra top-row card for RoundFlow.
+     * Prompts the local player to choose an extra top-row card for RoundFlow
      */
     public void promptRoundFlowPick() {
         if (lastUpdate == null) {
@@ -161,7 +187,7 @@ public class GUIGameController {
     }
 
     /**
-     * Displays an error message in the top status area and re-enables interaction if needed.
+     * Displays an error message in the top status area and re-enables interaction if needed
      *
      * @param message the error message
      */
@@ -179,6 +205,10 @@ public class GUIGameController {
         }
     }
 
+    /**
+     * Displays a permanent error message when the match is aborted because
+     * the connection with the server has been lost
+     */
     public void showGameAborted() {
         statusLabel.setTextFill(Color.web("#e63946"));
         statusLabel.setText("CONNECTION LOST - GAME ABORTED - Please close the game.");
@@ -186,7 +216,7 @@ public class GUIGameController {
     }
 
     /**
-     * Shows an informational message when no selectable cards are available.
+     * Shows an informational message when no selectable cards are available
      */
     public void showNoCardsPickable() {
         hideConfirmButton();
@@ -196,7 +226,7 @@ public class GUIGameController {
     }
 
     /**
-     * Shows a waiting message while another player is taking their turn.
+     * Shows a waiting message while another player is taking their turn
      *
      * @param currentPlayerNickname the nickname of the player currently playing
      */
@@ -208,7 +238,7 @@ public class GUIGameController {
     }
 
     /**
-     * Shows a waiting message while another player is resolving RoundFlow.
+     * Shows a waiting message while another player is resolving RoundFlow
      *
      * @param currentPlayerNickname the nickname of the player currently choosing
      */
@@ -220,7 +250,7 @@ public class GUIGameController {
     }
 
     /**
-     * Updates the top floating information panel.
+     * Updates the top floating information panel
      *
      * @param update the latest game state update
      */
@@ -247,9 +277,10 @@ public class GUIGameController {
     }
 
     /**
-     * Updates the deck back image according to the current era.
+     * Updates the deck-back image according to the current era and round
      *
      * @param era the current era
+     * @param round the current round number
      */
     private void updateDeckBack(Era era, int round) {
         String filename;
@@ -276,7 +307,7 @@ public class GUIGameController {
     }
 
     /**
-     * Renders the top row of cards.
+     * Renders the top row of cards
      *
      * @param cards the cards to display
      */
@@ -291,7 +322,7 @@ public class GUIGameController {
     }
 
     /**
-     * Renders the bottom row of cards.
+     * Renders the bottom row of cards
      *
      * @param cards the cards to display
      */
@@ -306,7 +337,7 @@ public class GUIGameController {
     }
 
     /**
-     * Renders the offer track.
+     * Renders the offer track
      *
      * @param tiles the offer-track tiles to display
      */
@@ -320,7 +351,7 @@ public class GUIGameController {
     }
 
     /**
-     * Renders the turn-order slots.
+     * Renders the turn-order slots
      *
      * @param update the latest game state update
      */
@@ -331,7 +362,7 @@ public class GUIGameController {
     }
 
     /**
-     * Updates the player panels for both opponents and local player.
+     * Updates the player panels for both opponents and local player
      *
      * @param players the players to render
      */
@@ -339,7 +370,7 @@ public class GUIGameController {
         if (playerPanels.isEmpty()) {
             for (PlayerSnapshot player : players) {
                 boolean isLocal = player.getNickname().equals(localNickname);
-                PlayerPanelView panel = new PlayerPanelView(player, isLocal, !isLocal);
+                PlayerPanelView panel = new PlayerPanelView(player, isLocal);
                 playerPanels.add(panel);
 
                 if (isLocal) {
@@ -356,7 +387,7 @@ public class GUIGameController {
     }
 
     /**
-     * Enables selection of free offer-track tiles during the PLACE_TOTEMS phase.
+     * Enables selection of free offer-track tiles during the PLACE_TOTEMS phase
      */
     private void enablePlaceTotems() {
         statusLabel.setTextFill(Color.web("#ffcc00"));
@@ -381,7 +412,7 @@ public class GUIGameController {
     }
 
     /**
-     * Enables interaction during the PLAYER_TURN phase according to the offer tile effect.
+     * Enables interaction during the PLAYER_TURN phase according to the offer tile effect
      */
     private void enablePlayerTurn() {
         OfferEffect effect = lastUpdate.getOfferTrack().stream()
@@ -434,7 +465,7 @@ public class GUIGameController {
     }
 
     /**
-     * Enables selection on the top and/or bottom row according to the required counts.
+     * Enables selection on the top and/or bottom row according to the required counts
      *
      * @param fromBottom number of cards to pick from the bottom row
      * @param fromTop number of cards to pick from the top row
@@ -445,26 +476,22 @@ public class GUIGameController {
         statusLabel.setTextFill(Color.web("#ffcc00"));
         statusLabel.setText("Select " + totalToSelect + " card(s).");
 
-        if (fromTop > 0) {
-            for (var node : topRowBox.getChildren()) {
-                if (node instanceof CardView cardView) {
-                    if (isPickable(cardView.getCard(), localPlayer)) {
-                        cardView.setSelectable(true, () -> onCardClicked(cardView, totalToSelect));
-                    } else {
-                        cardView.setState(CardView.State.DISABLED);
-                    }
-                }
-            }
-        } else {
-            topRowBox.getChildren().forEach(node -> {
-                if (node instanceof CardView cardView) {
-                    cardView.setState(CardView.State.DISABLED);
-                }
-            });
-        }
+        configureRowSelection(topRowBox, fromTop, localPlayer, totalToSelect);
+        configureRowSelection(bottomRowBox, fromBottom, localPlayer, totalToSelect);
+    }
 
-        if (fromBottom > 0) {
-            for (var node : bottomRowBox.getChildren()) {
+    /**
+     * Configures all card views in the given row according to how many cards
+     * can be selected from that row during the current action
+     *
+     * @param rowBox the container holding the card views of the row
+     * @param selectableCount the number of cards that may be selected from this row
+     * @param localPlayer the local player snapshot used to check card pickability
+     * @param totalToSelect the total number of cards required for the current action
+     */
+    private void configureRowSelection(HBox rowBox, int selectableCount, PlayerSnapshot localPlayer, int totalToSelect) {
+        if (selectableCount > 0) {
+            for (var node : rowBox.getChildren()) {
                 if (node instanceof CardView cardView) {
                     if (isPickable(cardView.getCard(), localPlayer)) {
                         cardView.setSelectable(true, () -> onCardClicked(cardView, totalToSelect));
@@ -474,7 +501,7 @@ public class GUIGameController {
                 }
             }
         } else {
-            bottomRowBox.getChildren().forEach(node -> {
+            rowBox.getChildren().forEach(node -> {
                 if (node instanceof CardView cardView) {
                     cardView.setState(CardView.State.DISABLED);
                 }
@@ -483,7 +510,7 @@ public class GUIGameController {
     }
 
     /**
-     * Enables top-row-only selection for the RoundFlow extra-card effect.
+     * Enables top-row-only selection for the RoundFlow extra-card effect
      *
      * @param localPlayer local player snapshot
      */
@@ -510,7 +537,7 @@ public class GUIGameController {
     }
 
     /**
-     * Handles the click on a selectable card.
+     * Handles the click on a selectable card
      *
      * @param cardView the clicked card view
      * @param totalToSelect the total number of cards required
@@ -546,7 +573,7 @@ public class GUIGameController {
     }
 
     /**
-     * Sends the selected cards to the server when the confirm button is pressed.
+     * Sends the selected cards to the server when the confirm button is pressed
      */
     @FXML
     private void onConfirm() {
@@ -570,7 +597,7 @@ public class GUIGameController {
     }
 
     /**
-     * Displays the game-over message.
+     * Displays the game-over message
      *
      * @param winners the list of winners
      */
@@ -581,7 +608,7 @@ public class GUIGameController {
     }
 
     /**
-     * Counts how many cards in a row are currently pickable by the player.
+     * Counts how many cards in a row are currently pickable by the player
      *
      * @param row the row to inspect
      * @param player the player trying to pick
@@ -594,7 +621,7 @@ public class GUIGameController {
     }
 
     /**
-     * Checks whether a card can be picked by the given player.
+     * Checks whether a card can be picked by the given player
      *
      * @param card the card to inspect
      * @param player the player attempting to pick
@@ -607,7 +634,7 @@ public class GUIGameController {
     }
 
     /**
-     * Checks whether the local player is in the RoundFlow extra-card step.
+     * Checks whether the local player is in the RoundFlow extra-card step
      *
      * @return true if the local player must resolve a RoundFlow extra pick
      */
@@ -624,7 +651,7 @@ public class GUIGameController {
     }
 
     /**
-     * Makes the confirm button visible and managed in the layout.
+     * Makes the confirm button visible and managed in the layout
      */
     private void showConfirmButton() {
         confirmButton.setVisible(true);
@@ -632,7 +659,7 @@ public class GUIGameController {
     }
 
     /**
-     * Hides the confirm button and removes it from layout calculations.
+     * Hides the confirm button and removes it from layout calculations
      */
     private void hideConfirmButton() {
         confirmButton.setVisible(false);

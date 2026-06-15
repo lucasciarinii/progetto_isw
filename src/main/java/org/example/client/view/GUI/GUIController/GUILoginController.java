@@ -10,55 +10,80 @@ import org.example.client.view.GUI.GUIHandler;
 import org.example.network.CommunicationProtocol;
 
 /**
- * Controller for the login screen; validates input and starts the client.
+ * Controller for the login screen; validates input and starts the client
  */
 public class GUILoginController {
 
-    // ── Main menu panel ─────────────────────────────────────────────────────────
+    /** Main menu panel shown before selecting create or join lobby */
     @FXML private VBox menuPanel;
 
-    // ── Create lobby panel ──────────────────────────────────────────────────────
+    /** Panel containing the controls for lobby creation */
     @FXML private VBox createPanel;
+
+    /** Text field used to enter the nickname for lobby creation */
     @FXML private TextField createNicknameField;
+
+    /** Text field used to enter the desired number of players */
     @FXML private TextField createNumPlayersField;
+
+    /** Label used to display validation or connection errors in create mode */
     @FXML private Label createErrorLabel;
 
-    // ── Join lobby panel ────────────────────────────────────────────────────────
+    /** Panel containing the controls for joining an existing lobby */
     @FXML private VBox joinPanel;
+
+    /** Text field used to enter the game code for joining a lobby */
     @FXML private TextField joinCodeField;
+
+    /** Text field used to enter the nickname for lobby joining */
     @FXML private TextField joinNicknameField;
+
+    /** Label used to display validation or connection errors in join mode */
     @FXML private Label joinErrorLabel;
 
-    // ── Connection config ───────────────────────────────────────────────────────
+    /** Stage associated with the login scene */
     private Stage stage;
+
+    /** Server host used for client connections */
     private String host = "localhost";
+
+    /** Communication protocol selected for the client connection. */
     private CommunicationProtocol protocol = CommunicationProtocol.RMI;
 
     public void setHost(String host) { this.host = host; }
     public void setProtocol(CommunicationProtocol p) { this.protocol = p; }
     public void setStage(Stage stage) { this.stage = stage; }
 
-    // PANEL NAVIGATION
-
+    //! PANEL NAVIGATION
+    /**
+     * Shows the panel used to create a new lobby
+     */
     @FXML
     private void onCreateSelected() {
         showPanel(createPanel);
     }
 
+    /**
+     * Shows the panel used to join an existing lobby
+     */
     @FXML
     private void onJoinSelected() {
         showPanel(joinPanel);
     }
 
+    /**
+     * Returns to the main menu panel
+     */
     @FXML
     private void onBack() {
         showPanel(menuPanel);
     }
 
-    // ACTIONS
-
-    // Handles the "Create Lobby" action: validates input and attempts to connect to the server to create a new lobby
-    @FXML
+    //! ACTIONS
+    /**
+     * Validates the input fields for lobby creation and, if valid, creates
+     * the GUI/client objects needed to connect to the server and create a lobby
+     */    @FXML
     private void onCreateLobby() {
         String nickname = createNicknameField.getText().trim();
         String numPlayersText = createNumPlayersField.getText().trim();
@@ -89,14 +114,17 @@ public class GUILoginController {
 
         try {
             hideError(createErrorLabel);
-            showInfo(createErrorLabel, "Connecting...");
+            showInfo(createErrorLabel);
             controller.createLobbyAndConnect(host, numPlayers, protocol);
         } catch (Exception e) {
             showError(createErrorLabel, "Impossible to connect to server");
         }
     }
 
-    // Handles the "Join Lobby" action: validates input and attempts to connect to the server to join an existing lobby
+    /**
+     * Validates the input fields for lobby joining and, if valid, creates
+     * the GUI/client objects needed to connect to the server and join a lobby
+     */
     @FXML
     private void onJoinLobby() {
         String code = joinCodeField.getText().trim();
@@ -120,23 +148,30 @@ public class GUILoginController {
 
         try {
             hideError(joinErrorLabel);
-            showInfo(joinErrorLabel, "Connecting...");
+            showInfo(joinErrorLabel);
             controller.joinLobbyAndConnect(host, code, protocol);
         } catch (Exception e) {
             showError(joinErrorLabel, "Invalid game code or server unreachable");
         }
     }
 
-    // Utility method to show the join panel with a specific error message (used when redirected from lobby with an error)
+    /**
+     * Switches to the join panel and shows the provided error message
+     *
+     * @param error the error message to display
+     */
     public void showJoinWithError(String error) {
         showPanel(joinPanel);
         showError(joinErrorLabel, error);
     }
 
 
-    // PRIVATE HELPERS
-
-    // Shows the specified panel and hides the others.
+    //! PRIVATE HELPERS
+    /**
+     * Shows the given panel and hides all the other main login panels
+     *
+     * @param panel the panel to make visible
+     */
     private void showPanel(VBox panel) {
         for (VBox p : new VBox[]{menuPanel, createPanel, joinPanel}) {
             p.setVisible(p == panel);
@@ -144,7 +179,12 @@ public class GUILoginController {
         }
     }
 
-    // Shows an error message in the specified label, styled in red.
+    /**
+     * Displays an error message in the given label using error styling
+     *
+     * @param label the label where the message must be shown
+     * @param message the error message to display
+     */
     private void showError(Label label, String message) {
         label.setText(message);
         label.setStyle("-fx-text-fill: #cc4444; -fx-font-size: 11px;");
@@ -152,16 +192,24 @@ public class GUILoginController {
         label.setManaged(true);
     }
 
-    // Shows an informational message in the specified label, styled in a neutral color.
-    private void showInfo(Label label, String message) {
-        label.setText(message);
+    /**
+     * Displays an info message in the given label using neutral styling
+     *
+     * @param label the label where the message must be shown
+     */
+    private void showInfo(Label label) {
+        label.setText("Connecting...");
         label.setStyle("-fx-text-fill: #888866; -fx-font-size: 11px;");
         label.setVisible(true);
         label.setManaged(true);
     }
 
 
-    // Hides the specified label.
+    /**
+     * Hides the given feedback label from the layout
+     *
+     * @param label the label to hide
+     */
     private void hideError(Label label) {
         label.setVisible(false);
         label.setManaged(false);
