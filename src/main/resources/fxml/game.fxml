@@ -12,6 +12,16 @@
 
 <!--
     Main game screen for the MESOS GUI.
+
+    Connected controller:
+    - GUIGameController
+
+    Main dynamic areas populated/updated at runtime:
+    - roundLabel / eraLabel / phaseLabel / currentPlayerLabel
+    - statusLabel / confirmButton
+    - topRowBox / bottomRowBox
+    - offerTrackBox / turnSlotBox
+    - opponentsBox / localPlayerBox
 -->
 <StackPane
         xmlns="http://javafx.com/javafx/26"
@@ -20,21 +30,17 @@
         prefWidth="1376" prefHeight="768">
 
     <!-- Fullscreen background image -->
-    <ImageView fx:id="bgImageView"
-               preserveRatio="false"
-               mouseTransparent="true">
-        <image>
-            <Image url="@/images/game_BG.png"/>
-        </image>
+    <ImageView fx:id="bgImageView" mouseTransparent="true">
+        <Image url="@/images/game_BG.png"/>
     </ImageView>
 
-    <!-- Foreground layout -->
-    <BorderPane prefWidth="1376" prefHeight="768"
-                style="-fx-background-color: transparent;">
+    <!-- Main foreground layout split into top info bar, center board, right opponents panel, and bottom local-player panel -->
+    <BorderPane prefWidth="1376" prefHeight="768" style="-fx-background-color: transparent;">
 
-        <!-- Floating top-left compact information panel -->
+        <!-- Top floating info area with match data, status messages, and confirm action -->
         <top>
             <VBox style="-fx-background-color: transparent; -fx-padding: 12 0 0 12;">
+                <!-- Semi-transparent compact info panel shown above the board -->
                 <VBox maxWidth="520"
                       spacing="4"
                       style="-fx-background-color: rgba(42,36,24,0.62);
@@ -92,7 +98,7 @@
                                       -fx-font-weight: bold;"/>
                     </HBox>
 
-                    <!-- Status + confirm row -->
+                    <!-- Status data + confirm button -->
                     <HBox spacing="10"
                           style="-fx-alignment: center-left;">
                         <Label fx:id="statusLabel"
@@ -100,6 +106,7 @@
                                style="-fx-text-fill: #d8c78f;
                                       -fx-font-size: 11px;"/>
 
+                        <!-- Hidden by default; shown only when the current selection can be confirmed -->
                         <Button fx:id="confirmButton"
                                 text="CONFIRM"
                                 onAction="#onConfirm"
@@ -118,20 +125,19 @@
             </VBox>
         </top>
 
-        <!-- Central board area -->
+        <!-- Central board area containing the two card rows, deck, turn order, and offer track -->
         <center>
+            <!-- Scrollable board container to keep the main play area centered and accessible on smaller windows -->
             <ScrollPane fitToWidth="true"
                         fitToHeight="true"
                         hbarPolicy="NEVER"
-                        vbarPolicy="AS_NEEDED"
                         style="-fx-background: transparent;
                                -fx-background-color: transparent;
                                -fx-border-color: transparent;">
 
                 <VBox style="-fx-alignment: center;
-                             -fx-background-color: transparent;"
-                      spacing="0">
-
+                             -fx-background-color: transparent;">
+                    <!-- Main board layout assembled vertically: top row, middle row, bottom row -->
                     <VBox spacing="10"
                           style="-fx-padding: 18 20 18 20;
                                  -fx-alignment: center;
@@ -146,14 +152,17 @@
                         <HBox spacing="20"
                               style="-fx-alignment: center; -fx-padding: 4 0 4 0;">
 
+                            <!-- Deck-back image updated according to the current era/round (to simulate the deck presence) -->
                             <ImageView fx:id="deckBackView"
                                        fitWidth="120"
                                        fitHeight="180"
                                        style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.55), 8, 0, 0, 3);"/>
 
+                            <!-- Container for the custom TurnSlotView component -->
                             <HBox fx:id="turnSlotBox"
                                   style="-fx-alignment: center;"/>
 
+                            <!-- Container for the runtime-generated offer-track tile views -->
                             <HBox fx:id="offerTrackBox"
                                   spacing="6"
                                   style="-fx-alignment: center;"/>
@@ -168,9 +177,10 @@
             </ScrollPane>
         </center>
 
-        <!-- Right opponents panel -->
+        <!-- Right-side panel listing all opponent tribes and their current public state -->
         <right>
             <VBox style="-fx-background-color: transparent; -fx-padding: 12 12 12 0;">
+                <!-- Semi-transparent sidebar containing the scrollable list of opponent panels -->
                 <VBox prefWidth="270"
                       style="-fx-background-color: rgba(44,38,26,0.58);
                              -fx-background-radius: 18;
@@ -185,13 +195,15 @@
                                   -fx-font-weight: bold;
                                   -fx-padding: 10 0 6 14;"/>
 
+                    <!-- Scroll container for dynamically created opponent player panels -->
                     <ScrollPane fitToWidth="true"
                                 hbarPolicy="NEVER"
-                                vbarPolicy="AS_NEEDED"
                                 style="-fx-background: transparent;
                                        -fx-background-color: transparent;
                                        -fx-border-color: transparent;"
                                 VBox.vgrow="ALWAYS">
+
+                        <!-- Runtime-filled container of PlayerPanelView components for opponents -->
                         <VBox fx:id="opponentsBox"
                               spacing="8"
                               style="-fx-padding: 4 10 14 10;
@@ -201,9 +213,10 @@
             </VBox>
         </right>
 
-        <!-- Bottom local player panel -->
+        <!-- Bottom panel dedicated to the local player's owned cards -->
         <bottom>
             <VBox style="-fx-background-color: transparent; -fx-padding: 0 12 10 12;">
+                <!-- Semi-transparent container for the local player's panel -->
                 <VBox style="-fx-background-color: rgba(44,38,26,0.62);
                              -fx-background-radius: 18 18 0 0;
                              -fx-border-color: rgba(132,112,72,0.55);
@@ -217,14 +230,16 @@
                                   -fx-font-weight: bold;
                                   -fx-padding: 6 0 2 14;"/>
 
+                    <!-- Horizontal container used to host the local player's PlayerPanelView -->
                     <ScrollPane fitToWidth="true"
-                                hbarPolicy="AS_NEEDED"
                                 vbarPolicy="NEVER"
                                 prefHeight="180"
                                 style="-fx-background: transparent;
                                        -fx-background-color: transparent;
                                        -fx-border-color: transparent;
                                        -fx-background-insets: 0;">
+
+                        <!-- Runtime-filled container holding the local player's panel -->
                         <HBox fx:id="localPlayerBox"
                               spacing="8"
                               style="-fx-padding: 4 12 4 12;
