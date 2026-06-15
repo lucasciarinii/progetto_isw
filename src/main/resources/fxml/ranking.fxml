@@ -2,6 +2,19 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+
+<!--
+    Final ranking/results screen shown at the end of the match
+
+    Connected controller:
+    - GUIRankingController
+
+    Dynamic nodes populated by the controller:
+    - matchResultsBox -> cards with final match standings
+    - rankingBox -> rows of the global ranking
+    - myPositionLabel -> local player's current global rank
+    - closingLabel -> shown only if the server disconnects/shuts down
+-->
 <BorderPane
         xmlns="http://javafx.com/javafx"
         xmlns:fx="http://javafx.com/fxml"
@@ -10,15 +23,21 @@
         style="-fx-background-color: #12120c;">
 
     <center>
+        <!-- Main vertical layout of the ranking screen -->
         <VBox alignment="CENTER" spacing="32"
               style="-fx-padding: 60 0 40 0;">
 
+            <!-- Screen title -->
             <Label text="GAME OVER"
                    style="-fx-text-fill: #ffcc00;
                           -fx-font-size: 42px;
                           -fx-font-weight: bold;"/>
 
-            <!-- Game results -->
+            <!--
+                Match results section.
+                matchResultsBox is filled at runtime with one result card per player,
+                ordered by descending score
+            -->
             <VBox alignment="CENTER" spacing="6">
                 <Label text="MATCH RESULTS"
                        style="-fx-text-fill: #888866;
@@ -29,38 +48,46 @@
                       style="-fx-alignment: center;"/>
             </VBox>
 
-            <!-- Separator -->
+            <!-- Visual separator between local match results and persistent ranking -->
             <Label text="──────────────────────────────────────────"
                    style="-fx-text-fill: #333322; -fx-font-size: 12px;"/>
 
-            <!-- Global Ranking -->
+            <!--
+                Global ranking section.
+                rankingBox is populated at runtime with ranking rows inside a ScrollPane
+            -->
             <VBox alignment="CENTER" spacing="10">
                 <Label text="GLOBAL RANKING"
                        style="-fx-text-fill: #888866;
                               -fx-font-size: 13px;
                               -fx-font-weight: bold;"/>
 
+                <!-- Scrollable container for the global ranking rows -->
                 <ScrollPane
                         fitToWidth="true"
                         prefHeight="300"
                         hbarPolicy="NEVER"
-                        vbarPolicy="AS_NEEDED"
                         style="-fx-background: transparent;
                            -fx-background-color: transparent;
                            -fx-border-color: transparent;">
+
+                    <!-- Runtime-filled ranking rows -->
                     <VBox fx:id="rankingBox"
                           spacing="4"
                           style="-fx-padding: 0 60 0 60;
                                  -fx-background-color: transparent;"/>
                 </ScrollPane>
 
-                <!-- Player position -->
+                <!-- Local player's position in the global ranking -->
                 <Label fx:id="myPositionLabel"
                        style="-fx-text-fill: #ffcc00;
                               -fx-font-size: 13px;
                               -fx-font-weight: bold;"/>
 
-                <!-- Label to wanr about server disconnection -->
+                <!--
+                    Connection/shutdown warning.
+                    Hidden by default and shown only if the server closes the connection.
+                -->
                 <Label fx:id="closingLabel"
                        text="Server closed the connection"
                        visible="false"
