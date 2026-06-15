@@ -34,11 +34,21 @@ public class CardImageRegistry {
 
     private CardImageRegistry() {}
 
+    /**
+     * Returns the singleton instance of the registry.
+     *
+     * @return the shared {@link CardImageRegistry} instance
+     */
     public static CardImageRegistry getInstance() {
         return INSTANCE;
     }
 
-    // Load all card images based on the JSON files.
+    /**
+     * Preloads all card images by reading the JSON card definitions for the given
+     * player count. Must be called once before invoking {@link #getImage(int)}.
+     *
+     * @param numPlayers the number of players in the current match, used to select the correct character card JSON file
+     */
     public void init(int numPlayers) {
         if (initialized) return; // avoid re-initialization
 
@@ -73,13 +83,14 @@ public class CardImageRegistry {
         return img != null ? img : placeholderImage;
     }
 
-    public Image getPlaceholder() {
-        return placeholderImage;
-    }
-
     /**
-     * Read a JSON file and populate the imageMap.
-     * @return int array where [0] = loaded, [1] = missing
+     * Parses a JSON card definition file and populates the image map with the
+     * loaded images. Missing or unspecified images are replaced with the
+     * placeholder.
+     *
+     * @param mapper the Jackson mapper used to parse the JSON file
+     * @param jsonPath the classpath-relative path to the JSON file
+     * @return a two-element array where {@code [0]} is the number of successfully loaded images and {@code [1]} is the number of missing images
      */
     // TODO: controllare che ogni configurazione carichi tutte le immagini correttamente
     private int[] loadJsonFile(ObjectMapper mapper, String jsonPath) {
@@ -109,6 +120,13 @@ public class CardImageRegistry {
         return new int[]{loaded, missing};
     }
 
+
+    /**
+     * Loads a JavaFX {@link Image} from the given classpath resource path.
+     *
+     * @param resourcePath the classpath-relative path to the image file
+     * @return the loaded {@link Image}, or {@code null} if the resource is not found or cannot be read
+     */
     private Image loadImage(String resourcePath) {
         try (InputStream is = getClass().getResourceAsStream(resourcePath)) {
             if (is == null) return null;
