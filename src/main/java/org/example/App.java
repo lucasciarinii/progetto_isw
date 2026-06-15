@@ -18,7 +18,7 @@ public class App {
 
     // kept for local debug, IDE runs, or a single-jar launcher.
     // Production packaging uses ClientMain/ServerMain, but this remains handy for quick testing.
-    public static void main(String[] args) throws Exception {
+    static void main(String[] args) throws Exception {
         System.out.println("App started with args: " + java.util.Arrays.toString(args));
         if (args.length == 0) {
             System.out.println("Use:");

@@ -3,13 +3,16 @@ package org.example.server.database;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
  * Ranking entry DTO used in ranking updates.
  */
 // DTO used in RankingUpdateMessage: must be Serializable to be sent over RMI
+@SuppressWarnings("ClassCanBeRecord")
 public class RankingEntry implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
     /** Player nickname. */
     private final String nickname;
