@@ -8,39 +8,54 @@
 <?import javafx.scene.layout.VBox?>
 
 <?import java.lang.String?>
+
+<!--
+    Lobby waiting screen shown after creating or joining a match
+
+    Connected controller:
+    - GUILobbyController
+
+    Dynamic nodes updated at runtime:
+    - gameCodeLabel -> current game code
+    - playersCountLabel -> connected players / required players
+    - playersList -> nicknames currently in the lobby
+    - statusLabel -> waiting/starting status message
+-->
 <StackPane
         xmlns="http://javafx.com/javafx"
         xmlns:fx="http://javafx.com/fxml"
         fx:controller="org.example.client.view.GUI.GUIController.GUILobbyController"
         prefWidth="1376" prefHeight="768">
+    <!-- External stylesheet used to customize the players ListView -->
     <stylesheets>
         <String fx:value="/css/lobby.css"/>
     </stylesheets>
 
     <!-- Background image -->
-    <ImageView preserveRatio="false"
-               fitWidth="1376" fitHeight="768">
-        <image><Image url="@/images/login_BG.png"/></image>
+    <ImageView fitWidth="1376" fitHeight="768">
+        <Image url="@/images/login_BG.png"/>
     </ImageView>
 
     <!-- Dark overlay for readability -->
     <StackPane style="-fx-background-color: rgba(0,0,0,0.55);"/>
 
-    <!-- Main content -->
+    <!-- Main centered lobby layout: game code, player count, player list, and status -->
     <VBox alignment="CENTER" spacing="18"
           style="-fx-padding: 220 60 50 60;">
 
-        <!-- Game code display -->
+        <!-- Game code area; the main label is clickable and copied to clipboard by the controller -->
         <VBox alignment="CENTER" spacing="4">
             <Label text="GAME CODE"
                    style="-fx-text-fill: #888866;
                           -fx-font-size: 12px;
                           -fx-font-weight: bold;"/>
+            <!-- Runtime-updated game code label -->
             <Label fx:id="gameCodeLabel"
                    text="———"
                    style="-fx-text-fill: #ffcc00;
                           -fx-font-size: 48px;
                           -fx-font-weight: bold;"/>
+            <!-- Hint for the copy-to-clipboard interaction on the game code -->
             <Label text="Click on it to copy to clipboard!"
                    style="-fx-text-fill: #7b7b65;
                           -fx-font-size: 11px;"/>
@@ -50,12 +65,12 @@
         <Label text="──────────────────────────────────────────"
                style="-fx-text-fill: #2a2a18; -fx-font-size: 11px;"/>
 
-        <!-- Players counter -->
+        <!-- Runtime-updated counter showing connected players over required players -->
         <Label fx:id="playersCountLabel"
                text="0/0 players connected"
                style="-fx-text-fill: #f0e0b0; -fx-font-size: 17px;"/>
 
-        <!-- Players list -->
+        <!-- Scrollable list of players currently connected to the lobby -->
         <VBox spacing="6" maxWidth="400">
             <ListView fx:id="playersList"
                       prefHeight="160"
@@ -68,7 +83,7 @@
                      -fx-control-inner-background: #15150d;"/>
         </VBox>
 
-        <!-- Status text -->
+        <!-- Runtime-updated lobby status message (waiting / game starting) -->
         <Label fx:id="statusLabel"
                text="Waiting for players..."
                style="-fx-text-fill: #888866;
