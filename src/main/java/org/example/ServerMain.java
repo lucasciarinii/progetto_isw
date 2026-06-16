@@ -1,7 +1,7 @@
 package org.example;
 
 public class ServerMain {
-    public static void main(String[] args) throws Exception {
+    static void main() throws Exception {
         App.startServer();
     }
 }

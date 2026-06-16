@@ -1,7 +1,7 @@
 package org.example;
 
 public class ClientMain {
-    public static void main(String[] args) throws Exception {
+    static void main(String[] args) {
         if (args.length == 0) {
             System.out.println("Use:");
             System.out.println("  java -jar mesos-client.jar tui [rmi|socket] <host>");
@@ -9,7 +9,7 @@ public class ClientMain {
             return;
         }
 
-        String mode = args.length > 0 ? args[0] : "tui";
+        String mode = args[0];
         org.example.network.CommunicationProtocol protocol = App.parseProtocol(args.length > 1 ? args[1] : "rmi");
         String host = args.length > 2 ? args[2] : null;
 
