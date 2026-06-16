@@ -33,7 +33,7 @@ public class TurnSlotSnapshot implements Serializable {
     /** @return the nickname of the occupying player, or null */
     public String getOccupantNickname() { return occupantNickname; }
     @JsonIgnore
-    public boolean isFree()             { return occupantNickname == null; }
+    public boolean isFree() { return occupantNickname == null; }
 
     @Override
     public String toString() {
