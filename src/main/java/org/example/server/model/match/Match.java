@@ -69,12 +69,6 @@ public class Match {
         // Initialize GameState (order is already randomized).
         gameState = new GameState(players);
 
-        // TEST: force RoundFlowBC on the first player at game start
-//        if (!players.isEmpty()) {
-//            Player testPlayer = players.get(0);
-//            RoundFlowBC testCard = new RoundFlowBC(119, Era.III, 9, 3, BuildingCardType.RoundFlowBC, false);
-//            testPlayer.addBuilding(testCard);
-//        }
     }
 
     //! METHODS TO MANAGE THE MATCH

@@ -33,9 +33,7 @@ public class App {
         // Entry-point router for the single-jar launcher: delegate to server or client flow.
         // The real work is in startServer/startClient to keep the logic reusable.
         switch (args[0]) {
-            case "server" -> {
-                startServer();
-            }
+            case "server" -> startServer();
             case "client" -> {
                 String mode = args.length > 1 ? args[1] : "tui";
                 CommunicationProtocol protocol = parseProtocol(args.length > 2 ? args[2] : "rmi");

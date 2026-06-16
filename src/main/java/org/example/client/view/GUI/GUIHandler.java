@@ -37,8 +37,7 @@ public class GUIHandler implements UIHandler {
     private GUIRankingController GUIRankingController;
     private GameStateUpdateMessage lastGameUpdate;
     private boolean lobbyRetryEnabled = false;
-//    @SuppressWarnings({"FieldCanBeLocal", "unused"})
-    private String gameID;
+    @SuppressWarnings({"FieldCanBeLocal", "unused"}) private String gameID;
 
 
     public void setController(ClientController controller) {
