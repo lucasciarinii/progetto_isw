@@ -36,6 +36,7 @@ public class TurnSlotSnapshot implements Serializable {
     public boolean isFree() { return occupantNickname == null; }
 
     @Override
+    @SuppressWarnings("DuplicatedCode")
     public String toString() {
         if(foodBonus > 0)
             return "[%d] %s\n\tFood bonus: %d".formatted(position + 1, ((occupantNickname != null && !occupantNickname.isEmpty()) ? occupantNickname.toUpperCase() : "empty"), foodBonus);
