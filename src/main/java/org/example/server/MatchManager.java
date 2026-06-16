@@ -23,7 +23,7 @@ public class MatchManager {
 
     private final Map<String, LobbyController> lobbies = new ConcurrentHashMap<>();
     private final Map<String, ServerController> games = new ConcurrentHashMap<>();
-    // TODO: CHECK
+
     private final Map<String, Thread> gameThreads = new ConcurrentHashMap<>();
     private final Set<String> globalNicknames = ConcurrentHashMap.newKeySet();
 
@@ -179,8 +179,10 @@ public class MatchManager {
             serverController.getPlayers().forEach(p -> globalNicknames.remove(p.getNickname()));
         }
 
-        games.remove(cleanID);
-        gameThreads.remove(cleanID);
+        Thread gameThread = gameThreads.remove(cleanID);
+        if (gameThread != null && gameThread.isAlive()) {
+            gameThread.interrupt();
+        }
         ServerLogger.game("Game session ended with code: " + cleanID);
     }
 
@@ -229,7 +231,10 @@ public class MatchManager {
                     hybrid.removePlayerMapping(nick);
                 }
             });
-            gameThreads.remove(cleanID);
+            Thread gameThread = gameThreads.remove(cleanID);
+            if (gameThread != null && gameThread.isAlive()) {
+                gameThread.interrupt();
+            }
             ServerLogger.game("Game session aborted with code: " + cleanID + " (" + reason + ")");
         }
     }
