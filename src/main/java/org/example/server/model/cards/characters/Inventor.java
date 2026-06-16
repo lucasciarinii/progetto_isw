@@ -27,6 +27,7 @@ public class Inventor extends Character {
      * @param characterType character type from JSON
      * @param invention invention type
      */
+    @SuppressWarnings("unused")
     public Inventor(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("CharacterType") CharacterType characterType, @JsonProperty("invention") InventionType invention) {
         super(id, era, CharacterType.INVENTOR);
         this.invention = invention;

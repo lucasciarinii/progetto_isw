@@ -27,6 +27,7 @@ public class Builder extends Character {
      * @param discountBuilding building discount value
      * @param endPoints end points
      */
+    @SuppressWarnings("unused")
     public Builder(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("CharacterType") CharacterType characterType, @JsonProperty("discountBuilding") int discountBuilding, @JsonProperty("endPoints") int endPoints) {
         super(id, era, CharacterType.BUILDER);
         this.discountBuilding = discountBuilding;

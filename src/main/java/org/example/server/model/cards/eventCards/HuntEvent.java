@@ -30,6 +30,7 @@ public class HuntEvent extends EventCard {
      * @param effect event effect type
      * @param points points per hunter
      */
+    @SuppressWarnings("unused")
     public HuntEvent(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,

@@ -22,6 +22,7 @@ public class CavePaintingEventBoostBC extends BuildingCard {
      * @param buildingCardType building type
      * @param isEndGame true if it scores at end game
      */
+    @SuppressWarnings("unused")
     public CavePaintingEventBoostBC(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,

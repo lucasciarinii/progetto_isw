@@ -36,6 +36,7 @@ public class SustenanceDiscountBC extends BuildingCard {
      * @param characterEffect character type for the discount
      * @param isEndGame true if it scores at end game
      */
+    @SuppressWarnings("unused")
     public SustenanceDiscountBC(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,

@@ -21,6 +21,7 @@ public class HuntEventBoostBC extends BuildingCard {
      * @param buildingCardType building type
      * @param isEndGame true if it scores at end game
      */
+    @SuppressWarnings("unused")
     public HuntEventBoostBC(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,

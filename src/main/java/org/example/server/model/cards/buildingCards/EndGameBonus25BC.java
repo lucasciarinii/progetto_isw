@@ -21,6 +21,7 @@ public class EndGameBonus25BC extends BuildingCard {
      * @param buildingCardType building type
      * @param isEndGame true if it scores at end game
      */
+    @SuppressWarnings("unused")
     public EndGameBonus25BC(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,

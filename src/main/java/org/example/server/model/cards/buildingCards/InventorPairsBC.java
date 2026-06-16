@@ -34,6 +34,7 @@ public class InventorPairsBC extends BuildingCard {
      * @param buildingCardType building type
      * @param isEndGame true if it scores at end game
      */
+    @SuppressWarnings("unused")
     public InventorPairsBC(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,

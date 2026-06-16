@@ -24,6 +24,7 @@ public class Shaman extends Character {
      * @param characterType character type from JSON
      * @param numStars number of stars
      */
+    @SuppressWarnings("unused")
     public Shaman(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("CharacterType") CharacterType characterType, @JsonProperty("numStars") int numStars) {
         super(id, era, CharacterType.SHAMAN);
         this.numStars = numStars;

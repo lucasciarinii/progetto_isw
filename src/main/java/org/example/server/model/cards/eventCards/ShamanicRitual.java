@@ -32,6 +32,7 @@ public class ShamanicRitual extends EventCard {
      * @param bonusPoints bonus points for top stars
      * @param malusPoints malus points for lowest stars
      */
+    @SuppressWarnings("unused")
     public ShamanicRitual(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,

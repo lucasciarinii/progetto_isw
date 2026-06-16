@@ -28,6 +28,7 @@ public class Sustenance extends EventCard {
      * @param effect event effect type
      * @param points points paid per character
      */
+    @SuppressWarnings("unused")
     public Sustenance(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,

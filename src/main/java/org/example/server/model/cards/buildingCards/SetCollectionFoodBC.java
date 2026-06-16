@@ -31,6 +31,7 @@ public class SetCollectionFoodBC extends BuildingCard {
      * @param buildingCardType building type
      * @param isEndGame true if it scores at end game
      */
+    @SuppressWarnings("unused")
     public SetCollectionFoodBC(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,

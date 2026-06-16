@@ -24,6 +24,7 @@ public class Hunter extends Character {
      * @param characterType character type from JSON
      * @param obtainFood whether this hunter obtains food
      */
+    @SuppressWarnings("unused")
     public Hunter(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("CharacterType") CharacterType characterType, @JsonProperty("obtainFood") boolean obtainFood) {
         super(id, era, CharacterType.HUNTER);
         this.obtainFood = obtainFood;

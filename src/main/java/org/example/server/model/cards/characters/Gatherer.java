@@ -25,6 +25,7 @@ public class Gatherer extends Character {
      * @param era card era
      * @param characterType character type from JSON
      */
+    @SuppressWarnings("unused")
     public Gatherer(@JsonProperty("id") int id, @JsonProperty("era") Era era, @JsonProperty("CharacterType") CharacterType characterType) {
         super(id, era, CharacterType.GATHERER);
     }

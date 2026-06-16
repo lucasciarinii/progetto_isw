@@ -33,6 +33,7 @@ public class CharacterEndPointsBC extends BuildingCard {
      * @param characterEffect character type that scores
      * @param isEndGame true if it scores at end game
      */
+    @SuppressWarnings("unused")
     public CharacterEndPointsBC(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,

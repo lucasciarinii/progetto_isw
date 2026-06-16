@@ -34,6 +34,7 @@ public class CavePainting extends EventCard {
      * @param malusPoints malus points when below threshold
      * @param interval minimum artists threshold
      */
+    @SuppressWarnings("unused")
     public CavePainting(
             @JsonProperty("id") int id,
             @JsonProperty("era") Era era,
