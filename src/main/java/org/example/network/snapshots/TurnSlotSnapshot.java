@@ -17,27 +17,19 @@ public class TurnSlotSnapshot implements Serializable {
 
     private final int position;
     private final int foodBonus;
-    private final int pointsBonus;
+
     private final String occupantNickname;
 
     @JsonCreator
     public TurnSlotSnapshot(
             @JsonProperty("position") int position,
             @JsonProperty("foodBonus") int foodBonus,
-            @JsonProperty("pointsBonus") int pointsBonus,
             @JsonProperty("occupantNickname") String occupantNickname) {
         this.position = position;
         this.foodBonus = foodBonus;
-        this.pointsBonus = pointsBonus;
         this.occupantNickname = occupantNickname;
     }
 
-    /** @return the slot position index */
-    public int getPosition()            { return position; }
-    /** @return the food bonus for the slot */
-    public int getFoodBonus()           { return foodBonus; }
-    /** @return the points bonus for the slot */
-    public int getPointsBonus()         { return pointsBonus; }
     /** @return the nickname of the occupying player, or null */
     public String getOccupantNickname() { return occupantNickname; }
     @JsonIgnore

@@ -352,7 +352,6 @@ public class ServerController implements Runnable {
             turnOrderSlots.add(new TurnSlotSnapshot(
                     i,
                     slot.getFood(),
-                    slot.getPoints(),
                     slot.getPlayer() != null ? slot.getPlayer().getNickname() : null
             ));
         }
