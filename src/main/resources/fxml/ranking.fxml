@@ -18,7 +18,7 @@
 <BorderPane
         xmlns="http://javafx.com/javafx"
         xmlns:fx="http://javafx.com/fxml"
-        fx:controller="org.example.client.view.GUI.GUIController.GUIRankingController"
+        fx:controller="it.polimi.ingsw.client.view.GUI.GUIController.GUIRankingController"
         prefWidth="1280" prefHeight="800"
         style="-fx-background-color: #12120c;">
 

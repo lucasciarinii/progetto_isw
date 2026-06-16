@@ -1,5 +1,5 @@
-import org.example.server.model.match.Match;
-import org.example.server.model.match.Player;
+import it.polimi.ingsw.server.model.match.Match;
+import it.polimi.ingsw.server.model.match.Player;
 
 import java.util.List;
 
