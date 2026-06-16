@@ -92,7 +92,6 @@ public class CardImageRegistry {
      * @param jsonPath the classpath-relative path to the JSON file
      * @return a two-element array where {@code [0]} is the number of successfully loaded images and {@code [1]} is the number of missing images
      */
-    // TODO: controllare che ogni configurazione carichi tutte le immagini correttamente
     private int[] loadJsonFile(ObjectMapper mapper, String jsonPath) {
         int loaded = 0, missing = 0;
         try (InputStream is = getClass().getResourceAsStream(jsonPath)) {
