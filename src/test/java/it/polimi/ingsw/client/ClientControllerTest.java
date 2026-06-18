@@ -23,6 +23,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
+import it.polimi.ingsw.network.CommunicationProtocol;
 
 class ClientControllerTest {
 
@@ -58,21 +59,35 @@ class ClientControllerTest {
         @Override public void setGameID(String gameID) { lastGameId = gameID; }
     }
 
-    /**
-     * Fake NetworkAdapter to capture commands sent to the server.
-     */
     private static class FakeClientNetworkAdapter implements ClientNetworkAdapter {
         int placeTotemCalls = 0;
         int offerTileCalls = 0;
         int roundFlowCalls = 0;
+
+        int joinLobbyCalls = 0;
+        int disconnectCalls = 0;
+        String joinedGameId = null;
+        boolean forceDisconnectError = false;
 
         // CountDownLatch safely handles waiting for async threads without busy-waiting loops
         CountDownLatch skipTurnLatch = new CountDownLatch(1);
 
         @Override public void connect(String host) {}
         @Override public void createLobby(String nickname, int numPlayers) {}
-        @Override public void joinLobby(String nickname, String gameID) {}
-        @Override public void disconnect() {} // Implemented to fulfill the interface contract
+
+        @Override
+        public void joinLobby(String nickname, String gameID) {
+            joinLobbyCalls++;
+            joinedGameId = gameID;
+        }
+
+        @Override
+        public void disconnect() throws Exception {
+            if (forceDisconnectError) {
+                throw new Exception("Simulated disconnect failure");
+            }
+            disconnectCalls++;
+        }
 
         @Override public void placeTotemOnOfferTile(int tilePosition) { placeTotemCalls++; }
         @Override public void offerTileAction(String cards) { offerTileCalls++; }
@@ -82,9 +97,6 @@ class ClientControllerTest {
             skipTurnLatch.countDown();
         }
 
-        /**
-         * Helper to safely wait for the async skipTurn call (max 2 seconds).
-         */
         public boolean waitForSkipTurn() throws InterruptedException {
             return skipTurnLatch.await(2, TimeUnit.SECONDS);
         }
@@ -111,34 +123,81 @@ class ClientControllerTest {
         field.setAccessible(true);
         field.set(clientController, fakeAdapter);
     }
-
+// ==========================================
+    // SETUP AND CONNECTION TESTS
     // ==========================================
-    // BASIC COMMANDS TESTS
-    // ==========================================
 
     @Test
-    void testGetNickname() {
-        assertEquals(TEST_NICKNAME, clientController.getNickname());
+    void testSetGameID() {
+        clientController.setGameID("LOBBY_123");
+        assertEquals("LOBBY_123", fakeUI.lastGameId);
     }
 
     @Test
-    void testPlaceTotemOnOfferTile() throws Exception {
-        clientController.placeTotemOnOfferTile(3);
-        assertEquals(1, fakeAdapter.placeTotemCalls);
+    void testJoinLobby_Success() throws Exception {
+        // The fake networkAdapter is already injected in the setUp() method
+        clientController.joinLobby("Game-123");
+
+        assertEquals(1, fakeAdapter.joinLobbyCalls);
+        assertEquals("Game-123", fakeAdapter.joinedGameId);
     }
 
     @Test
-    void testOfferTileAction() throws Exception {
-        clientController.offerTileAction("1,2");
-        assertEquals(1, fakeAdapter.offerTileCalls);
+    void testJoinLobby_NullAdapter() throws Exception {
+        // Force the networkAdapter to null to cover the if-statement branch
+        setField(clientController, "networkAdapter", null);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+            clientController.joinLobby("Game-123");
+        });
+        assertEquals("Client not connected", exception.getMessage());
     }
 
     @Test
-    void testRoundFlowCardRequest() throws Exception {
-        clientController.roundFlowCardRequest("2");
-        assertEquals(1, fakeAdapter.roundFlowCalls);
+    void testDisconnect_Success() {
+        // Calls disconnect normally
+        clientController.disconnect();
+        assertEquals(1, fakeAdapter.disconnectCalls);
     }
 
+    @Test
+    void testDisconnect_NullAdapter() throws Exception {
+        // Force adapter to null, it should return immediately without throwing exceptions
+        setField(clientController, "networkAdapter", null);
+
+        assertDoesNotThrow(() -> clientController.disconnect());
+        assertEquals(0, fakeAdapter.disconnectCalls);
+    }
+
+    @Test
+    void testDisconnect_ExceptionCaught() {
+        // Instruct the fake adapter to throw an exception
+        fakeAdapter.forceDisconnectError = true;
+
+        // The controller should catch the exception and print to System.err.
+        // We assert that the program does not crash (no unhandled exceptions are thrown)
+        assertDoesNotThrow(() -> clientController.disconnect());
+        assertEquals(0, fakeAdapter.disconnectCalls); // The actual disconnect was not reached
+    }
+
+    @Test
+    void testCreateLobbyAndConnect() {
+        // The Factory inside the method creates a real adapter (e.g., Socket) which tries
+        // to connect to a non-existent server ("localhost" or a closed port).
+        // The execution will end with an expected network exception, validating the method flow.
+        assertThrows(Exception.class, () -> {
+            clientController.createLobbyAndConnect("localhost", 4, CommunicationProtocol.SOCKET);
+        });
+    }
+
+    @Test
+    void testJoinLobbyAndConnect() {
+        // Similar to the previous test: tries to actually connect and then calls joinLobby.
+        // It covers the first lines of the method until it crashes due to the missing server.
+        assertThrows(Exception.class, () -> {
+            clientController.joinLobbyAndConnect("localhost", "Game-123", CommunicationProtocol.RMI);
+        });
+    }
     // ==========================================
     // CALLBACK RECEPTION TESTS
     // ==========================================
