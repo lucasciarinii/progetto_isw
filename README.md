@@ -47,8 +47,7 @@ Main folders of the repository:
 | Advanced feature: Persistence              |     ❌      |
 | Advanced feature: Resilience               |     ❌      |
 
-**Maximum achievable grade according to the official evaluation table:** **30/30**  
-Configuration: **Full rules + TUI + GUI + Socket + RMI + 2 advanced features (DB ranking, multiple matches)**. [file:20]
+Configuration: **Full rules + TUI + GUI + Socket + RMI + 2FA (DB ranking, multiple matches)**
 
 ---
 
