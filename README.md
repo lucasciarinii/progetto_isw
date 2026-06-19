@@ -149,12 +149,6 @@ The server **does not require any command-line parameters**:
 java -jar mesos-server.jar
 ```
 
-The server:
-
-- opens the Socket and RMI endpoints
-- initializes the `MatchManager` for lobby and multi-match management
-- connects to the MySQL database using `DB_URL`, `DB_USER`, `DB_PASSWORD`
-
 ### 2. Starting the client
 
 The client requires parameters to specify interface and protocol:
@@ -186,60 +180,6 @@ java -jar mesos-client.jar gui/tui rmi/socket <server-ip>
   ```bash
   java -jar mesos-client.jar tui rmi 192.168.1.100
   ```
-
----
-
-## Typical usage flow
-
-1. **Start the server**
-
-    - Configure DB environment variables.
-    - Run:
-
-      ```bash
-      java -jar mesos-server.jar
-      ```
-
-2. **Start one or more clients**
-
-    - For each player:
-
-      ```bash
-      java -jar mesos-client.jar gui socket localhost
-      ```
-
-      or
-
-      ```bash
-      java -jar mesos-client.jar tui rmi <server-ip>
-      ```
-
-3. **Choose nickname and lobby**
-
-    - Each player chooses a unique **nickname**.
-    - The first player:
-        - creates a new lobby, selecting the number of players
-    - Other players:
-        - join the match by entering the **lobby code (game ID)**
-
-4. **Play the match**
-
-    - The server:
-        - enforces Mesos rules, turn order and phases
-        - sends `GameStateUpdateMessage` to all clients
-    - Each client:
-        - displays both its own state and the other players’ state
-        - sends player actions to the server through the chosen protocol
-
-5. **End of match and ranking**
-
-    - At the end of a match:
-        - the server stores results in the DB
-        - computes the global ranking for matches with the same number of players
-        - sends a `RankingUpdateMessage` to each client with:
-            - the player’s global position
-            - the full ranking
-    - Clients display the ranking and show the match outcome.
 
 ---
 
