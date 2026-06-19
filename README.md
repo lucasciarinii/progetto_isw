@@ -185,8 +185,6 @@ java -jar mesos-client.jar gui/tui rmi/socket <server-ip>
 
 ## Authors
 
-Software Engineering Final Project, A.Y. 2025/2026:
-
 - Luca Sciarini
 - Edoardo Sacchi
 - Leonardo Taccari
