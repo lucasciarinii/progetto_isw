@@ -1,0 +1,551 @@
+package it.polimi.ingsw.server;
+
+import it.polimi.ingsw.network.ServerNotifier;
+import it.polimi.ingsw.network.messages.GameStateUpdateMessage;
+import it.polimi.ingsw.network.messages.LobbyUpdateMessage;
+import it.polimi.ingsw.network.messages.RankingUpdateMessage;
+import it.polimi.ingsw.server.model.board.OfferTile;
+import it.polimi.ingsw.server.model.enums.GamePhase;
+import it.polimi.ingsw.server.model.exceptions.InvalidCardException;
+import it.polimi.ingsw.server.model.exceptions.NoDrawableCardException;
+import it.polimi.ingsw.server.model.match.GameState;
+import it.polimi.ingsw.server.model.match.Match;
+import it.polimi.ingsw.server.model.match.Player;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class ServerControllerTest {
+
+    /**
+     * Fake listener to verify if the controller correctly triggers the shutdown sequence.
+     */
+    private static class FakeGameOverListener implements GameOverListener {
+        boolean called = false;
+        @Override
+        public void onGameOver(ServerController controller) {
+            called = true;
+        }
+    }
+
+    /**
+     * Fake notifier used to capture everything that the server sends to the clients.
+     * Expanded to track RoundFlow requests and Shutdown signals.
+     */
+    private static class FakeServerNotifier implements ServerNotifier {
+        final Map<String, List<GameStateUpdateMessage>> gameUpdates = new HashMap<>();
+        final Map<String, List<String>> errors = new HashMap<>();
+        final Map<String, Integer> roundFlowRequests = new HashMap<>();
+        final Map<String, Integer> shutdowns = new HashMap<>();
+
+        @Override
+        public void sendGameStateUpdate(String nickname, GameStateUpdateMessage update) {
+            gameUpdates.computeIfAbsent(nickname, k -> new ArrayList<>()).add(update);
+        }
+
+        @Override
+        public void sendError(String nickname, String message, GamePhase phase) {
+            errors.computeIfAbsent(nickname, k -> new ArrayList<>()).add(message);
+        }
+
+        @Override
+        public void sendRoundFlowCardRequest(String nickname) {
+            roundFlowRequests.put(nickname, roundFlowRequests.getOrDefault(nickname, 0) + 1);
+        }
+
+        @Override
+        public void sendShutdown(String nickname) {
+            shutdowns.put(nickname, shutdowns.getOrDefault(nickname, 0) + 1);
+        }
+
+        // --- Other ServerNotifier methods (stubbed as empty for these tests) ---
+        @Override public void sendLobbyUpdate(String nickname, LobbyUpdateMessage update) {}
+        @Override public void sendRankingUpdate(String nickname, RankingUpdateMessage msg) {}
+        @Override public void handleClientDisconnect(String nickname, String reason) {}
+    }
+
+    /** Match subclass used to force InvalidCardException from offerTileAction. */
+    private static class InvalidCardMatch extends Match {
+        InvalidCardMatch(List<Player> players) { super(players); }
+        @Override
+        public void offerTileAction(Player player, String cards) throws NoDrawableCardException, InvalidCardException {
+            throw new InvalidCardException("Bad cards");
+        }
+    }
+
+    /** Match subclass used to force NoDrawableCardException from offerTileAction. */
+    private static class NoDrawableCardMatch extends Match {
+        NoDrawableCardMatch(List<Player> players) { super(players); }
+        @Override
+        public void offerTileAction(Player player, String cards) throws NoDrawableCardException, InvalidCardException {
+            throw new NoDrawableCardException("No drawable cards");
+        }
+    }
+
+    /** Match subclass used to force InvalidCardException from roundFlowCardRequest. */
+    private static class RoundFlowFailingMatch extends Match {
+        RoundFlowFailingMatch(List<Player> players) { super(players); }
+        @Override
+        public void roundFlowCardRequest(Player player, String cards) throws InvalidCardException {
+            throw new InvalidCardException("Bad flow card");
+        }
+    }
+
+    /** Match subclass used to force a generic Exception from roundFlowCardRequest. */
+    private static class RoundFlowGenericFailingMatch extends Match {
+        RoundFlowGenericFailingMatch(List<Player> players) { super(players); }
+        @Override
+        public void roundFlowCardRequest(Player player, String cards) {
+            throw new RuntimeException("Generic flow crash");
+        }
+    }
+
+    /** Match subclass used to simulate a successful roundFlowCardRequest. */
+    private static class RoundFlowSuccessMatch extends Match {
+        RoundFlowSuccessMatch(List<Player> players) { super(players); }
+        @Override
+        public void roundFlowCardRequest(Player player, String cards) {
+            // Success, does nothing and returns smoothly
+        }
+    }
+
+    private FakeServerNotifier fakeNotifier;
+
+    @BeforeEach
+    void setUp() {
+        fakeNotifier = new FakeServerNotifier();
+    }
+
+    // --- Helper Methods ---
+
+    private Match createTwoPlayerMatch() {
+        List<Player> players = new ArrayList<>();
+        players.add(new Player("alice"));
+        players.add(new Player("bob"));
+        return new Match(players);
+    }
+
+    private List<Player> createTwoPlayers() {
+        List<Player> players = new ArrayList<>();
+        players.add(new Player("alice"));
+        players.add(new Player("bob"));
+        return players;
+    }
+
+    private Player findOtherPlayer(Match match) {
+        String currentNickname = match.getGameState().getCurrentPlayer().getNickname();
+        for (Player player : match.getPlayers()) {
+            if (!player.getNickname().equals(currentNickname)) {
+                return player;
+            }
+        }
+        throw new IllegalStateException("Other player not found");
+    }
+
+    private void moveToPlayerTurn(Match match) {
+        if (match.getGameState().getCurrentPhase() == GamePhase.PLACE_TOTEMS) {
+            match.getGameState().advancePhase();
+        }
+        assertEquals(GamePhase.PLAYER_TURN, match.getGameState().getCurrentPhase());
+    }
+
+    // --- Original Standard Tests ---
+
+    @Test
+    void sendInitialState_ShouldSendSnapshotToAllPlayers() {
+        Match match = createTwoPlayerMatch();
+        ServerController controller = new ServerController(match, fakeNotifier);
+        assertDoesNotThrow(controller::sendInitialState);
+        assertEquals(1, fakeNotifier.gameUpdates.get("alice").size());
+        assertEquals(1, fakeNotifier.gameUpdates.get("bob").size());
+    }
+
+    @Test
+    void placeTotemOnOfferTile_ShouldSendErrorWhenPlayerIsNotCurrentPlayer() {
+        Match match = createTwoPlayerMatch();
+        ServerController controller = new ServerController(match, fakeNotifier);
+        String otherNickname = findOtherPlayer(match).getNickname();
+        controller.placeTotemOnOfferTile(otherNickname, 1);
+        List<String> errorsForOther = fakeNotifier.errors.get(otherNickname);
+        assertNotNull(errorsForOther);
+        assertTrue(errorsForOther.get(0).contains("not yourn turn or invalid phase"));
+    }
+
+    @Test
+    void skipTurn_ShouldSendErrorWhenPhaseIsWrong() {
+        Match match = createTwoPlayerMatch();
+        ServerController controller = new ServerController(match, fakeNotifier);
+        String currentNickname = match.getGameState().getCurrentPlayer().getNickname();
+        controller.skipTurn(currentNickname);
+        assertTrue(fakeNotifier.errors.get(currentNickname).get(0).contains("invalid phase"));
+    }
+
+    @Test
+    void skipTurn_ShouldAdvanceTurnAndNotifyClientsWhenPhaseIsPlayerTurn() {
+        Match match = createTwoPlayerMatch();
+        moveToPlayerTurn(match);
+        ServerController controller = new ServerController(match, fakeNotifier);
+        String currentNickname = match.getGameState().getCurrentPlayer().getNickname();
+        String otherNickname = findOtherPlayer(match).getNickname();
+        controller.skipTurn(currentNickname);
+        assertEquals(otherNickname, match.getGameState().getCurrentPlayer().getNickname());
+    }
+
+    @Test
+    void offerTileAction_ShouldSendErrorWhenMatchThrowsInvalidCardException() {
+        InvalidCardMatch match = new InvalidCardMatch(createTwoPlayers());
+        moveToPlayerTurn(match);
+        ServerController controller = new ServerController(match, fakeNotifier);
+        String currentNickname = match.getGameState().getCurrentPlayer().getNickname();
+        controller.offerTileAction(currentNickname, "1,2");
+        assertTrue(fakeNotifier.errors.get(currentNickname).get(0).contains("Invalid move: Bad cards"));
+    }
+
+    @Test
+    void offerTileAction_ShouldRecoverWhenMatchThrowsNoDrawableCardException() {
+        NoDrawableCardMatch match = new NoDrawableCardMatch(createTwoPlayers());
+        moveToPlayerTurn(match);
+        ServerController controller = new ServerController(match, fakeNotifier);
+        String currentNickname = match.getGameState().getCurrentPlayer().getNickname();
+
+        OfferTile selectedTile = match.getBoard().getOfferTrack().get(0);
+        selectedTile.placePlayer(match.getGameState().getCurrentPlayer());
+
+        controller.offerTileAction(currentNickname, "");
+        assertTrue(fakeNotifier.errors.get(currentNickname).get(0).contains("No drawable cards"));
+        assertNull(selectedTile.getPlayer());
+    }
+
+    // --- NEW COVERAGE: RoundFlowCardRequest logic ---
+
+    @Test
+    void roundFlowCardRequest_ShouldSendErrorIfNotWaiting() {
+        Match match = createTwoPlayerMatch();
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        // Try to answer round flow while the controller is not waiting
+        controller.roundFlowCardRequest("alice", "1");
+
+        List<String> errors = fakeNotifier.errors.get("alice");
+        assertNotNull(errors);
+        assertTrue(errors.get(0).contains("No RoundFlow action expected now"));
+    }
+
+    @Test
+    void roundFlowCardRequest_ShouldSendErrorIfWrongPlayer() throws Exception {
+        Match match = createTwoPlayerMatch();
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        // Force internal state using Reflection to simulate waiting for Alice
+        Field waitField = ServerController.class.getDeclaredField("waitingForRoundFlow");
+        waitField.setAccessible(true);
+        waitField.set(controller, true);
+
+        Field nickField = ServerController.class.getDeclaredField("roundFlowPlayerNick");
+        nickField.setAccessible(true);
+        nickField.set(controller, "alice");
+
+        // Bob tries to answer Alice's request
+        controller.roundFlowCardRequest("bob", "1");
+
+        List<String> errors = fakeNotifier.errors.get("bob");
+        assertNotNull(errors);
+        assertTrue(errors.get(0).contains("It's not your RoundFlow turn"));
+    }
+
+    @Test
+    void roundFlowCardRequest_ShouldHandleInvalidCardException() throws Exception {
+        RoundFlowFailingMatch match = new RoundFlowFailingMatch(createTwoPlayers());
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        Field waitField = ServerController.class.getDeclaredField("waitingForRoundFlow");
+        waitField.setAccessible(true); waitField.set(controller, true);
+        Field nickField = ServerController.class.getDeclaredField("roundFlowPlayerNick");
+        nickField.setAccessible(true); nickField.set(controller, "alice");
+
+        // Alice sends a bad card, triggering InvalidCardException
+        controller.roundFlowCardRequest("alice", "bad_input");
+
+        assertTrue(fakeNotifier.errors.get("alice").get(0).contains("Invalid move: Bad flow card"));
+        // The server should automatically send a new request to Alice to try again
+        assertEquals(1, fakeNotifier.roundFlowRequests.get("alice"));
+    }
+
+    @Test
+    void roundFlowCardRequest_ShouldHandleGenericException() throws Exception {
+        RoundFlowGenericFailingMatch match = new RoundFlowGenericFailingMatch(createTwoPlayers());
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        Field waitField = ServerController.class.getDeclaredField("waitingForRoundFlow");
+        waitField.setAccessible(true); waitField.set(controller, true);
+        Field nickField = ServerController.class.getDeclaredField("roundFlowPlayerNick");
+        nickField.setAccessible(true); nickField.set(controller, "alice");
+
+        controller.roundFlowCardRequest("alice", "error_input");
+
+        assertTrue(fakeNotifier.errors.get("alice").get(0).contains("Generic Exception: Generic flow crash"));
+        assertEquals(1, fakeNotifier.roundFlowRequests.get("alice"));
+    }
+
+    @Test
+    void roundFlowCardRequest_ShouldCompleteSuccessfullyAndProceed() throws Exception {
+        RoundFlowSuccessMatch match = new RoundFlowSuccessMatch(createTwoPlayers());
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        // --- FIX: Place players on the offer track ---
+        // This ensures that when the round ends, proceedEndRound() can calculate
+        // the new turn order correctly without creating an empty list!
+        match.getBoard().getOfferTrack().get(0).placePlayer(match.getPlayers().get(0));
+        match.getBoard().getOfferTrack().get(1).placePlayer(match.getPlayers().get(1));
+
+        Field waitField = ServerController.class.getDeclaredField("waitingForRoundFlow");
+        waitField.setAccessible(true); waitField.set(controller, true);
+        Field nickField = ServerController.class.getDeclaredField("roundFlowPlayerNick");
+        nickField.setAccessible(true); nickField.set(controller, "alice");
+
+        // Act: Alice completes the request successfully
+        controller.roundFlowCardRequest("alice", "good_input");
+
+        // Assert: The wait flags must be cleared
+        assertFalse((boolean) waitField.get(controller));
+        assertNull(nickField.get(controller));
+
+        // Controller must notify all clients about the progression to the next phase/round
+        assertTrue(fakeNotifier.gameUpdates.containsKey("alice"));
+        assertTrue(fakeNotifier.gameUpdates.containsKey("bob"));
+    }
+
+    @Test
+    void gamePhases_ShouldTriggerEndGameAndShutdownOnRound10() throws Exception {
+        Match match = createTwoPlayerMatch();
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        FakeGameOverListener listener = new FakeGameOverListener();
+        controller.setGameOverListener(listener);
+
+        // Use reflection to forcefully jump to round 10 to trigger the end game sequence
+        Field roundField = GameState.class.getDeclaredField("currentRound");
+        roundField.setAccessible(true);
+        roundField.set(match.getGameState(), 10);
+
+        moveToPlayerTurn(match);
+
+        // Let players skip their turn. The last skip will trigger EVENTS_RESOLVE -> END_ROUND -> END_GAME
+        String first = match.getGameState().getCurrentPlayer().getNickname();
+        controller.skipTurn(first);
+        String second = match.getGameState().getCurrentPlayer().getNickname();
+        controller.skipTurn(second);
+
+        // Assert that the phase automatically trickled down to GAME_OVER
+        assertEquals(GamePhase.GAME_OVER, match.getGameState().getCurrentPhase());
+
+        // Verify the listener caught the shutdown sequence
+        assertTrue(listener.called);
+
+        // Verify that the shutdown signal was sent to all clients
+        assertEquals(1, fakeNotifier.shutdowns.get("alice"));
+        assertEquals(1, fakeNotifier.shutdowns.get("bob"));
+    }
+
+    /**
+     * Verifies that run() sends the initial game state update to all connected players.
+     */
+    @Test
+    void run_ShouldSendInitialStateToAllPlayers() {
+        Match match = createTwoPlayerMatch();
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        controller.run();
+
+        assertEquals(1, fakeNotifier.gameUpdates.get("alice").size());
+        assertEquals(1, fakeNotifier.gameUpdates.get("bob").size());
+    }
+
+
+    /**
+     * Verifies that placeTotemOnOfferTile() does nothing when the nickname does not belong to any player.
+     */
+    @Test
+    void placeTotemOnOfferTile_ShouldDoNothingWhenPlayerIsUnknown() {
+        Match match = createTwoPlayerMatch();
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        assertDoesNotThrow(() -> controller.placeTotemOnOfferTile("charlie", 0));
+        assertFalse(fakeNotifier.errors.containsKey("charlie"));
+    }
+
+    /**
+     * Verifies that placeTotemOnOfferTile() sends an error when the action is performed in the wrong phase.
+     */
+    @Test
+    void placeTotemOnOfferTile_ShouldSendErrorWhenPhaseIsWrong() {
+        Match match = createTwoPlayerMatch();
+        moveToPlayerTurn(match);
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        String currentNickname = match.getGameState().getCurrentPlayer().getNickname();
+        controller.placeTotemOnOfferTile(currentNickname, 0);
+
+        assertNotNull(fakeNotifier.errors.get(currentNickname));
+        assertTrue(fakeNotifier.errors.get(currentNickname).get(0).contains("not yourn turn or invalid phase"));
+    }
+
+    /**
+     * Verifies that placeTotemOnOfferTile() sends an error when the selected tile position is invalid.
+     */
+    @Test
+    void placeTotemOnOfferTile_ShouldSendErrorWhenTilePositionIsInvalid() {
+        Match match = createTwoPlayerMatch();
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        String currentNickname = match.getGameState().getCurrentPlayer().getNickname();
+        controller.placeTotemOnOfferTile(currentNickname, -1);
+
+        assertNotNull(fakeNotifier.errors.get(currentNickname));
+        assertFalse(fakeNotifier.errors.get(currentNickname).isEmpty());
+        assertTrue(fakeNotifier.errors.get(currentNickname).get(0).contains("Invalid move"));
+    }
+
+    /**
+     * Verifies that offerTileAction() does nothing when the nickname does not belong to any player.
+     */
+    @Test
+    void offerTileAction_ShouldDoNothingWhenPlayerIsUnknown() {
+        Match match = createTwoPlayerMatch();
+        moveToPlayerTurn(match);
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        assertDoesNotThrow(() -> controller.offerTileAction("charlie", "1"));
+        assertFalse(fakeNotifier.errors.containsKey("charlie"));
+    }
+
+    /**
+     * Verifies that offerTileAction() sends an error when the action is performed by the wrong player.
+     */
+    @Test
+    void offerTileAction_ShouldSendErrorWhenPlayerIsNotCurrentPlayer() {
+        Match match = createTwoPlayerMatch();
+        moveToPlayerTurn(match);
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        String otherNickname = findOtherPlayer(match).getNickname();
+        controller.offerTileAction(otherNickname, "1");
+
+        assertNotNull(fakeNotifier.errors.get(otherNickname));
+        assertTrue(fakeNotifier.errors.get(otherNickname).get(0).contains("not yourn turn or invalid phase"));
+    }
+
+    /**
+     * Verifies that offerTileAction() sends an error when the action is performed in the wrong phase.
+     */
+    @Test
+    void offerTileAction_ShouldSendErrorWhenPhaseIsWrong() {
+        Match match = createTwoPlayerMatch();
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        String currentNickname = match.getGameState().getCurrentPlayer().getNickname();
+        controller.offerTileAction(currentNickname, "1");
+
+        assertNotNull(fakeNotifier.errors.get(currentNickname));
+        assertTrue(fakeNotifier.errors.get(currentNickname).get(0).contains("not yourn turn or invalid phase"));
+    }
+
+    /**
+     * Verifies that offerTileAction() sends a generic error message when the match throws an unexpected exception.
+     */
+    @Test
+    void offerTileAction_ShouldSendGenericErrorWhenMatchThrowsUnexpectedException() {
+        Match match = new Match(createTwoPlayers()) {
+            @Override
+            public void offerTileAction(Player player, String cards) {
+                throw new RuntimeException("Unexpected crash");
+            }
+        };
+        moveToPlayerTurn(match);
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        String currentNickname = match.getGameState().getCurrentPlayer().getNickname();
+        controller.offerTileAction(currentNickname, "1");
+
+        assertNotNull(fakeNotifier.errors.get(currentNickname));
+        assertTrue(fakeNotifier.errors.get(currentNickname).get(0).contains("Generic Exception: Unexpected crash"));
+    }
+
+    /**
+     * Verifies that skipTurn() does nothing when the nickname does not belong to any player.
+     */
+    @Test
+    void skipTurn_ShouldDoNothingWhenPlayerIsUnknown() {
+        Match match = createTwoPlayerMatch();
+        moveToPlayerTurn(match);
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        assertDoesNotThrow(() -> controller.skipTurn("charlie"));
+        assertFalse(fakeNotifier.errors.containsKey("charlie"));
+    }
+
+    /**
+     * Verifies that skipTurn() sends an error when the action is requested by a player who is not the current one.
+     */
+    @Test
+    void skipTurn_ShouldSendErrorWhenPlayerIsNotCurrentPlayer() {
+        Match match = createTwoPlayerMatch();
+        moveToPlayerTurn(match);
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        String otherNickname = findOtherPlayer(match).getNickname();
+        controller.skipTurn(otherNickname);
+
+        assertNotNull(fakeNotifier.errors.get(otherNickname));
+        assertTrue(fakeNotifier.errors.get(otherNickname).get(0).contains("invalid move"));
+    }
+
+    /**
+     * Verifies that skipTurn() removes the current player's totem from the offer track before advancing the turn.
+     */
+    @Test
+    void skipTurn_ShouldRemovePlayerFromOfferTrackBeforeAdvancingTurn() {
+        Match match = createTwoPlayerMatch();
+        moveToPlayerTurn(match);
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        Player currentPlayer = match.getGameState().getCurrentPlayer();
+        OfferTile tile = match.getBoard().getOfferTrack().get(0);
+        tile.placePlayer(currentPlayer);
+
+        controller.skipTurn(currentPlayer.getNickname());
+
+        assertNull(tile.getPlayer());
+    }
+
+    /**
+     * Verifies that setGameOverListener() registers the listener and that it is invoked when the game ends.
+     */
+    @Test
+    void setGameOverListener_ShouldInvokeListenerWhenGameEnds() throws Exception {
+        Match match = createTwoPlayerMatch();
+        ServerController controller = new ServerController(match, fakeNotifier);
+        FakeGameOverListener listener = new FakeGameOverListener();
+        controller.setGameOverListener(listener);
+
+        Field roundField = GameState.class.getDeclaredField("currentRound");
+        roundField.setAccessible(true);
+        roundField.set(match.getGameState(), 10);
+
+        moveToPlayerTurn(match);
+
+        String firstNickname = match.getGameState().getCurrentPlayer().getNickname();
+        controller.skipTurn(firstNickname);
+        String secondNickname = match.getGameState().getCurrentPlayer().getNickname();
+        controller.skipTurn(secondNickname);
+
+        assertTrue(listener.called);
+    }
+}
