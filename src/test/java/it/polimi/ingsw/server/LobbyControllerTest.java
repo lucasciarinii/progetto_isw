@@ -158,4 +158,161 @@ class LobbyControllerTest {
         assertFalse(fakeNotifier.lobbyUpdates.get("bob").isEmpty());
     }
 
+    /**
+     * Verifies that registering a player in a full lobby throws an IllegalStateException.
+     */
+    @Test
+    void registerPlayer_ShouldThrowWhenLobbyAlreadyFull() {
+        lobbyController = new LobbyController(fakeListener, fakeNotifier, "FULL01", 2);
+        lobbyController.registerPlayer("alice");
+        lobbyController.registerPlayer("bob"); // lobby full → game started
+
+        assertThrows(IllegalStateException.class,
+                () -> lobbyController.registerPlayer("charlie"));
+    }
+
+    /**
+     * Verifies that registering a player after the game has already started
+     * throws an IllegalStateException with the appropriate message.
+     */
+    @Test
+    void registerPlayer_ShouldThrowWhenLobbyAlreadyStarted() {
+        lobbyController = new LobbyController(fakeListener, fakeNotifier, "STARTED01", 2);
+        lobbyController.registerPlayer("alice");
+        lobbyController.registerPlayer("bob"); // triggers start → started = true
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> lobbyController.registerPlayer("charlie"));
+        assertTrue(ex.getMessage().contains("already started"));
+    }
+
+    /**
+     * Verifies that isNicknameTaken returns true for a registered player
+     * and false for a nickname not yet in the lobby.
+     */
+    @Test
+    void isNicknameTaken_ShouldReturnTrueForRegisteredPlayerAndFalseOtherwise() {
+        lobbyController.registerPlayer("alice");
+
+        assertTrue(lobbyController.isNicknameTaken("alice"));
+        assertFalse(lobbyController.isNicknameTaken("bob"));
+    }
+
+    /**
+     * Verifies that isStarted returns false before the lobby fills up
+     * and true immediately after the last required player joins.
+     */
+    @Test
+    void isStarted_ShouldReturnFalseBeforeGameStartsAndTrueAfter() {
+        lobbyController = new LobbyController(fakeListener, fakeNotifier, "STATE01", 2);
+
+        assertFalse(lobbyController.isStarted());
+
+        lobbyController.registerPlayer("alice");
+        assertFalse(lobbyController.isStarted());
+
+        lobbyController.registerPlayer("bob");
+        assertTrue(lobbyController.isStarted());
+    }
+
+    /**
+     * Verifies that getWaitingNicknames returns a snapshot of the current players
+     * and that modifying the returned list does not affect the internal state.
+     */
+    @Test
+    void getWaitingNicknames_ShouldReturnSnapshotOfCurrentPlayers() {
+        lobbyController.registerPlayer("alice");
+        lobbyController.registerPlayer("bob");
+
+        List<String> nicknames = lobbyController.getWaitingNicknames();
+
+        assertEquals(2, nicknames.size());
+        assertTrue(nicknames.contains("alice"));
+        assertTrue(nicknames.contains("bob"));
+
+        // Verify it is a defensive copy
+        nicknames.add("hacker");
+        assertEquals(2, lobbyController.getWaitingNicknames().size());
+    }
+
+    /**
+     * Verifies that cancelLobby sends an error message and a shutdown event
+     * to all players currently waiting in the lobby.
+     */
+    @Test
+    void cancelLobby_ShouldSendErrorAndShutdownToAllWaitingPlayers() {
+        List<String> shutdownReceived = new ArrayList<>();
+        ServerNotifier trackingNotifier = new FakeServerNotifier() {
+            @Override
+            public void sendShutdown(String nickname) {
+                shutdownReceived.add(nickname);
+            }
+        };
+
+        LobbyController lobby = new LobbyController(fakeListener, trackingNotifier, "CANCEL01", 3);
+        lobby.registerPlayer("alice");
+        lobby.registerPlayer("bob");
+
+        lobby.cancelLobby("Server shutting down");
+
+        assertTrue(shutdownReceived.contains("alice"));
+        assertTrue(shutdownReceived.contains("bob"));
+
+        FakeServerNotifier fn = (FakeServerNotifier) trackingNotifier;
+        assertTrue(fn.errors.containsKey("alice"));
+        assertTrue(fn.errors.containsKey("bob"));
+        assertTrue(fn.errors.get("alice").get(0).contains("Server shutting down"));
+    }
+
+    /**
+     * Verifies that cancelLobby does not propagate exceptions
+     * when a notification fails due to a network error.
+     */
+    @Test
+    void cancelLobby_ShouldNotThrowWhenNotificationFails() {
+        ServerNotifier failingNotifier = new FakeServerNotifier() {
+            @Override
+            public void sendError(String nickname, String message, GamePhase phase) throws Exception {
+                throw new Exception("Network down");
+            }
+        };
+
+        LobbyController lobby = new LobbyController(fakeListener, failingNotifier, "CANCEL02", 2);
+        lobby.registerPlayer("alice");
+
+        assertDoesNotThrow(() -> lobby.cancelLobby("Forced shutdown"));
+    }
+
+    /**
+     * Verifies that all players already in the lobby receive a new update message
+     * each time a new player joins, and that the update reflects the correct state.
+     */
+    @Test
+    void registerPlayer_ShouldNotifyAllExistingPlayersWhenNewOneJoins() {
+        lobbyController.registerPlayer("alice");
+        lobbyController.registerPlayer("bob");
+
+        // Alice should receive 2 updates: one when she joined, one when bob joined
+        List<LobbyUpdateMessage> aliceUpdates = fakeNotifier.lobbyUpdates.get("alice");
+        assertEquals(2, aliceUpdates.size());
+
+        LobbyUpdateMessage secondUpdate = aliceUpdates.get(1);
+        assertEquals(2, secondUpdate.getConnectedPlayers());
+        assertTrue(secondUpdate.getPlayerNicknames().contains("bob"));
+    }
+
+    /**
+     * Verifies that onLobbyReady is called exactly once with the correct game ID
+     * when the lobby reaches the required number of players.
+     */
+    @Test
+    void startGame_ShouldCallOnLobbyReadyWithCorrectGameID() {
+        lobbyController = new LobbyController(fakeListener, fakeNotifier, "GAMEID42", 2);
+        lobbyController.registerPlayer("alice");
+        lobbyController.registerPlayer("bob");
+
+        assertEquals("GAMEID42", fakeListener.lastGameId);
+        assertEquals(1, fakeListener.readyCalls);
+    }
+
 }

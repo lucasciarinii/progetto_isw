@@ -353,4 +353,199 @@ class ServerControllerTest {
         assertEquals(1, fakeNotifier.shutdowns.get("alice"));
         assertEquals(1, fakeNotifier.shutdowns.get("bob"));
     }
+
+    /**
+     * Verifies that run() sends the initial game state update to all connected players.
+     */
+    @Test
+    void run_ShouldSendInitialStateToAllPlayers() {
+        Match match = createTwoPlayerMatch();
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        controller.run();
+
+        assertEquals(1, fakeNotifier.gameUpdates.get("alice").size());
+        assertEquals(1, fakeNotifier.gameUpdates.get("bob").size());
+    }
+
+
+    /**
+     * Verifies that placeTotemOnOfferTile() does nothing when the nickname does not belong to any player.
+     */
+    @Test
+    void placeTotemOnOfferTile_ShouldDoNothingWhenPlayerIsUnknown() {
+        Match match = createTwoPlayerMatch();
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        assertDoesNotThrow(() -> controller.placeTotemOnOfferTile("charlie", 0));
+        assertFalse(fakeNotifier.errors.containsKey("charlie"));
+    }
+
+    /**
+     * Verifies that placeTotemOnOfferTile() sends an error when the action is performed in the wrong phase.
+     */
+    @Test
+    void placeTotemOnOfferTile_ShouldSendErrorWhenPhaseIsWrong() {
+        Match match = createTwoPlayerMatch();
+        moveToPlayerTurn(match);
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        String currentNickname = match.getGameState().getCurrentPlayer().getNickname();
+        controller.placeTotemOnOfferTile(currentNickname, 0);
+
+        assertNotNull(fakeNotifier.errors.get(currentNickname));
+        assertTrue(fakeNotifier.errors.get(currentNickname).get(0).contains("not yourn turn or invalid phase"));
+    }
+
+    /**
+     * Verifies that placeTotemOnOfferTile() sends an error when the selected tile position is invalid.
+     */
+    @Test
+    void placeTotemOnOfferTile_ShouldSendErrorWhenTilePositionIsInvalid() {
+        Match match = createTwoPlayerMatch();
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        String currentNickname = match.getGameState().getCurrentPlayer().getNickname();
+        controller.placeTotemOnOfferTile(currentNickname, -1);
+
+        assertNotNull(fakeNotifier.errors.get(currentNickname));
+        assertFalse(fakeNotifier.errors.get(currentNickname).isEmpty());
+        assertTrue(fakeNotifier.errors.get(currentNickname).get(0).contains("Invalid move"));
+    }
+
+    /**
+     * Verifies that offerTileAction() does nothing when the nickname does not belong to any player.
+     */
+    @Test
+    void offerTileAction_ShouldDoNothingWhenPlayerIsUnknown() {
+        Match match = createTwoPlayerMatch();
+        moveToPlayerTurn(match);
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        assertDoesNotThrow(() -> controller.offerTileAction("charlie", "1"));
+        assertFalse(fakeNotifier.errors.containsKey("charlie"));
+    }
+
+    /**
+     * Verifies that offerTileAction() sends an error when the action is performed by the wrong player.
+     */
+    @Test
+    void offerTileAction_ShouldSendErrorWhenPlayerIsNotCurrentPlayer() {
+        Match match = createTwoPlayerMatch();
+        moveToPlayerTurn(match);
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        String otherNickname = findOtherPlayer(match).getNickname();
+        controller.offerTileAction(otherNickname, "1");
+
+        assertNotNull(fakeNotifier.errors.get(otherNickname));
+        assertTrue(fakeNotifier.errors.get(otherNickname).get(0).contains("not yourn turn or invalid phase"));
+    }
+
+    /**
+     * Verifies that offerTileAction() sends an error when the action is performed in the wrong phase.
+     */
+    @Test
+    void offerTileAction_ShouldSendErrorWhenPhaseIsWrong() {
+        Match match = createTwoPlayerMatch();
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        String currentNickname = match.getGameState().getCurrentPlayer().getNickname();
+        controller.offerTileAction(currentNickname, "1");
+
+        assertNotNull(fakeNotifier.errors.get(currentNickname));
+        assertTrue(fakeNotifier.errors.get(currentNickname).get(0).contains("not yourn turn or invalid phase"));
+    }
+
+    /**
+     * Verifies that offerTileAction() sends a generic error message when the match throws an unexpected exception.
+     */
+    @Test
+    void offerTileAction_ShouldSendGenericErrorWhenMatchThrowsUnexpectedException() {
+        Match match = new Match(createTwoPlayers()) {
+            @Override
+            public void offerTileAction(Player player, String cards) {
+                throw new RuntimeException("Unexpected crash");
+            }
+        };
+        moveToPlayerTurn(match);
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        String currentNickname = match.getGameState().getCurrentPlayer().getNickname();
+        controller.offerTileAction(currentNickname, "1");
+
+        assertNotNull(fakeNotifier.errors.get(currentNickname));
+        assertTrue(fakeNotifier.errors.get(currentNickname).get(0).contains("Generic Exception: Unexpected crash"));
+    }
+
+    /**
+     * Verifies that skipTurn() does nothing when the nickname does not belong to any player.
+     */
+    @Test
+    void skipTurn_ShouldDoNothingWhenPlayerIsUnknown() {
+        Match match = createTwoPlayerMatch();
+        moveToPlayerTurn(match);
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        assertDoesNotThrow(() -> controller.skipTurn("charlie"));
+        assertFalse(fakeNotifier.errors.containsKey("charlie"));
+    }
+
+    /**
+     * Verifies that skipTurn() sends an error when the action is requested by a player who is not the current one.
+     */
+    @Test
+    void skipTurn_ShouldSendErrorWhenPlayerIsNotCurrentPlayer() {
+        Match match = createTwoPlayerMatch();
+        moveToPlayerTurn(match);
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        String otherNickname = findOtherPlayer(match).getNickname();
+        controller.skipTurn(otherNickname);
+
+        assertNotNull(fakeNotifier.errors.get(otherNickname));
+        assertTrue(fakeNotifier.errors.get(otherNickname).get(0).contains("invalid move"));
+    }
+
+    /**
+     * Verifies that skipTurn() removes the current player's totem from the offer track before advancing the turn.
+     */
+    @Test
+    void skipTurn_ShouldRemovePlayerFromOfferTrackBeforeAdvancingTurn() {
+        Match match = createTwoPlayerMatch();
+        moveToPlayerTurn(match);
+        ServerController controller = new ServerController(match, fakeNotifier);
+
+        Player currentPlayer = match.getGameState().getCurrentPlayer();
+        OfferTile tile = match.getBoard().getOfferTrack().get(0);
+        tile.placePlayer(currentPlayer);
+
+        controller.skipTurn(currentPlayer.getNickname());
+
+        assertNull(tile.getPlayer());
+    }
+
+    /**
+     * Verifies that setGameOverListener() registers the listener and that it is invoked when the game ends.
+     */
+    @Test
+    void setGameOverListener_ShouldInvokeListenerWhenGameEnds() throws Exception {
+        Match match = createTwoPlayerMatch();
+        ServerController controller = new ServerController(match, fakeNotifier);
+        FakeGameOverListener listener = new FakeGameOverListener();
+        controller.setGameOverListener(listener);
+
+        Field roundField = GameState.class.getDeclaredField("currentRound");
+        roundField.setAccessible(true);
+        roundField.set(match.getGameState(), 10);
+
+        moveToPlayerTurn(match);
+
+        String firstNickname = match.getGameState().getCurrentPlayer().getNickname();
+        controller.skipTurn(firstNickname);
+        String secondNickname = match.getGameState().getCurrentPlayer().getNickname();
+        controller.skipTurn(secondNickname);
+
+        assertTrue(listener.called);
+    }
 }

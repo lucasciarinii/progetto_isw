@@ -23,6 +23,7 @@ Main folders of the repository:
         - `Documentation/SequenceDiagram` – Folder containing sequence diagrams for the client–server communication
         - `DetailedUML` – Detailed UMLs 
         - `HighLevelUML.png` – High-level UML
+        - `TestCoverage.png` – Intellij screenshot showing test coverage
         - `Javadoc/` – Javadoc documentation
         - `Jar/` – Executable JAR files for server and client applications
 - `pom.xml`
