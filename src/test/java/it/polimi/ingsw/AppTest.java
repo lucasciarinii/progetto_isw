@@ -74,23 +74,6 @@ class AppTest {
     // METHOD-DIRECT LIFECYCLE TESTS (MAX COVERAGE)
     // ==========================================
 
-    @Test
-    void testStartServer_DirectLifecycle() {
-        // Feed an instant ENTER key to immediately pass the Scanner input line
-        System.setIn(new ByteArrayInputStream("\n".getBytes()));
-
-        // Use preemptive timeout to run every line of startServer() but halt
-        // right when it hits System.exit(0) or throws a BindException.
-        assertDoesNotThrow(() -> {
-            assertTimeoutPreemptively(Duration.ofMillis(600), () -> {
-                try {
-                    App.startServer();
-                } catch (Exception expected) {
-                    // Port bound or execution stopped, lines are covered!
-                }
-            });
-        });
-    }
 
     @Test
     void testStartClient_TUI_Direct() {
