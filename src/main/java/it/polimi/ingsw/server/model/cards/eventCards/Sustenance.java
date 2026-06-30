@@ -3,6 +3,7 @@ package it.polimi.ingsw.server.model.cards.eventCards;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.client.view.TUI.ConsoleColors;
 import it.polimi.ingsw.server.model.cards.buildingCards.BuildingCard;
+import it.polimi.ingsw.server.model.cards.buildingCards.SustenanceDiscountBC;
 import it.polimi.ingsw.server.model.enums.BuildingCardType;
 import it.polimi.ingsw.server.model.enums.Era;
 import it.polimi.ingsw.server.model.enums.EventEffect;
@@ -64,16 +65,18 @@ public class Sustenance extends EventCard {
         //apply all sustenance discount buildings, then pay the final food cost
         for (Player player : match.getPlayers()) {
 
+            int tempDiscount = 0;
             for (BuildingCard building : player.getOwnedBuildings()) {
                 if (building.getClassType() == BuildingCardType.SustenanceDiscountBC) {
                     building.applyEffect(player, match);
+                    tempDiscount += ((SustenanceDiscountBC) building).getDiscountOnGame();
                 }
             }
 
             int totalCharacters = player.getInventors().size() + player.getGatherers().size() + player.getShamans().size() +
                     player.getBuilders().size() + player.getArtists().size() + player.getHunters().size();
 
-            int totalCharacterToPay = totalCharacters - player.getDiscountOnSustenance();
+            int totalCharacterToPay = totalCharacters - player.getDiscountOnSustenance() - tempDiscount;
 
             if(totalCharacterToPay < 0) {
                 totalCharacterToPay = 0;

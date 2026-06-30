@@ -76,14 +76,12 @@ class SustenanceDiscountBCTest {
         // Add the required number of characters of the specified type
         addCharactersToPlayer(owner, characterType, characterCount);
 
-        int discountBefore = owner.getDiscountOnSustenance();
-
         // Apply the building effect
         card.applyEffect(owner, null);
 
         // The discount should increase by the expected amount
-        assertEquals(discountBefore + expectedDiscount, owner.getDiscountOnSustenance(),
-                "Discount should increase by " + expectedDiscount + " for " + characterCount + " " + characterType);
+        assertEquals(expectedDiscount, card.getDiscountOnGame(),
+                "Discount should be " + expectedDiscount + " for " + characterCount + " " + characterType);
     }
 
     // Parametrized test that verifies applyEffect correctly handles unsupported character types

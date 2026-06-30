@@ -25,6 +25,8 @@ public class SustenanceDiscountBC extends BuildingCard {
     /** Character type that determines the discount. */
     private final CharacterType characterEffect;
 
+    private int discountOnGame;
+
     /**
      * Creates the building card from JSON data.
      *
@@ -50,6 +52,10 @@ public class SustenanceDiscountBC extends BuildingCard {
         this.characterEffect = characterEffect;
     }
 
+    public int getDiscountOnGame() {
+        return discountOnGame;
+    }
+
     @Override
     public String toString() {
         return "%s\tEffect: during sustenance get a -1 food discount for each %s in your tribe\n".formatted(super.toString(), characterEffect);
@@ -63,7 +69,6 @@ public class SustenanceDiscountBC extends BuildingCard {
      */
     public void applyEffect(Player owner, Match match) {
         // Lookup the discount by character type, defaulting to 0 if unsupported.
-        int discount = DISCOUNT_LOGIC.getOrDefault(characterEffect, _ -> 0).apply(owner);
-        owner.addDiscountOnSustenance(discount);
+        discountOnGame = DISCOUNT_LOGIC.getOrDefault(characterEffect, _ -> 0).apply(owner);
     }
 }
