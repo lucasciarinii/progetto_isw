@@ -178,6 +178,7 @@ public class SocketClientNetworkAdapter implements ClientNetworkAdapter {
                 System.err.println("[Socket Client] Connection closed or error: " + e.getMessage());
             } finally {
                 try {
+                    clientController.onError("Connection timeout: no ping from server. Please close the game.", GAME_ABORTED);
                     disconnect();
                 } catch (Exception e) {
                     System.err.println("[Socket Client] Failed to disconnect cleanly: " + e.getMessage());

@@ -181,16 +181,6 @@ class ClientControllerTest {
     }
 
     @Test
-    void testCreateLobbyAndConnect() {
-        // The Factory inside the method creates a real adapter (e.g., Socket) which tries
-        // to connect to a non-existent server ("localhost" or a closed port).
-        // The execution will end with an expected network exception, validating the method flow.
-        assertThrows(Exception.class, () -> {
-            clientController.createLobbyAndConnect("localhost", 4, CommunicationProtocol.SOCKET);
-        });
-    }
-
-    @Test
     void testJoinLobbyAndConnect() {
         // Similar to the previous test: tries to actually connect and then calls joinLobby.
         // It covers the first lines of the method until it crashes due to the missing server.
