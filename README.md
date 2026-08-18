@@ -203,15 +203,15 @@ The project includes the following deliverables:
 
 ### Screenshots
 
-![Game Screenshot 1](github_assets/mesos-1-gh.png)
+![Game Screenshot 1](github_assets/gm1.png)
 
-![Game Screenshot 2](github_assets/mesos-2-gh.png)
+![Game Screenshot 2](github_assets/gm2.png)
 
-![Game Screenshot 3](github_assets/mesos-3-gh.png)
+![Game Screenshot 3](github_assets/gm3.png)
 
-![Game Screenshot 4](github_assets/mesos-4-gh.png)
+![Game Screenshot 4](github_assets/gm4.png)
 
-![Game Screenshot 5](github_assets/mesos-5-gh.png)
+![Game Screenshot 5](github_assets/gm5.png)
 
 > **Note:** Screenshots showcase the GUI view during various gameplay phases.
 
@@ -265,11 +265,6 @@ The project includes the following deliverables:
 │   ├── Javadoc/                          # Generated API documentation
 │   └── Jar/                              # Executable JARs
 ├── github_assets/                        # Screenshots and visual assets
-│   ├── mesos-1-gh.png
-│   ├── mesos-2-gh.png
-│   ├── mesos-3-gh.png
-│   ├── mesos-4-gh.png
-│   └── mesos-5-gh.png
 ├── rules/                                # Game rules documentation
 ├── pom.xml                               # Maven build configuration
 ├── .gitignore
@@ -282,39 +277,123 @@ The project includes the following deliverables:
 
 ### Prerequisites
 
-- **Java 11+** (or compatible version as specified in pom.xml)
+- **Java 25+** (JDK 25+) installed and available on the system
 - **Maven** for dependency management and build
 - **JavaFX** for GUI support (may require separate installation depending on JDK distribution)
+- **MySQL** running on the configured host (default: `localhost:3306`)
+- A MySQL user with read/write permissions on the database (e.g. `root`)
 
-### Build Instructions
+Database access credentials are read via **environment variables**.
+
+---
+
+## Database environment variables
+
+The server reads DB configuration from the following environment variables:
+
+- `DB_URL` – JDBC URL of the database
+    - example: `jdbc:mysql://localhost:3306/GR39_Mesos_DB`
+- `DB_USER` – database username
+    - example: `root`
+- `DB_PASSWORD` – database password
+    - example: `<password>`
+
+### macOS / Linux (bash, zsh, etc.)
+
+Set the variables:
 
 ```bash
-# Clone the repository
-git clone https://github.com/lucasciarinii/progetto_isw.git
-cd progetto_isw
-
-# Build the project with Maven
-mvn clean package
-
-# Run the server
-java -jar deliverables/Jar/server.jar
-
-# Run the client (GUI)
-java -jar deliverables/Jar/client-gui.jar
-
-# Run the client (TUI)
-java -jar deliverables/Jar/client-tui.jar
+export DB_URL="jdbc:mysql://localhost:3306/GR39_Mesos_DB"
+export DB_USER="root"
+export DB_PASSWORD="<password>"
 ```
 
-### Configuration
+Check current values:
 
-- Server and client configuration files are located in `src/main/resources/`
-- Network ports, protocol selection, and logging settings can be adjusted in configuration files
-- See `ProtocolDocumentation.pdf` for detailed protocol specifications
+```bash
+env | grep -E "^(DB_URL|DB_USER|DB_PASSWORD)="
+```
+
+### Windows (PowerShell)
+
+Set the variables:
+
+```powershell
+$env:DB_URL="jdbc:mysql://localhost:3306/GR39_Mesos_DB"
+$env:DB_USER="root"
+$env:DB_PASSWORD="<password>"
+```
+
+Check current values:
+
+```powershell
+gci env:DB_URL,env:DB_USER,env:DB_PASSWORD
+```
+
+---
+
+
+## Running the application (JARs)
+
+The build produces two separate jars:
+
+- `mesos-server.jar` – game server
+- `mesos-client.jar` – client (TUI/GUI, Socket/RMI)
+
+Make sure DB environment variables are set **before** starting the server.
+
+### 1. Starting the server
+
+The server **does not require any command-line parameters**:
+
+```bash
+java -jar mesos-server.jar
+```
+
+### 2. Starting the client
+
+The client requires parameters to specify interface and protocol:
+
+```bash
+java -jar mesos-client.jar gui/tui rmi/socket <server-ip>
+```
+
+- `gui/tui` – UI type:
+    - `gui` for the JavaFX graphical interface
+    - `tui` for the text-based terminal interface
+- `rmi/socket` – communication protocol:
+    - `rmi` to use RMI
+    - `socket` to use TCP sockets
+- `<server-ip>` – server address:
+    - `localhost` if client and server run on the same machine
+    - or the IP / hostname of the remote server
+
+**Examples:**
+
+- GUI client over Socket on the same machine:
+
+  ```bash
+  java -jar mesos-client.jar gui socket localhost
+  ```
+
+- TUI client over RMI to a remote server:
+
+  ```bash
+  java -jar mesos-client.jar tui rmi 192.168.1.100
+  ```
 
 ---
 
 ## 📄 License
 
-This project was developed as a final exam assignment for the **Ingegneria del Software (Software Engineering)** course at **Politecnico di Milano** (A.Y. 2024/2025).  
+This project was developed as a final exam assignment for the **Ingegneria del Software (Software Engineering)** course at **Politecnico di Milano** (A.Y. 2025/2026).  
 All rights reserved.
+
+---  
+
+## Authors
+
+- Luca Sciarini
+- Edoardo Sacchi
+- Leonardo Taccari
+- Daniel Russo
